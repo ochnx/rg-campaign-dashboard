@@ -31,6 +31,7 @@
       --orange-muted: #78350f;
       --blue: #3b82f6;
       --cyan: #06b6d4;
+      --gold: #fbbf24;
       --radius: 12px;
       --radius-sm: 8px;
       --radius-lg: 16px;
@@ -83,14 +84,8 @@
     .topnav-logo {
       width: 32px;
       height: 32px;
-      background: linear-gradient(135deg, var(--accent), var(--cyan));
       border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 14px;
-      color: white;
+      object-fit: cover;
     }
 
     .topnav-title {
@@ -145,6 +140,7 @@
       color: var(--text-secondary);
     }
     .btn-ghost:hover { color: var(--text-primary); background: var(--bg-card); }
+    .btn-ghost.active { color: var(--accent-light); background: rgba(99, 102, 241, 0.1); }
 
     .btn-sm { padding: 6px 12px; font-size: 12px; }
     .btn-icon { padding: 8px; }
@@ -370,24 +366,6 @@
       background: currentColor;
     }
 
-    /* Platform badges */
-    .platform-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 8px;
-      border-radius: var(--radius-sm);
-      font-size: 11px;
-      font-weight: 600;
-      background: var(--bg-input);
-      color: var(--text-secondary);
-      border: 1px solid var(--border);
-    }
-
-    .platform-meta { color: #0082fb; border-color: rgba(0,130,251,0.2); background: rgba(0,130,251,0.08); }
-    .platform-google { color: #ea4335; border-color: rgba(234,67,53,0.2); background: rgba(234,67,53,0.08); }
-    .platform-tiktok { color: #fe2c55; border-color: rgba(254,44,85,0.2); background: rgba(254,44,85,0.08); }
-
     /* Value formatting */
     .value-eur { font-variant-numeric: tabular-nums; }
     .value-good { color: var(--green); }
@@ -493,11 +471,17 @@
       border-radius: var(--radius);
       padding: 20px;
       transition: all var(--transition);
+      position: relative;
     }
 
     .creative-card:hover {
       border-color: var(--accent);
       transform: translateY(-1px);
+    }
+
+    .creative-card.winner {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.1);
     }
 
     .creative-card-header {
@@ -519,6 +503,11 @@
       letter-spacing: 0.04em;
     }
 
+    .creative-card-badge {
+      font-size: 20px;
+      margin-right: 6px;
+    }
+
     .creative-stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -537,6 +526,26 @@
       font-size: 18px;
       font-weight: 700;
       margin-top: 2px;
+    }
+
+    /* Score display */
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-light);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .score-badge.top { 
+      background: rgba(251, 191, 36, 0.1); 
+      color: var(--gold); 
+      border-color: rgba(251, 191, 36, 0.3); 
     }
 
     /* Empty state */
@@ -680,6 +689,184 @@
       font-size: 13px;
     }
 
+    /* Intelligence view */
+    .intel-section {
+      margin-bottom: 40px;
+    }
+
+    .intel-section-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .intel-ranking-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .intel-type-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .intel-type-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .intel-type-card.winner {
+      border-color: var(--gold);
+      box-shadow: 0 0 24px rgba(251, 191, 36, 0.12);
+    }
+
+    .intel-type-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .intel-type-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .intel-type-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .intel-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .intel-stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .ranking-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .ranking-tab {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+    }
+
+    .ranking-tab:hover { border-color: var(--text-muted); }
+    .ranking-tab.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    .locked-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px;
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    .locked-section .lock-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .locked-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .locked-section p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Horizontal bar chart */
+    .hbar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .hbar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hbar-label {
+      min-width: 120px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .hbar-track {
+      flex: 1;
+      height: 32px;
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hbar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      border-radius: var(--radius-sm);
+      transition: width 600ms ease;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      min-width: fit-content;
+    }
+
+    .hbar-fill.winner-bar {
+      background: linear-gradient(90deg, var(--gold), #f59e0b);
+    }
+
+    .hbar-value {
+      min-width: 60px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .container { padding: 16px; }
@@ -690,6 +877,8 @@
       .campaign-table th:nth-child(n+4),
       .campaign-table td:nth-child(n+4) { display: none; }
       .topnav-subtitle { display: none; }
+      .intel-ranking-grid { grid-template-columns: 1fr; }
+      .hbar-label { min-width: 80px; font-size: 11px; }
     }
 
     @media (max-width: 480px) {
@@ -715,15 +904,18 @@
 <!-- Top Navigation -->
 <nav class="topnav">
   <div class="topnav-brand">
-    <div class="topnav-logo">R</div>
+    <img src="assets/rg-logo.png" alt="R&G" class="topnav-logo">
     <div>
       <div class="topnav-title">Run & Gun</div>
       <div class="topnav-subtitle">Campaign Dashboard</div>
     </div>
   </div>
   <div class="topnav-actions">
-    <button class="btn btn-ghost btn-sm" onclick="showView('campaigns')">
-      📊 Campaigns
+    <button class="btn btn-ghost btn-sm" id="nav-campaigns" onclick="showView('campaigns')">
+      📊 Kampagnen
+    </button>
+    <button class="btn btn-ghost btn-sm" id="nav-intelligence" onclick="showView('intelligence')">
+      🧠 Creative Intelligence
     </button>
     <button class="btn btn-primary btn-sm" onclick="showView('new-campaign')">
       + Neue Kampagne
@@ -739,7 +931,7 @@
     <div id="setup-banner" class="setup-banner" style="display:none;">
       <div class="setup-banner-icon">⚙️</div>
       <div class="setup-banner-content">
-        <h3>Database Setup erforderlich</h3>
+        <h3>Datenbank-Setup erforderlich</h3>
         <p>
           Die Tabellen existieren noch nicht. Öffne den
           <a href="https://supabase.com/dashboard/project/lvhxabadywdqeepymwdm/sql" target="_blank" style="color:var(--accent-light)">Supabase SQL Editor</a>
@@ -760,7 +952,7 @@
         </button>
       </div>
 
-      <!-- Filters -->
+      <!-- Filters (platform removed — always Meta) -->
       <div class="filter-bar">
         <select class="form-select" id="filter-client" onchange="loadCampaigns()">
           <option value="">Alle Kunden</option>
@@ -770,13 +962,6 @@
           <option value="active">Aktiv</option>
           <option value="paused">Pausiert</option>
           <option value="completed">Abgeschlossen</option>
-        </select>
-        <select class="form-select" id="filter-platform" onchange="loadCampaigns()">
-          <option value="">Alle Plattformen</option>
-          <option value="meta">Meta</option>
-          <option value="google">Google</option>
-          <option value="tiktok">TikTok</option>
-          <option value="linkedin">LinkedIn</option>
         </select>
       </div>
 
@@ -789,7 +974,6 @@
           <thead>
             <tr>
               <th>Kampagne</th>
-              <th>Plattform</th>
               <th>Status</th>
               <th>Spend</th>
               <th>Leads</th>
@@ -849,7 +1033,7 @@
       <!-- Creative Performance -->
       <div class="card" style="margin-bottom:32px;">
         <div class="card-header">
-          <div class="card-title">Creative Performance</div>
+          <div class="card-title">Creative Performance (nach Score)</div>
         </div>
         <div class="card-body">
           <div class="chart-container" style="height:280px;">
@@ -965,22 +1149,21 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Plattform *</label>
-                <select class="form-select" id="form-camp-platform" required>
-                  <option value="meta">Meta (Facebook / Instagram)</option>
-                  <option value="google">Google Ads</option>
-                  <option value="tiktok">TikTok</option>
-                  <option value="linkedin">LinkedIn</option>
-                </select>
-              </div>
-
-              <div class="form-group">
                 <label class="form-label">Kampagnentyp</label>
                 <select class="form-select" id="form-camp-type">
                   <option value="lead_gen">Lead-Generierung</option>
                   <option value="awareness">Awareness</option>
                   <option value="traffic">Traffic</option>
                   <option value="engagement">Engagement</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="form-camp-status">
+                  <option value="active">Aktiv</option>
+                  <option value="paused">Pausiert</option>
+                  <option value="completed">Abgeschlossen</option>
                 </select>
               </div>
 
@@ -999,15 +1182,6 @@
                 <input class="form-input" id="form-camp-budget" type="number" step="0.01" placeholder="1000">
               </div>
 
-              <div class="form-group">
-                <label class="form-label">Status</label>
-                <select class="form-select" id="form-camp-status">
-                  <option value="active">Aktiv</option>
-                  <option value="paused">Pausiert</option>
-                  <option value="completed">Abgeschlossen</option>
-                </select>
-              </div>
-
               <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="showView('campaigns')">Abbrechen</button>
                 <button type="submit" class="btn btn-primary">Kampagne erstellen</button>
@@ -1019,13 +1193,55 @@
       </div>
     </div>
 
+    <!-- VIEW: Creative Intelligence -->
+    <div id="view-intelligence" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">🧠 Creative Intelligence</h1>
+          <div class="page-subtitle">Welche Creative-Art performt am besten — über alle Kampagnen hinweg</div>
+        </div>
+      </div>
+
+      <div id="intel-loading" class="loading-spinner">
+        <div class="spinner"></div>
+      </div>
+
+      <div id="intel-content" style="display:none;">
+        <!-- Section A: Current Best -->
+        <div class="intel-section">
+          <div class="intel-section-title">🏆 Aktuell beste Creative-Art</div>
+          <div id="intel-current-chart" class="hbar-chart" style="margin-bottom:24px;"></div>
+          <div id="intel-current-cards" class="intel-ranking-grid"></div>
+        </div>
+
+        <!-- Section B: All-Time Ranking -->
+        <div class="intel-section">
+          <div class="intel-section-title">📊 All-Time Ranking</div>
+          <div class="ranking-tabs" id="ranking-tabs">
+            <div class="ranking-tab active" onclick="switchRanking('score')">Nach Score</div>
+            <div class="ranking-tab" onclick="switchRanking('cpl')">Nach CPL</div>
+            <div class="ranking-tab" onclick="switchRanking('leads')">Nach Leads</div>
+          </div>
+          <div id="intel-alltime-cards" class="intel-ranking-grid"></div>
+        </div>
+
+        <!-- Section C: Nach Objektart (locked) -->
+        <div class="intel-section">
+          <div class="intel-section-title">🏠 Nach Objektart</div>
+          <div class="locked-section">
+            <div class="lock-icon">🔒</div>
+            <h3>Ab 10+ Kampagnen verfügbar</h3>
+            <p>Diese Analyse zeigt, welche Creative-Art für welche Objektart am besten funktioniert. Sobald genügend Daten vorliegen, wird die Auswertung automatisch freigeschaltet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
-
-<!-- -->
 
 <script>
 // ============================================
@@ -1057,6 +1273,27 @@ let chartDaily = null;
 let chartCPL = null;
 let chartCreatives = null;
 let dbReady = false;
+let intelData = null;
+let currentRanking = 'score';
+
+// ============================================
+// CREATIVE TYPE LABELS
+// ============================================
+const CREATIVE_TYPE_LABELS = {
+  'single_image': 'Single Image',
+  'carousel': 'Carousel',
+  'scn_reel': 'SCN Reel',
+  'th_reel': 'TH Reel',
+  'video': 'Video',
+  'story': 'Story',
+  // Legacy fallbacks
+  'reel': 'Reel',
+  'image': 'Single Image'
+};
+
+function getCreativeTypeLabel(type) {
+  return CREATIVE_TYPE_LABELS[type] || type || '—';
+}
 
 // ============================================
 // CHART DEFAULTS
@@ -1104,18 +1341,18 @@ function statusBadge(status) {
   return `<span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>`;
 }
 
-function platformBadge(platform) {
-  const p = (platform || '').toLowerCase();
-  const cls = p === 'meta' ? 'platform-meta' : p === 'google' ? 'platform-google' : p === 'tiktok' ? 'platform-tiktok' : '';
-  const label = p === 'meta' ? '📘 Meta' : p === 'google' ? '🔍 Google' : p === 'tiktok' ? '🎵 TikTok' : p === 'linkedin' ? '💼 LinkedIn' : platform;
-  return `<span class="platform-badge ${cls}">${label}</span>`;
-}
-
 function showToast(msg, type = 'success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = `toast ${type} visible`;
   setTimeout(() => t.classList.remove('visible'), 3000);
+}
+
+// Performance Score: Leads × (avgCPL / creativeCPL)
+// Rewards both volume AND efficiency
+function calcScore(leads, cpl, avgCPL) {
+  if (!leads || leads === 0 || !cpl || cpl === 0) return 0;
+  return leads * (avgCPL / cpl);
 }
 
 // ============================================
@@ -1127,8 +1364,14 @@ function showView(view) {
   if (el) el.classList.add('active');
   currentView = view;
 
+  // Update nav active states
+  document.querySelectorAll('.topnav-actions .btn-ghost').forEach(b => b.classList.remove('active'));
+  const navBtn = document.getElementById(`nav-${view}`);
+  if (navBtn) navBtn.classList.add('active');
+
   if (view === 'campaigns') loadCampaigns();
   if (view === 'new-campaign') loadClientsForForm();
+  if (view === 'intelligence') loadIntelligence();
 }
 
 // ============================================
@@ -1141,7 +1384,7 @@ async function checkDatabase() {
     document.getElementById('setup-banner').style.display = 'none';
     return true;
   } catch (e) {
-    console.error('DB check failed:', e);
+    console.error('DB-Prüfung fehlgeschlagen:', e);
     document.getElementById('setup-banner').style.display = 'flex';
     document.getElementById('campaigns-loading').style.display = 'none';
     document.getElementById('campaigns-empty').style.display = 'block';
@@ -1163,21 +1406,17 @@ async function loadCampaigns() {
   empty.style.display = 'none';
 
   try {
-    // Build query params
     const params = new URLSearchParams();
     params.set('select', '*,properties!inner(name,client_id,stadtteil,city,clients!inner(name,brand)),campaign_daily_metrics(spend,leads,impressions)');
     params.set('order', 'created_at.desc');
 
     const statusFilter = document.getElementById('filter-status').value;
-    const platformFilter = document.getElementById('filter-platform').value;
     const clientFilter = document.getElementById('filter-client').value;
 
     if (statusFilter) params.set('status', `eq.${statusFilter}`);
-    if (platformFilter) params.set('platform', `eq.${platformFilter}`);
     if (clientFilter) params.set('properties.client_id', `eq.${clientFilter}`);
 
     const data = await sbGet('campaigns', params.toString());
-
     campaigns = data || [];
 
     if (campaigns.length === 0) {
@@ -1186,7 +1425,6 @@ async function loadCampaigns() {
       return;
     }
 
-    // Render table
     tbody.innerHTML = campaigns.map(c => {
       const metrics = c.campaign_daily_metrics || [];
       const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
@@ -1201,7 +1439,6 @@ async function loadCampaigns() {
             <div class="campaign-name">${escHtml(c.campaign_name)}</div>
             <div class="campaign-property">${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}</div>
           </td>
-          <td>${platformBadge(c.platform)}</td>
           <td>${statusBadge(c.status)}</td>
           <td class="value-eur">${formatEur(totalSpend)}</td>
           <td><strong>${formatNum(totalLeads)}</strong></td>
@@ -1216,7 +1453,7 @@ async function loadCampaigns() {
     loading.style.display = 'none';
     table.style.display = 'table';
   } catch (e) {
-    console.error('[Campaigns] Load error:', e);
+    console.error('[Kampagnen] Ladefehler:', e);
     loading.style.display = 'none';
     empty.style.display = 'block';
     empty.innerHTML = `
@@ -1232,7 +1469,6 @@ async function loadClients() {
   const data = await sbGet('clients', 'select=*&order=name');
   clients = data || [];
 
-  // Update filter
   const filter = document.getElementById('filter-client');
   const current = filter.value;
   filter.innerHTML = '<option value="">Alle Kunden</option>' +
@@ -1260,7 +1496,6 @@ async function openCampaign(id) {
   showView('detail');
 
   try {
-    // Load campaign
     const campaigns = await sbGet('campaigns', `select=*,properties(*,clients(*)),campaign_daily_metrics(*),creatives(*,creative_daily_metrics(*))&id=eq.${id}`);
     const campaign = campaigns[0];
     if (!campaign) throw new Error('Kampagne nicht gefunden');
@@ -1270,10 +1505,10 @@ async function openCampaign(id) {
     const metrics = (campaign.campaign_daily_metrics || []).sort((a, b) => a.date.localeCompare(b.date));
     const creatives = campaign.creatives || [];
 
-    // Header
+    // Header (no platform badge — always Meta)
     document.getElementById('detail-title').textContent = campaign.campaign_name;
     document.getElementById('detail-subtitle').innerHTML =
-      `${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}${property?.stadtteil ? ', ' + escHtml(property.stadtteil) : ''} · ${platformBadge(campaign.platform)}`;
+      `${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}${property?.stadtteil ? ', ' + escHtml(property.stadtteil) : ''}`;
     document.getElementById('detail-status').innerHTML = statusBadge(campaign.status);
 
     // KPIs
@@ -1305,7 +1540,7 @@ async function openCampaign(id) {
       <div class="kpi-card">
         <div class="kpi-label">Impressions</div>
         <div class="kpi-value">${formatNum(totalImpressions)}</div>
-        <div class="kpi-change neutral">Reach: ${formatNum(totalReach)}</div>
+        <div class="kpi-change neutral">Reichweite: ${formatNum(totalReach)}</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Ø CPM</div>
@@ -1322,11 +1557,11 @@ async function openCampaign(id) {
     // === CHARTS ===
     renderDailyChart(metrics);
     renderCPLChart(metrics);
-    renderCreativeChart(creatives);
-    renderCreativeCards(creatives);
+    renderCreativeChart(creatives, avgCPL);
+    renderCreativeCards(creatives, avgCPL);
 
   } catch (e) {
-    console.error('Load campaign detail error:', e);
+    console.error('Kampagnendetail-Ladefehler:', e);
     showToast('Fehler beim Laden der Kampagne', 'error');
   }
 }
@@ -1464,35 +1699,39 @@ function renderCPLChart(metrics) {
   });
 }
 
-function renderCreativeChart(creatives) {
+function renderCreativeChart(creatives, avgCPL) {
   const ctx = document.getElementById('chart-creatives').getContext('2d');
   if (chartCreatives) chartCreatives.destroy();
 
-  // Aggregate metrics per creative
+  // Aggregate metrics per creative with scores
   const creativeData = creatives.map(c => {
     const metrics = c.creative_daily_metrics || [];
     const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
     const totalLeads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
     const cpl = totalLeads > 0 ? totalSpend / totalLeads : 0;
-    return {
-      name: c.creative_name,
-      type: c.creative_type,
-      spend: totalSpend,
-      leads: totalLeads,
-      cpl
-    };
-  }).sort((a, b) => (a.cpl === 0 ? Infinity : a.cpl) - (b.cpl === 0 ? Infinity : b.cpl));
+    const score = calcScore(totalLeads, cpl, avgCPL || 1);
+    return { name: c.creative_name, type: c.creative_type, spend: totalSpend, leads: totalLeads, cpl, score };
+  });
 
-  const labels = creativeData.map(c => c.name);
+  // Sort by score (descending)
+  creativeData.sort((a, b) => b.score - a.score);
+
+  // Winner is the first one with score > 0
+  const winnerIdx = creativeData.findIndex(c => c.score > 0);
+
+  const labels = creativeData.map((c, i) => {
+    if (i === winnerIdx) return `⭐ ${c.name}`;
+    return c.name;
+  });
   const cplValues = creativeData.map(c => c.cpl);
   const leadsValues = creativeData.map(c => c.leads);
 
-  const colors = creativeData.map(c =>
-    c.leads === 0 ? 'rgba(85, 85, 112, 0.5)' :
-    c.cpl < 7 ? 'rgba(34, 197, 94, 0.7)' :
-    c.cpl < 10 ? 'rgba(99, 102, 241, 0.7)' :
-    'rgba(245, 158, 11, 0.7)'
+  // Single color for all CPL bars, gold border for winner
+  const bgColor = 'rgba(99, 102, 241, 0.7)';
+  const borderColors = creativeData.map((c, i) =>
+    i === winnerIdx ? 'rgba(251, 191, 36, 1)' : 'rgba(99, 102, 241, 1)'
   );
+  const borderWidths = creativeData.map((c, i) => i === winnerIdx ? 3 : 1);
 
   chartCreatives = new Chart(ctx, {
     type: 'bar',
@@ -1502,9 +1741,9 @@ function renderCreativeChart(creatives) {
         {
           label: 'CPL (€)',
           data: cplValues,
-          backgroundColor: colors,
-          borderColor: colors.map(c => c.replace('0.7', '1').replace('0.5', '0.7')),
-          borderWidth: 1,
+          backgroundColor: bgColor,
+          borderColor: borderColors,
+          borderWidth: borderWidths,
           borderRadius: 6,
           yAxisID: 'y'
         },
@@ -1528,9 +1767,9 @@ function renderCreativeChart(creatives) {
       plugins: {
         tooltip: {
           callbacks: {
-            label: (ctx) => {
-              if (ctx.dataset.label === 'CPL (€)') return `CPL: ${ctx.raw > 0 ? formatEur(ctx.raw) : 'Keine Leads'}`;
-              return `Leads: ${ctx.raw}`;
+            label: (tooltipCtx) => {
+              if (tooltipCtx.dataset.label === 'CPL (€)') return `CPL: ${tooltipCtx.raw > 0 ? formatEur(tooltipCtx.raw) : 'Keine Leads'}`;
+              return `Leads: ${tooltipCtx.raw}`;
             }
           }
         }
@@ -1554,48 +1793,56 @@ function renderCreativeChart(creatives) {
   });
 }
 
-function renderCreativeCards(creatives) {
+function renderCreativeCards(creatives, avgCPL) {
   const container = document.getElementById('creative-cards');
 
-  const cards = creatives.map(c => {
+  // Calculate scores for all creatives
+  const creativeData = creatives.map(c => {
     const metrics = c.creative_daily_metrics || [];
     const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
     const totalLeads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
     const totalImpressions = metrics.reduce((s, m) => s + (m.impressions || 0), 0);
-    const totalReach = metrics.reduce((s, m) => s + (m.reach || 0), 0);
     const cpl = totalLeads > 0 ? totalSpend / totalLeads : null;
-    const cpm = totalImpressions > 0 ? (totalSpend / totalImpressions) * 1000 : null;
+    const score = calcScore(totalLeads, cpl, avgCPL || 1);
+    return { ...c, totalSpend, totalLeads, totalImpressions, cpl, score };
+  });
 
-    const typeLabel = {
-      'single_image': 'Single Image',
-      'carousel': 'Carousel',
-      'reel': 'Reel',
-      'video': 'Video',
-      'story': 'Story'
-    }[c.creative_type] || c.creative_type;
+  // Sort by score descending
+  creativeData.sort((a, b) => b.score - a.score);
+
+  const medals = ['🥇', '🥈', '🥉'];
+
+  const cards = creativeData.map((c, idx) => {
+    const typeLabel = getCreativeTypeLabel(c.creative_type);
+    const medal = idx < 3 && c.score > 0 ? medals[idx] : '';
+    const isWinner = idx === 0 && c.score > 0;
 
     return `
-      <div class="creative-card">
+      <div class="creative-card ${isWinner ? 'winner' : ''}">
         <div class="creative-card-header">
-          <div class="creative-card-name">${escHtml(c.creative_name)}</div>
+          <div class="creative-card-name">
+            ${medal ? `<span class="creative-card-badge">${medal}</span>` : ''}${escHtml(c.creative_name)}
+          </div>
           <div class="creative-card-type">${escHtml(typeLabel)}</div>
         </div>
         <div class="creative-stats">
           <div>
             <div class="creative-stat-label">Leads</div>
-            <div class="creative-stat-value">${totalLeads}</div>
+            <div class="creative-stat-value">${c.totalLeads}</div>
           </div>
           <div>
             <div class="creative-stat-label">CPL</div>
-            <div class="creative-stat-value ${cpl && cpl < 10 ? 'value-good' : cpl && cpl > 15 ? 'value-bad' : ''}">${cpl ? formatEur(cpl) : '—'}</div>
+            <div class="creative-stat-value ${c.cpl && c.cpl < 10 ? 'value-good' : c.cpl && c.cpl > 15 ? 'value-bad' : ''}">${c.cpl ? formatEur(c.cpl) : '—'}</div>
           </div>
           <div>
             <div class="creative-stat-label">Spend</div>
-            <div class="creative-stat-value" style="font-size:14px;">${formatEur(totalSpend)}</div>
+            <div class="creative-stat-value" style="font-size:14px;">${formatEur(c.totalSpend)}</div>
           </div>
           <div>
-            <div class="creative-stat-label">Impressions</div>
-            <div class="creative-stat-value" style="font-size:14px;">${formatNum(totalImpressions)}</div>
+            <div class="creative-stat-label">Score</div>
+            <div class="creative-stat-value" style="font-size:14px;">
+              <span class="score-badge ${isWinner ? 'top' : ''}">${c.score.toFixed(1)}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1606,13 +1853,194 @@ function renderCreativeCards(creatives) {
 }
 
 // ============================================
+// CREATIVE INTELLIGENCE VIEW
+// ============================================
+async function loadIntelligence() {
+  if (!dbReady) return;
+
+  const loading = document.getElementById('intel-loading');
+  const content = document.getElementById('intel-content');
+  loading.style.display = 'flex';
+  content.style.display = 'none';
+
+  try {
+    // Load all creatives with their metrics
+    const creatives = await sbGet('creatives', 'select=*,creative_daily_metrics(*)');
+
+    // Group by creative_type
+    const typeMap = {};
+    (creatives || []).forEach(c => {
+      const type = c.creative_type || 'unknown';
+      if (!typeMap[type]) typeMap[type] = { type, totalLeads: 0, totalSpend: 0, creativeCount: 0 };
+      const metrics = c.creative_daily_metrics || [];
+      const leads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
+      const spend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
+      typeMap[type].totalLeads += leads;
+      typeMap[type].totalSpend += spend;
+      typeMap[type].creativeCount += 1;
+    });
+
+    // Calculate avgCPL across all types
+    const allLeads = Object.values(typeMap).reduce((s, t) => s + t.totalLeads, 0);
+    const allSpend = Object.values(typeMap).reduce((s, t) => s + t.totalSpend, 0);
+    const globalAvgCPL = allLeads > 0 ? allSpend / allLeads : 0;
+
+    // Calc per-type metrics
+    const typeData = Object.values(typeMap).map(t => {
+      const avgCPL = t.totalLeads > 0 ? t.totalSpend / t.totalLeads : 0;
+      const score = calcScore(t.totalLeads, avgCPL, globalAvgCPL || 1);
+      return { ...t, avgCPL, score };
+    });
+
+    intelData = { typeData, globalAvgCPL };
+
+    // Sort by score for default view
+    typeData.sort((a, b) => b.score - a.score);
+
+    renderIntelCurrentBest(typeData);
+    renderIntelAllTime(typeData, 'score');
+
+    loading.style.display = 'none';
+    content.style.display = 'block';
+
+  } catch (e) {
+    console.error('Intelligence-Ladefehler:', e);
+    loading.style.display = 'none';
+    content.style.display = 'block';
+    document.getElementById('intel-current-cards').innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="empty-state-icon">⚠️</div>
+        <div class="empty-state-title">Fehler beim Laden</div>
+        <div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">${escHtml(e?.message || String(e))}</div>
+      </div>
+    `;
+  }
+}
+
+function renderIntelCurrentBest(typeData) {
+  const chartContainer = document.getElementById('intel-current-chart');
+  const cardsContainer = document.getElementById('intel-current-cards');
+
+  if (!typeData.length) {
+    chartContainer.innerHTML = '';
+    cardsContainer.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-desc">Noch keine Creative-Daten vorhanden</div></div>';
+    return;
+  }
+
+  const maxScore = Math.max(...typeData.map(t => t.score), 1);
+
+  // Horizontal bar chart
+  chartContainer.innerHTML = typeData.map((t, i) => {
+    const pct = maxScore > 0 ? (t.score / maxScore) * 100 : 0;
+    const isWinner = i === 0 && t.score > 0;
+    return `
+      <div class="hbar-row">
+        <div class="hbar-label">${isWinner ? '👑 ' : ''}${getCreativeTypeLabel(t.type)}</div>
+        <div class="hbar-track">
+          <div class="hbar-fill ${isWinner ? 'winner-bar' : ''}" style="width:${Math.max(pct, 8)}%">
+            ${t.score.toFixed(1)}
+          </div>
+        </div>
+        <div class="hbar-value">${t.totalLeads} Leads</div>
+      </div>
+    `;
+  }).join('');
+
+  // Cards
+  cardsContainer.innerHTML = typeData.map((t, i) => {
+    const isWinner = i === 0 && t.score > 0;
+    return `
+      <div class="intel-type-card ${isWinner ? 'winner' : ''}">
+        <div class="intel-type-header">
+          <div class="intel-type-name">${isWinner ? '👑 ' : ''}${getCreativeTypeLabel(t.type)}</div>
+          <span class="score-badge ${isWinner ? 'top' : ''}">Score: ${t.score.toFixed(1)}</span>
+        </div>
+        <div class="intel-type-stats">
+          <div>
+            <div class="intel-stat-label">Leads gesamt</div>
+            <div class="intel-stat-value">${t.totalLeads}</div>
+          </div>
+          <div>
+            <div class="intel-stat-label">Ø CPL</div>
+            <div class="intel-stat-value ${t.avgCPL && t.avgCPL < 10 ? 'value-good' : t.avgCPL && t.avgCPL > 15 ? 'value-bad' : ''}">${t.avgCPL ? formatEur(t.avgCPL) : '—'}</div>
+          </div>
+          <div>
+            <div class="intel-stat-label">Creatives</div>
+            <div class="intel-stat-value">${t.creativeCount}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function switchRanking(mode) {
+  currentRanking = mode;
+  // Update tabs
+  document.querySelectorAll('.ranking-tab').forEach(tab => tab.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (!intelData) return;
+
+  const sorted = [...intelData.typeData];
+  if (mode === 'score') sorted.sort((a, b) => b.score - a.score);
+  else if (mode === 'cpl') sorted.sort((a, b) => {
+    // Lower CPL is better, 0 means no data (goes last)
+    const aCpl = a.avgCPL || Infinity;
+    const bCpl = b.avgCPL || Infinity;
+    return aCpl - bCpl;
+  });
+  else if (mode === 'leads') sorted.sort((a, b) => b.totalLeads - a.totalLeads);
+
+  renderIntelAllTime(sorted, mode);
+}
+
+function renderIntelAllTime(typeData, mode) {
+  const container = document.getElementById('intel-alltime-cards');
+
+  const modeLabel = mode === 'score' ? 'Score' : mode === 'cpl' ? 'CPL' : 'Leads';
+  const medals = ['🥇', '🥈', '🥉'];
+
+  container.innerHTML = typeData.map((t, i) => {
+    const medal = i < 3 ? medals[i] : '';
+    let primaryValue = '';
+    if (mode === 'score') primaryValue = t.score.toFixed(1);
+    else if (mode === 'cpl') primaryValue = t.avgCPL ? formatEur(t.avgCPL) : '—';
+    else if (mode === 'leads') primaryValue = String(t.totalLeads);
+
+    return `
+      <div class="intel-type-card ${i === 0 ? 'winner' : ''}">
+        <div class="intel-type-header">
+          <div class="intel-type-name">${medal} ${getCreativeTypeLabel(t.type)}</div>
+          <span class="score-badge ${i === 0 ? 'top' : ''}">${modeLabel}: ${primaryValue}</span>
+        </div>
+        <div class="intel-type-stats">
+          <div>
+            <div class="intel-stat-label">Leads</div>
+            <div class="intel-stat-value">${t.totalLeads}</div>
+          </div>
+          <div>
+            <div class="intel-stat-label">Ø CPL</div>
+            <div class="intel-stat-value">${t.avgCPL ? formatEur(t.avgCPL) : '—'}</div>
+          </div>
+          <div>
+            <div class="intel-stat-label">Score</div>
+            <div class="intel-stat-value">${t.score.toFixed(1)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================
 // CREATE CAMPAIGN
 // ============================================
 async function handleCreateCampaign(event) {
   event.preventDefault();
 
   if (!dbReady) {
-    showToast('Database nicht bereit. Bitte zuerst migration.sql ausführen.', 'error');
+    showToast('Datenbank nicht bereit. Bitte zuerst migration.sql ausführen.', 'error');
     return;
   }
 
@@ -1649,10 +2077,10 @@ async function handleCreateCampaign(event) {
 
     const [property] = await sbInsert('properties', propData);
 
-    // 3. Create campaign
+    // 3. Create campaign (platform always meta)
     const campData = {
       property_id: property.id,
-      platform: document.getElementById('form-camp-platform').value,
+      platform: 'meta',
       campaign_name: document.getElementById('form-camp-name').value,
       campaign_type: document.getElementById('form-camp-type').value,
       start_date: document.getElementById('form-camp-start').value || null,
@@ -1668,7 +2096,7 @@ async function handleCreateCampaign(event) {
     showView('campaigns');
 
   } catch (e) {
-    console.error('Create campaign error:', e);
+    console.error('Kampagnenerstellung fehlgeschlagen:', e);
     showToast('Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
   }
 }
@@ -1694,7 +2122,7 @@ async function init() {
       await loadCampaigns();
     }
   } catch (e) {
-    console.error('Init error:', e);
+    console.error('Initialisierungsfehler:', e);
     document.getElementById('campaigns-loading').style.display = 'none';
     const empty = document.getElementById('campaigns-empty');
     empty.style.display = 'block';
