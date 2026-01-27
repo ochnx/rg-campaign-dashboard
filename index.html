@@ -1000,7 +1000,19 @@
           <h1 class="page-title" id="detail-title">—</h1>
           <div class="page-subtitle" id="detail-subtitle">—</div>
         </div>
-        <div id="detail-status"></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div id="detail-status"></div>
+          <button class="btn btn-secondary btn-sm" id="detail-edit-btn" onclick="openEditCampaign()">✏️ Bearbeiten</button>
+        </div>
+      </div>
+
+      <!-- Property Details -->
+      <div class="card" style="margin-bottom:24px;" id="detail-property-card">
+        <div class="card-header">
+          <div class="card-title">Objekt-Details</div>
+        </div>
+        <div class="card-body" id="detail-property-info" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+        </div>
       </div>
 
       <!-- KPI Cards -->
@@ -1108,7 +1120,29 @@
 
               <div class="form-group">
                 <label class="form-label">Stadt</label>
-                <input class="form-input" id="form-prop-city" placeholder="Hamburg">
+                <input class="form-input" id="form-prop-city" placeholder="Hamburg" oninput="autoFillCityRating('form-prop-city','form-prop-location-rating')">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Standort-Rating</label>
+                <select class="form-select" id="form-prop-location-rating">
+                  <option value="">— Automatisch —</option>
+                  <option value="A">A — Top-7-Stadt</option>
+                  <option value="B">B — Großstadt</option>
+                  <option value="C">C — Mittelstadt / Sonstige</option>
+                  <option value="D">D — Ländlich</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Mikrolage</label>
+                <select class="form-select" id="form-prop-micro-location">
+                  <option value="">— Keine Angabe —</option>
+                  <option value="premium">Premium</option>
+                  <option value="gut">Gut</option>
+                  <option value="standard">Standard</option>
+                  <option value="randlage">Randlage</option>
+                </select>
               </div>
 
               <div class="form-group">
@@ -1202,6 +1236,12 @@
         </div>
       </div>
 
+      <!-- Time Filter Tabs -->
+      <div class="tabs" style="margin-bottom:24px;">
+        <div class="tab active" id="intel-tab-alltime" onclick="switchIntelTimeFilter('alltime')">📊 All-Time</div>
+        <div class="tab" id="intel-tab-30d" onclick="switchIntelTimeFilter('30d')">⏱ Aktuell (30 Tage)</div>
+      </div>
+
       <div id="intel-loading" class="loading-spinner">
         <div class="spinner"></div>
       </div>
@@ -1237,6 +1277,144 @@
       </div>
     </div>
 
+    <!-- VIEW: Edit Campaign -->
+    <div id="view-edit-campaign" class="view">
+      <a class="back-link" onclick="showView('detail')">← Zurück zur Kampagne</a>
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Kampagne bearbeiten</h1>
+          <div class="page-subtitle" id="edit-subtitle">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <form id="edit-campaign-form" onsubmit="handleEditCampaign(event)">
+            <div class="form-grid">
+
+              <!-- Property Section -->
+              <div class="form-section-title">Objekt</div>
+
+              <div class="form-group">
+                <label class="form-label">Objektname *</label>
+                <input class="form-input" id="edit-prop-name" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Adresse</label>
+                <input class="form-input" id="edit-prop-address">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">PLZ</label>
+                <input class="form-input" id="edit-prop-plz">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Stadtteil</label>
+                <input class="form-input" id="edit-prop-stadtteil">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Stadt</label>
+                <input class="form-input" id="edit-prop-city" oninput="autoFillCityRating('edit-prop-city','edit-prop-location-rating')">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Standort-Rating</label>
+                <select class="form-select" id="edit-prop-location-rating">
+                  <option value="">— Automatisch —</option>
+                  <option value="A">A — Top-7-Stadt</option>
+                  <option value="B">B — Großstadt</option>
+                  <option value="C">C — Mittelstadt / Sonstige</option>
+                  <option value="D">D — Ländlich</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Mikrolage</label>
+                <select class="form-select" id="edit-prop-micro-location">
+                  <option value="">— Keine Angabe —</option>
+                  <option value="premium">Premium</option>
+                  <option value="gut">Gut</option>
+                  <option value="standard">Standard</option>
+                  <option value="randlage">Randlage</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Objektart</label>
+                <select class="form-select" id="edit-prop-type">
+                  <option value="wohnung">Wohnung</option>
+                  <option value="haus">Haus</option>
+                  <option value="penthouse">Penthouse</option>
+                  <option value="villa">Villa</option>
+                  <option value="reihenhaus">Reihenhaus</option>
+                  <option value="grundstueck">Grundstück</option>
+                  <option value="gewerbe">Gewerbe</option>
+                  <option value="sonstige">Sonstige</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Wohnfläche (qm)</label>
+                <input class="form-input" id="edit-prop-size" type="number" step="0.1">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Zimmer</label>
+                <input class="form-input" id="edit-prop-rooms" type="number" step="0.5">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Angebotspreis (€)</label>
+                <input class="form-input" id="edit-prop-price" type="number" step="1">
+              </div>
+
+              <!-- Campaign Section -->
+              <div class="form-section-title">Kampagne</div>
+
+              <div class="form-group full-width">
+                <label class="form-label">Kampagnenname *</label>
+                <input class="form-input" id="edit-camp-name" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Startdatum</label>
+                <input class="form-input" id="edit-camp-start" type="date">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Enddatum</label>
+                <input class="form-input" id="edit-camp-end" type="date">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Gesamtbudget (€)</label>
+                <input class="form-input" id="edit-camp-budget" type="number" step="0.01">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="edit-camp-status">
+                  <option value="active">Aktiv</option>
+                  <option value="paused">Pausiert</option>
+                  <option value="completed">Abgeschlossen</option>
+                </select>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="showView('detail')">Abbrechen</button>
+                <button type="submit" class="btn btn-primary">💾 Speichern</button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1263,6 +1441,38 @@ async function sbInsert(table, data) {
   return res.json();
 }
 
+async function sbPatch(table, id, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH', headers: SB_HEADERS, body: JSON.stringify(data)
+  });
+  if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `HTTP ${res.status}`); }
+  return res.json();
+}
+
+// ============================================
+// CITY RATING CLASSIFICATION
+// ============================================
+const CITY_RATINGS = {
+  A: ['berlin','hamburg','münchen','munich','köln','cologne','frankfurt','düsseldorf','stuttgart'],
+  B: ['hannover','nürnberg','bremen','dresden','leipzig','dortmund','essen','duisburg','bochum','wuppertal','bielefeld','bonn','münster','mannheim','karlsruhe','augsburg','wiesbaden','mönchengladbach','gelsenkirchen','braunschweig','aachen','kiel','chemnitz','halle','magdeburg','freiburg','krefeld','mainz','lübeck','erfurt','oberhausen','rostock','kassel','saarbrücken','potsdam','leverkusen','oldenburg','heidelberg','darmstadt','wolfsburg','regensburg','würzburg'],
+  C: []
+};
+
+function getCityRating(city) {
+  if (!city) return null;
+  const c = city.toLowerCase().trim();
+  if (CITY_RATINGS.A.includes(c)) return 'A';
+  if (CITY_RATINGS.B.includes(c)) return 'B';
+  return 'C';
+}
+
+function autoFillCityRating(cityInputId, ratingSelectId) {
+  const cityVal = document.getElementById(cityInputId).value;
+  const ratingSelect = document.getElementById(ratingSelectId);
+  const rating = getCityRating(cityVal);
+  if (rating) ratingSelect.value = rating;
+}
+
 // ============================================
 // STATE
 // ============================================
@@ -1275,6 +1485,9 @@ let chartCreatives = null;
 let dbReady = false;
 let intelData = null;
 let currentRanking = 'score';
+let intelTimeFilter = 'alltime';
+let editCampaignId = null;
+let editPropertyId = null;
 
 // ============================================
 // CREATIVE TYPE LABELS
@@ -1372,6 +1585,7 @@ function showView(view) {
   if (view === 'campaigns') loadCampaigns();
   if (view === 'new-campaign') loadClientsForForm();
   if (view === 'intelligence') loadIntelligence();
+  if (view === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
 
 // ============================================
@@ -1407,7 +1621,7 @@ async function loadCampaigns() {
 
   try {
     const params = new URLSearchParams();
-    params.set('select', '*,properties!inner(name,client_id,stadtteil,city,clients!inner(name,brand)),campaign_daily_metrics(spend,leads,impressions)');
+    params.set('select', '*,properties!inner(*,clients!inner(name,brand)),campaign_daily_metrics(spend,leads,impressions)');
     params.set('order', 'created_at.desc');
 
     const statusFilter = document.getElementById('filter-status').value;
@@ -1432,12 +1646,14 @@ async function loadCampaigns() {
       const cpl = totalLeads > 0 ? totalSpend / totalLeads : null;
       const property = c.properties;
       const client = property?.clients;
+      const cityRating = property?.location_rating || getCityRating(property?.city);
+      const cityBadge = property?.city ? `<span style="margin-left:6px;font-size:11px;color:var(--text-muted);background:var(--bg-input);padding:1px 6px;border-radius:4px;">${escHtml(property.city)}${cityRating ? ' ('+cityRating+')' : ''}</span>` : '';
 
       return `
         <tr onclick="openCampaign('${c.id}')">
           <td>
             <div class="campaign-name">${escHtml(c.campaign_name)}</div>
-            <div class="campaign-property">${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}</div>
+            <div class="campaign-property">${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}${cityBadge}</div>
           </td>
           <td>${statusBadge(c.status)}</td>
           <td class="value-eur">${formatEur(totalSpend)}</td>
@@ -1505,11 +1721,34 @@ async function openCampaign(id) {
     const metrics = (campaign.campaign_daily_metrics || []).sort((a, b) => a.date.localeCompare(b.date));
     const creatives = campaign.creatives || [];
 
+    // Store for editing
+    editCampaignId = campaign.id;
+    editPropertyId = property?.id;
+    window._editCampaignData = campaign;
+    window._editPropertyData = property;
+
     // Header (no platform badge — always Meta)
     document.getElementById('detail-title').textContent = campaign.campaign_name;
     document.getElementById('detail-subtitle').innerHTML =
       `${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}${property?.stadtteil ? ', ' + escHtml(property.stadtteil) : ''}`;
     document.getElementById('detail-status').innerHTML = statusBadge(campaign.status);
+
+    // Property details
+    const locRating = property?.location_rating || getCityRating(property?.city) || '—';
+    const microLoc = property?.micro_location ? ({premium:'Premium',gut:'Gut',standard:'Standard',randlage:'Randlage'}[property.micro_location] || property.micro_location) : '—';
+    const propTypeLabel = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',sonstige:'Sonstige'}[property?.property_type] || property?.property_type || '—';
+
+    document.getElementById('detail-property-info').innerHTML = `
+      <div><div class="kpi-label">Adresse</div><div style="font-weight:600;">${escHtml(property?.address || '—')}</div></div>
+      <div><div class="kpi-label">PLZ / Stadt</div><div style="font-weight:600;">${escHtml(property?.plz || '')} ${escHtml(property?.city || '—')}</div></div>
+      <div><div class="kpi-label">Stadtteil</div><div style="font-weight:600;">${escHtml(property?.stadtteil || '—')}</div></div>
+      <div><div class="kpi-label">Objektart</div><div style="font-weight:600;">${escHtml(propTypeLabel)}</div></div>
+      <div><div class="kpi-label">Wohnfläche</div><div style="font-weight:600;">${property?.size_sqm ? property.size_sqm + ' qm' : '—'}</div></div>
+      <div><div class="kpi-label">Zimmer</div><div style="font-weight:600;">${property?.rooms || '—'}</div></div>
+      <div><div class="kpi-label">Preis</div><div style="font-weight:600;">${property?.price ? formatEur(property.price) : '—'}</div></div>
+      <div><div class="kpi-label">Standort-Rating</div><div style="font-weight:600;"><span class="badge badge-active" style="font-size:12px;">${locRating}</span></div></div>
+      <div><div class="kpi-label">Mikrolage</div><div style="font-weight:600;">${escHtml(microLoc)}</div></div>
+    `;
 
     // KPIs
     const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
@@ -1855,6 +2094,13 @@ function renderCreativeCards(creatives, avgCPL) {
 // ============================================
 // CREATIVE INTELLIGENCE VIEW
 // ============================================
+function switchIntelTimeFilter(mode) {
+  intelTimeFilter = mode;
+  document.getElementById('intel-tab-alltime').classList.toggle('active', mode === 'alltime');
+  document.getElementById('intel-tab-30d').classList.toggle('active', mode === '30d');
+  loadIntelligence();
+}
+
 async function loadIntelligence() {
   if (!dbReady) return;
 
@@ -1867,12 +2113,24 @@ async function loadIntelligence() {
     // Load all creatives with their metrics
     const creatives = await sbGet('creatives', 'select=*,creative_daily_metrics(*)');
 
+    // Time filter: calculate cutoff date for 30-day filter
+    let dateCutoff = null;
+    if (intelTimeFilter === '30d') {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      dateCutoff = d.toISOString().slice(0, 10); // YYYY-MM-DD
+    }
+
     // Group by creative_type
     const typeMap = {};
     (creatives || []).forEach(c => {
       const type = c.creative_type || 'unknown';
       if (!typeMap[type]) typeMap[type] = { type, totalLeads: 0, totalSpend: 0, creativeCount: 0 };
-      const metrics = c.creative_daily_metrics || [];
+      let metrics = c.creative_daily_metrics || [];
+      // Apply time filter
+      if (dateCutoff) {
+        metrics = metrics.filter(m => m.date >= dateCutoff);
+      }
       const leads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
       const spend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
       typeMap[type].totalLeads += leads;
@@ -1897,8 +2155,9 @@ async function loadIntelligence() {
     // Sort by score for default view
     typeData.sort((a, b) => b.score - a.score);
 
-    renderIntelCurrentBest(typeData);
-    renderIntelAllTime(typeData, 'score');
+    const filterLabel = intelTimeFilter === '30d' ? ' (letzte 30 Tage)' : '';
+    renderIntelCurrentBest(typeData, filterLabel);
+    renderIntelAllTime(typeData, currentRanking);
 
     loading.style.display = 'none';
     content.style.display = 'block';
@@ -1917,7 +2176,8 @@ async function loadIntelligence() {
   }
 }
 
-function renderIntelCurrentBest(typeData) {
+function renderIntelCurrentBest(typeData, filterLabel) {
+  filterLabel = filterLabel || '';
   const chartContainer = document.getElementById('intel-current-chart');
   const cardsContainer = document.getElementById('intel-current-cards');
 
@@ -2034,6 +2294,87 @@ function renderIntelAllTime(typeData, mode) {
 }
 
 // ============================================
+// EDIT CAMPAIGN
+// ============================================
+function openEditCampaign() {
+  const campaign = window._editCampaignData;
+  const property = window._editPropertyData;
+  if (!campaign || !property) { showToast('Keine Daten zum Bearbeiten', 'error'); return; }
+
+  document.getElementById('edit-subtitle').textContent = campaign.campaign_name;
+
+  // Fill property fields
+  document.getElementById('edit-prop-name').value = property.name || '';
+  document.getElementById('edit-prop-address').value = property.address || '';
+  document.getElementById('edit-prop-plz').value = property.plz || '';
+  document.getElementById('edit-prop-stadtteil').value = property.stadtteil || '';
+  document.getElementById('edit-prop-city').value = property.city || '';
+  document.getElementById('edit-prop-location-rating').value = property.location_rating || '';
+  document.getElementById('edit-prop-micro-location').value = property.micro_location || '';
+  document.getElementById('edit-prop-type').value = property.property_type || 'wohnung';
+  document.getElementById('edit-prop-size').value = property.size_sqm || '';
+  document.getElementById('edit-prop-rooms').value = property.rooms || '';
+  document.getElementById('edit-prop-price').value = property.price || '';
+
+  // Fill campaign fields
+  document.getElementById('edit-camp-name').value = campaign.campaign_name || '';
+  document.getElementById('edit-camp-start').value = campaign.start_date || '';
+  document.getElementById('edit-camp-end').value = campaign.end_date || '';
+  document.getElementById('edit-camp-budget').value = campaign.total_budget || '';
+  document.getElementById('edit-camp-status').value = campaign.status || 'active';
+
+  // Auto-fill rating if not set
+  if (!property.location_rating && property.city) {
+    autoFillCityRating('edit-prop-city', 'edit-prop-location-rating');
+  }
+
+  showView('edit-campaign');
+}
+
+async function handleEditCampaign(event) {
+  event.preventDefault();
+  if (!editCampaignId || !editPropertyId) { showToast('Keine Kampagne ausgewählt', 'error'); return; }
+
+  try {
+    // Update property
+    const locationRating = document.getElementById('edit-prop-location-rating').value || null;
+    const propData = {
+      name: document.getElementById('edit-prop-name').value,
+      address: document.getElementById('edit-prop-address').value || null,
+      plz: document.getElementById('edit-prop-plz').value || null,
+      stadtteil: document.getElementById('edit-prop-stadtteil').value || null,
+      city: document.getElementById('edit-prop-city').value || null,
+      location_rating: locationRating,
+      micro_location: document.getElementById('edit-prop-micro-location').value || null,
+      property_type: document.getElementById('edit-prop-type').value,
+      size_sqm: parseFloat(document.getElementById('edit-prop-size').value) || null,
+      rooms: parseFloat(document.getElementById('edit-prop-rooms').value) || null,
+      price: parseFloat(document.getElementById('edit-prop-price').value) || null
+    };
+
+    await sbPatch('properties', editPropertyId, propData);
+
+    // Update campaign
+    const campData = {
+      campaign_name: document.getElementById('edit-camp-name').value,
+      start_date: document.getElementById('edit-camp-start').value || null,
+      end_date: document.getElementById('edit-camp-end').value || null,
+      total_budget: parseFloat(document.getElementById('edit-camp-budget').value) || null,
+      status: document.getElementById('edit-camp-status').value
+    };
+
+    await sbPatch('campaigns', editCampaignId, campData);
+
+    showToast('Änderungen gespeichert ✓');
+    // Reload the detail view
+    openCampaign(editCampaignId);
+  } catch (e) {
+    console.error('Bearbeitung fehlgeschlagen:', e);
+    showToast('Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  }
+}
+
+// ============================================
 // CREATE CAMPAIGN
 // ============================================
 async function handleCreateCampaign(event) {
@@ -2062,6 +2403,7 @@ async function handleCreateCampaign(event) {
     }
 
     // 2. Create property
+    const locationRating = document.getElementById('form-prop-location-rating').value || null;
     const propData = {
       client_id: clientId,
       name: document.getElementById('form-prop-name').value,
@@ -2072,7 +2414,9 @@ async function handleCreateCampaign(event) {
       property_type: document.getElementById('form-prop-type').value,
       size_sqm: parseFloat(document.getElementById('form-prop-size').value) || null,
       rooms: parseFloat(document.getElementById('form-prop-rooms').value) || null,
-      price: parseFloat(document.getElementById('form-prop-price').value) || null
+      price: parseFloat(document.getElementById('form-prop-price').value) || null,
+      location_rating: locationRating,
+      micro_location: document.getElementById('form-prop-micro-location').value || null
     };
 
     const [property] = await sbInsert('properties', propData);
