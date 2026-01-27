@@ -1915,7 +1915,7 @@
 
                 <div class="form-group">
                   <label class="form-label">Objektart</label>
-                  <select class="form-select" id="csv-prop-type">
+                  <select class="form-select" id="csv-prop-type" onchange="toggleNeubauFields('csv')">
                     <option value="wohnung">Wohnung</option>
                     <option value="haus">Haus</option>
                     <option value="penthouse">Penthouse</option>
@@ -1923,6 +1923,8 @@
                     <option value="reihenhaus">Reihenhaus</option>
                     <option value="grundstueck">Grundstück</option>
                     <option value="gewerbe">Gewerbe</option>
+                    <option value="neubauprojekt">Neubauprojekt</option>
+                    <option value="zweifamilienhaus">Zweifamilienhaus</option>
                     <option value="sonstige">Sonstige</option>
                   </select>
                 </div>
@@ -1945,6 +1947,30 @@
                 <div class="form-group">
                   <label class="form-label">Angebotspreis (€)</label>
                   <input class="form-input" id="csv-prop-price" type="number" step="1" placeholder="850000">
+                </div>
+
+                <div id="csv-neubau-fields" style="display:none; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px;">
+                  <div class="form-label" style="font-weight:600; margin-bottom:8px; color: var(--primary);">🏗️ Neubauprojekt-Details</div>
+                  <div class="form-group">
+                    <label class="form-label">Preis von (€)</label>
+                    <input class="form-input" id="csv-prop-price-from" type="number" step="1" placeholder="299000">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Preis bis (€)</label>
+                    <input class="form-input" id="csv-prop-price-to" type="number" step="1" placeholder="890000">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Wohnfläche von (qm)</label>
+                    <input class="form-input" id="csv-prop-size-from" type="number" step="0.1" placeholder="45">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Wohnfläche bis (qm)</label>
+                    <input class="form-input" id="csv-prop-size-to" type="number" step="0.1" placeholder="120">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Anzahl Einheiten</label>
+                    <input class="form-input" id="csv-prop-num-units" type="number" step="1" placeholder="24">
+                  </div>
                 </div>
 
                 <div class="form-actions">
@@ -2047,7 +2073,7 @@
 
                 <div class="form-group">
                   <label class="form-label">Objektart</label>
-                  <select class="form-select" id="form-prop-type">
+                  <select class="form-select" id="form-prop-type" onchange="toggleNeubauFields('form')">
                     <option value="wohnung">Wohnung</option>
                     <option value="haus">Haus</option>
                     <option value="penthouse">Penthouse</option>
@@ -2055,6 +2081,8 @@
                     <option value="reihenhaus">Reihenhaus</option>
                     <option value="grundstueck">Grundstück</option>
                     <option value="gewerbe">Gewerbe</option>
+                    <option value="neubauprojekt">Neubauprojekt</option>
+                    <option value="zweifamilienhaus">Zweifamilienhaus</option>
                     <option value="sonstige">Sonstige</option>
                   </select>
                 </div>
@@ -2077,6 +2105,30 @@
                 <div class="form-group">
                   <label class="form-label">Angebotspreis (€)</label>
                   <input class="form-input" id="form-prop-price" type="number" step="1" placeholder="850000">
+                </div>
+
+                <div id="form-neubau-fields" style="display:none; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px;">
+                  <div class="form-label" style="font-weight:600; margin-bottom:8px; color: var(--primary);">🏗️ Neubauprojekt-Details</div>
+                  <div class="form-group">
+                    <label class="form-label">Preis von (€)</label>
+                    <input class="form-input" id="form-prop-price-from" type="number" step="1" placeholder="299000">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Preis bis (€)</label>
+                    <input class="form-input" id="form-prop-price-to" type="number" step="1" placeholder="890000">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Wohnfläche von (qm)</label>
+                    <input class="form-input" id="form-prop-size-from" type="number" step="0.1" placeholder="45">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Wohnfläche bis (qm)</label>
+                    <input class="form-input" id="form-prop-size-to" type="number" step="0.1" placeholder="120">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Anzahl Einheiten</label>
+                    <input class="form-input" id="form-prop-num-units" type="number" step="1" placeholder="24">
+                  </div>
                 </div>
 
                 <div class="form-section-title">Kampagne</div>
@@ -2259,7 +2311,7 @@
 
               <div class="form-group">
                 <label class="form-label">Objektart</label>
-                <select class="form-select" id="edit-prop-type">
+                <select class="form-select" id="edit-prop-type" onchange="toggleNeubauFields('edit')">
                   <option value="wohnung">Wohnung</option>
                   <option value="haus">Haus</option>
                   <option value="penthouse">Penthouse</option>
@@ -2267,6 +2319,8 @@
                   <option value="reihenhaus">Reihenhaus</option>
                   <option value="grundstueck">Grundstück</option>
                   <option value="gewerbe">Gewerbe</option>
+                  <option value="neubauprojekt">Neubauprojekt</option>
+                  <option value="zweifamilienhaus">Zweifamilienhaus</option>
                   <option value="sonstige">Sonstige</option>
                 </select>
               </div>
@@ -2289,6 +2343,30 @@
               <div class="form-group">
                 <label class="form-label">Angebotspreis (€)</label>
                 <input class="form-input" id="edit-prop-price" type="number" step="1">
+              </div>
+
+              <div id="edit-neubau-fields" style="display:none; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px;">
+                <div class="form-label" style="font-weight:600; margin-bottom:8px; color: var(--primary);">🏗️ Neubauprojekt-Details</div>
+                <div class="form-group">
+                  <label class="form-label">Preis von (€)</label>
+                  <input class="form-input" id="edit-prop-price-from" type="number" step="1">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Preis bis (€)</label>
+                  <input class="form-input" id="edit-prop-price-to" type="number" step="1">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Wohnfläche von (qm)</label>
+                  <input class="form-input" id="edit-prop-size-from" type="number" step="0.1">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Wohnfläche bis (qm)</label>
+                  <input class="form-input" id="edit-prop-size-to" type="number" step="0.1">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Anzahl Einheiten</label>
+                  <input class="form-input" id="edit-prop-num-units" type="number" step="1">
+                </div>
               </div>
 
               <!-- Campaign Section -->
@@ -2416,6 +2494,8 @@
                 <option value="reihenhaus">Reihenhaus</option>
                 <option value="grundstueck">Grundstück</option>
                 <option value="gewerbe">Gewerbe</option>
+                <option value="neubauprojekt">Neubauprojekt</option>
+                <option value="zweifamilienhaus">Zweifamilienhaus</option>
                 <option value="sonstige">Sonstige</option>
               </select>
             </div>
@@ -2488,7 +2568,7 @@
         <div class="compare-input-card" id="comp-card-0">
           <div class="compare-card-title">Objekt 1</div>
           <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="comp-0-name" placeholder="z.B. Bennyweg"></div>
-          <div class="form-group"><label class="form-label">Objektart</label><select class="form-select" id="comp-0-type"><option value="wohnung">Wohnung</option><option value="haus">Haus</option><option value="penthouse">Penthouse</option><option value="villa">Villa</option><option value="reihenhaus">Reihenhaus</option><option value="grundstueck">Grundstück</option><option value="gewerbe">Gewerbe</option><option value="sonstige">Sonstige</option></select></div>
+          <div class="form-group"><label class="form-label">Objektart</label><select class="form-select" id="comp-0-type"><option value="wohnung">Wohnung</option><option value="haus">Haus</option><option value="penthouse">Penthouse</option><option value="villa">Villa</option><option value="reihenhaus">Reihenhaus</option><option value="grundstueck">Grundstück</option><option value="gewerbe">Gewerbe</option><option value="neubauprojekt">Neubauprojekt</option><option value="zweifamilienhaus">Zweifamilienhaus</option><option value="sonstige">Sonstige</option></select></div>
           <div class="form-group"><label class="form-label">Wohnfläche (qm)</label><input class="form-input" id="comp-0-size" type="number" step="0.1" placeholder="120"></div>
           <div class="form-group"><label class="form-label">Preis (€)</label><input class="form-input" id="comp-0-price" type="number" step="1" placeholder="850000"></div>
           <div class="form-group"><label class="form-label">Stadt</label><input class="form-input" id="comp-0-city" placeholder="Berlin" oninput="autoFillCityRating('comp-0-city','comp-0-rating')"></div>
@@ -2498,7 +2578,7 @@
         <div class="compare-input-card" id="comp-card-1">
           <div class="compare-card-title">Objekt 2</div>
           <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="comp-1-name" placeholder="z.B. Spanische Allee"></div>
-          <div class="form-group"><label class="form-label">Objektart</label><select class="form-select" id="comp-1-type"><option value="wohnung">Wohnung</option><option value="haus">Haus</option><option value="penthouse">Penthouse</option><option value="villa">Villa</option><option value="reihenhaus">Reihenhaus</option><option value="grundstueck">Grundstück</option><option value="gewerbe">Gewerbe</option><option value="sonstige">Sonstige</option></select></div>
+          <div class="form-group"><label class="form-label">Objektart</label><select class="form-select" id="comp-1-type"><option value="wohnung">Wohnung</option><option value="haus">Haus</option><option value="penthouse">Penthouse</option><option value="villa">Villa</option><option value="reihenhaus">Reihenhaus</option><option value="grundstueck">Grundstück</option><option value="gewerbe">Gewerbe</option><option value="neubauprojekt">Neubauprojekt</option><option value="zweifamilienhaus">Zweifamilienhaus</option><option value="sonstige">Sonstige</option></select></div>
           <div class="form-group"><label class="form-label">Wohnfläche (qm)</label><input class="form-input" id="comp-1-size" type="number" step="0.1" placeholder="241"></div>
           <div class="form-group"><label class="form-label">Preis (€)</label><input class="form-input" id="comp-1-price" type="number" step="1" placeholder="2100000"></div>
           <div class="form-group"><label class="form-label">Stadt</label><input class="form-input" id="comp-1-city" placeholder="Hamburg" oninput="autoFillCityRating('comp-1-city','comp-1-rating')"></div>
@@ -2570,6 +2650,14 @@ function getCityRating(city) {
   if (CITY_RATINGS.A.includes(c)) return 'A';
   if (CITY_RATINGS.B.includes(c)) return 'B';
   return 'C';
+}
+
+function toggleNeubauFields(prefix) {
+  var type = document.getElementById(prefix + '-prop-type').value;
+  var fields = document.getElementById(prefix + '-neubau-fields');
+  if (fields) {
+    fields.style.display = type === 'neubauprojekt' ? 'block' : 'none';
+  }
 }
 
 function autoFillCityRating(cityInputId, ratingSelectId) {
@@ -2874,7 +2962,7 @@ async function openCampaign(id) {
     // Property details
     const locRating = property?.location_rating || getCityRating(property?.city) || '—';
     const microLoc = property?.micro_location ? ({premium:'Premium',gut:'Gut',standard:'Standard',randlage:'Randlage'}[property.micro_location] || property.micro_location) : '—';
-    const propTypeLabel = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',sonstige:'Sonstige'}[property?.property_type] || property?.property_type || '—';
+    const propTypeLabel = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekt',zweifamilienhaus:'Zweifamilienhaus',sonstige:'Sonstige'}[property?.property_type] || property?.property_type || '—';
 
     document.getElementById('detail-property-info').innerHTML = `
       <div><div class="kpi-label">Adresse</div><div style="font-weight:600;">${escHtml(property?.address || '—')}</div></div>
@@ -2885,6 +2973,13 @@ async function openCampaign(id) {
       <div><div class="kpi-label">Grundstück</div><div style="font-weight:600;">${property?.plot_size ? property.plot_size + ' qm' : '—'}</div></div>
       <div><div class="kpi-label">Zimmer</div><div style="font-weight:600;">${property?.rooms || '—'}</div></div>
       <div><div class="kpi-label">Preis</div><div style="font-weight:600;">${property?.price ? formatEur(property.price) : '—'}</div></div>
+      ${property?.property_type === 'neubauprojekt' ? `
+      <div><div class="kpi-label">Preis von</div><div style="font-weight:600;">${property?.price_from ? formatEur(property.price_from) : '—'}</div></div>
+      <div><div class="kpi-label">Preis bis</div><div style="font-weight:600;">${property?.price_to ? formatEur(property.price_to) : '—'}</div></div>
+      <div><div class="kpi-label">Fläche von</div><div style="font-weight:600;">${property?.size_from ? property.size_from + ' qm' : '—'}</div></div>
+      <div><div class="kpi-label">Fläche bis</div><div style="font-weight:600;">${property?.size_to ? property.size_to + ' qm' : '—'}</div></div>
+      <div><div class="kpi-label">Einheiten</div><div style="font-weight:600;">${property?.num_units || '—'}</div></div>
+      ` : ''}
       <div><div class="kpi-label">Standort-Rating</div><div style="font-weight:600;"><span class="badge badge-active" style="font-size:12px;">${locRating}</span></div></div>
       <div><div class="kpi-label">Mikrolage</div><div style="font-weight:600;">${escHtml(microLoc)}</div></div>
     `;
@@ -3468,6 +3563,12 @@ async function openEditCampaign() {
   document.getElementById('edit-prop-plot-size').value = property.plot_size || '';
   document.getElementById('edit-prop-rooms').value = property.rooms || '';
   document.getElementById('edit-prop-price').value = property.price || '';
+  document.getElementById('edit-prop-price-from').value = property.price_from || '';
+  document.getElementById('edit-prop-price-to').value = property.price_to || '';
+  document.getElementById('edit-prop-size-from').value = property.size_from || '';
+  document.getElementById('edit-prop-size-to').value = property.size_to || '';
+  document.getElementById('edit-prop-num-units').value = property.num_units || '';
+  toggleNeubauFields('edit');
 
   // Fill campaign fields
   document.getElementById('edit-camp-name').value = campaign.campaign_name || '';
@@ -3505,7 +3606,12 @@ async function handleEditCampaign(event) {
       size_sqm: parseFloat(document.getElementById('edit-prop-size').value) || null,
       plot_size: parseFloat(document.getElementById('edit-prop-plot-size').value) || null,
       rooms: parseFloat(document.getElementById('edit-prop-rooms').value) || null,
-      price: parseFloat(document.getElementById('edit-prop-price').value) || null
+      price: parseFloat(document.getElementById('edit-prop-price').value) || null,
+      price_from: document.getElementById('edit-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('edit-prop-price-from').value) || null) : null,
+      price_to: document.getElementById('edit-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('edit-prop-price-to').value) || null) : null,
+      size_from: document.getElementById('edit-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('edit-prop-size-from').value) || null) : null,
+      size_to: document.getElementById('edit-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('edit-prop-size-to').value) || null) : null,
+      num_units: document.getElementById('edit-prop-type').value === 'neubauprojekt' ? (parseInt(document.getElementById('edit-prop-num-units').value) || null) : null
     };
 
     await sbPatch('properties', editPropertyId, propData);
@@ -4063,7 +4169,12 @@ async function handleCSVImport(event) {
       rooms: parseFloat(document.getElementById('csv-prop-rooms').value) || null,
       price: parseFloat(document.getElementById('csv-prop-price').value) || null,
       location_rating: locationRating,
-      micro_location: document.getElementById('csv-prop-micro-location').value || null
+      micro_location: document.getElementById('csv-prop-micro-location').value || null,
+      price_from: document.getElementById('csv-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('csv-prop-price-from').value) || null) : null,
+      price_to: document.getElementById('csv-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('csv-prop-price-to').value) || null) : null,
+      size_from: document.getElementById('csv-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('csv-prop-size-from').value) || null) : null,
+      size_to: document.getElementById('csv-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('csv-prop-size-to').value) || null) : null,
+      num_units: document.getElementById('csv-prop-type').value === 'neubauprojekt' ? (parseInt(document.getElementById('csv-prop-num-units').value) || null) : null
     };
     const [property] = await sbInsert('properties', propData);
 
@@ -4184,7 +4295,12 @@ async function handleCreateCampaign(event) {
       rooms: parseFloat(document.getElementById('form-prop-rooms').value) || null,
       price: parseFloat(document.getElementById('form-prop-price').value) || null,
       location_rating: locationRating,
-      micro_location: document.getElementById('form-prop-micro-location').value || null
+      micro_location: document.getElementById('form-prop-micro-location').value || null,
+      price_from: document.getElementById('form-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('form-prop-price-from').value) || null) : null,
+      price_to: document.getElementById('form-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('form-prop-price-to').value) || null) : null,
+      size_from: document.getElementById('form-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('form-prop-size-from').value) || null) : null,
+      size_to: document.getElementById('form-prop-type').value === 'neubauprojekt' ? (parseFloat(document.getElementById('form-prop-size-to').value) || null) : null,
+      num_units: document.getElementById('form-prop-type').value === 'neubauprojekt' ? (parseInt(document.getElementById('form-prop-num-units').value) || null) : null
     };
 
     const [property] = await sbInsert('properties', propData);
@@ -4384,7 +4500,7 @@ async function renderBenchmarks(campaign, property, metrics) {
         var items = byType[k];
         var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
         var tl = items.reduce(function(s,d) { return s + d.leads; }, 0);
-        var propLabel = {wohnung:'Wohnungen',haus:'Häuser',penthouse:'Penthouses',villa:'Villen',reihenhaus:'Reihenhäuser',grundstueck:'Grundstücke',gewerbe:'Gewerbe',sonstige:'Sonstige'}[k] || k;
+        var propLabel = {wohnung:'Wohnungen',haus:'Häuser',penthouse:'Penthouses',villa:'Villen',reihenhaus:'Reihenhäuser',grundstueck:'Grundstücke',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekte',zweifamilienhaus:'Zweifamilienhäuser',sonstige:'Sonstige'}[k] || k;
         return { type: k, label: propLabel, cpl: tl > 0 ? ts / tl : null, count: items.length };
       }).filter(function(t) { return t.cpl !== null; });
       if (typeAvgs.length > 1) {
@@ -4586,7 +4702,7 @@ function renderSegmentMatrix(allData, globalAvgCPL, globalAvgCPM) {
       '</div></div>';
   }
 
-  var propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',sonstige:'Sonstige'};
+  var propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekt',zweifamilienhaus:'Zweifamilienhaus',sonstige:'Sonstige'};
 
   // By City
   var byCity = groupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
@@ -4688,7 +4804,7 @@ function renderAutoInsights(allData, globalAvgCPL, N) {
   var byType = groupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
   var typeKeys = Object.keys(byType);
   if (typeKeys.length > 1) {
-    var propTypeLabels = {wohnung:'Wohnungen',haus:'Häuser',penthouse:'Penthouses',villa:'Villen',reihenhaus:'Reihenhäuser',grundstueck:'Grundstücke',gewerbe:'Gewerbe',sonstige:'Sonstige'};
+    var propTypeLabels = {wohnung:'Wohnungen',haus:'Häuser',penthouse:'Penthouses',villa:'Villen',reihenhaus:'Reihenhäuser',grundstueck:'Grundstücke',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekte',zweifamilienhaus:'Zweifamilienhäuser',sonstige:'Sonstige'};
     var typeAvgs = typeKeys.map(function(k) {
       var items = byType[k];
       var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
@@ -5069,14 +5185,21 @@ async function loadCampaignDataForPrediction() {
       id: c.id,
       name: c.campaign_name,
       prop: {
-        price: prop.price || 0,
+        price: prop.property_type === 'neubauprojekt' && prop.price_from ? prop.price_from : (prop.price || 0),
         size_sqm: prop.size_sqm || 0,
         property_type: prop.property_type || 'unknown',
         city: prop.city || '',
         location_rating: prop.location_rating || (prop.city ? getCityRating(prop.city) : null),
-        price_per_sqm: (prop.price && prop.size_sqm) ? prop.price / prop.size_sqm : null,
+        price_per_sqm: prop.property_type === 'neubauprojekt' && prop.price_from && prop.size_from
+          ? prop.price_from / prop.size_from
+          : ((prop.price && prop.size_sqm) ? prop.price / prop.size_sqm : null),
         rooms: prop.rooms || null,
-        plot_size: prop.plot_size || null
+        plot_size: prop.plot_size || null,
+        price_from: prop.price_from || null,
+        price_to: prop.price_to || null,
+        size_from: prop.size_from || null,
+        size_to: prop.size_to || null,
+        num_units: prop.num_units || null
       },
       spend: spend,
       leads: leads,
@@ -5505,7 +5628,7 @@ function addCompareProperty() {
     '<button class="compare-remove-btn" onclick="removeCompareProperty(' + n + ')" title="Entfernen">✕</button>' +
     '<div class="compare-card-title">Objekt ' + (n + 1) + '</div>' +
     '<div class="form-group"><label class="form-label">Name</label><input class="form-input" id="comp-' + n + '-name" placeholder="Objekt ' + (n + 1) + '"></div>' +
-    '<div class="form-group"><label class="form-label">Objektart</label><select class="form-select" id="comp-' + n + '-type"><option value="wohnung">Wohnung</option><option value="haus">Haus</option><option value="penthouse">Penthouse</option><option value="villa">Villa</option><option value="reihenhaus">Reihenhaus</option><option value="grundstueck">Grundstück</option><option value="gewerbe">Gewerbe</option><option value="sonstige">Sonstige</option></select></div>' +
+    '<div class="form-group"><label class="form-label">Objektart</label><select class="form-select" id="comp-' + n + '-type"><option value="wohnung">Wohnung</option><option value="haus">Haus</option><option value="penthouse">Penthouse</option><option value="villa">Villa</option><option value="reihenhaus">Reihenhaus</option><option value="grundstueck">Grundstück</option><option value="gewerbe">Gewerbe</option><option value="neubauprojekt">Neubauprojekt</option><option value="zweifamilienhaus">Zweifamilienhaus</option><option value="sonstige">Sonstige</option></select></div>' +
     '<div class="form-group"><label class="form-label">Wohnfläche (qm)</label><input class="form-input" id="comp-' + n + '-size" type="number" step="0.1"></div>' +
     '<div class="form-group"><label class="form-label">Preis (€)</label><input class="form-input" id="comp-' + n + '-price" type="number" step="1"></div>' +
     '<div class="form-group"><label class="form-label">Stadt</label><input class="form-input" id="comp-' + n + '-city" oninput="autoFillCityRating(\'comp-' + n + '-city\',\'comp-' + n + '-rating\')"></div>' +
@@ -5570,7 +5693,7 @@ async function compareProperties() {
       return;
     }
 
-    var propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',sonstige:'Sonstige'};
+    var propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekt',zweifamilienhaus:'Zweifamilienhaus',sonstige:'Sonstige'};
 
     // Predict for each property using advanced engine
     var results = inputs.map(function(inp) {
