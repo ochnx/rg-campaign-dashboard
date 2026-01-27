@@ -1484,6 +1484,78 @@
       text-align: right;
       flex-shrink: 0;
     }
+    /* Creative Recommendation Styles */
+    .creative-rec-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(38, 38, 54, 0.5);
+    }
+    .creative-rec-item:last-of-type {
+      border-bottom: none;
+    }
+    .creative-rec-badge {
+      font-size: 20px;
+      min-width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .creative-rec-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .creative-rec-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .creative-rec-stats {
+      display: flex;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+    .creative-rec-stats span {
+      white-space: nowrap;
+    }
+    .creative-rec-bar-wrap {
+      width: 100%;
+      margin-top: 4px;
+    }
+    .creative-rec-bar {
+      height: 6px;
+      background: var(--bg-input);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .creative-rec-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      transition: width 600ms ease;
+    }
+    .creative-rec-tip {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: rgba(99, 102, 241, 0.08);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .creative-rec-tip strong {
+      color: var(--text-primary);
+    }
+    .creative-rec-empty {
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 10px 0;
+    }
+
     .prediction-main {
       text-align: center;
       padding: 20px 0;
@@ -4838,8 +4910,148 @@ function renderStars(count) {
   return html;
 }
 
+// ============================================
+// CREATIVE RECOMMENDATIONS
+// Weight creative types by similarity to input property
+// ============================================
+function getCreativeRecommendations(similarCampaigns, allCreatives) {
+  const typeScores = {};
+
+  similarCampaigns.forEach(function(camp) {
+    const campCreatives = allCreatives.filter(function(c) { return c.campaign_id === camp.campaign_id; });
+    if (!campCreatives.length) return;
+
+    // Calculate total campaign spend/leads for avgCPL
+    const totalSpend = campCreatives.reduce(function(s, c) {
+      return s + (c.creative_daily_metrics || []).reduce(function(ss, m) { return ss + (m.spend || 0); }, 0);
+    }, 0);
+    const totalLeads = campCreatives.reduce(function(s, c) {
+      return s + (c.creative_daily_metrics || []).reduce(function(ss, m) { return ss + (m.leads || 0); }, 0);
+    }, 0);
+    const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+
+    // Score each creative type
+    campCreatives.forEach(function(c) {
+      const type = c.creative_type || 'unknown';
+      const metrics = c.creative_daily_metrics || [];
+      const spend = metrics.reduce(function(s, m) { return s + (m.spend || 0); }, 0);
+      const leads = metrics.reduce(function(s, m) { return s + (m.leads || 0); }, 0);
+      const cpl = leads > 0 ? spend / leads : null;
+      const score = calcScore(leads, cpl, avgCPL);
+
+      if (!typeScores[type]) {
+        typeScores[type] = { type: type, totalScore: 0, totalWeight: 0, totalLeads: 0, totalSpend: 0, campaigns: 0 };
+      }
+
+      const weight = camp.similarity || camp.combinedWeight || 1;
+      typeScores[type].totalScore += score * weight;
+      typeScores[type].totalWeight += weight;
+      typeScores[type].totalLeads += leads;
+      typeScores[type].totalSpend += spend;
+      typeScores[type].campaigns += 1;
+    });
+  });
+
+  return Object.values(typeScores)
+    .map(function(t) {
+      return {
+        type: t.type,
+        avgScore: t.totalWeight > 0 ? t.totalScore / t.totalWeight : 0,
+        avgCPL: t.totalLeads > 0 ? t.totalSpend / t.totalLeads : null,
+        totalLeads: t.totalLeads,
+        campaigns: t.campaigns
+      };
+    })
+    .filter(function(t) { return t.totalLeads > 0 || t.campaigns > 0; })
+    .sort(function(a, b) { return b.avgScore - a.avgScore; });
+}
+
+function renderCreativeRecommendations(recommendations) {
+  if (!recommendations || recommendations.length === 0) {
+    return '<div class="creative-rec-empty">Keine Creative-Daten für ähnliche Kampagnen verfügbar</div>';
+  }
+
+  var medals = ['🥇', '🥈', '🥉'];
+  var maxScore = recommendations[0].avgScore || 1;
+  var totalScore = recommendations.reduce(function(s, r) { return s + r.avgScore; }, 0);
+
+  var html = '';
+  recommendations.forEach(function(rec, i) {
+    var medal = i < 3 ? medals[i] : (i + 1) + '.';
+    var pct = maxScore > 0 ? Math.round((rec.avgScore / maxScore) * 100) : 0;
+    var label = getCreativeTypeLabel(rec.type);
+    var cplStr = rec.avgCPL !== null ? formatEur(rec.avgCPL) : '—';
+    var scoreStr = rec.avgScore.toFixed(1);
+
+    html += '<div class="creative-rec-item">' +
+      '<div class="creative-rec-badge">' + medal + '</div>' +
+      '<div class="creative-rec-info">' +
+        '<div class="creative-rec-name">' + escHtml(label) + '</div>' +
+        '<div class="creative-rec-stats">' +
+          '<span>Score: <strong>' + scoreStr + '</strong></span>' +
+          '<span>Ø CPL: <strong>' + cplStr + '</strong></span>' +
+          '<span>' + rec.totalLeads + ' Leads</span>' +
+          '<span>' + rec.campaigns + ' Kampagnen</span>' +
+        '</div>' +
+        '<div class="creative-rec-bar-wrap">' +
+          '<div class="creative-rec-bar"><div class="creative-rec-bar-fill" style="width:' + pct + '%;"></div></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+
+  // Auto-generated recommendation text
+  var tipText = '';
+  if (recommendations.length >= 1) {
+    var top = recommendations[0];
+    var topLabel = getCreativeTypeLabel(top.type);
+    var topScorePct = totalScore > 0 ? (top.avgScore / totalScore) * 100 : 100;
+
+    if (recommendations.length >= 2) {
+      var second = recommendations[1];
+      var secondLabel = getCreativeTypeLabel(second.type);
+      var ratio = second.avgScore > 0 ? top.avgScore / second.avgScore : Infinity;
+
+      if (topScorePct > 70) {
+        tipText = 'Setze hauptsächlich auf <strong>' + escHtml(topLabel) + '</strong>.';
+      } else if (ratio < 1.3) {
+        tipText = 'Kombiniere <strong>' + escHtml(topLabel) + '</strong> und <strong>' + escHtml(secondLabel) + '</strong> für optimale Performance.';
+      } else {
+        tipText = 'Setze hauptsächlich auf <strong>' + escHtml(topLabel) + '</strong>.';
+      }
+
+      // Find low-volume types with good CPL
+      var avgCPLAll = recommendations.reduce(function(s, r) { return s + (r.avgCPL || 0); }, 0) / recommendations.length;
+      for (var j = 1; j < recommendations.length; j++) {
+        var r = recommendations[j];
+        if (r.avgCPL !== null && r.avgCPL < avgCPLAll * 0.85 && r.totalLeads < top.totalLeads * 0.3) {
+          tipText += ' ' + escHtml(getCreativeTypeLabel(r.type)) + ' hat niedrigen CPL aber wenig Volumen – als Ergänzung testen.';
+          break;
+        }
+      }
+    } else {
+      tipText = 'Setze auf <strong>' + escHtml(topLabel) + '</strong> — einziger Typ mit Daten.';
+    }
+  }
+
+  if (tipText) {
+    html += '<div class="creative-rec-tip">💡 ' + tipText + '</div>';
+  }
+
+  return html;
+}
+
+var _predictionCreativesCache = null;
+
 async function loadCampaignDataForPrediction() {
-  const allRaw = await sbGet('campaigns', 'select=*,properties(*),campaign_daily_metrics(spend,leads,impressions)');
+  const allRaw = await sbGet('campaigns', 'select=*,properties(*),campaign_daily_metrics(spend,leads,impressions),creatives(*,creative_daily_metrics(spend,leads,impressions))');
+  // Store all creatives for creative recommendation
+  _predictionCreativesCache = [];
+  (allRaw || []).forEach(function(c) {
+    (c.creatives || []).forEach(function(cr) {
+      _predictionCreativesCache.push(cr);
+    });
+  });
   return (allRaw || []).map(function(c) {
     const m = c.campaign_daily_metrics || [];
     const spend = m.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
@@ -5248,6 +5460,13 @@ async function predictPerformance() {
     });
     featureHtml += '</div>';
 
+    // F) Creative Recommendations
+    var creativeRecHtml = '<div class="prediction-section">' +
+      '<div class="prediction-section-header">🎬 Empfohlene Werbemittel</div>';
+    var creativeRecs = getCreativeRecommendations(result.similarities, _predictionCreativesCache || []);
+    creativeRecHtml += renderCreativeRecommendations(creativeRecs);
+    creativeRecHtml += '</div>';
+
     // Render all
     resultsEl.innerHTML =
       '<div class="pred-result-card">' +
@@ -5257,6 +5476,7 @@ async function predictPerformance() {
           scoreHtml +
           similarHtml +
           featureHtml +
+          creativeRecHtml +
         '</div>' +
       '</div>';
 
@@ -5417,6 +5637,16 @@ async function compareProperties() {
         if (sims.length > 0) {
           var simPct = Math.round(sims[0].similarity * 100);
           return escHtml(sims[0].name) + ' (' + simPct + '%, CPL ' + formatEur(sims[0].cpl) + ')';
+        }
+        return '—';
+      } },
+      { label: 'Empfohlenes Creative', fn: function(r) {
+        var recs = getCreativeRecommendations(r.advResult.similarities, _predictionCreativesCache || []);
+        if (recs.length > 0) {
+          var topLabel = getCreativeTypeLabel(recs[0].type);
+          var scoreStr = recs[0].avgScore.toFixed(1);
+          var cplStr = recs[0].avgCPL !== null ? formatEur(recs[0].avgCPL) : '—';
+          return '🎬 <strong>' + escHtml(topLabel) + '</strong><br><span style="font-size:11px;color:var(--text-muted);">Score: ' + scoreStr + ' · CPL: ' + cplStr + '</span>';
         }
         return '—';
       } }
