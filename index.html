@@ -10,33 +10,33 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --bg-card: #16161f;
-      --bg-card-hover: #1c1c28;
-      --bg-input: #1a1a26;
-      --border: #262636;
-      --border-focus: #4f46e5;
-      --text-primary: #f0f0f5;
-      --text-secondary: #8888a0;
-      --text-muted: #555570;
-      --accent: #6366f1;
-      --accent-light: #818cf8;
-      --accent-dark: #4f46e5;
-      --green: #22c55e;
-      --green-muted: #166534;
-      --red: #ef4444;
-      --red-muted: #7f1d1d;
-      --orange: #f59e0b;
-      --orange-muted: #78350f;
-      --blue: #3b82f6;
-      --cyan: #06b6d4;
-      --gold: #fbbf24;
+      --bg-primary: #ffffff;
+      --bg-secondary: #fafafa;
+      --bg-card: #f5f5f5;
+      --bg-card-hover: #efefef;
+      --bg-input: #f5f5f5;
+      --border: #e5e5e5;
+      --border-focus: #e7352e;
+      --text-primary: #0a0a0a;
+      --text-secondary: #595959;
+      --text-muted: #8f8f8f;
+      --accent: #e7352e;
+      --accent-light: #e05c58;
+      --accent-dark: #c42d27;
+      --green: #16a34a;
+      --green-muted: #dcfce7;
+      --red: #dc2626;
+      --red-muted: #fee2e2;
+      --orange: #ea580c;
+      --orange-muted: #fff7ed;
+      --blue: #2563eb;
+      --cyan: #0891b2;
+      --gold: #ca8a04;
       --radius: 12px;
       --radius-sm: 8px;
       --radius-lg: 16px;
-      --shadow: 0 4px 24px rgba(0,0,0,0.3);
-      --shadow-lg: 0 8px 48px rgba(0,0,0,0.5);
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
       --transition: 180ms ease;
     }
 
@@ -64,15 +64,14 @@
       left: 0;
       right: 0;
       height: 64px;
-      background: rgba(10, 10, 15, 0.85);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: #ffffff;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 32px;
       z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .topnav-brand {
@@ -170,7 +169,7 @@
       color: var(--text-secondary);
     }
     .btn-ghost:hover { color: var(--text-primary); background: var(--bg-card); }
-    .btn-ghost.active { color: var(--accent-light); background: rgba(99, 102, 241, 0.1); }
+    .btn-ghost.active { color: var(--accent); background: rgba(231, 53, 46, 0.08); }
 
     .btn-sm { padding: 6px 12px; font-size: 12px; }
     .btn-icon { padding: 8px; }
@@ -384,9 +383,9 @@
     }
 
     .badge-completed {
-      background: rgba(99, 102, 241, 0.1);
-      color: var(--accent-light);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--blue);
+      border: 1px solid rgba(37, 99, 235, 0.2);
     }
 
     .badge-dot {
@@ -439,7 +438,7 @@
     .form-input:focus, .form-select:focus {
       outline: none;
       border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      box-shadow: 0 0 0 3px rgba(231, 53, 46, 0.12);
     }
 
     .form-input::placeholder { color: var(--text-muted); }
@@ -486,7 +485,7 @@
       transition: color var(--transition);
     }
 
-    .back-link:hover { color: var(--text-primary); }
+    .back-link:hover { color: var(--accent); }
 
     /* Creative cards */
     .creative-grid {
@@ -567,9 +566,9 @@
       border-radius: var(--radius-sm);
       font-size: 11px;
       font-weight: 700;
-      background: rgba(99, 102, 241, 0.1);
-      color: var(--accent-light);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      background: rgba(231, 53, 46, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(231, 53, 46, 0.2);
     }
 
     .score-badge.top { 
@@ -607,8 +606,8 @@
 
     /* Setup banner */
     .setup-banner {
-      background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.1));
-      border: 1px solid rgba(99,102,241,0.2);
+      background: linear-gradient(135deg, rgba(231,53,46,0.05), rgba(8,145,178,0.05));
+      border: 1px solid rgba(231,53,46,0.15);
       border-radius: var(--radius);
       padding: 24px;
       margin-bottom: 32px;
@@ -639,7 +638,7 @@
       padding: 2px 6px;
       border-radius: 4px;
       font-size: 12px;
-      color: var(--accent-light);
+      color: var(--accent);
     }
 
     /* Loading */
@@ -703,7 +702,7 @@
     }
 
     .tab:hover { color: var(--text-secondary); }
-    .tab.active { color: var(--accent-light); border-bottom-color: var(--accent); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
     /* Filter bar */
     .filter-bar {
@@ -810,8 +809,8 @@
 
     .ranking-tab:hover { border-color: var(--text-muted); }
     .ranking-tab.active {
-      background: rgba(99, 102, 241, 0.15);
-      color: var(--accent-light);
+      background: rgba(231, 53, 46, 0.08);
+      color: var(--accent);
       border-color: var(--accent);
     }
 
@@ -927,10 +926,9 @@
         top: 64px;
         left: 0;
         right: 0;
-        background: rgba(10, 10, 15, 0.95);
-        backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
+        background: #ffffff;
         border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
         flex-direction: column;
         padding: 12px 16px;
         gap: 4px;
@@ -955,7 +953,7 @@
       }
       .topnav-actions .btn:hover,
       .topnav-actions .btn.active {
-        background: rgba(99, 102, 241, 0.1);
+        background: rgba(231, 53, 46, 0.06);
       }
 
       /* Table scroll */
@@ -1035,6 +1033,7 @@
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events: none;
+      opacity: 0.6;
     }
     .benchmark-card .card-header { border-bottom: 1px solid var(--border); }
     .benchmark-card .card-body { padding: 24px; }
@@ -1113,7 +1112,7 @@
     }
     .insight-item::before {
       content: '•';
-      color: var(--accent-light);
+      color: var(--accent);
       margin-right: 8px;
       font-weight: 700;
     }
@@ -1134,7 +1133,7 @@
       display: flex;
       gap: 12px;
       padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid var(--border);
     }
     .smart-insight-item:last-child {
       border-bottom: none;
@@ -1308,10 +1307,10 @@
     }
     .drop-zone:hover, .drop-zone.drag-over {
       border-color: var(--accent);
-      background: rgba(99, 102, 241, 0.04);
+      background: rgba(231, 53, 46, 0.03);
     }
     .drop-zone.drag-over {
-      background: rgba(99, 102, 241, 0.08);
+      background: rgba(231, 53, 46, 0.06);
       transform: scale(1.005);
     }
     .drop-zone-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.7; }
@@ -1323,8 +1322,8 @@
 
     /* CSV Preview Card */
     .csv-preview {
-      background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(6,182,212,0.06));
-      border: 1px solid rgba(99,102,241,0.25);
+      background: linear-gradient(135deg, rgba(231,53,46,0.04), rgba(8,145,178,0.04));
+      border: 1px solid rgba(231,53,46,0.2);
       border-radius: var(--radius);
       padding: 24px;
       margin-bottom: 24px;
@@ -1341,7 +1340,7 @@
 
     /* CSV Import Loading Overlay */
     .csv-import-overlay {
-      position: fixed; inset: 0; background: rgba(10,10,15,0.7);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.3);
       display: flex; align-items: center; justify-content: center;
       z-index: 300; backdrop-filter: blur(4px);
     }
@@ -1510,8 +1509,8 @@
     }
     .add-property-btn:hover {
       border-color: var(--accent);
-      color: var(--accent-light);
-      background: rgba(99, 102, 241, 0.04);
+      color: var(--accent);
+      background: rgba(231, 53, 46, 0.03);
     }
 
     .comp-ranking {
@@ -1661,7 +1660,7 @@
       align-items: center;
       gap: 12px;
       padding: 10px 0;
-      border-bottom: 1px solid rgba(38, 38, 54, 0.5);
+      border-bottom: 1px solid var(--border);
     }
     .creative-rec-item:last-of-type {
       border-bottom: none;
@@ -1711,7 +1710,7 @@
     .creative-rec-tip {
       margin-top: 14px;
       padding: 12px 14px;
-      background: rgba(99, 102, 241, 0.08);
+      background: rgba(231, 53, 46, 0.04);
       border-left: 3px solid var(--accent);
       border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
       font-size: 13px;
@@ -1803,9 +1802,9 @@
       border: 1px solid rgba(245, 158, 11, 0.2);
     }
     .pred-method-badge.limited {
-      background: rgba(99, 102, 241, 0.1);
-      color: var(--accent-light);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--blue);
+      border: 1px solid rgba(37, 99, 235, 0.2);
     }
     .pred-method-badge.full {
       background: rgba(34, 197, 94, 0.1);
@@ -1954,9 +1953,9 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      background: rgba(99, 102, 241, 0.1);
-      color: var(--accent-light);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      background: rgba(231, 53, 46, 0.06);
+      color: var(--accent);
+      border: 1px solid rgba(231, 53, 46, 0.15);
     }
 
     .comp-ad-status {
@@ -2068,35 +2067,180 @@
       .comp-ads-grid { grid-template-columns: 1fr; }
     }
 
+    /* ============================================ */
+    /* HOME PAGE / HUB                              */
+    /* ============================================ */
+    .home-hero {
+      text-align: center;
+      padding: 48px 20px 32px;
+    }
+    .home-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      object-fit: cover;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .home-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .home-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .home-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    @media (max-width: 768px) {
+      .home-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .home-stats { grid-template-columns: 1fr; }
+    }
+
+    .home-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+    }
+    .home-stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .home-stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+    }
+
+    .home-nav-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 768px) {
+      .home-nav-grid { grid-template-columns: 1fr; }
+    }
+
+    .home-nav-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .home-nav-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    .home-nav-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    .home-nav-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .home-nav-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .home-cta {
+      text-align: center;
+      padding: 24px 0 16px;
+    }
+    .home-cta .btn-primary {
+      padding: 14px 28px;
+      font-size: 15px;
+      border-radius: var(--radius);
+    }
+
+    /* Breadcrumb / back link for sub-pages */
+    .view-breadcrumb {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: color var(--transition);
+      text-decoration: none;
+    }
+    .view-breadcrumb:hover { color: var(--accent); }
+
+    /* Topnav simplified (redesigned) */
+    .topnav-brand {
+      cursor: pointer;
+    }
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .topnav-home-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      transition: background var(--transition);
+      color: var(--text-secondary);
+    }
+    .topnav-home-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
   </style>
 </head>
 <body>
 
 <!-- Top Navigation -->
 <nav class="topnav">
-  <div class="topnav-brand">
+  <div class="topnav-brand" onclick="showView('home')">
     <img src="assets/rg-logo.png" alt="R&G" class="topnav-logo">
     <div>
-      <div class="topnav-title">Run & Gun</div>
-      <div class="topnav-subtitle">Campaign Dashboard</div>
+      <div class="topnav-title">Campaign Dashboard</div>
     </div>
   </div>
-  <button class="topnav-burger" id="nav-burger" onclick="toggleMobileNav()" aria-label="Navigation">
-    <span></span><span></span><span></span>
-  </button>
-  <div class="topnav-actions">
-    <button class="btn btn-ghost btn-sm" id="nav-campaigns" onclick="showView('campaigns')">
-      📊 Kampagnen
-    </button>
-    <button class="btn btn-ghost btn-sm" id="nav-intelligence" onclick="showView('intelligence')">
-      🧠 Creative Intelligence
-    </button>
-    <button class="btn btn-ghost btn-sm" id="nav-data-intel" onclick="showView('data-intel')">📈 Data Intelligence</button>
-    <button class="btn btn-ghost btn-sm" id="nav-predictor" onclick="showView('predictor')">🔮 Prognose</button>
-    <button class="btn btn-ghost btn-sm" id="nav-compare" onclick="showView('compare')">⚖️ Vergleich</button>
-    <button class="btn btn-ghost btn-sm" id="nav-competitor" onclick="showView('competitor')">🔍 Competitor Watch</button>
+  <div class="topnav-right">
+    <button class="topnav-home-btn" onclick="showView('home')" title="Home">🏠</button>
     <button class="btn btn-primary btn-sm" onclick="showView('new-campaign')">
-      + Neue Kampagne
+      ➕ Neue Kampagne
     </button>
   </div>
 </nav>
@@ -2118,8 +2262,89 @@
       </div>
     </div>
 
+    <!-- VIEW: Home / Hub -->
+    <div id="view-home" class="view active">
+      <div class="home-hero">
+        <img src="assets/rg-logo.png" alt="Run & Gun" class="home-logo">
+        <h1 class="home-title">Campaign Dashboard</h1>
+        <p class="home-subtitle">Dein Performance-Hub für alle Kampagnen & Competitor-Insights</p>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="home-stats">
+        <div class="home-stat-card">
+          <div class="home-stat-label">Total Kampagnen</div>
+          <div class="home-stat-value" id="home-stat-total">–</div>
+        </div>
+        <div class="home-stat-card">
+          <div class="home-stat-label">Aktive Kampagnen</div>
+          <div class="home-stat-value" id="home-stat-active" style="color:var(--green);">–</div>
+        </div>
+        <div class="home-stat-card">
+          <div class="home-stat-label">Ø CPL</div>
+          <div class="home-stat-value" id="home-stat-cpl">–</div>
+        </div>
+        <div class="home-stat-card">
+          <div class="home-stat-label">Total Leads</div>
+          <div class="home-stat-value" id="home-stat-leads">–</div>
+        </div>
+      </div>
+
+      <!-- Navigation Cards -->
+      <div class="home-nav-grid">
+        <div class="home-nav-card" onclick="showView('campaigns')">
+          <div class="home-nav-icon">📊</div>
+          <div>
+            <div class="home-nav-title">Kampagnen</div>
+            <div class="home-nav-desc">Alle Kampagnen verwalten, analysieren und importieren</div>
+          </div>
+        </div>
+        <div class="home-nav-card" onclick="showView('intelligence')">
+          <div class="home-nav-icon">🎨</div>
+          <div>
+            <div class="home-nav-title">Creative Intelligence</div>
+            <div class="home-nav-desc">Performance nach Creative-Typ analysieren</div>
+          </div>
+        </div>
+        <div class="home-nav-card" onclick="showView('data-intel')">
+          <div class="home-nav-icon">📈</div>
+          <div>
+            <div class="home-nav-title">Data Intelligence</div>
+            <div class="home-nav-desc">Korrelationen & Segment-Analyse</div>
+          </div>
+        </div>
+        <div class="home-nav-card" onclick="showView('predictor')">
+          <div class="home-nav-icon">🔮</div>
+          <div>
+            <div class="home-nav-title">Prognose</div>
+            <div class="home-nav-desc">CPL & Performance für neue Objekte vorhersagen</div>
+          </div>
+        </div>
+        <div class="home-nav-card" onclick="showView('compare')">
+          <div class="home-nav-icon">⚖️</div>
+          <div>
+            <div class="home-nav-title">Vergleich</div>
+            <div class="home-nav-desc">Objekte direkt gegenüberstellen</div>
+          </div>
+        </div>
+        <div class="home-nav-card" onclick="showView('competitor')">
+          <div class="home-nav-icon">🔍</div>
+          <div>
+            <div class="home-nav-title">Competitor Watch</div>
+            <div class="home-nav-desc">Competitor-Ads tracken & analysieren</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="home-cta">
+        <button class="btn btn-primary" onclick="showView('new-campaign')">➕ Neue Kampagne erstellen</button>
+      </div>
+    </div>
+
     <!-- VIEW: Campaign List -->
-    <div id="view-campaigns" class="view active">
+    <div id="view-campaigns" class="view">
+      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">Kampagnen</h1>
@@ -2619,9 +2844,10 @@
 
     <!-- VIEW: Creative Intelligence -->
     <div id="view-intelligence" class="view">
+      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
       <div class="page-header">
         <div>
-          <h1 class="page-title">🧠 Creative Intelligence</h1>
+          <h1 class="page-title">🎨 Creative Intelligence</h1>
           <div class="page-subtitle">Welche Creative-Art performt am besten — über alle Kampagnen hinweg</div>
         </div>
       </div>
@@ -2854,6 +3080,7 @@
 
     <!-- VIEW: Data Intelligence -->
     <div id="view-data-intel" class="view">
+      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">📈 Data Intelligence</h1>
@@ -2910,6 +3137,7 @@
 
     <!-- VIEW: Property Predictor -->
     <div id="view-predictor" class="view">
+      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">🔮 Performance-Prognose</h1>
@@ -2996,6 +3224,7 @@
 
     <!-- VIEW: Property Comparison -->
     <div id="view-compare" class="view">
+      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">⚖️ Objekt-Vergleich</h1>
@@ -3038,6 +3267,7 @@
     <!-- COMPETITOR WATCH VIEW -->
     <!-- ============================================ -->
     <div id="view-competitor" class="view">
+      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">🔍 Competitor Watch</h1>
@@ -3160,7 +3390,7 @@
     </div>
 
     <!-- Watchlist Add/Edit Modal -->
-    <div id="comp-watchlist-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:150;display:none;align-items:center;justify-content:center;">
+    <div id="comp-watchlist-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);backdrop-filter:blur(4px);z-index:150;display:none;align-items:center;justify-content:center;">
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;max-width:480px;width:90vw;box-shadow:var(--shadow-lg);">
         <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;" id="comp-modal-title">Brand zur Watchlist hinzufügen</h3>
         <input type="hidden" id="comp-modal-edit-id" value="">
@@ -3263,7 +3493,7 @@ function autoFillCityRating(cityInputId, ratingSelectId) {
 // ============================================
 // STATE
 // ============================================
-let currentView = 'campaigns';
+let currentView = 'home';
 let campaigns = [];
 let clients = [];
 let chartDaily = null;
@@ -3299,14 +3529,16 @@ function getCreativeTypeLabel(type) {
 // ============================================
 // CHART DEFAULTS
 // ============================================
-Chart.defaults.color = '#8888a0';
-Chart.defaults.borderColor = '#262636';
+Chart.defaults.color = '#8f8f8f';
+Chart.defaults.borderColor = '#e5e5e5';
 Chart.defaults.font.family = "'Inter', sans-serif";
 Chart.defaults.font.size = 11;
 Chart.defaults.plugins.legend.labels.usePointStyle = true;
 Chart.defaults.plugins.legend.labels.pointStyleWidth = 8;
-Chart.defaults.plugins.tooltip.backgroundColor = '#16161f';
-Chart.defaults.plugins.tooltip.borderColor = '#262636';
+Chart.defaults.plugins.tooltip.backgroundColor = '#ffffff';
+Chart.defaults.plugins.tooltip.titleColor = '#0a0a0a';
+Chart.defaults.plugins.tooltip.bodyColor = '#595959';
+Chart.defaults.plugins.tooltip.borderColor = '#e5e5e5';
 Chart.defaults.plugins.tooltip.borderWidth = 1;
 Chart.defaults.plugins.tooltip.padding = 12;
 Chart.defaults.plugins.tooltip.cornerRadius = 8;
@@ -3359,42 +3591,19 @@ function calcScore(leads, cpl, avgCPL) {
 // ============================================
 // NAVIGATION
 // ============================================
-function toggleMobileNav() {
-  const burger = document.getElementById('nav-burger');
-  const actions = document.querySelector('.topnav-actions');
-  burger.classList.toggle('open');
-  actions.classList.toggle('open');
-}
-
-function closeMobileNav() {
-  const burger = document.getElementById('nav-burger');
-  const actions = document.querySelector('.topnav-actions');
-  if (burger) burger.classList.remove('open');
-  if (actions) actions.classList.remove('open');
-}
-
-document.addEventListener('click', function(e) {
-  const burger = document.getElementById('nav-burger');
-  const actions = document.querySelector('.topnav-actions');
-  if (burger && actions && actions.classList.contains('open')) {
-    if (!burger.contains(e.target) && !actions.contains(e.target)) {
-      closeMobileNav();
-    }
-  }
-});
+function toggleMobileNav() { /* no-op — nav simplified */ }
+function closeMobileNav() { /* no-op — nav simplified */ }
 
 function showView(view) {
-  closeMobileNav();
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const el = document.getElementById(`view-${view}`);
   if (el) el.classList.add('active');
   currentView = view;
 
-  // Update nav active states
-  document.querySelectorAll('.topnav-actions .btn-ghost').forEach(b => b.classList.remove('active'));
-  const navBtn = document.getElementById(`nav-${view}`);
-  if (navBtn) navBtn.classList.add('active');
+  // Scroll to top on view change
+  window.scrollTo(0, 0);
 
+  if (view === 'home') loadHomeStats();
   if (view === 'campaigns') loadCampaigns();
   if (view === 'new-campaign') { resetCSVImport(); loadClientsForForm(); }
   if (view === 'intelligence') loadIntelligence();
@@ -3403,6 +3612,36 @@ function showView(view) {
   if (view === 'compare') { /* nothing to preload */ }
   if (view === 'competitor') loadCompetitorView();
   if (view === 'detail' && editCampaignId) openCampaign(editCampaignId);
+}
+
+// ============================================
+// HOME PAGE STATS
+// ============================================
+async function loadHomeStats() {
+  if (!dbReady) return;
+  try {
+    const camps = await sbGet('campaigns', 'select=id,status,properties!inner(id),campaign_daily_metrics(spend,leads)');
+    const total = camps.length;
+    const active = camps.filter(c => c.status === 'active').length;
+    let totalLeads = 0;
+    let totalSpend = 0;
+    camps.forEach(c => {
+      if (c.campaign_daily_metrics) {
+        c.campaign_daily_metrics.forEach(m => {
+          totalLeads += (m.leads || 0);
+          totalSpend += (m.spend || 0);
+        });
+      }
+    });
+    const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+
+    document.getElementById('home-stat-total').textContent = formatNum(total);
+    document.getElementById('home-stat-active').textContent = formatNum(active);
+    document.getElementById('home-stat-cpl').textContent = avgCPL > 0 ? formatEur(avgCPL) : '–';
+    document.getElementById('home-stat-leads').textContent = formatNum(totalLeads);
+  } catch (e) {
+    console.error('Home stats error:', e);
+  }
 }
 
 // ============================================
@@ -3680,8 +3919,8 @@ function renderDailyChart(metrics) {
         {
           label: 'Leads',
           data: leadsData,
-          backgroundColor: 'rgba(99, 102, 241, 0.7)',
-          borderColor: 'rgba(99, 102, 241, 1)',
+          backgroundColor: 'rgba(231, 53, 46, 0.7)',
+          borderColor: 'rgba(231, 53, 46, 1)',
           borderWidth: 1,
           borderRadius: 4,
           yAxisID: 'y1',
@@ -3727,7 +3966,7 @@ function renderDailyChart(metrics) {
         },
         y1: {
           position: 'right',
-          title: { display: true, text: 'Leads', color: '#6366f1' },
+          title: { display: true, text: 'Leads', color: '#e7352e' },
           grid: { display: false },
           beginAtZero: true,
           ticks: { stepSize: 1 }
@@ -3825,9 +4064,9 @@ function renderCreativeChart(creatives, avgCPL) {
   const leadsValues = creativeData.map(c => c.leads);
 
   // Single color for all CPL bars, gold border for winner
-  const bgColor = 'rgba(99, 102, 241, 0.7)';
+  const bgColor = 'rgba(231, 53, 46, 0.7)';
   const borderColors = creativeData.map((c, i) =>
-    i === winnerIdx ? 'rgba(251, 191, 36, 1)' : 'rgba(99, 102, 241, 1)'
+    i === winnerIdx ? 'rgba(251, 191, 36, 1)' : 'rgba(231, 53, 46, 1)'
   );
   const borderWidths = creativeData.map((c, i) => i === winnerIdx ? 3 : 1);
 
@@ -3876,7 +4115,7 @@ function renderCreativeChart(creatives, avgCPL) {
         x: { grid: { display: false } },
         y: {
           position: 'left',
-          title: { display: true, text: 'CPL (€)', color: '#6366f1' },
+          title: { display: true, text: 'CPL (€)', color: '#e7352e' },
           grid: { color: 'rgba(38, 38, 54, 0.5)' },
           ticks: { callback: v => v + ' €' }
         },
@@ -5989,8 +6228,8 @@ function renderScatterPlot(allData) {
         {
           label: 'Kampagnen',
           data: scatterData,
-          backgroundColor: 'rgba(99, 102, 241, 0.8)',
-          borderColor: 'rgba(99, 102, 241, 1)',
+          backgroundColor: 'rgba(231, 53, 46, 0.8)',
+          borderColor: 'rgba(231, 53, 46, 1)',
           borderWidth: 2,
           pointRadius: 8,
           pointHoverRadius: 12
@@ -6023,12 +6262,12 @@ function renderScatterPlot(allData) {
       },
       scales: {
         x: {
-          title: { display: true, text: 'Objektpreis (€)', color: '#8888a0' },
+          title: { display: true, text: 'Objektpreis (€)', color: '#8f8f8f' },
           ticks: { callback: function(v) { return (v / 1000).toFixed(0) + 'k €'; } },
           grid: { color: 'rgba(38, 38, 54, 0.5)' }
         },
         y: {
-          title: { display: true, text: 'CPL (€)', color: '#8888a0' },
+          title: { display: true, text: 'CPL (€)', color: '#8f8f8f' },
           ticks: { callback: function(v) { return v.toFixed(0) + ' €'; } },
           grid: { color: 'rgba(38, 38, 54, 0.5)' },
           beginAtZero: true
@@ -6833,7 +7072,7 @@ async function compareProperties() {
       var maxCPL = Math.max.apply(null, sortedForChart.map(function(r) { return r.prediction.mean; }));
       var minCPL = Math.min.apply(null, sortedForChart.map(function(r) { return r.prediction.mean; }));
       var colors = sortedForChart.map(function(r) {
-        if (maxCPL === minCPL) return 'rgba(99, 102, 241, 0.8)';
+        if (maxCPL === minCPL) return 'rgba(231, 53, 46, 0.8)';
         var ratio = (r.prediction.mean - minCPL) / (maxCPL - minCPL);
         var red = Math.round(50 + ratio * 189);
         var green = Math.round(197 - ratio * 153);
@@ -6867,7 +7106,7 @@ async function compareProperties() {
           },
           scales: {
             x: {
-              title: { display: true, text: 'Erwarteter CPL (€)', color: '#8888a0' },
+              title: { display: true, text: 'Erwarteter CPL (€)', color: '#8f8f8f' },
               ticks: { callback: function(v) { return v.toFixed(0) + ' €'; } },
               grid: { color: 'rgba(38, 38, 54, 0.5)' },
               beginAtZero: true
@@ -7496,18 +7735,10 @@ async function init() {
     const ready = await checkDatabase();
     if (ready) {
       await loadClients();
-      await loadCampaigns();
+      await loadHomeStats();
     }
   } catch (e) {
     console.error('Initialisierungsfehler:', e);
-    document.getElementById('campaigns-loading').style.display = 'none';
-    const empty = document.getElementById('campaigns-empty');
-    empty.style.display = 'block';
-    empty.innerHTML = `
-      <div class="empty-state-icon">⚠️</div>
-      <div class="empty-state-title">Fehler beim Laden</div>
-      <div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">${escHtml(e.message || String(e))}</div>
-    `;
   }
 }
 
