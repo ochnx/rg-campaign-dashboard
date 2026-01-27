@@ -897,6 +897,72 @@
 
     /* Scroll margin for fixed nav */
     .main { scroll-margin-top: 64px; }
+
+    /* CSV Import: Drop Zone */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      padding: 64px 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.04);
+    }
+    .drop-zone.drag-over {
+      background: rgba(99, 102, 241, 0.08);
+      transform: scale(1.005);
+    }
+    .drop-zone-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.7; }
+    .drop-zone-text { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .drop-zone-hint { font-size: 13px; color: var(--text-muted); }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+    }
+
+    /* CSV Preview Card */
+    .csv-preview {
+      background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(6,182,212,0.06));
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .csv-preview-title {
+      font-size: 15px; font-weight: 700; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .csv-preview-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; font-size: 14px;
+    }
+    .csv-preview-grid dt { color: var(--text-muted); font-weight: 500; }
+    .csv-preview-grid dd { color: var(--text-primary); font-weight: 600; margin: 0; }
+
+    /* CSV Import Loading Overlay */
+    .csv-import-overlay {
+      position: fixed; inset: 0; background: rgba(10,10,15,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 300; backdrop-filter: blur(4px);
+    }
+    .csv-import-overlay-box {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 40px 48px; text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+    .csv-import-overlay-box .spinner { margin: 0 auto 16px; }
+    .csv-import-overlay-text { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+
+    /* Manual form toggle link */
+    .manual-toggle-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-muted); cursor: pointer;
+      margin-top: 24px; transition: color var(--transition);
+    }
+    .manual-toggle-link:hover { color: var(--text-secondary); }
   </style>
 </head>
 <body>
@@ -1059,175 +1125,301 @@
       <div class="creative-grid" id="creative-cards"></div>
     </div>
 
-    <!-- VIEW: New Campaign -->
+    <!-- VIEW: New Campaign (CSV Import) -->
     <div id="view-new-campaign" class="view">
       <a class="back-link" onclick="showView('campaigns')">← Zurück zu Kampagnen</a>
 
       <div class="page-header">
         <div>
           <h1 class="page-title">Neue Kampagne</h1>
-          <div class="page-subtitle">Kampagne mit Objekt-Daten anlegen</div>
+          <div class="page-subtitle">Meta Ads CSV importieren oder manuell anlegen</div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-body">
-          <form id="new-campaign-form" onsubmit="handleCreateCampaign(event)">
-            <div class="form-grid">
+      <!-- Step 1: CSV Drop Zone -->
+      <div id="csv-step-upload">
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" accept=".csv" id="csv-file-input" onchange="handleCSVFileSelect(event)">
+          <div class="drop-zone-icon">📁</div>
+          <div class="drop-zone-text">Meta Ads CSV hier ablegen oder klicken</div>
+          <div class="drop-zone-hint">CSV-Export aus dem Meta Ads Manager (.csv)</div>
+        </div>
+      </div>
 
-              <!-- Client Section -->
-              <div class="form-section-title">Kunde</div>
+      <!-- Step 2: CSV Preview + Property Form -->
+      <div id="csv-step-preview" style="display:none;">
+        <div class="csv-preview" id="csv-preview"></div>
 
-              <div class="form-group">
-                <label class="form-label">Kunde auswählen</label>
-                <select class="form-select" id="form-client" onchange="toggleNewClient(this)">
-                  <option value="">— Neuen Kunden anlegen —</option>
-                </select>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Objekt-Daten ergänzen</div>
+          </div>
+          <div class="card-body">
+            <form id="csv-import-form" onsubmit="handleCSVImport(event)">
+              <div class="form-grid">
+
+                <div class="form-group">
+                  <label class="form-label">Objektname *</label>
+                  <input class="form-input" id="csv-prop-name" required placeholder="z.B. Bennyweg">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Adresse</label>
+                  <input class="form-input" id="csv-prop-address" placeholder="Straße, Hausnummer">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">PLZ</label>
+                  <input class="form-input" id="csv-prop-plz" placeholder="13187">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Stadtteil</label>
+                  <input class="form-input" id="csv-prop-stadtteil" placeholder="Pankow">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Stadt</label>
+                  <input class="form-input" id="csv-prop-city" placeholder="Berlin" oninput="autoFillCityRating('csv-prop-city','csv-prop-location-rating')">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Standort-Rating</label>
+                  <select class="form-select" id="csv-prop-location-rating">
+                    <option value="">— Automatisch —</option>
+                    <option value="A">A — Top-7-Stadt</option>
+                    <option value="B">B — Großstadt</option>
+                    <option value="C">C — Mittelstadt / Sonstige</option>
+                    <option value="D">D — Ländlich</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Mikrolage</label>
+                  <select class="form-select" id="csv-prop-micro-location">
+                    <option value="">— Keine Angabe —</option>
+                    <option value="premium">Premium</option>
+                    <option value="gut">Gut</option>
+                    <option value="standard">Standard</option>
+                    <option value="randlage">Randlage</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Objektart</label>
+                  <select class="form-select" id="csv-prop-type">
+                    <option value="wohnung">Wohnung</option>
+                    <option value="haus">Haus</option>
+                    <option value="penthouse">Penthouse</option>
+                    <option value="villa">Villa</option>
+                    <option value="reihenhaus">Reihenhaus</option>
+                    <option value="grundstueck">Grundstück</option>
+                    <option value="gewerbe">Gewerbe</option>
+                    <option value="sonstige">Sonstige</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Wohnfläche (qm)</label>
+                  <input class="form-input" id="csv-prop-size" type="number" step="0.1" placeholder="120">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Grundstücksgröße (qm)</label>
+                  <input class="form-input" id="csv-prop-plot-size" type="number" step="0.1">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Zimmer</label>
+                  <input class="form-input" id="csv-prop-rooms" type="number" step="0.5" placeholder="4">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Angebotspreis (€)</label>
+                  <input class="form-input" id="csv-prop-price" type="number" step="1" placeholder="850000">
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" onclick="resetCSVImport()">Abbrechen</button>
+                  <button type="submit" class="btn btn-primary">📥 Kampagne importieren</button>
+                </div>
+
               </div>
+            </form>
+          </div>
+        </div>
 
-              <div class="form-group" id="form-new-client-group">
-                <label class="form-label">Kundenname</label>
-                <input class="form-input" id="form-client-name" placeholder="z.B. Von Järten & Cie">
+        <div style="text-align:center;">
+          <span class="manual-toggle-link" onclick="resetCSVImport()">↩ Neue CSV hochladen</span>
+        </div>
+      </div>
+
+      <!-- Manual form toggle -->
+      <div style="text-align:center;margin-top:24px;" id="csv-manual-toggle">
+        <span class="manual-toggle-link" onclick="showManualForm()">Oder manuell anlegen →</span>
+      </div>
+
+      <!-- Hidden: Original Manual Form -->
+      <div id="csv-manual-form" style="display:none;margin-top:24px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Kampagne manuell anlegen</div>
+          </div>
+          <div class="card-body">
+            <form id="new-campaign-form" onsubmit="handleCreateCampaign(event)">
+              <div class="form-grid">
+
+                <div class="form-section-title">Kunde</div>
+
+                <div class="form-group">
+                  <label class="form-label">Kunde auswählen</label>
+                  <select class="form-select" id="form-client" onchange="toggleNewClient(this)">
+                    <option value="">— Neuen Kunden anlegen —</option>
+                  </select>
+                </div>
+
+                <div class="form-group" id="form-new-client-group">
+                  <label class="form-label">Kundenname</label>
+                  <input class="form-input" id="form-client-name" placeholder="z.B. Von Järten & Cie">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Brand / Franchise</label>
+                  <input class="form-input" id="form-brand" placeholder="z.B. Von Poll, Engel & Völkers">
+                </div>
+
+                <div class="form-section-title">Objekt</div>
+
+                <div class="form-group">
+                  <label class="form-label">Objektname *</label>
+                  <input class="form-input" id="form-prop-name" required placeholder="z.B. Falkensteiner Ufer">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Adresse</label>
+                  <input class="form-input" id="form-prop-address" placeholder="Straße, Hausnummer">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">PLZ</label>
+                  <input class="form-input" id="form-prop-plz" placeholder="22587">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Stadtteil</label>
+                  <input class="form-input" id="form-prop-stadtteil" placeholder="Blankenese">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Stadt</label>
+                  <input class="form-input" id="form-prop-city" placeholder="Hamburg" oninput="autoFillCityRating('form-prop-city','form-prop-location-rating')">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Standort-Rating</label>
+                  <select class="form-select" id="form-prop-location-rating">
+                    <option value="">— Automatisch —</option>
+                    <option value="A">A — Top-7-Stadt</option>
+                    <option value="B">B — Großstadt</option>
+                    <option value="C">C — Mittelstadt / Sonstige</option>
+                    <option value="D">D — Ländlich</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Mikrolage</label>
+                  <select class="form-select" id="form-prop-micro-location">
+                    <option value="">— Keine Angabe —</option>
+                    <option value="premium">Premium</option>
+                    <option value="gut">Gut</option>
+                    <option value="standard">Standard</option>
+                    <option value="randlage">Randlage</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Objektart</label>
+                  <select class="form-select" id="form-prop-type">
+                    <option value="wohnung">Wohnung</option>
+                    <option value="haus">Haus</option>
+                    <option value="penthouse">Penthouse</option>
+                    <option value="villa">Villa</option>
+                    <option value="reihenhaus">Reihenhaus</option>
+                    <option value="grundstueck">Grundstück</option>
+                    <option value="gewerbe">Gewerbe</option>
+                    <option value="sonstige">Sonstige</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Wohnfläche (qm)</label>
+                  <input class="form-input" id="form-prop-size" type="number" step="0.1" placeholder="120">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Grundstücksgröße (qm)</label>
+                  <input class="form-input" id="form-prop-plot-size" type="number" step="0.1">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Zimmer</label>
+                  <input class="form-input" id="form-prop-rooms" type="number" step="0.5" placeholder="4">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Angebotspreis (€)</label>
+                  <input class="form-input" id="form-prop-price" type="number" step="1" placeholder="850000">
+                </div>
+
+                <div class="form-section-title">Kampagne</div>
+
+                <div class="form-group full-width">
+                  <label class="form-label">Kampagnenname *</label>
+                  <input class="form-input" id="form-camp-name" required placeholder="z.B. Falkensteiner Ufer // Lead Gen">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Kampagnentyp</label>
+                  <select class="form-select" id="form-camp-type">
+                    <option value="lead_gen">Lead-Generierung</option>
+                    <option value="awareness">Awareness</option>
+                    <option value="traffic">Traffic</option>
+                    <option value="engagement">Engagement</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" id="form-camp-status">
+                    <option value="active">Aktiv</option>
+                    <option value="paused">Pausiert</option>
+                    <option value="completed">Abgeschlossen</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Startdatum</label>
+                  <input class="form-input" id="form-camp-start" type="date">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Enddatum</label>
+                  <input class="form-input" id="form-camp-end" type="date">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Gesamtbudget (€)</label>
+                  <input class="form-input" id="form-camp-budget" type="number" step="0.01" placeholder="1000">
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" onclick="showView('campaigns')">Abbrechen</button>
+                  <button type="submit" class="btn btn-primary">Kampagne erstellen</button>
+                </div>
+
               </div>
-
-              <div class="form-group">
-                <label class="form-label">Brand / Franchise</label>
-                <input class="form-input" id="form-brand" placeholder="z.B. Von Poll, Engel & Völkers">
-              </div>
-
-              <!-- Property Section -->
-              <div class="form-section-title">Objekt</div>
-
-              <div class="form-group">
-                <label class="form-label">Objektname *</label>
-                <input class="form-input" id="form-prop-name" required placeholder="z.B. Falkensteiner Ufer">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Adresse</label>
-                <input class="form-input" id="form-prop-address" placeholder="Straße, Hausnummer">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">PLZ</label>
-                <input class="form-input" id="form-prop-plz" placeholder="22587">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Stadtteil</label>
-                <input class="form-input" id="form-prop-stadtteil" placeholder="Blankenese">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Stadt</label>
-                <input class="form-input" id="form-prop-city" placeholder="Hamburg" oninput="autoFillCityRating('form-prop-city','form-prop-location-rating')">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Standort-Rating</label>
-                <select class="form-select" id="form-prop-location-rating">
-                  <option value="">— Automatisch —</option>
-                  <option value="A">A — Top-7-Stadt</option>
-                  <option value="B">B — Großstadt</option>
-                  <option value="C">C — Mittelstadt / Sonstige</option>
-                  <option value="D">D — Ländlich</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Mikrolage</label>
-                <select class="form-select" id="form-prop-micro-location">
-                  <option value="">— Keine Angabe —</option>
-                  <option value="premium">Premium</option>
-                  <option value="gut">Gut</option>
-                  <option value="standard">Standard</option>
-                  <option value="randlage">Randlage</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Objektart</label>
-                <select class="form-select" id="form-prop-type">
-                  <option value="wohnung">Wohnung</option>
-                  <option value="haus">Haus</option>
-                  <option value="penthouse">Penthouse</option>
-                  <option value="villa">Villa</option>
-                  <option value="reihenhaus">Reihenhaus</option>
-                  <option value="grundstueck">Grundstück</option>
-                  <option value="gewerbe">Gewerbe</option>
-                  <option value="sonstige">Sonstige</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Wohnfläche (qm)</label>
-                <input class="form-input" id="form-prop-size" type="number" step="0.1" placeholder="120">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Grundstücksgröße (qm)</label>
-                <input class="form-input" id="form-prop-plot-size" type="number" step="0.1">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Zimmer</label>
-                <input class="form-input" id="form-prop-rooms" type="number" step="0.5" placeholder="4">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Angebotspreis (€)</label>
-                <input class="form-input" id="form-prop-price" type="number" step="1" placeholder="850000">
-              </div>
-
-              <!-- Campaign Section -->
-              <div class="form-section-title">Kampagne</div>
-
-              <div class="form-group full-width">
-                <label class="form-label">Kampagnenname *</label>
-                <input class="form-input" id="form-camp-name" required placeholder="z.B. Falkensteiner Ufer // Lead Gen">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Kampagnentyp</label>
-                <select class="form-select" id="form-camp-type">
-                  <option value="lead_gen">Lead-Generierung</option>
-                  <option value="awareness">Awareness</option>
-                  <option value="traffic">Traffic</option>
-                  <option value="engagement">Engagement</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Status</label>
-                <select class="form-select" id="form-camp-status">
-                  <option value="active">Aktiv</option>
-                  <option value="paused">Pausiert</option>
-                  <option value="completed">Abgeschlossen</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Startdatum</label>
-                <input class="form-input" id="form-camp-start" type="date">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Enddatum</label>
-                <input class="form-input" id="form-camp-end" type="date">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Gesamtbudget (€)</label>
-                <input class="form-input" id="form-camp-budget" type="number" step="0.01" placeholder="1000">
-              </div>
-
-              <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="showView('campaigns')">Abbrechen</button>
-                <button type="submit" class="btn btn-primary">Kampagne erstellen</button>
-              </div>
-
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -1593,7 +1785,7 @@ function showView(view) {
   if (navBtn) navBtn.classList.add('active');
 
   if (view === 'campaigns') loadCampaigns();
-  if (view === 'new-campaign') loadClientsForForm();
+  if (view === 'new-campaign') { resetCSVImport(); loadClientsForForm(); }
   if (view === 'intelligence') loadIntelligence();
   if (view === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
@@ -2393,6 +2585,469 @@ async function handleEditCampaign(event) {
 }
 
 // ============================================
+// CSV IMPORT: PARSING & ANALYSIS
+// ============================================
+let _csvAnalysis = null; // stores current CSV analysis result
+
+function parseMetaCSV(csvText) {
+  // Strip UTF-8 BOM
+  if (csvText.charCodeAt(0) === 0xFEFF) csvText = csvText.slice(1);
+
+  const rows = [];
+  const lines = csvText.split(/\r?\n/);
+  if (lines.length < 2) return rows;
+
+  // Parse a single CSV line handling quoted fields
+  function parseLine(line) {
+    const fields = [];
+    let i = 0;
+    while (i <= line.length) {
+      if (i === line.length) { fields.push(''); break; }
+      if (line[i] === '"') {
+        // Quoted field
+        let val = '';
+        i++; // skip opening quote
+        while (i < line.length) {
+          if (line[i] === '"') {
+            if (i + 1 < line.length && line[i + 1] === '"') {
+              val += '"';
+              i += 2;
+            } else {
+              i++; // skip closing quote
+              break;
+            }
+          } else {
+            val += line[i];
+            i++;
+          }
+        }
+        fields.push(val);
+        if (i < line.length && line[i] === ',') i++; // skip delimiter
+      } else {
+        // Unquoted field
+        let j = i;
+        while (j < line.length && line[j] !== ',') j++;
+        fields.push(line.substring(i, j));
+        i = j + 1;
+      }
+    }
+    return fields;
+  }
+
+  const headers = parseLine(lines[0]);
+
+  for (let r = 1; r < lines.length; r++) {
+    const line = lines[r].trim();
+    if (!line) continue;
+    const vals = parseLine(line);
+    const obj = {};
+    for (let c = 0; c < headers.length; c++) {
+      obj[headers[c]] = vals[c] !== undefined ? vals[c] : '';
+    }
+    rows.push(obj);
+  }
+  return rows;
+}
+
+function inferCreativeType(adName) {
+  if (!adName) return 'image';
+  const lower = adName.toLowerCase();
+  if (lower.includes('carousel')) return 'carousel';
+  if (lower.includes('scn-reel') || lower.includes('scn reel')) return 'scn_reel';
+  if (lower.includes('th-reel') || lower.includes('th reel')) return 'th_reel';
+  if (lower.includes('reel') || lower.includes('video')) return 'video';
+  if (lower.includes('single image') || lower.includes('bild')) return 'single_image';
+  return 'image';
+}
+
+function analyzeCSV(rows) {
+  if (!rows || rows.length === 0) return null;
+
+  // Extract info from Ad set name
+  // Format: "VON POLL Berlin-Pankow // Bennyweg // Voroptimierte Leads // Adv + Anzeigengruppe"
+  const firstAdSet = (rows[0]['Ad set name'] || '').trim();
+  const adSetParts = firstAdSet.split('//').map(s => s.trim());
+
+  const clientPart = adSetParts[0] || ''; // "VON POLL Berlin-Pankow"
+  const propertyName = adSetParts[1] || ''; // "Bennyweg"
+  const campaignInfo = adSetParts[2] || ''; // "Voroptimierte Leads"
+
+  // Split client part: first word(s) up to city part
+  // Pattern: "VON POLL Berlin-Pankow" → client "VON POLL", location "Berlin-Pankow"
+  let clientName = clientPart;
+  let clientLocation = '';
+  const cityMatch = clientPart.match(/^(.+?)\s+(Berlin|Hamburg|München|Munich|Köln|Cologne|Frankfurt|Düsseldorf|Stuttgart|Hannover|Nürnberg|Bremen|Dresden|Leipzig|Dortmund|Essen|Bonn|Münster|Mannheim|Karlsruhe|Augsburg|Wiesbaden|Freiburg|Mainz|Heidelberg|Darmstadt|Potsdam|Regensburg|Würzburg)[\s-]*(.*)/i);
+  if (cityMatch) {
+    clientName = cityMatch[1].trim();
+    clientLocation = cityMatch[2] + (cityMatch[3] ? '-' + cityMatch[3] : '');
+    clientLocation = clientLocation.replace(/-$/, '');
+  }
+
+  // Campaign type
+  const campaignType = campaignInfo.toLowerCase().includes('lead') ? 'lead_generation' : 'awareness';
+
+  // Campaign name
+  const campaignTypeLabel = campaignType === 'lead_generation' ? 'Lead Gen' : 'Awareness';
+  const campaignName = propertyName + ' // ' + campaignTypeLabel;
+
+  // Dates
+  const dates = rows.map(r => r['Day']).filter(d => d).sort();
+  const startDate = dates[0] || '';
+  const endDate = dates[dates.length - 1] || '';
+
+  // Numeric parser
+  const num = (val) => {
+    if (!val || val === '' || val === '-') return 0;
+    return parseFloat(String(val).replace(',', '.')) || 0;
+  };
+
+  // Totals
+  let totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalReach = 0;
+  rows.forEach(r => {
+    totalSpend += num(r['Amount spent (EUR)']);
+    totalLeads += num(r['Results']);
+    totalImpressions += num(r['Impressions']);
+    totalReach += num(r['Reach']);
+  });
+
+  // Unique creatives
+  const creativeMap = {};
+  rows.forEach(r => {
+    const name = (r['Ad name'] || '').trim();
+    if (name && !creativeMap[name]) {
+      creativeMap[name] = { name, type: inferCreativeType(name) };
+    }
+  });
+  const creatives = Object.values(creativeMap);
+
+  // Daily campaign metrics (aggregated across all ads per day)
+  const dailyMap = {};
+  rows.forEach(r => {
+    const date = r['Day'];
+    if (!date) return;
+    if (!dailyMap[date]) dailyMap[date] = { date, spend: 0, impressions: 0, reach: 0, leads: 0 };
+    dailyMap[date].spend += num(r['Amount spent (EUR)']);
+    dailyMap[date].impressions += num(r['Impressions']);
+    dailyMap[date].reach += num(r['Reach']);
+    dailyMap[date].leads += num(r['Results']);
+  });
+  const dailyMetrics = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
+
+  // Creative daily metrics
+  const creativeDailyMap = {};
+  rows.forEach(r => {
+    const name = (r['Ad name'] || '').trim();
+    const date = r['Day'];
+    if (!name || !date) return;
+    const key = name + '|' + date;
+    if (!creativeDailyMap[key]) creativeDailyMap[key] = { creativeName: name, date, spend: 0, impressions: 0, reach: 0, leads: 0 };
+    creativeDailyMap[key].spend += num(r['Amount spent (EUR)']);
+    creativeDailyMap[key].impressions += num(r['Impressions']);
+    creativeDailyMap[key].reach += num(r['Reach']);
+    creativeDailyMap[key].leads += num(r['Results']);
+  });
+  const creativeDailyMetrics = Object.values(creativeDailyMap).map(m => ({
+    ...m,
+    cpl: m.leads > 0 ? m.spend / m.leads : null,
+    cpm: m.impressions > 0 ? (m.spend / m.impressions) * 1000 : null
+  }));
+
+  // Detect campaign status from delivery_status
+  const statuses = rows.map(r => (r['Delivery status'] || '').toLowerCase());
+  const hasActive = statuses.some(s => s === 'active' || s === 'delivering');
+  const campaignStatus = hasActive ? 'active' : 'completed';
+
+  return {
+    campaignName,
+    clientName,
+    clientLocation,
+    propertyName,
+    campaignType,
+    campaignStatus,
+    startDate,
+    endDate,
+    totalSpend,
+    totalLeads,
+    totalImpressions,
+    totalReach,
+    creatives,
+    dailyMetrics,
+    creativeDailyMetrics
+  };
+}
+
+// ============================================
+// CSV IMPORT: UI HANDLERS
+// ============================================
+function initDropZone() {
+  const zone = document.getElementById('drop-zone');
+  if (!zone) return;
+
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+  zone.addEventListener('dragleave', () => {
+    zone.classList.remove('drag-over');
+  });
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handleCSVFile(files[0]);
+  });
+}
+
+function handleCSVFileSelect(event) {
+  const files = event.target.files;
+  if (files.length > 0) handleCSVFile(files[0]);
+}
+
+function handleCSVFile(file) {
+  if (!file.name.toLowerCase().endsWith('.csv')) {
+    showToast('Bitte eine CSV-Datei auswählen', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const text = e.target.result;
+      const rows = parseMetaCSV(text);
+      if (!rows || rows.length === 0) {
+        showToast('CSV-Datei ist leer oder konnte nicht gelesen werden', 'error');
+        return;
+      }
+
+      const analysis = analyzeCSV(rows);
+      if (!analysis) {
+        showToast('CSV konnte nicht analysiert werden', 'error');
+        return;
+      }
+
+      _csvAnalysis = analysis;
+      showCSVPreview(analysis);
+    } catch (err) {
+      console.error('CSV-Parse-Fehler:', err);
+      showToast('Fehler beim Lesen der CSV: ' + (err.message || String(err)), 'error');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function showCSVPreview(analysis) {
+  // Hide upload, show preview
+  document.getElementById('csv-step-upload').style.display = 'none';
+  document.getElementById('csv-step-preview').style.display = 'block';
+  document.getElementById('csv-manual-toggle').style.display = 'none';
+
+  // Render preview card
+  const startShort = formatDateShort(analysis.startDate);
+  const endShort = formatDateShort(analysis.endDate);
+  const spendFormatted = formatEur(analysis.totalSpend);
+
+  document.getElementById('csv-preview').innerHTML = `
+    <div class="csv-preview-title">📊 CSV erkannt</div>
+    <dl class="csv-preview-grid">
+      <dt>Kampagne</dt><dd>${escHtml(analysis.campaignName)}</dd>
+      <dt>Kunde</dt><dd>${escHtml(analysis.clientName)}${analysis.clientLocation ? ' · ' + escHtml(analysis.clientLocation) : ''}</dd>
+      <dt>Zeitraum</dt><dd>${startShort} – ${endShort}</dd>
+      <dt>Ausgaben</dt><dd>${spendFormatted}</dd>
+      <dt>Leads</dt><dd>${analysis.totalLeads}</dd>
+      <dt>Creatives</dt><dd>${analysis.creatives.length}</dd>
+      <dt>Impressions</dt><dd>${formatNum(analysis.totalImpressions)}</dd>
+      <dt>Tage</dt><dd>${analysis.dailyMetrics.length}</dd>
+    </dl>
+  `;
+
+  // Pre-fill property form
+  document.getElementById('csv-prop-name').value = analysis.propertyName || '';
+
+  // Try to extract city from clientLocation (e.g. "Berlin-Pankow" → city "Berlin", stadtteil "Pankow")
+  if (analysis.clientLocation) {
+    const parts = analysis.clientLocation.split('-');
+    const city = parts[0] || '';
+    const stadtteil = parts.slice(1).join('-') || '';
+    document.getElementById('csv-prop-city').value = city;
+    if (stadtteil) document.getElementById('csv-prop-stadtteil').value = stadtteil;
+    autoFillCityRating('csv-prop-city', 'csv-prop-location-rating');
+  }
+}
+
+function resetCSVImport() {
+  _csvAnalysis = null;
+  document.getElementById('csv-step-upload').style.display = 'block';
+  document.getElementById('csv-step-preview').style.display = 'none';
+  document.getElementById('csv-manual-toggle').style.display = 'block';
+  document.getElementById('csv-manual-form').style.display = 'none';
+  // Reset file input
+  const fi = document.getElementById('csv-file-input');
+  if (fi) fi.value = '';
+  // Reset form
+  const form = document.getElementById('csv-import-form');
+  if (form) form.reset();
+}
+
+function showManualForm() {
+  document.getElementById('csv-manual-form').style.display = 'block';
+  document.getElementById('csv-manual-toggle').style.display = 'none';
+  loadClientsForForm();
+}
+
+function showCSVImportLoading(show) {
+  let overlay = document.getElementById('csv-import-overlay');
+  if (show) {
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'csv-import-overlay';
+      overlay.className = 'csv-import-overlay';
+      overlay.innerHTML = `
+        <div class="csv-import-overlay-box">
+          <div class="spinner"></div>
+          <div class="csv-import-overlay-text">Kampagne wird importiert…</div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'flex';
+  } else {
+    if (overlay) overlay.style.display = 'none';
+  }
+}
+
+// ============================================
+// CSV IMPORT: DATABASE LOGIC
+// ============================================
+async function handleCSVImport(event) {
+  event.preventDefault();
+
+  if (!dbReady) {
+    showToast('Datenbank nicht bereit. Bitte zuerst migration.sql ausführen.', 'error');
+    return;
+  }
+
+  if (!_csvAnalysis) {
+    showToast('Keine CSV-Daten vorhanden. Bitte zuerst eine CSV hochladen.', 'error');
+    return;
+  }
+
+  const analysis = _csvAnalysis;
+  showCSVImportLoading(true);
+
+  try {
+    // 1. Get or create client
+    let clientId = null;
+    const existingClients = await sbGet('clients', `name=eq.${encodeURIComponent(analysis.clientName)}&select=id,name`);
+    if (existingClients && existingClients.length > 0) {
+      clientId = existingClients[0].id;
+    } else {
+      const [newClient] = await sbInsert('clients', {
+        name: analysis.clientName,
+        brand: analysis.clientName
+      });
+      clientId = newClient.id;
+    }
+
+    // 2. Create property
+    const locationRating = document.getElementById('csv-prop-location-rating').value ||
+      getCityRating(document.getElementById('csv-prop-city').value) || null;
+    const propData = {
+      client_id: clientId,
+      name: document.getElementById('csv-prop-name').value || analysis.propertyName,
+      address: document.getElementById('csv-prop-address').value || null,
+      plz: document.getElementById('csv-prop-plz').value || null,
+      stadtteil: document.getElementById('csv-prop-stadtteil').value || null,
+      city: document.getElementById('csv-prop-city').value || null,
+      property_type: document.getElementById('csv-prop-type').value,
+      size_sqm: parseFloat(document.getElementById('csv-prop-size').value) || null,
+      plot_size: parseFloat(document.getElementById('csv-prop-plot-size').value) || null,
+      rooms: parseFloat(document.getElementById('csv-prop-rooms').value) || null,
+      price: parseFloat(document.getElementById('csv-prop-price').value) || null,
+      location_rating: locationRating,
+      micro_location: document.getElementById('csv-prop-micro-location').value || null
+    };
+    const [property] = await sbInsert('properties', propData);
+
+    // 3. Create campaign
+    const campData = {
+      property_id: property.id,
+      platform: 'meta',
+      campaign_name: analysis.campaignName,
+      campaign_type: analysis.campaignType,
+      start_date: analysis.startDate || null,
+      end_date: analysis.endDate || null,
+      total_budget: Math.round(analysis.totalSpend * 100) / 100,
+      status: analysis.campaignStatus
+    };
+    const [campaign] = await sbInsert('campaigns', campData);
+
+    // 4. Create campaign_daily_metrics
+    const dailyRows = analysis.dailyMetrics.map(d => ({
+      campaign_id: campaign.id,
+      date: d.date,
+      spend: Math.round(d.spend * 100) / 100,
+      impressions: Math.round(d.impressions),
+      reach: Math.round(d.reach),
+      clicks: null,
+      leads: Math.round(d.leads),
+      cpl: d.leads > 0 ? Math.round((d.spend / d.leads) * 100) / 100 : null,
+      cpm: d.impressions > 0 ? Math.round(((d.spend / d.impressions) * 1000) * 100) / 100 : null,
+      ctr: null
+    }));
+    if (dailyRows.length > 0) {
+      await sbInsert('campaign_daily_metrics', dailyRows);
+    }
+
+    // 5. Create creatives
+    const creativeIdMap = {};
+    for (const cr of analysis.creatives) {
+      const [newCreative] = await sbInsert('creatives', {
+        campaign_id: campaign.id,
+        creative_name: cr.name,
+        creative_type: cr.type
+      });
+      creativeIdMap[cr.name] = newCreative.id;
+    }
+
+    // 6. Create creative_daily_metrics
+    const creativeDailyRows = analysis.creativeDailyMetrics
+      .filter(m => creativeIdMap[m.creativeName])
+      .map(m => ({
+        creative_id: creativeIdMap[m.creativeName],
+        date: m.date,
+        spend: Math.round(m.spend * 100) / 100,
+        impressions: Math.round(m.impressions),
+        reach: Math.round(m.reach),
+        clicks: null,
+        leads: Math.round(m.leads),
+        cpl: m.cpl != null ? Math.round(m.cpl * 100) / 100 : null,
+        cpm: m.cpm != null ? Math.round(m.cpm * 100) / 100 : null
+      }));
+    if (creativeDailyRows.length > 0) {
+      await sbInsert('creative_daily_metrics', creativeDailyRows);
+    }
+
+    showCSVImportLoading(false);
+
+    // 7. Show success toast
+    showToast(
+      `✓ Import erfolgreich: ${analysis.totalLeads} Leads, ${analysis.creatives.length} Creatives, ${analysis.dailyMetrics.length} Tage`,
+      'success'
+    );
+
+    // 8. Reset and navigate to detail
+    _csvAnalysis = null;
+    resetCSVImport();
+    openCampaign(campaign.id);
+
+  } catch (e) {
+    showCSVImportLoading(false);
+    console.error('CSV-Import fehlgeschlagen:', e);
+    showToast('Import-Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  }
+}
+
+// ============================================
 // CREATE CAMPAIGN
 // ============================================
 async function handleCreateCampaign(event) {
@@ -2479,6 +3134,7 @@ function escHtml(str) {
 // ============================================
 async function init() {
   try {
+    initDropZone();
     const ready = await checkDatabase();
     if (ready) {
       await loadClients();
