@@ -2417,10 +2417,11 @@ async function loadIntelligence() {
     const allSpend = Object.values(typeMap).reduce((s, t) => s + t.totalSpend, 0);
     const globalAvgCPL = allLeads > 0 ? allSpend / allLeads : 0;
 
-    // Calc per-type metrics
+    // Calc per-type metrics (average score per creative, not sum)
     const typeData = Object.values(typeMap).map(t => {
       const avgCPL = t.totalLeads > 0 ? t.totalSpend / t.totalLeads : 0;
-      const score = calcScore(t.totalLeads, avgCPL, globalAvgCPL || 1);
+      const totalScore = calcScore(t.totalLeads, avgCPL, globalAvgCPL || 1);
+      const score = t.creativeCount > 0 ? Math.round((totalScore / t.creativeCount) * 10) / 10 : 0;
       return { ...t, avgCPL, score };
     });
 
