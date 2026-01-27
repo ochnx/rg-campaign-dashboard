@@ -1124,22 +1124,28 @@ function showView(view) {
 // ============================================
 async function checkDatabase() {
   try {
+    console.log('[DB] Checking database...');
     const { data, error } = await supabase.from('clients').select('id').limit(1);
-    if (error && error.code === 'PGRST205') {
-      // Table doesn't exist
+    console.log('[DB] Check result:', { data, error });
+    if (error && (error.code === 'PGRST205' || error.code === '42P01')) {
       document.getElementById('setup-banner').style.display = 'flex';
       dbReady = false;
       document.getElementById('campaigns-loading').style.display = 'none';
       document.getElementById('campaigns-empty').style.display = 'block';
       return false;
     }
+    if (error) {
+      console.error('[DB] Unexpected error:', error);
+      // Still try to proceed
+    }
     dbReady = true;
     document.getElementById('setup-banner').style.display = 'none';
     return true;
   } catch (e) {
-    console.error('DB check failed:', e);
+    console.error('[DB] Check failed:', e);
     dbReady = false;
     document.getElementById('setup-banner').style.display = 'flex';
+    document.getElementById('campaigns-loading').style.display = 'none';
     return false;
   }
 }
@@ -1219,9 +1225,14 @@ async function loadCampaigns() {
     loading.style.display = 'none';
     table.style.display = 'table';
   } catch (e) {
-    console.error('Load campaigns error:', e);
+    console.error('[Campaigns] Load error:', e);
     loading.style.display = 'none';
     empty.style.display = 'block';
+    empty.innerHTML = `
+      <div class="empty-state-icon">⚠️</div>
+      <div class="empty-state-title">Fehler beim Laden</div>
+      <div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">${escHtml(e?.message || String(e))}</div>
+    `;
   }
 }
 
@@ -1712,12 +1723,41 @@ function escHtml(str) {
 // INIT
 // ============================================
 async function init() {
-  const ready = await checkDatabase();
-  if (ready) {
-    await loadClients();
-    await loadCampaigns();
+  try {
+    console.log('[Dashboard] Initializing...');
+    const ready = await checkDatabase();
+    console.log('[Dashboard] DB ready:', ready);
+    if (ready) {
+      await loadClients();
+      console.log('[Dashboard] Clients loaded');
+      await loadCampaigns();
+      console.log('[Dashboard] Campaigns loaded');
+    }
+  } catch (e) {
+    console.error('[Dashboard] Init error:', e);
+    document.getElementById('campaigns-loading').style.display = 'none';
+    document.getElementById('campaigns-empty').style.display = 'block';
+    document.getElementById('campaigns-empty').innerHTML = `
+      <div class="empty-state-icon">⚠️</div>
+      <div class="empty-state-title">Fehler beim Laden</div>
+      <div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">${escHtml(e.message || String(e))}</div>
+    `;
   }
 }
+
+// Auto-timeout: if still loading after 15 seconds, show error
+setTimeout(() => {
+  const loading = document.getElementById('campaigns-loading');
+  if (loading && loading.style.display !== 'none') {
+    loading.style.display = 'none';
+    document.getElementById('campaigns-empty').style.display = 'block';
+    document.getElementById('campaigns-empty').innerHTML = `
+      <div class="empty-state-icon">⏱️</div>
+      <div class="empty-state-title">Laden dauert zu lange</div>
+      <div class="empty-state-desc">Öffne die Browser-Konsole (F12 → Console) für Details.</div>
+    `;
+  }
+}, 15000);
 
 init();
 </script>
