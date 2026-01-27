@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Run & Gun — Campaign Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #16161f;
+      --bg-card-hover: #1c1c28;
+      --bg-input: #1a1a26;
+      --border: #262636;
+      --border-focus: #4f46e5;
+      --text-primary: #f0f0f5;
+      --text-secondary: #8888a0;
+      --text-muted: #555570;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --accent-dark: #4f46e5;
+      --green: #22c55e;
+      --green-muted: #166534;
+      --red: #ef4444;
+      --red-muted: #7f1d1d;
+      --orange: #f59e0b;
+      --orange-muted: #78350f;
+      --blue: #3b82f6;
+      --cyan: #06b6d4;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-lg: 16px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.3);
+      --shadow-lg: 0 8px 48px rgba(0,0,0,0.5);
+      --transition: 180ms ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* Top Nav */
+    .topnav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 100;
+    }
+
+    .topnav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topnav-logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: white;
+    }
+
+    .topnav-title {
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .topnav-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .topnav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--text-muted); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+    .btn-ghost:hover { color: var(--text-primary); background: var(--bg-card); }
+
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-icon { padding: 8px; }
+
+    /* Main Content */
+    .main {
+      padding-top: 64px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: all var(--transition);
+    }
+
+    .kpi-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .kpi-unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-left: 4px;
+    }
+
+    .kpi-change {
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-change.positive { color: var(--green); }
+    .kpi-change.negative { color: var(--red); }
+    .kpi-change.neutral { color: var(--text-muted); }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .card-body { padding: 24px; }
+
+    /* Chart containers */
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 320px;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 900px) {
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Campaign List */
+    .campaign-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .campaign-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .campaign-table td {
+      padding: 16px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .campaign-table tbody tr {
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .campaign-table tbody tr:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .campaign-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .campaign-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .campaign-property {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Status badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-active {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .badge-paused {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--orange);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .badge-completed {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-light);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Platform badges */
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .platform-meta { color: #0082fb; border-color: rgba(0,130,251,0.2); background: rgba(0,130,251,0.08); }
+    .platform-google { color: #ea4335; border-color: rgba(234,67,53,0.2); background: rgba(234,67,53,0.08); }
+    .platform-tiktok { color: #fe2c55; border-color: rgba(254,44,85,0.2); background: rgba(254,44,85,0.08); }
+
+    /* Value formatting */
+    .value-eur { font-variant-numeric: tabular-nums; }
+    .value-good { color: var(--green); }
+    .value-bad { color: var(--red); }
+    .value-neutral { color: var(--text-secondary); }
+
+    /* Forms */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full-width { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .form-input, .form-select {
+      padding: 10px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color var(--transition);
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    .form-section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      grid-column: 1 / -1;
+    }
+
+    .form-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 16px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Back button */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: color var(--transition);
+    }
+
+    .back-link:hover { color: var(--text-primary); }
+
+    /* Creative cards */
+    .creative-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .creative-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: all var(--transition);
+    }
+
+    .creative-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .creative-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .creative-card-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .creative-card-type {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .creative-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .creative-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .creative-stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 80px 40px;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .empty-state-desc {
+      font-size: 14px;
+      max-width: 400px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Setup banner */
+    .setup-banner {
+      background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.1));
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .setup-banner-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .setup-banner-content h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .setup-banner-content p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .setup-banner-content code {
+      background: var(--bg-input);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--accent-light);
+    }
+
+    /* Loading */
+    .loading-spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Notification toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(120%);
+      transition: transform 300ms ease;
+      z-index: 200;
+    }
+
+    .toast.visible { transform: translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+    }
+
+    .tab {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all var(--transition);
+    }
+
+    .tab:hover { color: var(--text-secondary); }
+    .tab.active { color: var(--accent-light); border-bottom-color: var(--accent); }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-bar .form-select, .filter-bar .form-input {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 16px; }
+      .topnav { padding: 0 16px; }
+      .page-title { font-size: 22px; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-grid { grid-template-columns: 1fr; }
+      .campaign-table th:nth-child(n+4),
+      .campaign-table td:nth-child(n+4) { display: none; }
+      .topnav-subtitle { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+      .kpi-value { font-size: 24px; }
+    }
+
+    /* View transitions */
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 200ms ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scroll margin for fixed nav */
+    .main { scroll-margin-top: 64px; }
+  </style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="topnav">
+  <div class="topnav-brand">
+    <div class="topnav-logo">R</div>
+    <div>
+      <div class="topnav-title">Run & Gun</div>
+      <div class="topnav-subtitle">Campaign Dashboard</div>
+    </div>
+  </div>
+  <div class="topnav-actions">
+    <button class="btn btn-ghost btn-sm" onclick="showView('campaigns')">
+      📊 Campaigns
+    </button>
+    <button class="btn btn-primary btn-sm" onclick="showView('new-campaign')">
+      + Neue Kampagne
+    </button>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+  <div class="container">
+
+    <!-- SETUP BANNER (shown when DB not ready) -->
+    <div id="setup-banner" class="setup-banner" style="display:none;">
+      <div class="setup-banner-icon">⚙️</div>
+      <div class="setup-banner-content">
+        <h3>Database Setup erforderlich</h3>
+        <p>
+          Die Tabellen existieren noch nicht. Öffne den
+          <a href="https://supabase.com/dashboard/project/lvhxabadywdqeepymwdm/sql" target="_blank" style="color:var(--accent-light)">Supabase SQL Editor</a>
+          und führe nacheinander die Dateien <code>migration.sql</code> und <code>seed.sql</code> aus.
+        </p>
+      </div>
+    </div>
+
+    <!-- VIEW: Campaign List -->
+    <div id="view-campaigns" class="view active">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Kampagnen</h1>
+          <div class="page-subtitle">Alle aktiven und abgeschlossenen Kampagnen</div>
+        </div>
+        <button class="btn btn-primary" onclick="showView('new-campaign')">
+          + Neue Kampagne
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <select class="form-select" id="filter-client" onchange="loadCampaigns()">
+          <option value="">Alle Kunden</option>
+        </select>
+        <select class="form-select" id="filter-status" onchange="loadCampaigns()">
+          <option value="">Alle Status</option>
+          <option value="active">Aktiv</option>
+          <option value="paused">Pausiert</option>
+          <option value="completed">Abgeschlossen</option>
+        </select>
+        <select class="form-select" id="filter-platform" onchange="loadCampaigns()">
+          <option value="">Alle Plattformen</option>
+          <option value="meta">Meta</option>
+          <option value="google">Google</option>
+          <option value="tiktok">TikTok</option>
+          <option value="linkedin">LinkedIn</option>
+        </select>
+      </div>
+
+      <!-- Campaign Table -->
+      <div class="card">
+        <div id="campaigns-loading" class="loading-spinner">
+          <div class="spinner"></div>
+        </div>
+        <table class="campaign-table" id="campaigns-table" style="display:none;">
+          <thead>
+            <tr>
+              <th>Kampagne</th>
+              <th>Plattform</th>
+              <th>Status</th>
+              <th>Spend</th>
+              <th>Leads</th>
+              <th>CPL</th>
+              <th>Zeitraum</th>
+            </tr>
+          </thead>
+          <tbody id="campaigns-tbody"></tbody>
+        </table>
+        <div id="campaigns-empty" class="empty-state" style="display:none;">
+          <div class="empty-state-icon">📭</div>
+          <div class="empty-state-title">Keine Kampagnen gefunden</div>
+          <div class="empty-state-desc">Erstelle eine neue Kampagne oder ändere die Filter.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: Campaign Detail -->
+    <div id="view-detail" class="view">
+      <a class="back-link" onclick="showView('campaigns')">← Zurück zu Kampagnen</a>
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" id="detail-title">—</h1>
+          <div class="page-subtitle" id="detail-subtitle">—</div>
+        </div>
+        <div id="detail-status"></div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="detail-kpis"></div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Spend & Leads — Tagesverlauf</div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chart-daily"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">CPL — Tagesverlauf</div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="chart-cpl"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creative Performance -->
+      <div class="card" style="margin-bottom:32px;">
+        <div class="card-header">
+          <div class="card-title">Creative Performance</div>
+        </div>
+        <div class="card-body">
+          <div class="chart-container" style="height:280px;">
+            <canvas id="chart-creatives"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creative Cards -->
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:16px;">Creative Details</h3>
+      <div class="creative-grid" id="creative-cards"></div>
+    </div>
+
+    <!-- VIEW: New Campaign -->
+    <div id="view-new-campaign" class="view">
+      <a class="back-link" onclick="showView('campaigns')">← Zurück zu Kampagnen</a>
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Neue Kampagne</h1>
+          <div class="page-subtitle">Kampagne mit Objekt-Daten anlegen</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <form id="new-campaign-form" onsubmit="handleCreateCampaign(event)">
+            <div class="form-grid">
+
+              <!-- Client Section -->
+              <div class="form-section-title">Kunde</div>
+
+              <div class="form-group">
+                <label class="form-label">Kunde auswählen</label>
+                <select class="form-select" id="form-client" onchange="toggleNewClient(this)">
+                  <option value="">— Neuen Kunden anlegen —</option>
+                </select>
+              </div>
+
+              <div class="form-group" id="form-new-client-group">
+                <label class="form-label">Kundenname</label>
+                <input class="form-input" id="form-client-name" placeholder="z.B. Von Järten & Cie">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Brand / Franchise</label>
+                <input class="form-input" id="form-brand" placeholder="z.B. Von Poll, Engel & Völkers">
+              </div>
+
+              <!-- Property Section -->
+              <div class="form-section-title">Objekt</div>
+
+              <div class="form-group">
+                <label class="form-label">Objektname *</label>
+                <input class="form-input" id="form-prop-name" required placeholder="z.B. Falkensteiner Ufer">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Adresse</label>
+                <input class="form-input" id="form-prop-address" placeholder="Straße, Hausnummer">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">PLZ</label>
+                <input class="form-input" id="form-prop-plz" placeholder="22587">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Stadtteil</label>
+                <input class="form-input" id="form-prop-stadtteil" placeholder="Blankenese">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Stadt</label>
+                <input class="form-input" id="form-prop-city" placeholder="Hamburg">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Objektart</label>
+                <select class="form-select" id="form-prop-type">
+                  <option value="wohnung">Wohnung</option>
+                  <option value="haus">Haus</option>
+                  <option value="penthouse">Penthouse</option>
+                  <option value="villa">Villa</option>
+                  <option value="reihenhaus">Reihenhaus</option>
+                  <option value="grundstueck">Grundstück</option>
+                  <option value="gewerbe">Gewerbe</option>
+                  <option value="sonstige">Sonstige</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Wohnfläche (qm)</label>
+                <input class="form-input" id="form-prop-size" type="number" step="0.1" placeholder="120">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Zimmer</label>
+                <input class="form-input" id="form-prop-rooms" type="number" step="0.5" placeholder="4">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Angebotspreis (€)</label>
+                <input class="form-input" id="form-prop-price" type="number" step="1" placeholder="850000">
+              </div>
+
+              <!-- Campaign Section -->
+              <div class="form-section-title">Kampagne</div>
+
+              <div class="form-group full-width">
+                <label class="form-label">Kampagnenname *</label>
+                <input class="form-input" id="form-camp-name" required placeholder="z.B. Falkensteiner Ufer // Lead Gen">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Plattform *</label>
+                <select class="form-select" id="form-camp-platform" required>
+                  <option value="meta">Meta (Facebook / Instagram)</option>
+                  <option value="google">Google Ads</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="linkedin">LinkedIn</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Kampagnentyp</label>
+                <select class="form-select" id="form-camp-type">
+                  <option value="lead_gen">Lead-Generierung</option>
+                  <option value="awareness">Awareness</option>
+                  <option value="traffic">Traffic</option>
+                  <option value="engagement">Engagement</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Startdatum</label>
+                <input class="form-input" id="form-camp-start" type="date">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Enddatum</label>
+                <input class="form-input" id="form-camp-end" type="date">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Gesamtbudget (€)</label>
+                <input class="form-input" id="form-camp-budget" type="number" step="0.01" placeholder="1000">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="form-camp-status">
+                  <option value="active">Aktiv</option>
+                  <option value="paused">Pausiert</option>
+                  <option value="completed">Abgeschlossen</option>
+                </select>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="showView('campaigns')">Abbrechen</button>
+                <button type="submit" class="btn btn-primary">Kampagne erstellen</button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================
+// SUPABASE CONFIG
+// ============================================
+const SUPABASE_URL = 'https://lvhxabadywdqeepymwdm.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2aHhhYmFkeXdkcWVlcHltd2RtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTUyMjM3NSwiZXhwIjoyMDg1MDk4Mzc1fQ.3BWQG5yeG8nshvukSi3YksxUbg273tJDiZnU9fAlzY0';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================
+// STATE
+// ============================================
+let currentView = 'campaigns';
+let campaigns = [];
+let clients = [];
+let chartDaily = null;
+let chartCPL = null;
+let chartCreatives = null;
+let dbReady = false;
+
+// ============================================
+// CHART DEFAULTS
+// ============================================
+Chart.defaults.color = '#8888a0';
+Chart.defaults.borderColor = '#262636';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyleWidth = 8;
+Chart.defaults.plugins.tooltip.backgroundColor = '#16161f';
+Chart.defaults.plugins.tooltip.borderColor = '#262636';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.titleFont = { size: 12, weight: '600', family: "'Inter', sans-serif" };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 12, family: "'Inter', sans-serif" };
+
+// ============================================
+// HELPERS
+// ============================================
+function formatEur(val) {
+  if (val == null || isNaN(val)) return '—';
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(val);
+}
+
+function formatNum(val) {
+  if (val == null || isNaN(val)) return '—';
+  return new Intl.NumberFormat('de-DE').format(val);
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function formatDateShort(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+}
+
+function statusBadge(status) {
+  const cls = status === 'active' ? 'badge-active' : status === 'paused' ? 'badge-paused' : 'badge-completed';
+  const label = status === 'active' ? 'Aktiv' : status === 'paused' ? 'Pausiert' : 'Abgeschlossen';
+  return `<span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>`;
+}
+
+function platformBadge(platform) {
+  const p = (platform || '').toLowerCase();
+  const cls = p === 'meta' ? 'platform-meta' : p === 'google' ? 'platform-google' : p === 'tiktok' ? 'platform-tiktok' : '';
+  const label = p === 'meta' ? '📘 Meta' : p === 'google' ? '🔍 Google' : p === 'tiktok' ? '🎵 TikTok' : p === 'linkedin' ? '💼 LinkedIn' : platform;
+  return `<span class="platform-badge ${cls}">${label}</span>`;
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} visible`;
+  setTimeout(() => t.classList.remove('visible'), 3000);
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
+function showView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById(`view-${view}`);
+  if (el) el.classList.add('active');
+  currentView = view;
+
+  if (view === 'campaigns') loadCampaigns();
+  if (view === 'new-campaign') loadClientsForForm();
+}
+
+// ============================================
+// DATA LOADING
+// ============================================
+async function checkDatabase() {
+  try {
+    const { data, error } = await supabase.from('clients').select('id').limit(1);
+    if (error && error.code === 'PGRST205') {
+      // Table doesn't exist
+      document.getElementById('setup-banner').style.display = 'flex';
+      dbReady = false;
+      document.getElementById('campaigns-loading').style.display = 'none';
+      document.getElementById('campaigns-empty').style.display = 'block';
+      return false;
+    }
+    dbReady = true;
+    document.getElementById('setup-banner').style.display = 'none';
+    return true;
+  } catch (e) {
+    console.error('DB check failed:', e);
+    dbReady = false;
+    document.getElementById('setup-banner').style.display = 'flex';
+    return false;
+  }
+}
+
+async function loadCampaigns() {
+  if (!dbReady) return;
+
+  const loading = document.getElementById('campaigns-loading');
+  const table = document.getElementById('campaigns-table');
+  const empty = document.getElementById('campaigns-empty');
+  const tbody = document.getElementById('campaigns-tbody');
+
+  loading.style.display = 'flex';
+  table.style.display = 'none';
+  empty.style.display = 'none';
+
+  try {
+    // Build query
+    let query = supabase
+      .from('campaigns')
+      .select(`
+        *,
+        properties!inner(name, client_id, stadtteil, city,
+          clients!inner(name, brand)
+        ),
+        campaign_daily_metrics(spend, leads, impressions)
+      `)
+      .order('created_at', { ascending: false });
+
+    // Apply filters
+    const statusFilter = document.getElementById('filter-status').value;
+    const platformFilter = document.getElementById('filter-platform').value;
+    const clientFilter = document.getElementById('filter-client').value;
+
+    if (statusFilter) query = query.eq('status', statusFilter);
+    if (platformFilter) query = query.eq('platform', platformFilter);
+    if (clientFilter) query = query.eq('properties.client_id', clientFilter);
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    campaigns = data || [];
+
+    if (campaigns.length === 0) {
+      loading.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+
+    // Render table
+    tbody.innerHTML = campaigns.map(c => {
+      const metrics = c.campaign_daily_metrics || [];
+      const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
+      const totalLeads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
+      const cpl = totalLeads > 0 ? totalSpend / totalLeads : null;
+      const property = c.properties;
+      const client = property?.clients;
+
+      return `
+        <tr onclick="openCampaign('${c.id}')">
+          <td>
+            <div class="campaign-name">${escHtml(c.campaign_name)}</div>
+            <div class="campaign-property">${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}</div>
+          </td>
+          <td>${platformBadge(c.platform)}</td>
+          <td>${statusBadge(c.status)}</td>
+          <td class="value-eur">${formatEur(totalSpend)}</td>
+          <td><strong>${formatNum(totalLeads)}</strong></td>
+          <td class="value-eur ${cpl && cpl < 10 ? 'value-good' : cpl && cpl > 15 ? 'value-bad' : ''}">${cpl ? formatEur(cpl) : '—'}</td>
+          <td style="color:var(--text-secondary);font-size:13px;">
+            ${formatDate(c.start_date)}${c.end_date ? ' – ' + formatDate(c.end_date) : ' – laufend'}
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    loading.style.display = 'none';
+    table.style.display = 'table';
+  } catch (e) {
+    console.error('Load campaigns error:', e);
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+  }
+}
+
+async function loadClients() {
+  if (!dbReady) return;
+  const { data } = await supabase.from('clients').select('*').order('name');
+  clients = data || [];
+
+  // Update filter
+  const filter = document.getElementById('filter-client');
+  const current = filter.value;
+  filter.innerHTML = '<option value="">Alle Kunden</option>' +
+    clients.map(c => `<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
+  filter.value = current;
+}
+
+async function loadClientsForForm() {
+  if (!dbReady) return;
+  const { data } = await supabase.from('clients').select('*').order('name');
+  const select = document.getElementById('form-client');
+  select.innerHTML = '<option value="">— Neuen Kunden anlegen —</option>' +
+    (data || []).map(c => `<option value="${c.id}">${escHtml(c.name)}${c.brand ? ' (' + escHtml(c.brand) + ')' : ''}</option>`).join('');
+}
+
+function toggleNewClient(select) {
+  const group = document.getElementById('form-new-client-group');
+  group.style.display = select.value ? 'none' : 'flex';
+}
+
+// ============================================
+// CAMPAIGN DETAIL
+// ============================================
+async function openCampaign(id) {
+  showView('detail');
+
+  try {
+    // Load campaign
+    const { data: campaign, error } = await supabase
+      .from('campaigns')
+      .select(`
+        *,
+        properties(*, clients(*)),
+        campaign_daily_metrics(*),
+        creatives(*, creative_daily_metrics(*))
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    const property = campaign.properties;
+    const client = property?.clients;
+    const metrics = (campaign.campaign_daily_metrics || []).sort((a, b) => a.date.localeCompare(b.date));
+    const creatives = campaign.creatives || [];
+
+    // Header
+    document.getElementById('detail-title').textContent = campaign.campaign_name;
+    document.getElementById('detail-subtitle').innerHTML =
+      `${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}${property?.stadtteil ? ', ' + escHtml(property.stadtteil) : ''} · ${platformBadge(campaign.platform)}`;
+    document.getElementById('detail-status').innerHTML = statusBadge(campaign.status);
+
+    // KPIs
+    const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
+    const totalLeads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
+    const totalImpressions = metrics.reduce((s, m) => s + (m.impressions || 0), 0);
+    const totalReach = metrics.reduce((s, m) => s + (m.reach || 0), 0);
+    const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : null;
+    const avgCPM = totalImpressions > 0 ? (totalSpend / totalImpressions) * 1000 : null;
+    const days = metrics.length;
+    const avgLeadsDay = days > 0 ? totalLeads / days : 0;
+
+    document.getElementById('detail-kpis').innerHTML = `
+      <div class="kpi-card">
+        <div class="kpi-label">Gesamtausgaben</div>
+        <div class="kpi-value">${formatEur(totalSpend)}</div>
+        <div class="kpi-change neutral">${days} Tage · Ø ${formatEur(totalSpend / Math.max(days, 1))}/Tag</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Leads gesamt</div>
+        <div class="kpi-value">${totalLeads}</div>
+        <div class="kpi-change neutral">Ø ${avgLeadsDay.toFixed(1)} Leads/Tag</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Ø Cost per Lead</div>
+        <div class="kpi-value ${avgCPL && avgCPL < 10 ? 'value-good' : avgCPL && avgCPL > 15 ? 'value-bad' : ''}">${avgCPL ? formatEur(avgCPL) : '—'}</div>
+        <div class="kpi-change ${avgCPL && avgCPL < 10 ? 'positive' : avgCPL && avgCPL > 15 ? 'negative' : 'neutral'}">${avgCPL && avgCPL < 10 ? '✓ Unter 10 €' : avgCPL && avgCPL > 15 ? '⚠ Über 15 €' : 'Im Zielbereich'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Impressions</div>
+        <div class="kpi-value">${formatNum(totalImpressions)}</div>
+        <div class="kpi-change neutral">Reach: ${formatNum(totalReach)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Ø CPM</div>
+        <div class="kpi-value">${avgCPM ? formatEur(avgCPM) : '—'}</div>
+        <div class="kpi-change neutral">Pro 1.000 Impressions</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Lead-Rate</div>
+        <div class="kpi-value">${totalImpressions > 0 ? ((totalLeads / totalImpressions) * 100).toFixed(2) + '%' : '—'}</div>
+        <div class="kpi-change neutral">Leads / Impressions</div>
+      </div>
+    `;
+
+    // === CHARTS ===
+    renderDailyChart(metrics);
+    renderCPLChart(metrics);
+    renderCreativeChart(creatives);
+    renderCreativeCards(creatives);
+
+  } catch (e) {
+    console.error('Load campaign detail error:', e);
+    showToast('Fehler beim Laden der Kampagne', 'error');
+  }
+}
+
+function renderDailyChart(metrics) {
+  const ctx = document.getElementById('chart-daily').getContext('2d');
+  if (chartDaily) chartDaily.destroy();
+
+  const labels = metrics.map(m => formatDateShort(m.date));
+  const spendData = metrics.map(m => m.spend || 0);
+  const leadsData = metrics.map(m => m.leads || 0);
+
+  chartDaily = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Leads',
+          data: leadsData,
+          backgroundColor: 'rgba(99, 102, 241, 0.7)',
+          borderColor: 'rgba(99, 102, 241, 1)',
+          borderWidth: 1,
+          borderRadius: 4,
+          yAxisID: 'y1',
+          order: 2
+        },
+        {
+          label: 'Spend (€)',
+          data: spendData,
+          type: 'line',
+          borderColor: 'rgba(6, 182, 212, 1)',
+          backgroundColor: 'rgba(6, 182, 212, 0.1)',
+          borderWidth: 2,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          fill: true,
+          tension: 0.3,
+          yAxisID: 'y',
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.dataset.label === 'Spend (€)') return `Spend: ${formatEur(ctx.raw)}`;
+              return `Leads: ${ctx.raw}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          position: 'left',
+          title: { display: true, text: 'Spend (€)', color: '#06b6d4' },
+          grid: { color: 'rgba(38, 38, 54, 0.5)' },
+          ticks: { callback: v => v + ' €' }
+        },
+        y1: {
+          position: 'right',
+          title: { display: true, text: 'Leads', color: '#6366f1' },
+          grid: { display: false },
+          beginAtZero: true,
+          ticks: { stepSize: 1 }
+        }
+      }
+    }
+  });
+}
+
+function renderCPLChart(metrics) {
+  const ctx = document.getElementById('chart-cpl').getContext('2d');
+  if (chartCPL) chartCPL.destroy();
+
+  const filtered = metrics.filter(m => m.leads > 0);
+  const labels = filtered.map(m => formatDateShort(m.date));
+  const cplData = filtered.map(m => m.cpl || (m.spend / m.leads));
+  const avgCPL = cplData.reduce((s, v) => s + v, 0) / Math.max(cplData.length, 1);
+
+  chartCPL = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'CPL (€)',
+          data: cplData,
+          borderColor: 'rgba(245, 158, 11, 1)',
+          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+          borderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: cplData.map(v => v <= avgCPL ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)'),
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: 'Ø CPL',
+          data: new Array(labels.length).fill(avgCPL),
+          borderColor: 'rgba(255, 255, 255, 0.2)',
+          borderWidth: 1,
+          borderDash: [5, 5],
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${formatEur(ctx.raw)}`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          grid: { color: 'rgba(38, 38, 54, 0.5)' },
+          ticks: { callback: v => v.toFixed(0) + ' €' },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+function renderCreativeChart(creatives) {
+  const ctx = document.getElementById('chart-creatives').getContext('2d');
+  if (chartCreatives) chartCreatives.destroy();
+
+  // Aggregate metrics per creative
+  const creativeData = creatives.map(c => {
+    const metrics = c.creative_daily_metrics || [];
+    const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
+    const totalLeads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
+    const cpl = totalLeads > 0 ? totalSpend / totalLeads : 0;
+    return {
+      name: c.creative_name,
+      type: c.creative_type,
+      spend: totalSpend,
+      leads: totalLeads,
+      cpl
+    };
+  }).sort((a, b) => (a.cpl === 0 ? Infinity : a.cpl) - (b.cpl === 0 ? Infinity : b.cpl));
+
+  const labels = creativeData.map(c => c.name);
+  const cplValues = creativeData.map(c => c.cpl);
+  const leadsValues = creativeData.map(c => c.leads);
+
+  const colors = creativeData.map(c =>
+    c.leads === 0 ? 'rgba(85, 85, 112, 0.5)' :
+    c.cpl < 7 ? 'rgba(34, 197, 94, 0.7)' :
+    c.cpl < 10 ? 'rgba(99, 102, 241, 0.7)' :
+    'rgba(245, 158, 11, 0.7)'
+  );
+
+  chartCreatives = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'CPL (€)',
+          data: cplValues,
+          backgroundColor: colors,
+          borderColor: colors.map(c => c.replace('0.7', '1').replace('0.5', '0.7')),
+          borderWidth: 1,
+          borderRadius: 6,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Leads',
+          data: leadsValues,
+          type: 'line',
+          borderColor: 'rgba(6, 182, 212, 1)',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: 'rgba(6, 182, 212, 1)',
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.dataset.label === 'CPL (€)') return `CPL: ${ctx.raw > 0 ? formatEur(ctx.raw) : 'Keine Leads'}`;
+              return `Leads: ${ctx.raw}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          position: 'left',
+          title: { display: true, text: 'CPL (€)', color: '#6366f1' },
+          grid: { color: 'rgba(38, 38, 54, 0.5)' },
+          ticks: { callback: v => v + ' €' }
+        },
+        y1: {
+          position: 'right',
+          title: { display: true, text: 'Leads', color: '#06b6d4' },
+          grid: { display: false },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+function renderCreativeCards(creatives) {
+  const container = document.getElementById('creative-cards');
+
+  const cards = creatives.map(c => {
+    const metrics = c.creative_daily_metrics || [];
+    const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
+    const totalLeads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
+    const totalImpressions = metrics.reduce((s, m) => s + (m.impressions || 0), 0);
+    const totalReach = metrics.reduce((s, m) => s + (m.reach || 0), 0);
+    const cpl = totalLeads > 0 ? totalSpend / totalLeads : null;
+    const cpm = totalImpressions > 0 ? (totalSpend / totalImpressions) * 1000 : null;
+
+    const typeLabel = {
+      'single_image': 'Single Image',
+      'carousel': 'Carousel',
+      'reel': 'Reel',
+      'video': 'Video',
+      'story': 'Story'
+    }[c.creative_type] || c.creative_type;
+
+    return `
+      <div class="creative-card">
+        <div class="creative-card-header">
+          <div class="creative-card-name">${escHtml(c.creative_name)}</div>
+          <div class="creative-card-type">${escHtml(typeLabel)}</div>
+        </div>
+        <div class="creative-stats">
+          <div>
+            <div class="creative-stat-label">Leads</div>
+            <div class="creative-stat-value">${totalLeads}</div>
+          </div>
+          <div>
+            <div class="creative-stat-label">CPL</div>
+            <div class="creative-stat-value ${cpl && cpl < 10 ? 'value-good' : cpl && cpl > 15 ? 'value-bad' : ''}">${cpl ? formatEur(cpl) : '—'}</div>
+          </div>
+          <div>
+            <div class="creative-stat-label">Spend</div>
+            <div class="creative-stat-value" style="font-size:14px;">${formatEur(totalSpend)}</div>
+          </div>
+          <div>
+            <div class="creative-stat-label">Impressions</div>
+            <div class="creative-stat-value" style="font-size:14px;">${formatNum(totalImpressions)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = cards || '<div class="empty-state"><div class="empty-state-desc">Keine Creatives vorhanden</div></div>';
+}
+
+// ============================================
+// CREATE CAMPAIGN
+// ============================================
+async function handleCreateCampaign(event) {
+  event.preventDefault();
+
+  if (!dbReady) {
+    showToast('Database nicht bereit. Bitte zuerst migration.sql ausführen.', 'error');
+    return;
+  }
+
+  try {
+    // 1. Get or create client
+    let clientId = document.getElementById('form-client').value;
+
+    if (!clientId) {
+      const clientName = document.getElementById('form-client-name').value;
+      const brand = document.getElementById('form-brand').value;
+
+      if (!clientName) {
+        showToast('Bitte Kundennamen eingeben', 'error');
+        return;
+      }
+
+      const { data: newClient, error: clientErr } = await supabase
+        .from('clients')
+        .insert({ name: clientName, brand: brand || null })
+        .select()
+        .single();
+
+      if (clientErr) throw clientErr;
+      clientId = newClient.id;
+    }
+
+    // 2. Create property
+    const propData = {
+      client_id: clientId,
+      name: document.getElementById('form-prop-name').value,
+      address: document.getElementById('form-prop-address').value || null,
+      plz: document.getElementById('form-prop-plz').value || null,
+      stadtteil: document.getElementById('form-prop-stadtteil').value || null,
+      city: document.getElementById('form-prop-city').value || null,
+      property_type: document.getElementById('form-prop-type').value,
+      size_sqm: parseFloat(document.getElementById('form-prop-size').value) || null,
+      rooms: parseFloat(document.getElementById('form-prop-rooms').value) || null,
+      price: parseFloat(document.getElementById('form-prop-price').value) || null
+    };
+
+    const { data: property, error: propErr } = await supabase
+      .from('properties')
+      .insert(propData)
+      .select()
+      .single();
+
+    if (propErr) throw propErr;
+
+    // 3. Create campaign
+    const campData = {
+      property_id: property.id,
+      platform: document.getElementById('form-camp-platform').value,
+      campaign_name: document.getElementById('form-camp-name').value,
+      campaign_type: document.getElementById('form-camp-type').value,
+      start_date: document.getElementById('form-camp-start').value || null,
+      end_date: document.getElementById('form-camp-end').value || null,
+      total_budget: parseFloat(document.getElementById('form-camp-budget').value) || null,
+      status: document.getElementById('form-camp-status').value
+    };
+
+    const { data: campaign, error: campErr } = await supabase
+      .from('campaigns')
+      .insert(campData)
+      .select()
+      .single();
+
+    if (campErr) throw campErr;
+
+    showToast('Kampagne erfolgreich erstellt! ✓');
+    document.getElementById('new-campaign-form').reset();
+    showView('campaigns');
+
+  } catch (e) {
+    console.error('Create campaign error:', e);
+    showToast('Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  }
+}
+
+// ============================================
+// ESCAPE HTML
+// ============================================
+function escHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ============================================
+// INIT
+// ============================================
+async function init() {
+  const ready = await checkDatabase();
+  if (ready) {
+    await loadClients();
+    await loadCampaigns();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
