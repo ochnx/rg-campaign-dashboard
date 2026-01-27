@@ -886,6 +886,228 @@
       .kpi-value { font-size: 24px; }
     }
 
+    /* Benchmark card */
+    .benchmark-card {
+      background: var(--bg-card);
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 32px;
+      background-clip: padding-box;
+      position: relative;
+    }
+    .benchmark-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      padding: 1px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan), var(--accent-light));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .benchmark-card .card-header { border-bottom: 1px solid var(--border); }
+    .benchmark-card .card-body { padding: 24px; }
+
+    .benchmark-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .benchmark-metric {
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+    }
+    .benchmark-metric-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .benchmark-metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .benchmark-metric-compare {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .benchmark-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .benchmark-badge.good {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+    .benchmark-badge.bad {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+    .benchmark-badge.neutral {
+      background: rgba(136, 136, 160, 0.12);
+      color: var(--text-secondary);
+      border: 1px solid rgba(136, 136, 160, 0.25);
+    }
+
+    .benchmark-insights {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .benchmark-insights-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text-secondary);
+    }
+
+    .insight-item {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 6px 0;
+      line-height: 1.5;
+    }
+    .insight-item::before {
+      content: '•';
+      color: var(--accent-light);
+      margin-right: 8px;
+      font-weight: 700;
+    }
+
+    .benchmark-sample-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 12px;
+      font-style: italic;
+    }
+
+    /* Correlation bar */
+    .correlation-bar-container {
+      margin-bottom: 14px;
+    }
+    .correlation-bar-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .correlation-bar-track {
+      height: 24px;
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      position: relative;
+      overflow: hidden;
+    }
+    .correlation-bar-center {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--text-muted);
+      opacity: 0.4;
+    }
+    .correlation-bar-fill {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      border-radius: 4px;
+      transition: all 600ms ease;
+    }
+    .correlation-bar-fill.positive {
+      background: linear-gradient(90deg, rgba(239,68,68,0.3), var(--red));
+    }
+    .correlation-bar-fill.negative {
+      background: linear-gradient(270deg, rgba(34,197,94,0.3), var(--green));
+    }
+    .correlation-bar-sublabel {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Segment table */
+    .segment-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .segment-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-input);
+    }
+    .segment-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .segment-table tbody tr:last-child td { border-bottom: none; }
+    .segment-table tbody tr:hover { background: var(--bg-card-hover); }
+    .segment-cell-good { color: var(--green); font-weight: 600; }
+    .segment-cell-bad { color: var(--red); font-weight: 600; }
+
+    /* Scatter plot container */
+    .scatter-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+    }
+
+    /* Data intel sections */
+    .data-intel-section {
+      margin-bottom: 40px;
+    }
+    .data-intel-section-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .data-intel-warning {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 12px;
+      color: var(--orange);
+      margin-bottom: 20px;
+    }
+    .data-intel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .data-intel-grid { grid-template-columns: 1fr; }
+    }
+
     /* View transitions */
     .view { display: none; }
     .view.active { display: block; animation: fadeIn 200ms ease; }
@@ -983,6 +1205,7 @@
     <button class="btn btn-ghost btn-sm" id="nav-intelligence" onclick="showView('intelligence')">
       🧠 Creative Intelligence
     </button>
+    <button class="btn btn-ghost btn-sm" id="nav-data-intel" onclick="showView('data-intel')">📈 Data Intelligence</button>
     <button class="btn btn-primary btn-sm" onclick="showView('new-campaign')">
       + Neue Kampagne
     </button>
@@ -1086,6 +1309,9 @@
 
       <!-- KPI Cards -->
       <div class="kpi-grid" id="detail-kpis"></div>
+
+      <!-- Benchmarks -->
+      <div id="detail-benchmarks"></div>
 
       <!-- Charts -->
       <div class="charts-grid">
@@ -1650,6 +1876,62 @@
       </div>
     </div>
 
+    <!-- VIEW: Data Intelligence -->
+    <div id="view-data-intel" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">📈 Data Intelligence</h1>
+          <div class="page-subtitle">Statistische Analyse aller Kampagnen — Segmente, Korrelationen & Insights</div>
+        </div>
+      </div>
+
+      <div id="data-intel-loading" class="loading-spinner">
+        <div class="spinner"></div>
+      </div>
+
+      <div id="data-intel-content" style="display:none;">
+
+        <!-- Section A: Segment Performance Matrix -->
+        <div class="data-intel-section">
+          <div class="data-intel-section-title">📊 Segment-Performance-Matrix</div>
+          <div id="data-intel-warning"></div>
+          <div class="data-intel-grid" id="data-intel-segments"></div>
+        </div>
+
+        <!-- Section B: Korrelations-Analyse -->
+        <div class="data-intel-section">
+          <div class="data-intel-section-title">🔗 Korrelations-Analyse</div>
+          <div class="card">
+            <div class="card-body" id="data-intel-correlations"></div>
+          </div>
+        </div>
+
+        <!-- Section C: Auto-Insights -->
+        <div class="data-intel-section">
+          <div class="data-intel-section-title">💡 Auto-Insights</div>
+          <div class="card">
+            <div class="card-body" id="data-intel-insights"></div>
+          </div>
+        </div>
+
+        <!-- Section D: Scatter Plot -->
+        <div class="data-intel-section">
+          <div class="data-intel-section-title">🔍 Kampagnen-Vergleich</div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Preis vs. CPL</div>
+            </div>
+            <div class="card-body">
+              <div class="scatter-container">
+                <canvas id="chart-scatter-cpl"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1827,6 +2109,7 @@ function showView(view) {
   if (view === 'campaigns') loadCampaigns();
   if (view === 'new-campaign') { resetCSVImport(); loadClientsForForm(); }
   if (view === 'intelligence') loadIntelligence();
+  if (view === 'data-intel') loadDataIntelligence();
   if (view === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
 
@@ -2064,6 +2347,9 @@ async function openCampaign(id) {
         <div class="kpi-change neutral">Leads / Impressions</div>
       </div>
     `;
+
+    // === BENCHMARKS ===
+    renderBenchmarks(campaign, property, { totalSpend, totalLeads, totalImpressions, totalReach, avgCPL, avgCPM, days, avgLeadsDay });
 
     // === CHARTS ===
     renderDailyChart(metrics);
@@ -3351,6 +3637,670 @@ function escHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// ============================================
+// STATISTICAL HELPERS
+// ============================================
+function pearsonCorrelation(x, y) {
+  const n = x.length;
+  if (n < 2) return null;
+  const avgX = x.reduce((s,v) => s+v, 0) / n;
+  const avgY = y.reduce((s,v) => s+v, 0) / n;
+  let num = 0, denX = 0, denY = 0;
+  for (let i = 0; i < n; i++) {
+    const dx = x[i] - avgX, dy = y[i] - avgY;
+    num += dx * dy;
+    denX += dx * dx;
+    denY += dy * dy;
+  }
+  const den = Math.sqrt(denX * denY);
+  return den === 0 ? 0 : num / den;
+}
+
+function linearRegression(x, y) {
+  const n = x.length;
+  if (n < 2) return null;
+  const avgX = x.reduce((s,v) => s+v, 0) / n;
+  const avgY = y.reduce((s,v) => s+v, 0) / n;
+  let num = 0, den = 0;
+  for (let i = 0; i < n; i++) {
+    num += (x[i] - avgX) * (y[i] - avgY);
+    den += (x[i] - avgX) ** 2;
+  }
+  const slope = den === 0 ? 0 : num / den;
+  return { slope, intercept: avgY - slope * avgX };
+}
+
+function percentileRank(value, values, lowerIsBetter) {
+  if (lowerIsBetter === undefined) lowerIsBetter = true;
+  const sorted = [...values].sort((a, b) => lowerIsBetter ? a - b : b - a);
+  const rank = sorted.indexOf(value) + 1;
+  return Math.round((1 - (rank - 1) / sorted.length) * 100);
+}
+
+function groupBy(arr, keyFn) {
+  const map = {};
+  arr.forEach(function(item) {
+    const key = keyFn(item);
+    if (!map[key]) map[key] = [];
+    map[key].push(item);
+  });
+  return map;
+}
+
+function priceRange(price) {
+  if (!price) return 'Unbekannt';
+  if (price < 500000) return '< 500k';
+  if (price < 1000000) return '500k – 1M';
+  if (price < 2000000) return '1M – 2M';
+  return '2M+';
+}
+
+function correlationLabel(r) {
+  var abs = Math.abs(r);
+  if (abs < 0.3) return 'schwach';
+  if (abs < 0.6) return 'mittel';
+  if (abs < 0.8) return 'stark';
+  return 'sehr stark';
+}
+
+// ============================================
+// BENCHMARK RENDERING (Detail View)
+// ============================================
+let _scatterChart = null;
+
+async function renderBenchmarks(campaign, property, metrics) {
+  const container = document.getElementById('detail-benchmarks');
+  if (!container) return;
+  container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+
+  try {
+    var allCampaignsRaw = await sbGet('campaigns', 'select=*,properties(*),campaign_daily_metrics(spend,leads,impressions,reach)');
+    if (!allCampaignsRaw || allCampaignsRaw.length < 2) {
+      container.innerHTML = '';
+      return;
+    }
+
+    // Calc metrics for each campaign
+    var allData = allCampaignsRaw.map(function(c) {
+      var m = c.campaign_daily_metrics || [];
+      var spend = m.reduce(function(s, x) { return s + (x.spend || 0); }, 0);
+      var leads = m.reduce(function(s, x) { return s + (x.leads || 0); }, 0);
+      var impr = m.reduce(function(s, x) { return s + (x.impressions || 0); }, 0);
+      var days = m.length || 1;
+      return {
+        id: c.id,
+        name: c.campaign_name,
+        prop: c.properties,
+        spend: spend,
+        leads: leads,
+        impressions: impr,
+        days: days,
+        cpl: leads > 0 ? spend / leads : null,
+        cpm: impr > 0 ? (spend / impr) * 1000 : null,
+        leadsPerDay: leads / days
+      };
+    }).filter(function(d) { return d.leads > 0; });
+
+    var N = allData.length;
+    if (N < 2) { container.innerHTML = ''; return; }
+
+    // Global averages
+    var totalSpendAll = allData.reduce(function(s,d) { return s + d.spend; }, 0);
+    var totalLeadsAll = allData.reduce(function(s,d) { return s + d.leads; }, 0);
+    var totalImprAll = allData.reduce(function(s,d) { return s + d.impressions; }, 0);
+    var totalDaysAll = allData.reduce(function(s,d) { return s + d.days; }, 0);
+    var avgCPL = totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 0;
+    var avgCPM = totalImprAll > 0 ? (totalSpendAll / totalImprAll) * 1000 : 0;
+    var avgLeadsDay = totalDaysAll > 0 ? totalLeadsAll / totalDaysAll : 0;
+
+    // Current campaign
+    var thisCPL = metrics.avgCPL;
+    var thisCPM = metrics.avgCPM;
+    var thisLeadsDay = metrics.avgLeadsDay;
+
+    // Percentile
+    var cplValues = allData.map(function(d) { return d.cpl; }).filter(function(v) { return v !== null; });
+    var pctRank = thisCPL ? percentileRank(thisCPL, cplValues, true) : null;
+
+    // Comparison helpers
+    function compareMetric(val, avg) {
+      if (!val || !avg || avg === 0) return { pct: 0, cls: 'neutral', arrow: '' };
+      var pct = ((val - avg) / avg) * 100;
+      var abs = Math.abs(pct);
+      if (abs < 5) return { pct: pct, cls: 'neutral', arrow: '≈' };
+      return { pct: pct, cls: pct < 0 ? 'good' : 'bad', arrow: pct < 0 ? '↓' : '↑' };
+    }
+
+    function compareMetricInverse(val, avg) {
+      if (!val || !avg || avg === 0) return { pct: 0, cls: 'neutral', arrow: '' };
+      var pct = ((val - avg) / avg) * 100;
+      var abs = Math.abs(pct);
+      if (abs < 5) return { pct: pct, cls: 'neutral', arrow: '≈' };
+      return { pct: pct, cls: pct > 0 ? 'good' : 'bad', arrow: pct > 0 ? '↑' : '↓' };
+    }
+
+    var cplComp = compareMetric(thisCPL, avgCPL);
+    var cpmComp = compareMetric(thisCPM, avgCPM);
+    var lpdComp = compareMetricInverse(thisLeadsDay, avgLeadsDay);
+
+    function fmtComp(val, avg, comp, unit) {
+      if (!val) return '—';
+      return formatEur(val) + ' (' + comp.arrow + Math.abs(comp.pct).toFixed(0) + '% vs. Ø ' + formatEur(avg) + ')';
+    }
+
+    // Property Insights
+    var insights = [];
+    // Group by property type
+    var byType = groupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
+    var typeKeys = Object.keys(byType);
+    if (typeKeys.length > 1) {
+      var typeAvgs = typeKeys.map(function(k) {
+        var items = byType[k];
+        var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
+        var tl = items.reduce(function(s,d) { return s + d.leads; }, 0);
+        var propLabel = {wohnung:'Wohnungen',haus:'Häuser',penthouse:'Penthouses',villa:'Villen',reihenhaus:'Reihenhäuser',grundstueck:'Grundstücke',gewerbe:'Gewerbe',sonstige:'Sonstige'}[k] || k;
+        return { type: k, label: propLabel, cpl: tl > 0 ? ts / tl : null, count: items.length };
+      }).filter(function(t) { return t.cpl !== null; });
+      if (typeAvgs.length > 1) {
+        typeAvgs.sort(function(a,b) { return a.cpl - b.cpl; });
+        var parts = typeAvgs.map(function(t) { return t.label + ': Ø CPL ' + formatEur(t.cpl); });
+        insights.push(parts.join(' | '));
+      }
+    }
+
+    // Group by city
+    var byCity = groupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
+    var cityKeys = Object.keys(byCity);
+    if (cityKeys.length > 1) {
+      var cityAvgs = cityKeys.map(function(k) {
+        var items = byCity[k];
+        var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
+        var tl = items.reduce(function(s,d) { return s + d.leads; }, 0);
+        return { city: k, cpl: tl > 0 ? ts / tl : null, count: items.length };
+      }).filter(function(c) { return c.cpl !== null; });
+      if (cityAvgs.length > 1) {
+        var parts2 = cityAvgs.map(function(c) { return c.city + ': Ø CPL ' + formatEur(c.cpl); });
+        insights.push(parts2.join(' | '));
+      }
+    }
+
+    // Group by price range
+    var cheap = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.price < 1000000; });
+    var expensive = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.price >= 1000000; });
+    if (cheap.length > 0 && expensive.length > 0) {
+      var cheapSpend = cheap.reduce(function(s,d) { return s + d.spend; }, 0);
+      var cheapLeads = cheap.reduce(function(s,d) { return s + d.leads; }, 0);
+      var expSpend = expensive.reduce(function(s,d) { return s + d.spend; }, 0);
+      var expLeads = expensive.reduce(function(s,d) { return s + d.leads; }, 0);
+      var cheapCPL = cheapLeads > 0 ? cheapSpend / cheapLeads : null;
+      var expCPL = expLeads > 0 ? expSpend / expLeads : null;
+      if (cheapCPL && expCPL && expCPL > 0) {
+        var diffPct = Math.round(((expCPL - cheapCPL) / expCPL) * 100);
+        if (Math.abs(diffPct) > 10) {
+          insights.push('Günstigere Objekte (< 1M€) haben Ø ' + Math.abs(diffPct) + '% ' + (diffPct > 0 ? 'niedrigeren' : 'höheren') + ' CPL (' + formatEur(cheapCPL) + ' vs ' + formatEur(expCPL) + ')');
+        }
+      }
+    }
+
+    // Render
+    var pctBadge = '';
+    if (pctRank !== null) {
+      var pctCls = pctRank >= 66 ? 'good' : pctRank >= 33 ? 'neutral' : 'bad';
+      pctBadge = '<span class="benchmark-badge ' + pctCls + '">Top ' + pctRank + '%</span>';
+    }
+
+    var sampleNote = 'Basierend auf ' + N + ' Kampagnen';
+    if (N < 5) sampleNote += ' (frühe Daten – wird mit mehr Kampagnen genauer)';
+
+    var insightsHtml = '';
+    if (insights.length > 0) {
+      insightsHtml = '<div class="benchmark-insights"><div class="benchmark-insights-title">🏠 Objekt-Insights</div>' +
+        insights.map(function(i) { return '<div class="insight-item">' + escHtml(i) + '</div>'; }).join('') +
+        '</div>';
+    }
+
+    container.innerHTML =
+      '<div class="benchmark-card">' +
+        '<div class="card-header"><div class="card-title">📊 Benchmark ' + pctBadge + '</div></div>' +
+        '<div class="card-body">' +
+          '<div class="benchmark-grid">' +
+            '<div class="benchmark-metric">' +
+              '<div class="benchmark-metric-label">CPL</div>' +
+              '<div class="benchmark-metric-value" style="color:var(--' + (cplComp.cls === 'good' ? 'green' : cplComp.cls === 'bad' ? 'red' : 'text-secondary') + ')">' + (thisCPL ? formatEur(thisCPL) : '—') + '</div>' +
+              '<div class="benchmark-metric-compare" style="color:var(--' + (cplComp.cls === 'good' ? 'green' : cplComp.cls === 'bad' ? 'red' : 'text-muted') + ')">' + (thisCPL ? cplComp.arrow + Math.abs(cplComp.pct).toFixed(0) + '% vs. Ø ' + formatEur(avgCPL) : '') + '</div>' +
+            '</div>' +
+            '<div class="benchmark-metric">' +
+              '<div class="benchmark-metric-label">CPM</div>' +
+              '<div class="benchmark-metric-value" style="color:var(--' + (cpmComp.cls === 'good' ? 'green' : cpmComp.cls === 'bad' ? 'red' : 'text-secondary') + ')">' + (thisCPM ? formatEur(thisCPM) : '—') + '</div>' +
+              '<div class="benchmark-metric-compare" style="color:var(--' + (cpmComp.cls === 'good' ? 'green' : cpmComp.cls === 'bad' ? 'red' : 'text-muted') + ')">' + (thisCPM ? cpmComp.arrow + Math.abs(cpmComp.pct).toFixed(0) + '% vs. Ø ' + formatEur(avgCPM) : '') + '</div>' +
+            '</div>' +
+            '<div class="benchmark-metric">' +
+              '<div class="benchmark-metric-label">Leads/Tag</div>' +
+              '<div class="benchmark-metric-value" style="color:var(--' + (lpdComp.cls === 'good' ? 'green' : lpdComp.cls === 'bad' ? 'red' : 'text-secondary') + ')">' + (thisLeadsDay ? thisLeadsDay.toFixed(1) : '—') + '</div>' +
+              '<div class="benchmark-metric-compare" style="color:var(--' + (lpdComp.cls === 'good' ? 'green' : lpdComp.cls === 'bad' ? 'red' : 'text-muted') + ')">' + (thisLeadsDay ? lpdComp.arrow + Math.abs(lpdComp.pct).toFixed(0) + '% vs. Ø ' + avgLeadsDay.toFixed(1) : '') + '</div>' +
+            '</div>' +
+          '</div>' +
+          insightsHtml +
+          '<div class="benchmark-sample-note">' + escHtml(sampleNote) + '</div>' +
+        '</div>' +
+      '</div>';
+
+  } catch (e) {
+    console.error('Benchmark-Ladefehler:', e);
+    container.innerHTML = '';
+  }
+}
+
+// ============================================
+// DATA INTELLIGENCE VIEW
+// ============================================
+let _diScatterChart = null;
+
+async function loadDataIntelligence() {
+  if (!dbReady) return;
+
+  var loading = document.getElementById('data-intel-loading');
+  var content = document.getElementById('data-intel-content');
+  loading.style.display = 'flex';
+  content.style.display = 'none';
+
+  try {
+    var allCampaignsRaw = await sbGet('campaigns', 'select=*,properties(*),campaign_daily_metrics(spend,leads,impressions,reach),creatives(*,creative_daily_metrics(spend,leads,impressions))');
+
+    // Prepare campaign data
+    var allData = (allCampaignsRaw || []).map(function(c) {
+      var m = c.campaign_daily_metrics || [];
+      var spend = m.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
+      var leads = m.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+      var impr = m.reduce(function(s,x) { return s + (x.impressions || 0); }, 0);
+      var days = m.length || 1;
+      return {
+        id: c.id,
+        name: c.campaign_name,
+        prop: c.properties,
+        creatives: c.creatives || [],
+        spend: spend,
+        leads: leads,
+        impressions: impr,
+        days: days,
+        cpl: leads > 0 ? spend / leads : null,
+        cpm: impr > 0 ? (spend / impr) * 1000 : null,
+        leadsPerDay: leads / days,
+        startDate: c.start_date
+      };
+    }).filter(function(d) { return d.leads > 0; });
+
+    var N = allData.length;
+
+    // Global averages
+    var totalSpendAll = allData.reduce(function(s,d) { return s + d.spend; }, 0);
+    var totalLeadsAll = allData.reduce(function(s,d) { return s + d.leads; }, 0);
+    var totalImprAll = allData.reduce(function(s,d) { return s + d.impressions; }, 0);
+    var globalAvgCPL = totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 0;
+    var globalAvgCPM = totalImprAll > 0 ? (totalSpendAll / totalImprAll) * 1000 : 0;
+
+    // Warning for small N
+    var warningEl = document.getElementById('data-intel-warning');
+    if (N < 5) {
+      warningEl.innerHTML = '<div class="data-intel-warning">⚠️ Noch zu wenig Daten für statistische Signifikanz (' + N + ' Kampagnen). Die Ergebnisse sind erste Tendenzen.</div>';
+    } else {
+      warningEl.innerHTML = '';
+    }
+
+    // === SECTION A: Segment Performance Matrix ===
+    renderSegmentMatrix(allData, globalAvgCPL, globalAvgCPM);
+
+    // === SECTION B: Correlation Analysis ===
+    renderCorrelationAnalysis(allData);
+
+    // === SECTION C: Auto-Insights ===
+    renderAutoInsights(allData, globalAvgCPL, N);
+
+    // === SECTION D: Scatter Plot ===
+    renderScatterPlot(allData);
+
+    loading.style.display = 'none';
+    content.style.display = 'block';
+
+  } catch (e) {
+    console.error('Data Intelligence Ladefehler:', e);
+    loading.style.display = 'none';
+    content.style.display = 'block';
+    document.getElementById('data-intel-segments').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Fehler beim Laden</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
+  }
+}
+
+function renderSegmentMatrix(allData, globalAvgCPL, globalAvgCPM) {
+  var container = document.getElementById('data-intel-segments');
+
+  function buildTable(title, grouped, labelFn) {
+    var keys = Object.keys(grouped).sort();
+    if (keys.length === 0) return '';
+    var rows = keys.map(function(k) {
+      var items = grouped[k];
+      var sp = items.reduce(function(s,d) { return s + d.spend; }, 0);
+      var ld = items.reduce(function(s,d) { return s + d.leads; }, 0);
+      var im = items.reduce(function(s,d) { return s + d.impressions; }, 0);
+      var cpl = ld > 0 ? sp / ld : null;
+      var cpm = im > 0 ? (sp / im) * 1000 : null;
+      var cplCls = cpl !== null ? (cpl < globalAvgCPL * 0.95 ? 'segment-cell-good' : cpl > globalAvgCPL * 1.05 ? 'segment-cell-bad' : '') : '';
+      return '<tr>' +
+        '<td style="font-weight:600;">' + escHtml(labelFn ? labelFn(k) : k) + '</td>' +
+        '<td class="' + cplCls + '">' + (cpl !== null ? formatEur(cpl) : '—') + '</td>' +
+        '<td>' + (cpm !== null ? formatEur(cpm) : '—') + '</td>' +
+        '<td>' + items.length + '</td>' +
+        '</tr>';
+    }).join('');
+
+    return '<div class="card">' +
+      '<div class="card-header"><div class="card-title">' + escHtml(title) + '</div></div>' +
+      '<div class="card-body" style="padding:0;">' +
+        '<table class="segment-table"><thead><tr><th>Segment</th><th>Ø CPL</th><th>Ø CPM</th><th>Kampagnen</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>' +
+      '</div></div>';
+  }
+
+  var propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',sonstige:'Sonstige'};
+
+  // By City
+  var byCity = groupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
+  // By Property Type
+  var byType = groupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
+  // By Location Rating
+  var byRating = groupBy(allData.filter(function(d) { return d.prop && (d.prop.location_rating || d.prop.city); }), function(d) { return d.prop.location_rating || getCityRating(d.prop.city) || '?'; });
+  // By Price Range
+  var byPrice = groupBy(allData.filter(function(d) { return d.prop && d.prop.price; }), function(d) { return priceRange(d.prop.price); });
+
+  var html = '';
+  html += buildTable('Nach Stadt', byCity);
+  html += buildTable('Nach Objektart', byType, function(k) { return propTypeLabels[k] || k; });
+  html += buildTable('Nach Standort-Rating', byRating);
+  html += buildTable('Nach Preisklasse', byPrice);
+
+  container.innerHTML = html || '<div class="empty-state"><div class="empty-state-desc">Nicht genügend Daten für Segmentierung</div></div>';
+}
+
+function renderCorrelationAnalysis(allData) {
+  var container = document.getElementById('data-intel-correlations');
+
+  var correlations = [];
+  var withPrice = allData.filter(function(d) { return d.prop && d.prop.price && d.cpl; });
+  var withSize = allData.filter(function(d) { return d.prop && d.prop.size_sqm && d.cpl; });
+  var withPPSQM = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.size_sqm && d.cpl; });
+
+  if (withPrice.length >= 2) {
+    var r = pearsonCorrelation(withPrice.map(function(d) { return d.prop.price; }), withPrice.map(function(d) { return d.cpl; }));
+    if (r !== null) correlations.push({ label: 'Preis ↔ CPL', r: r, n: withPrice.length });
+  }
+  if (withSize.length >= 2) {
+    var r2 = pearsonCorrelation(withSize.map(function(d) { return d.prop.size_sqm; }), withSize.map(function(d) { return d.cpl; }));
+    if (r2 !== null) correlations.push({ label: 'Wohnfläche ↔ CPL', r: r2, n: withSize.length });
+  }
+  if (withPPSQM.length >= 2) {
+    var ppsqm = withPPSQM.map(function(d) { return d.prop.price / d.prop.size_sqm; });
+    var r3 = pearsonCorrelation(ppsqm, withPPSQM.map(function(d) { return d.cpl; }));
+    if (r3 !== null) correlations.push({ label: 'qm-Preis ↔ CPL', r: r3, n: withPPSQM.length });
+  }
+
+  if (correlations.length === 0) {
+    container.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Nicht genügend numerische Daten für Korrelationsanalyse.</div>';
+    return;
+  }
+
+  // Sort by absolute r descending
+  correlations.sort(function(a,b) { return Math.abs(b.r) - Math.abs(a.r); });
+
+  var html = correlations.map(function(c) {
+    var absR = Math.abs(c.r);
+    var isPos = c.r >= 0;
+    var barWidth = absR * 50; // max 50% of track
+    var barLeft = isPos ? 50 : (50 - barWidth);
+    var cls = isPos ? 'positive' : 'negative';
+    var label = correlationLabel(c.r);
+    var dirLabel = isPos ? 'positive' : 'negative';
+
+    return '<div class="correlation-bar-container">' +
+      '<div class="correlation-bar-label">' +
+        '<span>' + escHtml(c.label) + '</span>' +
+        '<span style="color:var(--' + (isPos ? 'red' : 'green') + ');font-weight:700;">r = ' + c.r.toFixed(2) + ' (' + label + ' ' + dirLabel + ')</span>' +
+      '</div>' +
+      '<div class="correlation-bar-track">' +
+        '<div class="correlation-bar-center"></div>' +
+        '<div class="correlation-bar-fill ' + cls + '" style="left:' + barLeft + '%;width:' + barWidth + '%;"></div>' +
+      '</div>' +
+      '<div class="correlation-bar-sublabel">' + (isPos ? 'Höherer Wert → höherer CPL' : 'Höherer Wert → niedrigerer CPL') + ' (n=' + c.n + ')</div>' +
+      '</div>';
+  }).join('');
+
+  container.innerHTML = html;
+}
+
+function renderAutoInsights(allData, globalAvgCPL, N) {
+  var container = document.getElementById('data-intel-insights');
+  var insights = [];
+
+  // 1. Price segments
+  var cheap = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.price < 1000000; });
+  var expensive = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.price >= 1000000; });
+  if (cheap.length > 0 && expensive.length > 0) {
+    var cs = cheap.reduce(function(s,d) { return s + d.spend; }, 0);
+    var cl = cheap.reduce(function(s,d) { return s + d.leads; }, 0);
+    var es = expensive.reduce(function(s,d) { return s + d.spend; }, 0);
+    var el = expensive.reduce(function(s,d) { return s + d.leads; }, 0);
+    var cheapCPL = cl > 0 ? cs / cl : null;
+    var expCPL = el > 0 ? es / el : null;
+    if (cheapCPL && expCPL) {
+      var diff = Math.round(Math.abs((expCPL - cheapCPL) / Math.max(expCPL, cheapCPL)) * 100);
+      if (diff > 10) {
+        var better = cheapCPL < expCPL ? 'unter' : 'über';
+        insights.push('Objekte ' + better + ' 1M€ haben Ø ' + diff + '% niedrigeren CPL (' + formatEur(Math.min(cheapCPL, expCPL)) + ' vs ' + formatEur(Math.max(cheapCPL, expCPL)) + ')');
+      }
+    }
+  }
+
+  // 2. Property type comparison
+  var byType = groupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
+  var typeKeys = Object.keys(byType);
+  if (typeKeys.length > 1) {
+    var propTypeLabels = {wohnung:'Wohnungen',haus:'Häuser',penthouse:'Penthouses',villa:'Villen',reihenhaus:'Reihenhäuser',grundstueck:'Grundstücke',gewerbe:'Gewerbe',sonstige:'Sonstige'};
+    var typeAvgs = typeKeys.map(function(k) {
+      var items = byType[k];
+      var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
+      var tl = items.reduce(function(s,d) { return s + d.leads; }, 0);
+      return { type: k, label: propTypeLabels[k] || k, cpl: tl > 0 ? ts / tl : null };
+    }).filter(function(t) { return t.cpl !== null; }).sort(function(a,b) { return a.cpl - b.cpl; });
+
+    if (typeAvgs.length > 1) {
+      var best = typeAvgs[0];
+      var worst = typeAvgs[typeAvgs.length - 1];
+      if (best.cpl !== worst.cpl) {
+        insights.push(best.label + ' performen ' + (best.cpl < worst.cpl * 0.7 ? 'deutlich ' : '') + 'besser als ' + worst.label + ' (CPL ' + formatEur(best.cpl) + ' vs ' + formatEur(worst.cpl) + ')');
+      }
+    }
+  }
+
+  // 3. Strongest correlation
+  var withPrice = allData.filter(function(d) { return d.prop && d.prop.price && d.cpl; });
+  var withSize = allData.filter(function(d) { return d.prop && d.prop.size_sqm && d.cpl; });
+  var withPPSQM = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.size_sqm && d.cpl; });
+  var corrs = [];
+  if (withPrice.length >= 2) {
+    var r1 = pearsonCorrelation(withPrice.map(function(d) { return d.prop.price; }), withPrice.map(function(d) { return d.cpl; }));
+    if (r1 !== null) corrs.push({ label: 'Objektpreis', r: r1 });
+  }
+  if (withSize.length >= 2) {
+    var r2 = pearsonCorrelation(withSize.map(function(d) { return d.prop.size_sqm; }), withSize.map(function(d) { return d.cpl; }));
+    if (r2 !== null) corrs.push({ label: 'Wohnfläche', r: r2 });
+  }
+  if (withPPSQM.length >= 2) {
+    var ppsqm = withPPSQM.map(function(d) { return d.prop.price / d.prop.size_sqm; });
+    var r3 = pearsonCorrelation(ppsqm, withPPSQM.map(function(d) { return d.cpl; }));
+    if (r3 !== null) corrs.push({ label: 'qm-Preis', r: r3 });
+  }
+  if (corrs.length > 0) {
+    corrs.sort(function(a,b) { return Math.abs(b.r) - Math.abs(a.r); });
+    var strongest = corrs[0];
+    insights.push('Der ' + strongest.label + ' korreliert am stärksten mit dem CPL (r = ' + strongest.r.toFixed(2) + ', ' + correlationLabel(strongest.r) + ')');
+  }
+
+  // 4. City comparison
+  var byCity = groupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
+  var cityKeys = Object.keys(byCity);
+  if (cityKeys.length > 1) {
+    var cityData = cityKeys.map(function(k) {
+      var items = byCity[k];
+      var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
+      var tl = items.reduce(function(s,d) { return s + d.leads; }, 0);
+      var td = items.reduce(function(s,d) { return s + d.days; }, 0);
+      return { city: k, cpl: tl > 0 ? ts / tl : null, leadsPerDay: td > 0 ? tl / td : 0 };
+    }).filter(function(c) { return c.cpl !== null; }).sort(function(a,b) { return a.cpl - b.cpl; });
+
+    if (cityData.length >= 2) {
+      var best2 = cityData[0];
+      var other = cityData[cityData.length - 1];
+      if (best2.city !== other.city) {
+        var diffPct = Math.round(Math.abs((other.cpl - best2.cpl) / best2.cpl) * 100);
+        var lpdNote = other.leadsPerDay > best2.leadsPerDay ? ', aber höheres Lead-Volumen pro Tag' : '';
+        insights.push(other.city + ' hat ' + diffPct + '% höheren CPL als ' + best2.city + lpdNote);
+      }
+    }
+  }
+
+  // 5. Trend detection
+  var sorted = allData.filter(function(d) { return d.startDate; }).sort(function(a,b) { return (a.startDate || '').localeCompare(b.startDate || ''); });
+  if (sorted.length >= 2) {
+    var oldest = sorted[0];
+    var newest = sorted[sorted.length - 1];
+    if (oldest.cpl && newest.cpl && oldest.id !== newest.id) {
+      if (newest.cpl < oldest.cpl * 0.8) {
+        insights.push('Trend: Neueste Kampagne (' + escHtml(newest.name) + ') hat deutlich niedrigeren CPL als älteste');
+      } else if (newest.cpl > oldest.cpl * 1.2) {
+        insights.push('Trend: Neueste Kampagne (' + escHtml(newest.name) + ') hat höheren CPL als älteste – Optimierung prüfen');
+      }
+    }
+  }
+
+  // 6. Creative type insights across campaigns
+  var allCreativeTypes = {};
+  allData.forEach(function(d) {
+    (d.creatives || []).forEach(function(c) {
+      var type = c.creative_type || 'unknown';
+      var cm = c.creative_daily_metrics || [];
+      if (!allCreativeTypes[type]) allCreativeTypes[type] = { leads: 0, spend: 0 };
+      allCreativeTypes[type].leads += cm.reduce(function(s,m) { return s + (m.leads || 0); }, 0);
+      allCreativeTypes[type].spend += cm.reduce(function(s,m) { return s + (m.spend || 0); }, 0);
+    });
+  });
+  var ctKeys = Object.keys(allCreativeTypes).filter(function(k) { return allCreativeTypes[k].leads > 0; });
+  if (ctKeys.length > 1) {
+    var ctData = ctKeys.map(function(k) {
+      var t = allCreativeTypes[k];
+      return { type: k, label: getCreativeTypeLabel(k), cpl: t.leads > 0 ? t.spend / t.leads : null, leads: t.leads };
+    }).filter(function(t) { return t.cpl !== null; }).sort(function(a,b) { return a.cpl - b.cpl; });
+    if (ctData.length > 1) {
+      insights.push(ctData[0].label + ' hat den besten CPL über alle Kampagnen (Ø ' + formatEur(ctData[0].cpl) + ', ' + ctData[0].leads + ' Leads)');
+    }
+  }
+
+  // Render
+  if (insights.length === 0) {
+    container.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Noch nicht genügend Daten für automatische Insights.</div>';
+    return;
+  }
+
+  container.innerHTML = '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">💡 Insights (basierend auf ' + N + ' Kampagnen)</div>' +
+    insights.map(function(i) { return '<div class="insight-item">' + i + '</div>'; }).join('');
+}
+
+function renderScatterPlot(allData) {
+  var canvas = document.getElementById('chart-scatter-cpl');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  if (_diScatterChart) _diScatterChart.destroy();
+
+  var withPrice = allData.filter(function(d) { return d.prop && d.prop.price && d.cpl; });
+  if (withPrice.length < 2) {
+    var parent = canvas.parentElement;
+    parent.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:60px;">Mindestens 2 Kampagnen mit Preisdaten nötig.</div>';
+    return;
+  }
+
+  var prices = withPrice.map(function(d) { return d.prop.price; });
+  var cpls = withPrice.map(function(d) { return d.cpl; });
+
+  // Trend line
+  var reg = linearRegression(prices, cpls);
+  var minPrice = Math.min.apply(null, prices);
+  var maxPrice = Math.max.apply(null, prices);
+
+  var scatterData = withPrice.map(function(d) {
+    return { x: d.prop.price, y: d.cpl, label: d.name };
+  });
+
+  var trendData = [];
+  if (reg) {
+    trendData = [
+      { x: minPrice, y: reg.slope * minPrice + reg.intercept },
+      { x: maxPrice, y: reg.slope * maxPrice + reg.intercept }
+    ];
+  }
+
+  _diScatterChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'Kampagnen',
+          data: scatterData,
+          backgroundColor: 'rgba(99, 102, 241, 0.8)',
+          borderColor: 'rgba(99, 102, 241, 1)',
+          borderWidth: 2,
+          pointRadius: 8,
+          pointHoverRadius: 12
+        },
+        {
+          label: 'Trendlinie',
+          data: trendData,
+          type: 'line',
+          borderColor: 'rgba(245, 158, 11, 0.6)',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(tooltipCtx) {
+              var item = tooltipCtx.raw;
+              if (item.label) return item.label + ': Preis ' + formatEur(item.x) + ', CPL ' + formatEur(item.y);
+              return 'Preis ' + formatEur(item.x) + ', CPL ' + formatEur(item.y);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Objektpreis (€)', color: '#8888a0' },
+          ticks: { callback: function(v) { return (v / 1000).toFixed(0) + 'k €'; } },
+          grid: { color: 'rgba(38, 38, 54, 0.5)' }
+        },
+        y: {
+          title: { display: true, text: 'CPL (€)', color: '#8888a0' },
+          ticks: { callback: function(v) { return v.toFixed(0) + ' €'; } },
+          grid: { color: 'rgba(38, 38, 54, 0.5)' },
+          beginAtZero: true
+        }
+      }
+    }
+  });
 }
 
 // ============================================
