@@ -1118,6 +1118,53 @@
       font-weight: 700;
     }
 
+    /* Smart Campaign-Specific Insights */
+    .smart-insights {
+      margin-top: 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .smart-insights-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--text-primary);
+    }
+    .smart-insight-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .smart-insight-item:last-child {
+      border-bottom: none;
+    }
+    .smart-insight-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .smart-insight-content {
+      flex: 1;
+    }
+    .smart-insight-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .smart-insight-text {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+    .smart-insight-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
     .benchmark-sample-note {
       font-size: 11px;
       color: var(--text-muted);
@@ -4692,61 +4739,421 @@ async function renderBenchmarks(campaign, property, metrics) {
       return formatEur(val) + ' (' + comp.arrow + Math.abs(comp.pct).toFixed(0) + '% vs. Ø ' + formatEur(avg) + ')';
     }
 
-    // Property Insights
-    var insights = [];
-    // Group by property type
-    var byType = groupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
-    var typeKeys = Object.keys(byType);
-    if (typeKeys.length > 1) {
-      var typeAvgs = typeKeys.map(function(k) {
-        var items = byType[k];
-        var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
-        var tl = items.reduce(function(s,d) { return s + d.leads; }, 0);
-        var propLabel = {wohnung:'Wohnungen',haus:'Häuser',penthouse:'Penthouses',villa:'Villen',reihenhaus:'Reihenhäuser',grundstueck:'Grundstücke',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekte',zweifamilienhaus:'Zweifamilienhäuser',sonstige:'Sonstige'}[k] || k;
-        return { type: k, label: propLabel, cpl: tl > 0 ? ts / tl : null, count: items.length };
-      }).filter(function(t) { return t.cpl !== null; });
-      if (typeAvgs.length > 1) {
-        typeAvgs.sort(function(a,b) { return a.cpl - b.cpl; });
-        var parts = typeAvgs.map(function(t) { return t.label + ': Ø CPL ' + formatEur(t.cpl); });
-        insights.push(parts.join(' | '));
-      }
-    }
+    // ==========================================
+    // SMART CAMPAIGN-SPECIFIC INSIGHTS ENGINE
+    // ==========================================
+    var propTypeLabelsMap = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekt',zweifamilienhaus:'Zweifamilienhaus',sonstige:'Sonstige'};
+    var smartInsights = [];
 
-    // Group by city
-    var byCity = groupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
-    var cityKeys = Object.keys(byCity);
-    if (cityKeys.length > 1) {
-      var cityAvgs = cityKeys.map(function(k) {
-        var items = byCity[k];
-        var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
-        var tl = items.reduce(function(s,d) { return s + d.leads; }, 0);
-        return { city: k, cpl: tl > 0 ? ts / tl : null, count: items.length };
-      }).filter(function(c) { return c.cpl !== null; });
-      if (cityAvgs.length > 1) {
-        var parts2 = cityAvgs.map(function(c) { return c.city + ': Ø CPL ' + formatEur(c.cpl); });
-        insights.push(parts2.join(' | '));
-      }
-    }
+    // Load additional data for this campaign
+    var campaignCreatives = [];
+    var campaignDailyMetrics = [];
+    try {
+      var crRaw = await sbGet('creatives', 'select=*,creative_daily_metrics(*)&campaign_id=eq.' + campaign.id);
+      campaignCreatives = crRaw || [];
+    } catch(e) { console.warn('Creatives load failed:', e); }
+    try {
+      var dmRaw = await sbGet('campaign_daily_metrics', 'select=*&campaign_id=eq.' + campaign.id + '&order=date');
+      campaignDailyMetrics = dmRaw || [];
+    } catch(e) { console.warn('Daily metrics load failed:', e); }
 
-    // Group by price range
-    var cheap = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.price < 1000000; });
-    var expensive = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.price >= 1000000; });
-    if (cheap.length > 0 && expensive.length > 0) {
-      var cheapSpend = cheap.reduce(function(s,d) { return s + d.spend; }, 0);
-      var cheapLeads = cheap.reduce(function(s,d) { return s + d.leads; }, 0);
-      var expSpend = expensive.reduce(function(s,d) { return s + d.spend; }, 0);
-      var expLeads = expensive.reduce(function(s,d) { return s + d.leads; }, 0);
-      var cheapCPL = cheapLeads > 0 ? cheapSpend / cheapLeads : null;
-      var expCPL = expLeads > 0 ? expSpend / expLeads : null;
-      if (cheapCPL && expCPL && expCPL > 0) {
-        var diffPct = Math.round(((expCPL - cheapCPL) / expCPL) * 100);
-        if (Math.abs(diffPct) > 10) {
-          insights.push('Günstigere Objekte (< 1M€) haben Ø ' + Math.abs(diffPct) + '% ' + (diffPct > 0 ? 'niedrigeren' : 'höheren') + ' CPL (' + formatEur(cheapCPL) + ' vs ' + formatEur(expCPL) + ')');
+    // --- 1. PERFORMANCE RANKING ---
+    if (thisCPL && allData.length >= 2) {
+      var ranked = allData.filter(function(d) { return d.cpl !== null; }).slice();
+      ranked.sort(function(a,b) { return a.cpl - b.cpl; });
+      var myRankIdx = ranked.findIndex(function(d) { return d.id === campaign.id; });
+      if (myRankIdx === -1) {
+        // Campaign might have 0 leads and not be in allData, try adding it
+        ranked.push({ id: campaign.id, cpl: thisCPL, name: campaign.campaign_name });
+        ranked.sort(function(a,b) { return a.cpl - b.cpl; });
+        myRankIdx = ranked.findIndex(function(d) { return d.id === campaign.id; });
+      }
+      var myRank = myRankIdx + 1;
+      var totalRanked = ranked.length;
+      var rankText = '<strong>#' + myRank + ' von ' + totalRanked + '</strong> — ';
+
+      if (myRank === 1) {
+        rankText += 'Niedrigster CPL aller Kampagnen.';
+      } else if (myRank <= 3) {
+        var betterNames = ranked.slice(0, myRankIdx).map(function(d) { return d.name; }).join(', ');
+        rankText += 'Unter den Top 3. Nur ' + betterNames + ' günstiger.';
+      } else if (myRank > totalRanked - 3) {
+        var pctAboveAvg = Math.round(((thisCPL - avgCPL) / avgCPL) * 100);
+        rankText += 'Unter den letzten 3. <strong>' + pctAboveAvg + '%</strong> über Durchschnitt.';
+      } else {
+        var pctVsAvg = Math.round(((thisCPL - avgCPL) / avgCPL) * 100);
+        rankText += (pctVsAvg < 0 ? (Math.abs(pctVsAvg) + '% unter') : (pctVsAvg + '% über')) + ' dem Durchschnitt (' + formatEur(avgCPL) + ').';
+      }
+
+      // Ranking within same property type
+      if (property && property.property_type) {
+        var sameTypeData = allData.filter(function(d) { return d.prop && d.prop.property_type === property.property_type && d.cpl !== null; });
+        if (sameTypeData.length >= 2) {
+          sameTypeData.sort(function(a,b) { return a.cpl - b.cpl; });
+          var typeRankIdx = sameTypeData.findIndex(function(d) { return d.id === campaign.id; });
+          if (typeRankIdx === -1) {
+            sameTypeData.push({ id: campaign.id, cpl: thisCPL });
+            sameTypeData.sort(function(a,b) { return a.cpl - b.cpl; });
+            typeRankIdx = sameTypeData.findIndex(function(d) { return d.id === campaign.id; });
+          }
+          var typeLabel = propTypeLabelsMap[property.property_type] || property.property_type;
+          rankText += ' Unter allen <strong>' + escHtml(typeLabel) + '</strong>: Platz ' + (typeRankIdx + 1) + ' von ' + sameTypeData.length + '.';
         }
       }
+
+      smartInsights.push({ icon: '🏆', title: 'Performance-Ranking', text: rankText });
     }
 
-    // Render
+    // --- 2. PERFORMANCE DRIVERS (Multi-Factor Attribution) ---
+    if (thisCPL && property) {
+      var drivers = [];
+      var headwinds = [];
+
+      // Property type effect
+      if (property.property_type) {
+        var byType = groupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
+        var typeGroup = byType[property.property_type];
+        if (typeGroup && typeGroup.length >= 2) {
+          var typeSpend = typeGroup.reduce(function(s,d) { return s + d.spend; }, 0);
+          var typeLeads = typeGroup.reduce(function(s,d) { return s + d.leads; }, 0);
+          var typeCPL = typeLeads > 0 ? typeSpend / typeLeads : null;
+          if (typeCPL && avgCPL > 0) {
+            var typeDiff = Math.round(((typeCPL - avgCPL) / avgCPL) * 100);
+            var typeLabel2 = propTypeLabelsMap[property.property_type] || property.property_type;
+            if (Math.abs(typeDiff) > 10) {
+              if (typeDiff < 0) {
+                drivers.push(escHtml(typeLabel2) + ' — <strong>' + Math.abs(typeDiff) + '%</strong> besser als Ø');
+              } else {
+                headwinds.push(escHtml(typeLabel2) + ' — <strong>' + typeDiff + '%</strong> höherer CPL als Ø');
+              }
+            }
+          }
+        }
+      }
+
+      // City effect
+      if (property.city) {
+        var byCityMap = groupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
+        var cityGroup = byCityMap[property.city];
+        if (cityGroup && cityGroup.length >= 2) {
+          var citySpend = cityGroup.reduce(function(s,d) { return s + d.spend; }, 0);
+          var cityLeads = cityGroup.reduce(function(s,d) { return s + d.leads; }, 0);
+          var cityCPL = cityLeads > 0 ? citySpend / cityLeads : null;
+          if (cityCPL && avgCPL > 0) {
+            var cityDiff = Math.round(((cityCPL - avgCPL) / avgCPL) * 100);
+            if (Math.abs(cityDiff) > 10) {
+              if (cityDiff < 0) {
+                drivers.push(escHtml(property.city) + ' — <strong>' + Math.abs(cityDiff) + '%</strong> besser als Ø');
+              } else {
+                headwinds.push(escHtml(property.city) + ' — <strong>' + cityDiff + '%</strong> höherer CPL als Ø');
+              }
+            }
+          }
+        }
+      }
+
+      // Price bracket effect
+      if (property.price) {
+        var isExpensive = property.price >= 1000000;
+        var bracketItems = allData.filter(function(d) { return d.prop && d.prop.price && (isExpensive ? d.prop.price >= 1000000 : d.prop.price < 1000000); });
+        if (bracketItems.length >= 2) {
+          var brSpend = bracketItems.reduce(function(s,d) { return s + d.spend; }, 0);
+          var brLeads = bracketItems.reduce(function(s,d) { return s + d.leads; }, 0);
+          var brCPL = brLeads > 0 ? brSpend / brLeads : null;
+          if (brCPL && avgCPL > 0) {
+            var brDiff = Math.round(((brCPL - avgCPL) / avgCPL) * 100);
+            var brLabel = isExpensive ? 'Preis über 1M€' : 'Preis unter 1M€';
+            if (Math.abs(brDiff) > 10) {
+              if (brDiff < 0) {
+                drivers.push(brLabel + ' — <strong>' + Math.abs(brDiff) + '%</strong> besser als Ø');
+              } else {
+                headwinds.push(brLabel + ' — <strong>' + brDiff + '%</strong> höherer CPL als Ø');
+              }
+            }
+          }
+        }
+      }
+
+      var driverText = '';
+      if (drivers.length > 0) {
+        driverText += 'Performance profitiert von <strong>' + drivers.length + ' Faktor' + (drivers.length > 1 ? 'en' : '') + '</strong>: ' +
+          drivers.map(function(d, i) { return '(' + (i + 1) + ') ' + d; }).join(', ') + '.';
+      }
+      if (headwinds.length > 0) {
+        if (driverText) driverText += ' ';
+        driverText += 'Gegenwind durch: ' + headwinds.join(', ') + '.';
+      }
+      if (!driverText && drivers.length === 0 && headwinds.length === 0) {
+        driverText = 'Alle Faktoren (Objektart, Stadt, Preis) liegen nah am Durchschnitt — keine starken Treiber identifiziert.';
+      }
+      if (driverText) {
+        smartInsights.push({ icon: '📊', title: 'Performance-Treiber', text: driverText });
+      }
+    }
+
+    // --- 3. CREATIVE ANALYSIS ---
+    if (campaignCreatives.length > 0) {
+      var creativeStats = campaignCreatives.map(function(cr) {
+        var dm = cr.creative_daily_metrics || [];
+        var crSpend = dm.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
+        var crLeads = dm.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+        return {
+          name: cr.creative_name || 'Unbenannt',
+          type: cr.creative_type,
+          typeLabel: getCreativeTypeLabel(cr.creative_type),
+          spend: crSpend,
+          leads: crLeads,
+          cpl: crLeads > 0 ? crSpend / crLeads : null
+        };
+      });
+
+      var totalCreativeLeads = creativeStats.reduce(function(s,c) { return s + c.leads; }, 0);
+      var withLeads = creativeStats.filter(function(c) { return c.leads > 0 && c.cpl !== null; });
+      var zeroLeads = creativeStats.filter(function(c) { return c.leads === 0 && c.spend > 0; });
+
+      var creativeText = '';
+
+      if (withLeads.length >= 1) {
+        withLeads.sort(function(a,b) { return a.cpl - b.cpl; });
+        var best = withLeads[0];
+        var bestPct = totalCreativeLeads > 0 ? Math.round((best.leads / totalCreativeLeads) * 100) : 0;
+        creativeText += 'Bestes Creative: <strong>' + escHtml(best.name) + '</strong> (' + escHtml(best.typeLabel) + ') mit <strong>' + formatEur(best.cpl) + ' CPL</strong> — ' + bestPct + '% der Leads.';
+
+        if (withLeads.length >= 2) {
+          var worst = withLeads[withLeads.length - 1];
+          var worstPctMore = best.cpl > 0 ? Math.round(((worst.cpl - best.cpl) / best.cpl) * 100) : 0;
+          creativeText += ' Schwächstes: <strong>' + escHtml(worst.name) + '</strong> (' + escHtml(worst.typeLabel) + ') mit ' + formatEur(worst.cpl) + ' CPL';
+          if (worstPctMore > 0) creativeText += ' (' + worstPctMore + '% teurer als bestes)';
+          creativeText += '.';
+        }
+      }
+
+      // Check for zero-lead creatives
+      if (zeroLeads.length > 0) {
+        zeroLeads.forEach(function(zl) {
+          if (creativeText) creativeText += ' ';
+          creativeText += '<strong>' + escHtml(zl.name) + '</strong> hat ' + formatEur(zl.spend) + ' verbraucht ohne Leads — pausieren oder ersetzen.';
+        });
+      }
+
+      // Check for single creative type
+      var usedTypes = {};
+      creativeStats.forEach(function(c) { if (c.type) usedTypes[c.type] = true; });
+      var usedTypeKeys = Object.keys(usedTypes);
+      if (usedTypeKeys.length === 1 && creativeStats.length > 0) {
+        var onlyType = getCreativeTypeLabel(usedTypeKeys[0]);
+        var suggestTypes = { 'single_image': 'Carousel oder Reel', 'carousel': 'Single Image oder Reel', 'video': 'Carousel oder Single Image', 'reel': 'Carousel oder Single Image', 'scn_reel': 'TH-Reel oder Carousel', 'th_reel': 'SCN-Reel oder Carousel', 'story': 'Reel oder Carousel' };
+        var suggestion = suggestTypes[usedTypeKeys[0]] || 'andere Formate';
+        if (creativeText) creativeText += ' ';
+        creativeText += 'Nur <strong>' + escHtml(onlyType) + '</strong> Creatives eingesetzt. Test-Empfehlung: ' + suggestion + '.';
+      }
+
+      if (creativeText) {
+        smartInsights.push({ icon: '🎨', title: 'Creative-Analyse', text: creativeText });
+      }
+    }
+
+    // --- 4. TEMPORAL PATTERN ---
+    if (campaignDailyMetrics.length >= 4) {
+      var sortedDM = campaignDailyMetrics.slice().sort(function(a,b) { return (a.date || '').localeCompare(b.date || ''); });
+      var halfIdx = Math.floor(sortedDM.length / 2);
+      var firstHalf = sortedDM.slice(0, halfIdx);
+      var secondHalf = sortedDM.slice(halfIdx);
+
+      var fhSpend = firstHalf.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
+      var fhLeads = firstHalf.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+      var shSpend = secondHalf.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
+      var shLeads = secondHalf.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+      var fhCPL = fhLeads > 0 ? fhSpend / fhLeads : null;
+      var shCPL = shLeads > 0 ? shSpend / shLeads : null;
+
+      var temporalText = '';
+      var totalDays = sortedDM.length;
+      var hasFatigue = false;
+
+      if (fhCPL && shCPL && fhCPL > 0) {
+        var changePct = Math.round(((shCPL - fhCPL) / fhCPL) * 100);
+        if (changePct > 15) {
+          temporalText = 'CPL stieg um <strong>' + changePct + '%</strong> in der zweiten Hälfte → mögliche Creative Fatigue. Bei ' + totalDays + '-Tage-Kampagnen: Creative Refresh nach Tag ' + halfIdx + ' einplanen.';
+          hasFatigue = true;
+        } else if (changePct < -15) {
+          temporalText = 'CPL verbesserte sich um <strong>' + Math.abs(changePct) + '%</strong> im Verlauf — Algorithmus-Optimierung funktioniert.';
+        } else {
+          temporalText = 'Stabiler CPL-Verlauf über <strong>' + totalDays + ' Tage</strong> — gutes Zeichen für die Creative-Qualität.';
+        }
+      }
+
+      // Best day-of-week analysis
+      if (sortedDM.length >= 7) {
+        var dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+        var byDow = {};
+        sortedDM.forEach(function(dm) {
+          if (!dm.date) return;
+          var dow = new Date(dm.date).getDay();
+          if (!byDow[dow]) byDow[dow] = { spend: 0, leads: 0 };
+          byDow[dow].spend += (dm.spend || 0);
+          byDow[dow].leads += (dm.leads || 0);
+        });
+        var dowEntries = Object.keys(byDow).map(function(k) {
+          var d = byDow[k];
+          return { dow: parseInt(k), name: dayNames[parseInt(k)], cpl: d.leads > 0 ? d.spend / d.leads : null };
+        }).filter(function(d) { return d.cpl !== null; });
+        if (dowEntries.length >= 3) {
+          dowEntries.sort(function(a,b) { return a.cpl - b.cpl; });
+          var bestDow = dowEntries[0];
+          var worstDow = dowEntries[dowEntries.length - 1];
+          if (worstDow.cpl > 0 && bestDow.cpl > 0) {
+            var dowDiff = Math.round(((worstDow.cpl - bestDow.cpl) / bestDow.cpl) * 100);
+            if (dowDiff > 20) {
+              if (temporalText) temporalText += ' ';
+              temporalText += 'Beste Tage: <strong>' + bestDow.name + '</strong> (Ø ' + formatEur(bestDow.cpl) + ') vs. ' + worstDow.name + ' (Ø ' + formatEur(worstDow.cpl) + ').';
+            }
+          }
+        }
+      }
+
+      if (temporalText) {
+        smartInsights.push({ icon: '📈', title: 'Zeitlicher Verlauf', text: temporalText });
+      }
+    }
+
+    // --- 5. SIMILAR CAMPAIGN COMPARISON ---
+    if (thisCPL && property) {
+      var similar = null;
+      var similarLabel = '';
+
+      // Try same property_type first
+      if (property.property_type) {
+        var sameType = allData.filter(function(d) { return d.id !== campaign.id && d.prop && d.prop.property_type === property.property_type && d.cpl !== null; });
+        if (sameType.length > 0 && property.price) {
+          sameType.sort(function(a,b) { return Math.abs((a.prop.price || 0) - property.price) - Math.abs((b.prop.price || 0) - property.price); });
+          similar = sameType[0];
+          similarLabel = 'gleiche Objektart';
+        } else if (sameType.length > 0) {
+          sameType.sort(function(a,b) { return Math.abs(a.cpl - thisCPL) - Math.abs(b.cpl - thisCPL); });
+          similar = sameType[0];
+          similarLabel = 'gleiche Objektart';
+        }
+      }
+
+      // Fallback: same city
+      if (!similar && property.city) {
+        var sameCity = allData.filter(function(d) { return d.id !== campaign.id && d.prop && d.prop.city === property.city && d.cpl !== null; });
+        if (sameCity.length > 0) {
+          if (property.price) {
+            sameCity.sort(function(a,b) { return Math.abs((a.prop.price || 0) - property.price) - Math.abs((b.prop.price || 0) - property.price); });
+          }
+          similar = sameCity[0];
+          similarLabel = 'gleiche Stadt';
+        }
+      }
+
+      // Fallback: closest price
+      if (!similar && property.price) {
+        var withPrice = allData.filter(function(d) { return d.id !== campaign.id && d.prop && d.prop.price && d.cpl !== null; });
+        if (withPrice.length > 0) {
+          withPrice.sort(function(a,b) { return Math.abs(a.prop.price - property.price) - Math.abs(b.prop.price - property.price); });
+          similar = withPrice[0];
+          similarLabel = 'ähnlicher Preis';
+        }
+      }
+
+      if (similar && similar.cpl) {
+        var simCity = (similar.prop && similar.prop.city) ? similar.prop.city : '—';
+        var simType = (similar.prop && similar.prop.property_type) ? (propTypeLabelsMap[similar.prop.property_type] || similar.prop.property_type) : '—';
+        var simPrice = (similar.prop && similar.prop.price) ? formatEur(similar.prop.price) : '—';
+        var simDiffPct = Math.round(((thisCPL - similar.cpl) / similar.cpl) * 100);
+        var simText = 'Ähnlichstes Objekt (' + similarLabel + '): <strong>' + escHtml(similar.name) + '</strong> (' + escHtml(simCity) + ', ' + escHtml(simType) + ', ' + simPrice + '). Dein CPL ist <strong>' + Math.abs(simDiffPct) + '%</strong> ' + (simDiffPct < 0 ? 'besser' : 'schlechter') + ' (' + formatEur(thisCPL) + ' vs ' + formatEur(similar.cpl) + ').';
+        smartInsights.push({ icon: '🔍', title: 'Ähnlichste Kampagne', text: simText });
+      }
+    }
+
+    // --- 6. ACTIONABLE RECOMMENDATION ---
+    var recommendations = [];
+    var hasFatigueFlag = smartInsights.some(function(si) { return si.title === 'Zeitlicher Verlauf' && si.text.indexOf('Creative Fatigue') !== -1; });
+    var hasZeroLeadCreative = campaignCreatives.some(function(cr) {
+      var dm = cr.creative_daily_metrics || [];
+      var sp = dm.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
+      var ld = dm.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+      return sp > 0 && ld === 0;
+    });
+
+    // Check if one creative dominates
+    var creativeWithLeads = campaignCreatives.map(function(cr) {
+      var dm = cr.creative_daily_metrics || [];
+      return { name: cr.creative_name, type: cr.creative_type, leads: dm.reduce(function(s,x) { return s + (x.leads || 0); }, 0) };
+    }).filter(function(c) { return c.leads > 0; });
+    var crTotalLeads = creativeWithLeads.reduce(function(s,c) { return s + c.leads; }, 0);
+    var dominantCreative = crTotalLeads > 0 ? creativeWithLeads.find(function(c) { return (c.leads / crTotalLeads) > 0.7; }) : null;
+
+    // CPL percentile position
+    var isTop30 = pctRank !== null && pctRank >= 70;
+    var isBottom30 = pctRank !== null && pctRank <= 30;
+
+    if (hasFatigueFlag) {
+      var halfDays = campaignDailyMetrics.length > 0 ? Math.floor(campaignDailyMetrics.length / 2) : 7;
+      recommendations.push('Creative Refresh nach Tag ' + halfDays + ' einplanen.');
+    }
+    if (dominantCreative) {
+      recommendations.push('Budget auf <strong>' + escHtml(getCreativeTypeLabel(dominantCreative.type)) + '</strong> konzentrieren — liefert >70% der Leads.');
+    }
+    if (hasZeroLeadCreative) {
+      var zlNames = campaignCreatives.filter(function(cr) {
+        var dm = cr.creative_daily_metrics || [];
+        var sp = dm.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
+        var ld = dm.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+        return sp > 0 && ld === 0;
+      }).map(function(cr) { return cr.creative_name || 'Unbenannt'; });
+      recommendations.push('<strong>' + escHtml(zlNames.join(', ')) + '</strong> pausieren und Alternative testen.');
+    }
+    if (isTop30 && recommendations.length === 0) {
+      var typeLabel3 = property && property.property_type ? (propTypeLabelsMap[property.property_type] || property.property_type) : '';
+      var cityLabel = property && property.city ? property.city : '';
+      var contextParts = [typeLabel3, cityLabel].filter(function(p) { return p; });
+      recommendations.push('Erfolgreiches Setup — bei ähnlichen Objekten' + (contextParts.length > 0 ? ' (' + contextParts.join(', ') + ')' : '') + ' replizieren.');
+    }
+    if (isBottom30 && !hasFatigueFlag && !hasZeroLeadCreative) {
+      recommendations.push('Optimierungspotential: Creative-Mix diversifizieren und Zielgruppen-Targeting prüfen.');
+    }
+
+    // Check for missing high-performing creative types globally
+    if (allData.length >= 3 && campaignCreatives.length > 0) {
+      // Reload all creatives for global creative type performance
+      try {
+        var allCreativesRaw = await sbGet('creatives', 'select=creative_type,creative_daily_metrics(spend,leads)');
+        if (allCreativesRaw && allCreativesRaw.length > 0) {
+          var globalByType = {};
+          allCreativesRaw.forEach(function(cr) {
+            var t = cr.creative_type || 'unknown';
+            if (!globalByType[t]) globalByType[t] = { spend: 0, leads: 0 };
+            var dm = cr.creative_daily_metrics || [];
+            dm.forEach(function(x) {
+              globalByType[t].spend += (x.spend || 0);
+              globalByType[t].leads += (x.leads || 0);
+            });
+          });
+          var usedInCampaign = {};
+          campaignCreatives.forEach(function(cr) { if (cr.creative_type) usedInCampaign[cr.creative_type] = true; });
+          var globalTypePerf = Object.keys(globalByType).map(function(t) {
+            var g = globalByType[t];
+            return { type: t, cpl: g.leads > 0 ? g.spend / g.leads : null, leads: g.leads };
+          }).filter(function(t) { return t.cpl !== null && t.leads >= 3 && !usedInCampaign[t.type] && t.type !== 'unknown'; });
+          globalTypePerf.sort(function(a,b) { return a.cpl - b.cpl; });
+          if (globalTypePerf.length > 0 && globalTypePerf[0].cpl < (thisCPL || Infinity)) {
+            var bestGlobalType = globalTypePerf[0];
+            recommendations.push('Test-Empfehlung: <strong>' + escHtml(getCreativeTypeLabel(bestGlobalType.type)) + '</strong> fehlt — performt global mit Ø ' + formatEur(bestGlobalType.cpl) + ' CPL.');
+          }
+        }
+      } catch(e) { /* skip global creative type suggestion */ }
+    }
+
+    if (recommendations.length > 0) {
+      smartInsights.push({ icon: '🎯', title: 'Empfehlung', text: recommendations.join(' ') });
+    }
+
+    // ==========================================
+    // RENDER
+    // ==========================================
     var pctBadge = '';
     if (pctRank !== null) {
       var pctCls = pctRank >= 66 ? 'good' : pctRank >= 33 ? 'neutral' : 'bad';
@@ -4757,9 +5164,17 @@ async function renderBenchmarks(campaign, property, metrics) {
     if (N < 5) sampleNote += ' (frühe Daten – wird mit mehr Kampagnen genauer)';
 
     var insightsHtml = '';
-    if (insights.length > 0) {
-      insightsHtml = '<div class="benchmark-insights"><div class="benchmark-insights-title">🏠 Objekt-Insights</div>' +
-        insights.map(function(i) { return '<div class="insight-item">' + escHtml(i) + '</div>'; }).join('') +
+    if (smartInsights.length > 0) {
+      insightsHtml = '<div class="smart-insights"><div class="smart-insights-title">💡 Kampagnen-Insights</div>' +
+        smartInsights.map(function(si) {
+          return '<div class="smart-insight-item">' +
+            '<div class="smart-insight-icon">' + si.icon + '</div>' +
+            '<div class="smart-insight-content">' +
+              '<div class="smart-insight-label">' + escHtml(si.title) + '</div>' +
+              '<div class="smart-insight-text">' + si.text + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
         '</div>';
     }
 
