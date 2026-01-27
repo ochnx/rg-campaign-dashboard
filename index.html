@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     :root {
       --bg-primary: #0a0a0f;
@@ -1026,43 +1025,26 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- Debug Panel (temporary) -->
-<pre id="debug-panel" style="position:fixed;bottom:0;left:0;right:0;background:#0d0d14;border-top:1px solid #333;color:#6f6;font-size:11px;padding:8px 12px;max-height:150px;overflow-y:auto;z-index:999;font-family:monospace;"></pre>
+<!-- -->
 
 <script>
 // ============================================
-// DEBUG PANEL (remove in production)
+// SUPABASE REST API (no SDK needed)
 // ============================================
-const _dbg = [];
-function dbg(msg) {
-  _dbg.push(`[${new Date().toISOString().slice(11,19)}] ${msg}`);
-  console.log('[DBG]', msg);
-  const el = document.getElementById('debug-panel');
-  if (el) el.textContent = _dbg.join('\n');
+const SB_URL = 'https://lvhxabadywdqeepymwdm.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2aHhhYmFkeXdkcWVlcHltd2RtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTUyMjM3NSwiZXhwIjoyMDg1MDk4Mzc1fQ.3BWQG5yeG8nshvukSi3YksxUbg273tJDiZnU9fAlzY0';
+const SB_HEADERS = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+
+async function sbGet(table, query = '') {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${query}`, { headers: SB_HEADERS });
+  if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `HTTP ${res.status}`); }
+  return res.json();
 }
 
-// Global error handler
-window.onerror = function(msg, url, line) {
-  dbg(`ERROR: ${msg} (line ${line})`);
-};
-window.addEventListener('unhandledrejection', function(e) {
-  dbg(`PROMISE ERROR: ${e.reason?.message || e.reason}`);
-});
-
-// ============================================
-// SUPABASE CONFIG
-// ============================================
-dbg('Script start');
-const SUPABASE_URL = 'https://lvhxabadywdqeepymwdm.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2aHhhYmFkeXdkcWVlcHltd2RtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTUyMjM3NSwiZXhwIjoyMDg1MDk4Mzc1fQ.3BWQG5yeG8nshvukSi3YksxUbg273tJDiZnU9fAlzY0';
-
-dbg(`supabase module: ${typeof window.supabase}, createClient: ${typeof window.supabase?.createClient}`);
-let supabase;
-try {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  dbg('Client created OK');
-} catch (e) {
-  dbg(`Client create FAILED: ${e.message}`);
+async function sbInsert(table, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}`, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(data) });
+  if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `HTTP ${res.status}`); }
+  return res.json();
 }
 
 // ============================================
@@ -1154,35 +1136,22 @@ function showView(view) {
 // ============================================
 async function checkDatabase() {
   try {
-    dbg('checkDatabase: querying clients...');
-    const { data, error } = await supabase.from('clients').select('id').limit(1);
-    dbg(`checkDatabase: data=${JSON.stringify(data)}, error=${error?.message || 'none'}`);
-    if (error && (error.code === 'PGRST205' || error.code === '42P01')) {
-      document.getElementById('setup-banner').style.display = 'flex';
-      dbReady = false;
-      document.getElementById('campaigns-loading').style.display = 'none';
-      document.getElementById('campaigns-empty').style.display = 'block';
-      return false;
-    }
-    if (error) {
-      console.error('[DB] Unexpected error:', error);
-      // Still try to proceed
-    }
+    await sbGet('clients', 'select=id&limit=1');
     dbReady = true;
     document.getElementById('setup-banner').style.display = 'none';
     return true;
   } catch (e) {
-    console.error('[DB] Check failed:', e);
-    dbReady = false;
+    console.error('DB check failed:', e);
     document.getElementById('setup-banner').style.display = 'flex';
     document.getElementById('campaigns-loading').style.display = 'none';
+    document.getElementById('campaigns-empty').style.display = 'block';
+    dbReady = false;
     return false;
   }
 }
 
 async function loadCampaigns() {
-  dbg('loadCampaigns: start');
-  if (!dbReady) { dbg('loadCampaigns: DB not ready, skipping'); return; }
+  if (!dbReady) return;
 
   const loading = document.getElementById('campaigns-loading');
   const table = document.getElementById('campaigns-table');
@@ -1194,30 +1163,20 @@ async function loadCampaigns() {
   empty.style.display = 'none';
 
   try {
-    // Build query
-    let query = supabase
-      .from('campaigns')
-      .select(`
-        *,
-        properties!inner(name, client_id, stadtteil, city,
-          clients!inner(name, brand)
-        ),
-        campaign_daily_metrics(spend, leads, impressions)
-      `)
-      .order('created_at', { ascending: false });
+    // Build query params
+    const params = new URLSearchParams();
+    params.set('select', '*,properties!inner(name,client_id,stadtteil,city,clients!inner(name,brand)),campaign_daily_metrics(spend,leads,impressions)');
+    params.set('order', 'created_at.desc');
 
-    // Apply filters
     const statusFilter = document.getElementById('filter-status').value;
     const platformFilter = document.getElementById('filter-platform').value;
     const clientFilter = document.getElementById('filter-client').value;
 
-    if (statusFilter) query = query.eq('status', statusFilter);
-    if (platformFilter) query = query.eq('platform', platformFilter);
-    if (clientFilter) query = query.eq('properties.client_id', clientFilter);
+    if (statusFilter) params.set('status', `eq.${statusFilter}`);
+    if (platformFilter) params.set('platform', `eq.${platformFilter}`);
+    if (clientFilter) params.set('properties.client_id', `eq.${clientFilter}`);
 
-    const { data, error } = await query;
-    dbg(`loadCampaigns: query done, data=${data?.length || 0} rows, error=${error?.message || 'none'}`);
-    if (error) throw error;
+    const data = await sbGet('campaigns', params.toString());
 
     campaigns = data || [];
 
@@ -1270,7 +1229,7 @@ async function loadCampaigns() {
 
 async function loadClients() {
   if (!dbReady) return;
-  const { data } = await supabase.from('clients').select('*').order('name');
+  const data = await sbGet('clients', 'select=*&order=name');
   clients = data || [];
 
   // Update filter
@@ -1283,7 +1242,7 @@ async function loadClients() {
 
 async function loadClientsForForm() {
   if (!dbReady) return;
-  const { data } = await supabase.from('clients').select('*').order('name');
+  const data = await sbGet('clients', 'select=*&order=name');
   const select = document.getElementById('form-client');
   select.innerHTML = '<option value="">— Neuen Kunden anlegen —</option>' +
     (data || []).map(c => `<option value="${c.id}">${escHtml(c.name)}${c.brand ? ' (' + escHtml(c.brand) + ')' : ''}</option>`).join('');
@@ -1302,18 +1261,9 @@ async function openCampaign(id) {
 
   try {
     // Load campaign
-    const { data: campaign, error } = await supabase
-      .from('campaigns')
-      .select(`
-        *,
-        properties(*, clients(*)),
-        campaign_daily_metrics(*),
-        creatives(*, creative_daily_metrics(*))
-      `)
-      .eq('id', id)
-      .single();
-
-    if (error) throw error;
+    const campaigns = await sbGet('campaigns', `select=*,properties(*,clients(*)),campaign_daily_metrics(*),creatives(*,creative_daily_metrics(*))&id=eq.${id}`);
+    const campaign = campaigns[0];
+    if (!campaign) throw new Error('Kampagne nicht gefunden');
 
     const property = campaign.properties;
     const client = property?.clients;
@@ -1679,13 +1629,7 @@ async function handleCreateCampaign(event) {
         return;
       }
 
-      const { data: newClient, error: clientErr } = await supabase
-        .from('clients')
-        .insert({ name: clientName, brand: brand || null })
-        .select()
-        .single();
-
-      if (clientErr) throw clientErr;
+      const [newClient] = await sbInsert('clients', { name: clientName, brand: brand || null });
       clientId = newClient.id;
     }
 
@@ -1703,13 +1647,7 @@ async function handleCreateCampaign(event) {
       price: parseFloat(document.getElementById('form-prop-price').value) || null
     };
 
-    const { data: property, error: propErr } = await supabase
-      .from('properties')
-      .insert(propData)
-      .select()
-      .single();
-
-    if (propErr) throw propErr;
+    const [property] = await sbInsert('properties', propData);
 
     // 3. Create campaign
     const campData = {
@@ -1723,13 +1661,7 @@ async function handleCreateCampaign(event) {
       status: document.getElementById('form-camp-status').value
     };
 
-    const { data: campaign, error: campErr } = await supabase
-      .from('campaigns')
-      .insert(campData)
-      .select()
-      .single();
-
-    if (campErr) throw campErr;
+    const [campaign] = await sbInsert('campaigns', campData);
 
     showToast('Kampagne erfolgreich erstellt! ✓');
     document.getElementById('new-campaign-form').reset();
@@ -1756,40 +1688,23 @@ function escHtml(str) {
 // ============================================
 async function init() {
   try {
-    dbg('init: start');
     const ready = await checkDatabase();
-    dbg(`init: DB ready=${ready}`);
     if (ready) {
       await loadClients();
-      dbg('init: clients loaded');
       await loadCampaigns();
-      dbg('init: campaigns loaded ✓');
     }
   } catch (e) {
-    dbg(`init ERROR: ${e.message}`);
+    console.error('Init error:', e);
     document.getElementById('campaigns-loading').style.display = 'none';
-    document.getElementById('campaigns-empty').style.display = 'block';
-    document.getElementById('campaigns-empty').innerHTML = `
+    const empty = document.getElementById('campaigns-empty');
+    empty.style.display = 'block';
+    empty.innerHTML = `
       <div class="empty-state-icon">⚠️</div>
       <div class="empty-state-title">Fehler beim Laden</div>
       <div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">${escHtml(e.message || String(e))}</div>
     `;
   }
 }
-
-// Auto-timeout: if still loading after 15 seconds, show error
-setTimeout(() => {
-  const loading = document.getElementById('campaigns-loading');
-  if (loading && loading.style.display !== 'none') {
-    loading.style.display = 'none';
-    document.getElementById('campaigns-empty').style.display = 'block';
-    document.getElementById('campaigns-empty').innerHTML = `
-      <div class="empty-state-icon">⏱️</div>
-      <div class="empty-state-title">Laden dauert zu lange</div>
-      <div class="empty-state-desc">Öffne die Browser-Konsole (F12 → Console) für Details.</div>
-    `;
-  }
-}, 15000);
 
 init();
 </script>
