@@ -1410,6 +1410,165 @@
       height: 250px;
       margin-bottom: 16px;
     }
+
+    /* Advanced Prediction Engine Styles */
+    .confidence-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-input);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .confidence-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 600ms ease;
+      background: linear-gradient(90deg, var(--red), var(--orange), var(--green));
+    }
+    .similarity-inline-bar {
+      display: inline-block;
+      width: 60px;
+      height: 6px;
+      background: var(--bg-input);
+      border-radius: 3px;
+      overflow: hidden;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+    .similarity-inline-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--accent-light);
+      transition: width 400ms ease;
+    }
+    .feature-importance-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .feature-importance-bar .fi-label {
+      min-width: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .feature-importance-bar .fi-track {
+      flex: 1;
+      height: 18px;
+      background: var(--bg-input);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .feature-importance-bar .fi-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      transition: width 500ms ease;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      min-width: fit-content;
+    }
+    .feature-importance-bar .fi-pct {
+      min-width: 36px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .prediction-main {
+      text-align: center;
+      padding: 20px 0;
+    }
+    .prediction-main .pred-cpl-big {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .prediction-main .pred-cpl-big.cpl-green { color: var(--green); }
+    .prediction-main .pred-cpl-big.cpl-yellow { color: var(--orange); }
+    .prediction-main .pred-cpl-big.cpl-red { color: var(--red); }
+    .prediction-main .pred-range-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+    .prediction-breakdown {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .prediction-breakdown .pb-item {
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+    .prediction-breakdown .pb-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .prediction-breakdown .pb-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .prediction-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .prediction-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .prediction-section-header {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pred-method-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .pred-method-badge.early {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--orange);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .pred-method-badge.limited {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-light);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    .pred-method-badge.full {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -4664,10 +4823,10 @@ let _compChartInstance = null;
 function getPerformanceScore(predictedCPL, avgCPL) {
   if (!predictedCPL || !avgCPL || avgCPL === 0) return { stars: 3, label: 'Durchschnitt', cls: 'pred-score-yellow' };
   const ratio = predictedCPL / avgCPL;
-  if (ratio < 0.5) return { stars: 5, label: 'Exzellent', cls: 'pred-score-green' };
-  if (ratio < 0.8) return { stars: 4, label: 'Gut', cls: 'pred-score-yellow-green' };
-  if (ratio < 1.2) return { stars: 3, label: 'Durchschnitt', cls: 'pred-score-yellow' };
-  if (ratio < 1.5) return { stars: 2, label: 'Unterdurchschnittlich', cls: 'pred-score-orange' };
+  if (ratio < 0.4) return { stars: 5, label: 'Exzellent', cls: 'pred-score-green' };
+  if (ratio < 0.7) return { stars: 4, label: 'Gut', cls: 'pred-score-yellow-green' };
+  if (ratio < 1.3) return { stars: 3, label: 'Durchschnitt', cls: 'pred-score-yellow' };
+  if (ratio < 1.8) return { stars: 2, label: 'Unterdurchschnittlich', cls: 'pred-score-orange' };
   return { stars: 1, label: 'Schwach', cls: 'pred-score-red' };
 }
 
@@ -4685,133 +4844,297 @@ async function loadCampaignDataForPrediction() {
     const m = c.campaign_daily_metrics || [];
     const spend = m.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
     const leads = m.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+    const impressions = m.reduce(function(s,x) { return s + (x.impressions || 0); }, 0);
     const days = m.length || 0;
+    const prop = c.properties || {};
     return {
+      campaign_id: c.id,
+      campaign_name: c.campaign_name,
+      start_date: c.start_date,
+      end_date: c.end_date,
+      total_budget: c.total_budget,
+      status: c.status,
       id: c.id,
       name: c.campaign_name,
-      prop: c.properties,
+      prop: {
+        price: prop.price || 0,
+        size_sqm: prop.size_sqm || 0,
+        property_type: prop.property_type || 'unknown',
+        city: prop.city || '',
+        location_rating: prop.location_rating || (prop.city ? getCityRating(prop.city) : null),
+        price_per_sqm: (prop.price && prop.size_sqm) ? prop.price / prop.size_sqm : null,
+        rooms: prop.rooms || null,
+        plot_size: prop.plot_size || null
+      },
       spend: spend,
       leads: leads,
+      impressions: impressions,
       days: days,
       cpl: leads > 0 ? spend / leads : null
     };
   }).filter(function(d) { return d.leads > 0 && d.cpl !== null; });
 }
 
-function predictCPLForProperty(inputPrice, inputType, inputCity, inputRating, allData) {
-  const N = allData.length;
-  const estimates = [];
+// ============================================
+// ADVANCED PREDICTION ENGINE
+// k-NN Similarity + Temporal Decay + Bayesian Confidence
+// ============================================
 
-  // 1. Global average CPL
-  const totalSpend = allData.reduce(function(s,d) { return s + d.spend; }, 0);
-  const totalLeads = allData.reduce(function(s,d) { return s + d.leads; }, 0);
-  const globalAvgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+// Step 1: Feature Engineering — normalize to 0-1 range
+function engineFeatures(prop, allProps) {
+  const prices = allProps.map(function(p) { return p.price; }).filter(function(v) { return v > 0; });
+  const sizes = allProps.map(function(p) { return p.size_sqm; }).filter(function(v) { return v > 0; });
+  const pricePerSqms = allProps.map(function(p) {
+    return (p.price && p.size_sqm) ? p.price / p.size_sqm : null;
+  }).filter(function(v) { return v !== null; });
 
-  if (globalAvgCPL > 0) estimates.push(globalAvgCPL);
+  var normalize = function(val, arr) {
+    if (val == null || arr.length < 2) return 0.5;
+    var min = Math.min.apply(null, arr);
+    var max = Math.max.apply(null, arr);
+    if (max === min) return 0.5;
+    return Math.max(0, Math.min(1, (val - min) / (max - min)));
+  };
 
-  // 2. Linear regression: price → CPL
-  let regressionCPL = null;
-  const withPrice = allData.filter(function(d) { return d.prop && d.prop.price && d.cpl; });
-  if (withPrice.length >= 2 && inputPrice) {
-    const reg = linearRegression(
-      withPrice.map(function(d) { return d.prop.price; }),
-      withPrice.map(function(d) { return d.cpl; })
-    );
-    if (reg && reg.slope !== 0) {
-      regressionCPL = reg.slope * inputPrice + reg.intercept;
-      if (regressionCPL > 0) estimates.push(regressionCPL);
-      else regressionCPL = null;
-    }
+  return {
+    price_norm: normalize(prop.price, prices),
+    size_norm: normalize(prop.size_sqm, sizes),
+    ppsqm_norm: normalize((prop.price && prop.size_sqm) ? prop.price / prop.size_sqm : null, pricePerSqms),
+    type: prop.property_type || 'unknown',
+    city: (prop.city || '').toLowerCase().trim(),
+    rating: prop.location_rating || 'C'
+  };
+}
+
+// Step 2: Multi-Dimensional Similarity (k-NN)
+function campaignSimilarity(inputFeatures, campaignFeatures) {
+  var priceDist = Math.abs(inputFeatures.price_norm - campaignFeatures.price_norm);
+  var sizeDist = Math.abs(inputFeatures.size_norm - campaignFeatures.size_norm);
+  var ppsqmDist = Math.abs(inputFeatures.ppsqm_norm - campaignFeatures.ppsqm_norm);
+  var typeMatch = inputFeatures.type === campaignFeatures.type ? 0 : 1;
+  var cityMatch = inputFeatures.city === campaignFeatures.city ? 0 : 1;
+  var inputRatingIdx = 'ABCD'.indexOf(inputFeatures.rating);
+  var campRatingIdx = 'ABCD'.indexOf(campaignFeatures.rating);
+  var ratingDist = (inputRatingIdx >= 0 && campRatingIdx >= 0) ? Math.abs(inputRatingIdx - campRatingIdx) / 3 : 0.5;
+
+  var weights = {
+    ppsqm: 0.30,
+    price: 0.20,
+    type: 0.20,
+    size: 0.10,
+    city: 0.10,
+    rating: 0.10
+  };
+
+  var distance = weights.ppsqm * ppsqmDist
+               + weights.price * priceDist
+               + weights.type * typeMatch
+               + weights.size * sizeDist
+               + weights.city * cityMatch
+               + weights.rating * ratingDist;
+
+  return 1 - distance;
+}
+
+// Step 3: Temporal Decay
+function temporalWeight(campaignEndDate) {
+  var now = new Date();
+  var end = new Date(campaignEndDate);
+  var daysSince = Math.max(0, (now - end) / (1000 * 60 * 60 * 24));
+  var lambda = 0.005; // half-life ~140 days
+  return Math.exp(-lambda * daysSince);
+}
+
+// Step 4: Bayesian-Style Confidence Band
+function bayesianEstimate(predictions, weights) {
+  var prior = { mean: 10.0, variance: 25.0 };
+
+  var totalWeight = weights.reduce(function(s, w) { return s + w; }, 0);
+  if (totalWeight === 0) {
+    return {
+      mean: prior.mean,
+      low: prior.mean - Math.sqrt(prior.variance) * 1.5,
+      high: prior.mean + Math.sqrt(prior.variance) * 1.5,
+      confidence: 0,
+      priorInfluence: 100,
+      dataInfluence: 0
+    };
   }
 
-  // 3. Segment averages
-  const segmentCPLs = [];
+  var dataMean = predictions.reduce(function(s, p, i) { return s + p * weights[i]; }, 0) / totalWeight;
+  var dataVariance = predictions.reduce(function(s, p, i) { return s + weights[i] * Math.pow(p - dataMean, 2); }, 0) / totalWeight;
 
-  // Same type
-  if (inputType) {
-    const sameType = allData.filter(function(d) { return d.prop && d.prop.property_type === inputType; });
-    if (sameType.length > 0) {
-      const ts = sameType.reduce(function(s,d) { return s + d.spend; }, 0);
-      const tl = sameType.reduce(function(s,d) { return s + d.leads; }, 0);
-      if (tl > 0) segmentCPLs.push(ts / tl);
-    }
-  }
+  var n = predictions.length;
+  var priorPrecision = 1 / prior.variance;
+  var dataPrecision = n / (dataVariance + 0.01);
 
-  // Same city
-  if (inputCity) {
-    const cityLower = inputCity.toLowerCase().trim();
-    const sameCity = allData.filter(function(d) { return d.prop && d.prop.city && d.prop.city.toLowerCase().trim() === cityLower; });
-    if (sameCity.length > 0) {
-      const ts = sameCity.reduce(function(s,d) { return s + d.spend; }, 0);
-      const tl = sameCity.reduce(function(s,d) { return s + d.leads; }, 0);
-      if (tl > 0) segmentCPLs.push(ts / tl);
-    }
-  }
+  var posteriorPrecision = priorPrecision + dataPrecision;
+  var posteriorMean = (priorPrecision * prior.mean + dataPrecision * dataMean) / posteriorPrecision;
+  var posteriorVariance = 1 / posteriorPrecision;
+  var posteriorStd = Math.sqrt(posteriorVariance);
 
-  // Same rating
-  if (inputRating) {
-    const sameRating = allData.filter(function(d) {
-      const r = (d.prop && d.prop.location_rating) || (d.prop && d.prop.city ? getCityRating(d.prop.city) : null);
-      return r === inputRating;
+  var confidence = Math.min(100, Math.round((dataPrecision / posteriorPrecision) * 100));
+
+  return {
+    mean: posteriorMean,
+    low: Math.max(0.5, posteriorMean - 1.5 * posteriorStd),
+    high: posteriorMean + 1.5 * posteriorStd,
+    confidence: confidence,
+    priorInfluence: Math.round((priorPrecision / posteriorPrecision) * 100),
+    dataInfluence: Math.round((dataPrecision / posteriorPrecision) * 100)
+  };
+}
+
+// Step 5: Feature Importance
+function calculateFeatureImportance(inputFeatures, scoredCampaigns) {
+  var features = ['ppsqm', 'price', 'type', 'size', 'city', 'rating'];
+  var labels = {
+    ppsqm: '€/qm',
+    price: 'Preis',
+    type: 'Objektart',
+    size: 'Größe',
+    city: 'Stadt',
+    rating: 'Standort-Rating'
+  };
+
+  var allCampProps = scoredCampaigns.map(function(s) { return s.prop; });
+  var importance = {};
+
+  features.forEach(function(f) {
+    var distances = scoredCampaigns.map(function(c) {
+      var cf = engineFeatures(c.prop, allCampProps);
+      switch(f) {
+        case 'ppsqm': return Math.abs(inputFeatures.ppsqm_norm - cf.ppsqm_norm);
+        case 'price': return Math.abs(inputFeatures.price_norm - cf.price_norm);
+        case 'type': return inputFeatures.type === cf.type ? 0 : 1;
+        case 'size': return Math.abs(inputFeatures.size_norm - cf.size_norm);
+        case 'city': return inputFeatures.city === cf.city ? 0 : 1;
+        case 'rating':
+          var ir = 'ABCD'.indexOf(inputFeatures.rating);
+          var cr = 'ABCD'.indexOf(cf.rating);
+          return (ir >= 0 && cr >= 0) ? Math.abs(ir - cr) / 3 : 0.5;
+        default: return 0;
+      }
     });
-    if (sameRating.length > 0) {
-      const ts = sameRating.reduce(function(s,d) { return s + d.spend; }, 0);
-      const tl = sameRating.reduce(function(s,d) { return s + d.leads; }, 0);
-      if (tl > 0) segmentCPLs.push(ts / tl);
-    }
+    var avg = distances.length > 0 ? distances.reduce(function(s,v) { return s + v; }, 0) / distances.length : 0;
+    importance[f] = { variance: avg, label: labels[f] };
+  });
+
+  var total = Object.keys(importance).reduce(function(s, k) { return s + importance[k].variance; }, 0);
+  Object.keys(importance).forEach(function(f) {
+    importance[f].pct = total > 0 ? Math.round((importance[f].variance / total) * 100) : 0;
+  });
+
+  return importance;
+}
+
+// Step 6: Main Prediction Function
+function predictCPLAdvanced(inputProp, allData) {
+  var N = allData.length;
+  if (N === 0) {
+    return {
+      prediction: { mean: 10, low: 5, high: 15, confidence: 0, priorInfluence: 100, dataInfluence: 0 },
+      method: 'prior_only',
+      similarities: [],
+      featureImportance: {},
+      N: 0,
+      globalAvgCPL: 10
+    };
   }
 
-  // Same price range
-  if (inputPrice) {
-    const inputRange = priceRange(inputPrice);
-    const samePriceRange = allData.filter(function(d) { return d.prop && d.prop.price && priceRange(d.prop.price) === inputRange; });
-    if (samePriceRange.length > 0) {
-      const ts = samePriceRange.reduce(function(s,d) { return s + d.spend; }, 0);
-      const tl = samePriceRange.reduce(function(s,d) { return s + d.leads; }, 0);
-      if (tl > 0) segmentCPLs.push(ts / tl);
-    }
-  }
+  var allProps = allData.map(function(d) { return d.prop; }).filter(function(p) { return p; });
+  var inputFeatures = engineFeatures(inputProp, allProps);
 
-  const segmentAvg = segmentCPLs.length > 0 ? segmentCPLs.reduce(function(s,v) { return s + v; }, 0) / segmentCPLs.length : null;
-  if (segmentAvg) estimates.push(segmentAvg);
+  var scored = allData.filter(function(d) { return d.cpl > 0; }).map(function(d) {
+    var campFeatures = engineFeatures(d.prop, allProps);
+    var similarity = campaignSimilarity(inputFeatures, campFeatures);
+    var temporal = temporalWeight(d.end_date || new Date().toISOString());
+    var combinedWeight = similarity * temporal;
+    return {
+      campaign_id: d.campaign_id || d.id,
+      campaign_name: d.campaign_name || d.name,
+      name: d.campaign_name || d.name,
+      start_date: d.start_date,
+      end_date: d.end_date,
+      spend: d.spend,
+      leads: d.leads,
+      impressions: d.impressions,
+      cpl: d.cpl,
+      days: d.days,
+      prop: d.prop,
+      similarity: similarity,
+      temporalWeight: temporal,
+      combinedWeight: combinedWeight
+    };
+  });
 
-  // Combine: range from min to max of all estimates
-  const allEstimates = estimates.filter(function(v) { return v > 0; });
-  if (allEstimates.length === 0) return { minCPL: 0, maxCPL: 0, regressionCPL: null, segmentAvg: null, globalAvgCPL: globalAvgCPL, pointEstimate: globalAvgCPL, N: N };
+  scored.sort(function(a, b) { return b.combinedWeight - a.combinedWeight; });
 
-  const minCPL = Math.min.apply(null, allEstimates);
-  const maxCPL = Math.max.apply(null, allEstimates);
-  const pointEstimate = allEstimates.reduce(function(s,v) { return s + v; }, 0) / allEstimates.length;
+  var cplValues = scored.map(function(s) { return s.cpl; });
+  var weights = scored.map(function(s) { return s.combinedWeight; });
 
-  return { minCPL: minCPL, maxCPL: maxCPL, regressionCPL: regressionCPL, segmentAvg: segmentAvg, globalAvgCPL: globalAvgCPL, pointEstimate: pointEstimate, N: N };
+  var prediction = bayesianEstimate(cplValues, weights);
+  var featureImportance = calculateFeatureImportance(inputFeatures, scored);
+
+  var totalSpendAll = allData.reduce(function(s,d) { return s + d.spend; }, 0);
+  var totalLeadsAll = allData.reduce(function(s,d) { return s + d.leads; }, 0);
+
+  return {
+    prediction: prediction,
+    method: N >= 10 ? 'full_model' : N >= 5 ? 'limited_data' : 'early_stage',
+    similarities: scored.slice(0, 5),
+    featureImportance: featureImportance,
+    N: N,
+    globalAvgCPL: totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 10
+  };
+}
+
+// Legacy wrapper for backward compatibility
+function predictCPLForProperty(inputPrice, inputType, inputCity, inputRating, allData) {
+  var inputProp = {
+    price: inputPrice || 0,
+    size_sqm: 0,
+    property_type: inputType || 'unknown',
+    city: inputCity || '',
+    location_rating: inputRating || 'C',
+    rooms: null,
+    plot_size: null
+  };
+  var result = predictCPLAdvanced(inputProp, allData);
+  return {
+    minCPL: result.prediction.low,
+    maxCPL: result.prediction.high,
+    pointEstimate: result.prediction.mean,
+    globalAvgCPL: result.globalAvgCPL,
+    N: result.N,
+    regressionCPL: null,
+    segmentAvg: null
+  };
 }
 
 function findSimilarCampaigns(inputPrice, inputType, inputCity, allData) {
-  // Score similarity for each campaign
-  const scored = allData.map(function(d) {
-    let score = 0;
-    if (d.prop) {
-      if (inputType && d.prop.property_type === inputType) score += 3;
-      if (inputCity && d.prop.city && d.prop.city.toLowerCase().trim() === inputCity.toLowerCase().trim()) score += 2;
-      if (inputPrice && d.prop.price) {
-        const priceDiff = Math.abs(d.prop.price - inputPrice) / Math.max(d.prop.price, inputPrice, 1);
-        score += Math.max(0, 1 - priceDiff); // 0-1 points based on price closeness
-      }
-    }
-    return { campaign: d, score: score };
-  });
-
-  scored.sort(function(a,b) { return b.score - a.score; });
-  return scored.slice(0, 3).filter(function(s) { return s.score > 0; }).map(function(s) { return s.campaign; });
+  var inputProp = {
+    price: inputPrice || 0,
+    size_sqm: 0,
+    property_type: inputType || 'unknown',
+    city: inputCity || '',
+    location_rating: inputCity ? getCityRating(inputCity) : 'C',
+    rooms: null,
+    plot_size: null
+  };
+  var result = predictCPLAdvanced(inputProp, allData);
+  return result.similarities.slice(0, 3);
 }
 
 async function predictPerformance() {
-  const resultsEl = document.getElementById('pred-results');
-  const inputType = document.getElementById('pred-type').value;
-  const inputSize = parseFloat(document.getElementById('pred-size').value) || null;
-  const inputPrice = parseFloat(document.getElementById('pred-price').value) || null;
-  const inputCity = document.getElementById('pred-city').value.trim();
-  const inputRating = document.getElementById('pred-rating').value || (inputCity ? getCityRating(inputCity) : null);
+  var resultsEl = document.getElementById('pred-results');
+  var inputType = document.getElementById('pred-type').value;
+  var inputSize = parseFloat(document.getElementById('pred-size').value) || null;
+  var inputPlot = parseFloat(document.getElementById('pred-plot').value) || null;
+  var inputRooms = parseFloat(document.getElementById('pred-rooms').value) || null;
+  var inputPrice = parseFloat(document.getElementById('pred-price').value) || null;
+  var inputCity = document.getElementById('pred-city').value.trim();
+  var inputRating = document.getElementById('pred-rating').value || (inputCity ? getCityRating(inputCity) : null);
 
   if (!inputPrice) {
     showToast('Bitte mindestens den Preis eingeben', 'error');
@@ -4821,71 +5144,119 @@ async function predictPerformance() {
   resultsEl.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
 
   try {
-    const allData = await loadCampaignDataForPrediction();
-    const N = allData.length;
+    var allData = await loadCampaignDataForPrediction();
+    var N = allData.length;
 
     if (N === 0) {
       resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">Keine Daten</div><div class="empty-state-desc">Noch keine Kampagnen mit Leads vorhanden. Bitte zuerst Kampagnen anlegen.</div></div>';
       return;
     }
 
-    const prediction = predictCPLForProperty(inputPrice, inputType, inputCity, inputRating, allData);
-    const score = getPerformanceScore(prediction.pointEstimate, prediction.globalAvgCPL);
-    const similar = findSimilarCampaigns(inputPrice, inputType, inputCity, allData);
+    var inputProp = {
+      price: inputPrice,
+      size_sqm: inputSize || 0,
+      property_type: inputType,
+      city: inputCity,
+      location_rating: inputRating || 'C',
+      rooms: inputRooms,
+      plot_size: inputPlot
+    };
 
-    // Format CPL range
-    const minFormatted = formatEur(prediction.minCPL);
-    const maxFormatted = formatEur(prediction.maxCPL);
-    const rangeText = prediction.minCPL === prediction.maxCPL ? '~' + minFormatted : minFormatted + ' – ' + maxFormatted;
+    var result = predictCPLAdvanced(inputProp, allData);
+    var pred = result.prediction;
+    var score = getPerformanceScore(pred.mean, result.globalAvgCPL);
 
-    // Details line
-    const detailParts = [];
-    if (prediction.regressionCPL) detailParts.push('Regression: ' + formatEur(prediction.regressionCPL));
-    if (prediction.segmentAvg) detailParts.push('Segment Ø: ' + formatEur(prediction.segmentAvg));
-    if (detailParts.length === 0) detailParts.push('Global Ø: ' + formatEur(prediction.globalAvgCPL));
-    const detailText = detailParts.join(' | ');
+    // Color class for CPL value
+    var cplColorCls = pred.mean < 8 ? 'cpl-green' : pred.mean < 12 ? 'cpl-yellow' : 'cpl-red';
 
-    // Similar campaigns HTML
-    let similarHtml = '';
-    if (similar.length > 0) {
-      similarHtml = similar.map(function(c) {
-        return '<div class="pred-similar-item"><span class="pred-similar-name">' + escHtml(c.name) + '</span><span class="pred-similar-detail">CPL ' + formatEur(c.cpl) + ' · ' + c.leads + ' Leads · ' + c.days + ' Tage</span></div>';
+    // Method badge
+    var methodLabels = {
+      'prior_only': { text: 'Nur Prior', cls: 'early' },
+      'early_stage': { text: 'Early Stage (' + result.N + ' Kampagnen)', cls: 'early' },
+      'limited_data': { text: 'Eingeschränkte Daten (' + result.N + ' Kampagnen)', cls: 'limited' },
+      'full_model': { text: 'Vollständiges Modell (' + result.N + ' Kampagnen)', cls: 'full' }
+    };
+    var methodInfo = methodLabels[result.method] || methodLabels['early_stage'];
+
+    // A) Main Prediction Card
+    var mainHtml = '<div class="prediction-section">' +
+      '<div class="prediction-section-header">🔮 Erwarteter CPL</div>' +
+      '<div class="prediction-main">' +
+        '<div class="pred-cpl-big ' + cplColorCls + '">' + formatEur(pred.mean) + '</div>' +
+        '<div class="pred-range-text">Spanne: ' + formatEur(pred.low) + ' – ' + formatEur(pred.high) + '</div>' +
+        '<div style="margin-top:8px;">' +
+          '<span style="font-size:12px;color:var(--text-muted);">Konfidenz: ' + pred.confidence + '%</span>' +
+          '<div class="confidence-bar"><div class="confidence-bar-fill" style="width:' + pred.confidence + '%;"></div></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    // B) Confidence Breakdown
+    var breakdownHtml = '<div class="prediction-section">' +
+      '<div class="prediction-section-header">📊 Datengrundlage</div>' +
+      '<div class="prediction-breakdown">' +
+        '<div class="pb-item"><div class="pb-label">Eigene Daten</div><div class="pb-value">' + pred.dataInfluence + '%</div></div>' +
+        '<div class="pb-item"><div class="pb-label">Industry Prior</div><div class="pb-value">' + pred.priorInfluence + '%</div></div>' +
+        '<div class="pb-item"><div class="pb-label">Kampagnen</div><div class="pb-value">' + result.N + '</div></div>' +
+        '<div class="pb-item"><div class="pb-label">Modell</div><div class="pb-value"><span class="pred-method-badge ' + methodInfo.cls + '">' + methodInfo.text + '</span></div></div>' +
+      '</div>' +
+      (result.N < 10 ? '<div style="margin-top:10px;font-size:12px;color:var(--orange);">⚠️ Mehr Kampagnen = genauere Vorhersage</div>' : '') +
+    '</div>';
+
+    // C) Performance Score
+    var scoreHtml = '<div class="prediction-section">' +
+      '<div class="prediction-section-header">⭐ Performance-Score</div>' +
+      '<div class="pred-stars" style="font-size:28px;">' + renderStars(score.stars) + '</div>' +
+      '<div class="pred-score-label ' + score.cls + '" style="margin-top:6px;">' + score.label + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Global Ø CPL: ' + formatEur(result.globalAvgCPL) + '</div>' +
+    '</div>';
+
+    // D) Similar Campaigns
+    var similarHtml = '<div class="prediction-section">' +
+      '<div class="prediction-section-header">🎯 Ähnlichste Kampagnen</div>';
+    if (result.similarities.length > 0) {
+      similarHtml += result.similarities.map(function(c, i) {
+        var simPct = Math.round(c.similarity * 100);
+        return '<div class="pred-similar-item">' +
+          '<span class="pred-similar-name">' + (i + 1) + '. ' + escHtml(c.name) + '</span>' +
+          '<span style="display:flex;align-items:center;gap:8px;">' +
+            '<span class="pred-similar-detail">' + simPct + '% ähnlich</span>' +
+            '<span class="similarity-inline-bar"><span class="similarity-inline-bar-fill" style="width:' + simPct + '%;"></span></span>' +
+            '<span style="font-weight:700;">CPL ' + formatEur(c.cpl) + '</span>' +
+          '</span>' +
+        '</div>';
       }).join('');
     } else {
-      similarHtml = '<div style="font-size:13px;color:var(--text-muted);">Keine ähnlichen Kampagnen gefunden.</div>';
+      similarHtml += '<div style="font-size:13px;color:var(--text-muted);">Keine ähnlichen Kampagnen gefunden.</div>';
     }
+    similarHtml += '</div>';
 
-    // Confidence note
-    let confidenceHtml = '';
-    if (N < 5) {
-      confidenceHtml = '⚠️ Frühe Prognose – noch wenig Vergleichsdaten vorhanden (' + N + ' Kampagnen)';
-    } else if (N >= 10) {
-      confidenceHtml = '✅ Gute Datenbasis (' + N + ' Kampagnen)';
-    } else {
-      confidenceHtml = 'Basierend auf ' + N + ' Kampagnen. Vorhersagegenauigkeit verbessert sich mit mehr Daten.';
-    }
+    // E) Feature Importance
+    var featureHtml = '<div class="prediction-section">' +
+      '<div class="prediction-section-header">🧠 Was beeinflusst den CPL am meisten?</div>';
+    var fi = result.featureImportance;
+    var fiKeys = Object.keys(fi);
+    // Sort by pct descending
+    fiKeys.sort(function(a, b) { return (fi[b].pct || 0) - (fi[a].pct || 0); });
+    fiKeys.forEach(function(k) {
+      var item = fi[k];
+      featureHtml += '<div class="feature-importance-bar">' +
+        '<span class="fi-label">' + escHtml(item.label) + '</span>' +
+        '<span class="fi-track"><span class="fi-fill" style="width:' + Math.max(2, item.pct) + '%;"></span></span>' +
+        '<span class="fi-pct">' + item.pct + '%</span>' +
+      '</div>';
+    });
+    featureHtml += '</div>';
 
-    // Render
+    // Render all
     resultsEl.innerHTML =
       '<div class="pred-result-card">' +
         '<div class="card-body">' +
-          '<div class="pred-section">' +
-            '<div class="pred-section-title">Erwarteter CPL</div>' +
-            '<div class="pred-cpl-range">' + rangeText + '</div>' +
-            '<div class="pred-cpl-details">' + escHtml(detailText) + '</div>' +
-          '</div>' +
-          '<div class="pred-section">' +
-            '<div class="pred-section-title">Performance-Score</div>' +
-            '<div class="pred-stars">' + renderStars(score.stars) + '</div>' +
-            '<div class="pred-score-label ' + score.cls + '">' + score.label + '</div>' +
-          '</div>' +
-          '<div class="pred-section">' +
-            '<div class="pred-section-title">Ähnliche Kampagnen</div>' +
-            similarHtml +
-          '</div>' +
-          '<div class="pred-section">' +
-            '<div class="pred-confidence">' + confidenceHtml + '</div>' +
-          '</div>' +
+          mainHtml +
+          breakdownHtml +
+          scoreHtml +
+          similarHtml +
+          featureHtml +
         '</div>' +
       '</div>';
 
@@ -4934,27 +5305,27 @@ function removeCompareProperty(n) {
 }
 
 async function compareProperties() {
-  const resultsEl = document.getElementById('comp-results');
+  var resultsEl = document.getElementById('comp-results');
   resultsEl.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
 
   try {
     // Collect inputs from all visible cards
-    const inputs = [];
-    for (let n = 0; n < 4; n++) {
-      const card = document.getElementById('comp-card-' + n);
+    var inputs = [];
+    for (var n = 0; n < 4; n++) {
+      var card = document.getElementById('comp-card-' + n);
       if (!card) continue;
-      const priceEl = document.getElementById('comp-' + n + '-price');
-      const price = priceEl ? parseFloat(priceEl.value) || 0 : 0;
+      var priceEl = document.getElementById('comp-' + n + '-price');
+      var price = priceEl ? parseFloat(priceEl.value) || 0 : 0;
       if (price <= 0) continue;
 
-      const nameEl = document.getElementById('comp-' + n + '-name');
-      const typeEl = document.getElementById('comp-' + n + '-type');
-      const sizeEl = document.getElementById('comp-' + n + '-size');
-      const cityEl = document.getElementById('comp-' + n + '-city');
-      const ratingEl = document.getElementById('comp-' + n + '-rating');
+      var nameEl = document.getElementById('comp-' + n + '-name');
+      var typeEl = document.getElementById('comp-' + n + '-type');
+      var sizeEl = document.getElementById('comp-' + n + '-size');
+      var cityEl = document.getElementById('comp-' + n + '-city');
+      var ratingEl = document.getElementById('comp-' + n + '-rating');
 
-      const city = cityEl ? cityEl.value.trim() : '';
-      const rating = (ratingEl ? ratingEl.value : '') || (city ? getCityRating(city) : null);
+      var city = cityEl ? cityEl.value.trim() : '';
+      var rating = (ratingEl ? ratingEl.value : '') || (city ? getCityRating(city) : null);
 
       inputs.push({
         index: n,
@@ -4973,63 +5344,82 @@ async function compareProperties() {
       return;
     }
 
-    const allData = await loadCampaignDataForPrediction();
+    var allData = await loadCampaignDataForPrediction();
     if (allData.length === 0) {
       resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">Keine Daten</div><div class="empty-state-desc">Noch keine Kampagnen mit Leads vorhanden.</div></div>';
       return;
     }
 
-    // Predict for each property
-    const results = inputs.map(function(inp) {
-      const pred = predictCPLForProperty(inp.price, inp.type, inp.city, inp.rating, allData);
-      const score = getPerformanceScore(pred.pointEstimate, pred.globalAvgCPL);
-      const similar = findSimilarCampaigns(inp.price, inp.type, inp.city, allData);
-      const sqmPrice = (inp.size && inp.size > 0) ? Math.round(inp.price / inp.size) : null;
-      const propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',sonstige:'Sonstige'};
+    var propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',sonstige:'Sonstige'};
+
+    // Predict for each property using advanced engine
+    var results = inputs.map(function(inp) {
+      var inputProp = {
+        price: inp.price,
+        size_sqm: inp.size || 0,
+        property_type: inp.type,
+        city: inp.city,
+        location_rating: inp.rating || 'C',
+        rooms: null,
+        plot_size: null
+      };
+      var advResult = predictCPLAdvanced(inputProp, allData);
+      var pred = advResult.prediction;
+      var score = getPerformanceScore(pred.mean, advResult.globalAvgCPL);
+      var sqmPrice = (inp.size && inp.size > 0) ? Math.round(inp.price / inp.size) : null;
       return {
         input: inp,
+        advResult: advResult,
         prediction: pred,
         score: score,
-        similar: similar,
         sqmPrice: sqmPrice,
         typeLabel: propTypeLabels[inp.type] || inp.type
       };
     });
 
-    // Sort by predicted CPL (best first)
-    const ranked = [...results].sort(function(a,b) { return a.prediction.pointEstimate - b.prediction.pointEstimate; });
+    // Sort by predicted CPL (best first — Bayesian mean)
+    var ranked = results.slice().sort(function(a,b) { return a.prediction.mean - b.prediction.mean; });
 
     // A) Ranking
-    const medals = ['🥇', '🥈', '🥉', '4.'];
-    let rankingHtml = '<div class="comp-ranking">';
+    var medals = ['🥇', '🥈', '🥉', '4.'];
+    var rankingHtml = '<div class="comp-ranking">';
     ranked.forEach(function(r, i) {
       rankingHtml += '<div class="comp-ranking-item">' +
         '<span class="comp-ranking-medal">' + medals[i] + '</span>' +
         '<span class="comp-ranking-name">' + escHtml(r.input.name) + '</span>' +
         '<span class="comp-ranking-stars pred-stars">' + renderStars(r.score.stars) + '</span>' +
-        '<span class="comp-ranking-cpl">~' + formatEur(r.prediction.pointEstimate) + '</span>' +
+        '<span class="comp-ranking-cpl">~' + formatEur(r.prediction.mean) + '</span>' +
       '</div>';
     });
     rankingHtml += '</div>';
 
     // Recommendation
-    const best = ranked[0];
-    const recHtml = '<div class="comp-recommendation">💡 Empfehlung: <strong>' + escHtml(best.input.name) + '</strong> hat das beste Performance-Potenzial (erwarteter CPL ~' + formatEur(best.prediction.pointEstimate) + ')</div>';
+    var best = ranked[0];
+    var recHtml = '<div class="comp-recommendation">💡 Empfehlung: <strong>' + escHtml(best.input.name) + '</strong> hat das beste Performance-Potenzial (erwarteter CPL ~' + formatEur(best.prediction.mean) + ', Konfidenz: ' + best.prediction.confidence + '%)</div>';
 
     // B) Comparison table
-    let tableHtml = '<div class="card" style="margin-bottom:24px;"><div class="card-header"><div class="card-title">Detail-Vergleich</div></div><div class="card-body" style="padding:0;overflow-x:auto;">';
+    var tableHtml = '<div class="card" style="margin-bottom:24px;"><div class="card-header"><div class="card-title">Detail-Vergleich</div></div><div class="card-body" style="padding:0;overflow-x:auto;">';
     tableHtml += '<table class="comp-table"><thead><tr><th>Metrik</th>';
     results.forEach(function(r) { tableHtml += '<th>' + escHtml(r.input.name) + '</th>'; });
     tableHtml += '</tr></thead><tbody>';
 
     // Rows
-    const rowData = [
+    var rowData = [
       { label: 'Objektart', fn: function(r) { return r.typeLabel; } },
       { label: 'Preis', fn: function(r) { return formatEur(r.input.price); } },
       { label: 'qm-Preis', fn: function(r) { return r.sqmPrice ? formatEur(r.sqmPrice) : '—'; } },
-      { label: 'Predicted CPL', fn: function(r) { return '~' + formatEur(r.prediction.pointEstimate); } },
+      { label: 'Predicted CPL', fn: function(r) { return formatEur(r.prediction.mean); } },
+      { label: 'Konfidenz', fn: function(r) { return '<div style="display:flex;align-items:center;gap:6px;"><span>' + r.prediction.confidence + '%</span><span class="similarity-inline-bar" style="width:50px;"><span class="similarity-inline-bar-fill" style="width:' + r.prediction.confidence + '%;"></span></span></div>'; } },
+      { label: 'CPL Spanne', fn: function(r) { return formatEur(r.prediction.low) + ' – ' + formatEur(r.prediction.high); } },
       { label: 'Performance-Score', fn: function(r) { return '<span class="pred-stars" style="font-size:14px;">' + renderStars(r.score.stars) + '</span> <span class="' + r.score.cls + '" style="font-size:12px;">' + r.score.label + '</span>'; } },
-      { label: 'Ähnlichste Kampagne', fn: function(r) { return r.similar.length > 0 ? escHtml(r.similar[0].name) + ' (CPL ' + formatEur(r.similar[0].cpl) + ')' : '—'; } }
+      { label: 'Ähnlichste Kampagne', fn: function(r) {
+        var sims = r.advResult.similarities;
+        if (sims.length > 0) {
+          var simPct = Math.round(sims[0].similarity * 100);
+          return escHtml(sims[0].name) + ' (' + simPct + '%, CPL ' + formatEur(sims[0].cpl) + ')';
+        }
+        return '—';
+      } }
     ];
 
     rowData.forEach(function(row) {
@@ -5040,26 +5430,25 @@ async function compareProperties() {
 
     tableHtml += '</tbody></table></div></div>';
 
-    // C) Bar Chart
-    let chartHtml = '<div class="card"><div class="card-header"><div class="card-title">CPL-Vergleich</div></div><div class="card-body"><div class="comp-chart-container"><canvas id="comp-bar-chart"></canvas></div></div></div>';
+    // C) Bar Chart — use Bayesian mean CPL values
+    var chartHtml = '<div class="card"><div class="card-header"><div class="card-title">CPL-Vergleich (Bayesian Mean)</div></div><div class="card-body"><div class="comp-chart-container"><canvas id="comp-bar-chart"></canvas></div></div></div>';
 
     resultsEl.innerHTML = recHtml + rankingHtml + tableHtml + chartHtml;
 
     // Render Chart.js bar chart
-    const chartCanvas = document.getElementById('comp-bar-chart');
+    var chartCanvas = document.getElementById('comp-bar-chart');
     if (chartCanvas) {
       if (_compChartInstance) _compChartInstance.destroy();
-      const ctx = chartCanvas.getContext('2d');
-      const sortedForChart = [...results].sort(function(a,b) { return a.prediction.pointEstimate - b.prediction.pointEstimate; });
+      var ctx = chartCanvas.getContext('2d');
+      var sortedForChart = results.slice().sort(function(a,b) { return a.prediction.mean - b.prediction.mean; });
 
-      // Color coding: green (low) to red (high)
-      const maxCPL = Math.max.apply(null, sortedForChart.map(function(r) { return r.prediction.pointEstimate; }));
-      const minCPL = Math.min.apply(null, sortedForChart.map(function(r) { return r.prediction.pointEstimate; }));
-      const colors = sortedForChart.map(function(r) {
+      var maxCPL = Math.max.apply(null, sortedForChart.map(function(r) { return r.prediction.mean; }));
+      var minCPL = Math.min.apply(null, sortedForChart.map(function(r) { return r.prediction.mean; }));
+      var colors = sortedForChart.map(function(r) {
         if (maxCPL === minCPL) return 'rgba(99, 102, 241, 0.8)';
-        const ratio = (r.prediction.pointEstimate - minCPL) / (maxCPL - minCPL);
-        const red = Math.round(50 + ratio * 189);
-        const green = Math.round(197 - ratio * 153);
+        var ratio = (r.prediction.mean - minCPL) / (maxCPL - minCPL);
+        var red = Math.round(50 + ratio * 189);
+        var green = Math.round(197 - ratio * 153);
         return 'rgba(' + red + ',' + green + ',50,0.8)';
       });
 
@@ -5069,7 +5458,7 @@ async function compareProperties() {
           labels: sortedForChart.map(function(r) { return r.input.name; }),
           datasets: [{
             label: 'Erwarteter CPL (€)',
-            data: sortedForChart.map(function(r) { return Math.round(r.prediction.pointEstimate * 100) / 100; }),
+            data: sortedForChart.map(function(r) { return Math.round(r.prediction.mean * 100) / 100; }),
             backgroundColor: colors,
             borderColor: colors.map(function(c) { return c.replace('0.8', '1'); }),
             borderWidth: 1,
