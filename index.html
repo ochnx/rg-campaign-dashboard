@@ -2989,10 +2989,7 @@ async function handleCSVImport(event) {
       impressions: Math.round(d.impressions),
       reach: Math.round(d.reach),
       clicks: null,
-      leads: Math.round(d.leads),
-      cpl: d.leads > 0 ? Math.round((d.spend / d.leads) * 100) / 100 : null,
-      cpm: d.impressions > 0 ? Math.round(((d.spend / d.impressions) * 1000) * 100) / 100 : null,
-      ctr: null
+      leads: Math.round(d.leads)
     }));
     if (dailyRows.length > 0) {
       await sbInsert('campaign_daily_metrics', dailyRows);
@@ -3004,7 +3001,7 @@ async function handleCSVImport(event) {
       const [newCreative] = await sbInsert('creatives', {
         campaign_id: campaign.id,
         creative_name: cr.name,
-        creative_type: cr.type
+        creative_type: ['single_image','carousel','reel','video','story','scn_reel','th_reel'].includes(cr.type) ? cr.type : 'video'
       });
       creativeIdMap[cr.name] = newCreative.id;
     }
@@ -3019,9 +3016,7 @@ async function handleCSVImport(event) {
         impressions: Math.round(m.impressions),
         reach: Math.round(m.reach),
         clicks: null,
-        leads: Math.round(m.leads),
-        cpl: m.cpl != null ? Math.round(m.cpl * 100) / 100 : null,
-        cpm: m.cpm != null ? Math.round(m.cpm * 100) / 100 : null
+        leads: Math.round(m.leads)
       }));
     if (creativeDailyRows.length > 0) {
       await sbInsert('creative_daily_metrics', creativeDailyRows);
