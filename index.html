@@ -1026,14 +1026,44 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- Debug Panel (temporary) -->
+<pre id="debug-panel" style="position:fixed;bottom:0;left:0;right:0;background:#0d0d14;border-top:1px solid #333;color:#6f6;font-size:11px;padding:8px 12px;max-height:150px;overflow-y:auto;z-index:999;font-family:monospace;"></pre>
+
 <script>
+// ============================================
+// DEBUG PANEL (remove in production)
+// ============================================
+const _dbg = [];
+function dbg(msg) {
+  _dbg.push(`[${new Date().toISOString().slice(11,19)}] ${msg}`);
+  console.log('[DBG]', msg);
+  const el = document.getElementById('debug-panel');
+  if (el) el.textContent = _dbg.join('\n');
+}
+
+// Global error handler
+window.onerror = function(msg, url, line) {
+  dbg(`ERROR: ${msg} (line ${line})`);
+};
+window.addEventListener('unhandledrejection', function(e) {
+  dbg(`PROMISE ERROR: ${e.reason?.message || e.reason}`);
+});
+
 // ============================================
 // SUPABASE CONFIG
 // ============================================
+dbg('Script start');
 const SUPABASE_URL = 'https://lvhxabadywdqeepymwdm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2aHhhYmFkeXdkcWVlcHltd2RtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTUyMjM3NSwiZXhwIjoyMDg1MDk4Mzc1fQ.3BWQG5yeG8nshvukSi3YksxUbg273tJDiZnU9fAlzY0';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+dbg(`supabase module: ${typeof window.supabase}, createClient: ${typeof window.supabase?.createClient}`);
+let supabase;
+try {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  dbg('Client created OK');
+} catch (e) {
+  dbg(`Client create FAILED: ${e.message}`);
+}
 
 // ============================================
 // STATE
@@ -1124,9 +1154,9 @@ function showView(view) {
 // ============================================
 async function checkDatabase() {
   try {
-    console.log('[DB] Checking database...');
+    dbg('checkDatabase: querying clients...');
     const { data, error } = await supabase.from('clients').select('id').limit(1);
-    console.log('[DB] Check result:', { data, error });
+    dbg(`checkDatabase: data=${JSON.stringify(data)}, error=${error?.message || 'none'}`);
     if (error && (error.code === 'PGRST205' || error.code === '42P01')) {
       document.getElementById('setup-banner').style.display = 'flex';
       dbReady = false;
@@ -1151,7 +1181,8 @@ async function checkDatabase() {
 }
 
 async function loadCampaigns() {
-  if (!dbReady) return;
+  dbg('loadCampaigns: start');
+  if (!dbReady) { dbg('loadCampaigns: DB not ready, skipping'); return; }
 
   const loading = document.getElementById('campaigns-loading');
   const table = document.getElementById('campaigns-table');
@@ -1185,6 +1216,7 @@ async function loadCampaigns() {
     if (clientFilter) query = query.eq('properties.client_id', clientFilter);
 
     const { data, error } = await query;
+    dbg(`loadCampaigns: query done, data=${data?.length || 0} rows, error=${error?.message || 'none'}`);
     if (error) throw error;
 
     campaigns = data || [];
@@ -1724,17 +1756,17 @@ function escHtml(str) {
 // ============================================
 async function init() {
   try {
-    console.log('[Dashboard] Initializing...');
+    dbg('init: start');
     const ready = await checkDatabase();
-    console.log('[Dashboard] DB ready:', ready);
+    dbg(`init: DB ready=${ready}`);
     if (ready) {
       await loadClients();
-      console.log('[Dashboard] Clients loaded');
+      dbg('init: clients loaded');
       await loadCampaigns();
-      console.log('[Dashboard] Campaigns loaded');
+      dbg('init: campaigns loaded ✓');
     }
   } catch (e) {
-    console.error('[Dashboard] Init error:', e);
+    dbg(`init ERROR: ${e.message}`);
     document.getElementById('campaigns-loading').style.display = 'none';
     document.getElementById('campaigns-empty').style.display = 'block';
     document.getElementById('campaigns-empty').innerHTML = `
