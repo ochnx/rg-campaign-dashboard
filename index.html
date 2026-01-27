@@ -106,6 +106,36 @@
       gap: 8px;
     }
 
+    /* Hamburger button - hidden on desktop */
+    .topnav-burger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      z-index: 102;
+    }
+    .topnav-burger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .topnav-burger.open span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .topnav-burger.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .topnav-burger.open span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
     /* Buttons */
     .btn {
       display: inline-flex;
@@ -867,15 +897,23 @@
       flex-shrink: 0;
     }
 
+    /* Table scroll wrapper */
+    .table-scroll-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -24px;
+      padding: 0 24px;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
-      .container { padding: 16px; }
+      .container { padding: 16px; padding-top: 80px; }
       .topnav { padding: 0 16px; }
-      .page-title { font-size: 22px; }
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-      .form-grid { grid-template-columns: 1fr; }
-      .campaign-table th:nth-child(n+4),
-      .campaign-table td:nth-child(n+4) { display: none; }
+      .page-title { font-size: 20px; }
+      .page-subtitle { font-size: 13px; }
+      .page-header { margin-bottom: 20px; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .form-grid { grid-template-columns: 1fr !important; }
       .topnav-subtitle { display: none; }
       .intel-ranking-grid { grid-template-columns: 1fr; }
       .hbar-label { min-width: 80px; font-size: 11px; }
@@ -920,18 +958,52 @@
         background: rgba(99, 102, 241, 0.1);
       }
 
+      /* Table scroll */
+      .table-scroll-wrapper {
+        margin: 0 -16px;
+        padding: 0 16px;
+      }
+      .campaign-table {
+        min-width: 700px;
+      }
+
+      /* Cards */
+      .card-body { padding: 16px; }
+      .card-header { padding: 14px 16px; }
+
       /* Tabs wrap nicely on mobile */
       .tabs { flex-wrap: wrap; gap: 6px; }
-      .tab { font-size: 12px; padding: 6px 12px; }
+      .tab { font-size: 12px; padding: 6px 12px; flex: 0 0 auto; }
 
       /* Predictor layout stacks vertically */
       .predictor-layout { grid-template-columns: 1fr !important; }
 
-      /* Better padding for cards on mobile */
-      .card-body { padding: 16px; }
-
       /* Detail property info grid */
-      #detail-property-info { grid-template-columns: repeat(2, 1fr) !important; }
+      #detail-property-info { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+
+      /* Chart containers */
+      .chart-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Benchmark grid */
+      .benchmark-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* Compare grid */
+      .compare-grid { grid-template-columns: 1fr !important; }
+
+      /* Data intelligence */
+      .data-intel-grid { grid-template-columns: 1fr !important; }
+
+      /* Modals */
+      .modal-content, [style*="max-width: 600px"] {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        margin: 16px auto;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
     }
 
     @media (max-width: 480px) {
@@ -939,6 +1011,7 @@
       .kpi-value { font-size: 24px; }
       .tab { font-size: 11px; padding: 5px 10px; }
       #detail-property-info { grid-template-columns: 1fr !important; }
+      .benchmark-grid { grid-template-columns: 1fr !important; }
     }
 
     /* Benchmark card */
@@ -1342,10 +1415,6 @@
       gap: 16px;
       margin-bottom: 24px;
     }
-    @media (max-width: 768px) {
-      .compare-grid { grid-template-columns: 1fr; }
-    }
-
     .compare-input-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -1696,35 +1765,6 @@
       color: var(--green);
       border: 1px solid rgba(34, 197, 94, 0.2);
     }
-    /* Hamburger button - hidden on desktop */
-    .topnav-burger {
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      gap: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 8px;
-      z-index: 102;
-    }
-    .topnav-burger span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--text-primary);
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-    .topnav-burger.open span:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    .topnav-burger.open span:nth-child(2) {
-      opacity: 0;
-    }
-    .topnav-burger.open span:nth-child(3) {
-      transform: rotate(-45deg) translate(5px, -5px);
-    }
 
   </style>
 </head>
@@ -1805,19 +1845,21 @@
         <div id="campaigns-loading" class="loading-spinner">
           <div class="spinner"></div>
         </div>
-        <table class="campaign-table" id="campaigns-table" style="display:none;">
-          <thead>
-            <tr>
-              <th>Kampagne</th>
-              <th>Status</th>
-              <th>Spend</th>
-              <th>Leads</th>
-              <th>CPL</th>
-              <th>Zeitraum</th>
-            </tr>
-          </thead>
-          <tbody id="campaigns-tbody"></tbody>
-        </table>
+        <div class="table-scroll-wrapper">
+          <table class="campaign-table" id="campaigns-table" style="display:none;">
+            <thead>
+              <tr>
+                <th>Kampagne</th>
+                <th>Status</th>
+                <th>Spend</th>
+                <th>Leads</th>
+                <th>CPL</th>
+                <th>Zeitraum</th>
+              </tr>
+            </thead>
+            <tbody id="campaigns-tbody"></tbody>
+          </table>
+        </div>
         <div id="campaigns-empty" class="empty-state" style="display:none;">
           <div class="empty-state-icon">📭</div>
           <div class="empty-state-title">Keine Kampagnen gefunden</div>
