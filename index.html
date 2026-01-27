@@ -1185,6 +1185,231 @@
       margin-top: 24px; transition: color var(--transition);
     }
     .manual-toggle-link:hover { color: var(--text-secondary); }
+
+    /* Predictor layout */
+    .predictor-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .predictor-layout { grid-template-columns: 1fr; }
+    }
+
+    .pred-result-card {
+      background: var(--bg-card);
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+    }
+    .pred-result-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      padding: 1px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan), var(--gold));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .pred-result-card .card-body { padding: 24px; }
+
+    .pred-section { margin-bottom: 20px; }
+    .pred-section:last-child { margin-bottom: 0; }
+    .pred-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .pred-cpl-range {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .pred-cpl-details {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .pred-stars {
+      font-size: 24px;
+      letter-spacing: 2px;
+    }
+    .pred-stars .star-active { color: var(--gold); }
+    .pred-stars .star-inactive { color: var(--text-muted); opacity: 0.3; }
+    .pred-score-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .pred-score-green { color: var(--green); }
+    .pred-score-yellow-green { color: #a3e635; }
+    .pred-score-yellow { color: var(--orange); }
+    .pred-score-orange { color: #f97316; }
+    .pred-score-red { color: var(--red); }
+
+    .pred-similar-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .pred-similar-name { font-weight: 600; }
+    .pred-similar-detail { color: var(--text-secondary); }
+
+    .pred-confidence {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 10px 14px;
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      line-height: 1.5;
+    }
+
+    /* Compare grid */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 768px) {
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+
+    .compare-input-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+    }
+    .compare-input-card .form-group { margin-bottom: 12px; }
+    .compare-input-card .form-group:last-child { margin-bottom: 0; }
+    .compare-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--text-secondary);
+    }
+    .compare-remove-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      transition: color var(--transition);
+    }
+    .compare-remove-btn:hover { color: var(--red); }
+
+    .add-property-btn {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 40px 20px;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 200px;
+    }
+    .add-property-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+      background: rgba(99, 102, 241, 0.04);
+    }
+
+    .comp-ranking {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .comp-ranking-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all var(--transition);
+    }
+    .comp-ranking-item:first-child {
+      border-color: var(--gold);
+      box-shadow: 0 0 16px rgba(251, 191, 36, 0.08);
+    }
+    .comp-ranking-medal { font-size: 24px; flex-shrink: 0; }
+    .comp-ranking-name { font-weight: 700; font-size: 15px; flex: 1; }
+    .comp-ranking-cpl { font-weight: 700; font-size: 15px; }
+    .comp-ranking-stars { font-size: 14px; }
+
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .comp-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-input);
+    }
+    .comp-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .comp-table tbody tr:last-child td { border-bottom: none; }
+    .comp-table tbody tr:hover { background: var(--bg-card-hover); }
+
+    .comp-recommendation {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--green);
+      padding: 12px 16px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: var(--radius-sm);
+      margin-bottom: 24px;
+    }
+
+    .comp-chart-container {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      margin-bottom: 16px;
+    }
   </style>
 </head>
 <body>
@@ -1206,6 +1431,8 @@
       🧠 Creative Intelligence
     </button>
     <button class="btn btn-ghost btn-sm" id="nav-data-intel" onclick="showView('data-intel')">📈 Data Intelligence</button>
+    <button class="btn btn-ghost btn-sm" id="nav-predictor" onclick="showView('predictor')">🔮 Prognose</button>
+    <button class="btn btn-ghost btn-sm" id="nav-compare" onclick="showView('compare')">⚖️ Vergleich</button>
     <button class="btn btn-primary btn-sm" onclick="showView('new-campaign')">
       + Neue Kampagne
     </button>
@@ -1932,6 +2159,130 @@
       </div>
     </div>
 
+    <!-- VIEW: Property Predictor -->
+    <div id="view-predictor" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">🔮 Performance-Prognose</h1>
+          <div class="page-subtitle">Voraussichtliche Kampagnen-Performance für ein Objekt vorhersagen</div>
+        </div>
+      </div>
+
+      <div class="predictor-layout">
+        <!-- Left: Input Form -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Objekt-Daten</div>
+          </div>
+          <div class="card-body">
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Objektart *</label>
+              <select class="form-select" id="pred-type">
+                <option value="wohnung">Wohnung</option>
+                <option value="haus">Haus</option>
+                <option value="penthouse">Penthouse</option>
+                <option value="villa">Villa</option>
+                <option value="reihenhaus">Reihenhaus</option>
+                <option value="grundstueck">Grundstück</option>
+                <option value="gewerbe">Gewerbe</option>
+                <option value="sonstige">Sonstige</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Wohnfläche (qm)</label>
+              <input class="form-input" id="pred-size" type="number" step="0.1" placeholder="120">
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Grundstück (qm, optional)</label>
+              <input class="form-input" id="pred-plot" type="number" step="0.1" placeholder="">
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Zimmer (optional)</label>
+              <input class="form-input" id="pred-rooms" type="number" step="0.5" placeholder="4">
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Preis (€) *</label>
+              <input class="form-input" id="pred-price" type="number" step="1" placeholder="850000">
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Stadt</label>
+              <input class="form-input" id="pred-city" placeholder="Berlin" oninput="autoFillCityRating('pred-city','pred-rating')">
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Standort-Rating</label>
+              <select class="form-select" id="pred-rating">
+                <option value="">— Automatisch —</option>
+                <option value="A">A — Top-7-Stadt</option>
+                <option value="B">B — Großstadt</option>
+                <option value="C">C — Mittelstadt / Sonstige</option>
+                <option value="D">D — Ländlich</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:18px;">
+              <label class="form-label">Mikrolage (optional)</label>
+              <select class="form-select" id="pred-micro">
+                <option value="">— Keine Angabe —</option>
+                <option value="premium">Premium</option>
+                <option value="gut">Gut</option>
+                <option value="standard">Standard</option>
+                <option value="randlage">Randlage</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="predictPerformance()" style="width:100%;">🔮 Performance vorhersagen</button>
+          </div>
+        </div>
+
+        <!-- Right: Results -->
+        <div id="pred-results">
+          <div class="empty-state" style="padding:60px 30px;">
+            <div class="empty-state-icon">🔮</div>
+            <div class="empty-state-title">Prognose starten</div>
+            <div class="empty-state-desc">Objekt-Daten links eingeben und auf „Performance vorhersagen" klicken.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: Property Comparison -->
+    <div id="view-compare" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">⚖️ Objekt-Vergleich</h1>
+          <div class="page-subtitle">Bis zu 4 Objekte vergleichen und das beste Performance-Potenzial finden</div>
+        </div>
+      </div>
+
+      <div class="compare-grid" id="comp-inputs">
+        <!-- Property 0 -->
+        <div class="compare-input-card" id="comp-card-0">
+          <div class="compare-card-title">Objekt 1</div>
+          <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="comp-0-name" placeholder="z.B. Bennyweg"></div>
+          <div class="form-group"><label class="form-label">Objektart</label><select class="form-select" id="comp-0-type"><option value="wohnung">Wohnung</option><option value="haus">Haus</option><option value="penthouse">Penthouse</option><option value="villa">Villa</option><option value="reihenhaus">Reihenhaus</option><option value="grundstueck">Grundstück</option><option value="gewerbe">Gewerbe</option><option value="sonstige">Sonstige</option></select></div>
+          <div class="form-group"><label class="form-label">Wohnfläche (qm)</label><input class="form-input" id="comp-0-size" type="number" step="0.1" placeholder="120"></div>
+          <div class="form-group"><label class="form-label">Preis (€)</label><input class="form-input" id="comp-0-price" type="number" step="1" placeholder="850000"></div>
+          <div class="form-group"><label class="form-label">Stadt</label><input class="form-input" id="comp-0-city" placeholder="Berlin" oninput="autoFillCityRating('comp-0-city','comp-0-rating')"></div>
+          <div class="form-group"><label class="form-label">Standort-Rating</label><select class="form-select" id="comp-0-rating"><option value="">— Auto —</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
+        </div>
+        <!-- Property 1 -->
+        <div class="compare-input-card" id="comp-card-1">
+          <div class="compare-card-title">Objekt 2</div>
+          <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="comp-1-name" placeholder="z.B. Spanische Allee"></div>
+          <div class="form-group"><label class="form-label">Objektart</label><select class="form-select" id="comp-1-type"><option value="wohnung">Wohnung</option><option value="haus">Haus</option><option value="penthouse">Penthouse</option><option value="villa">Villa</option><option value="reihenhaus">Reihenhaus</option><option value="grundstueck">Grundstück</option><option value="gewerbe">Gewerbe</option><option value="sonstige">Sonstige</option></select></div>
+          <div class="form-group"><label class="form-label">Wohnfläche (qm)</label><input class="form-input" id="comp-1-size" type="number" step="0.1" placeholder="241"></div>
+          <div class="form-group"><label class="form-label">Preis (€)</label><input class="form-input" id="comp-1-price" type="number" step="1" placeholder="2100000"></div>
+          <div class="form-group"><label class="form-label">Stadt</label><input class="form-input" id="comp-1-city" placeholder="Hamburg" oninput="autoFillCityRating('comp-1-city','comp-1-rating')"></div>
+          <div class="form-group"><label class="form-label">Standort-Rating</label><select class="form-select" id="comp-1-rating"><option value="">— Auto —</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:32px;">
+        <button class="btn btn-secondary" id="comp-add-btn" onclick="addCompareProperty()">➕ Objekt hinzufügen</button>
+        <button class="btn btn-primary" onclick="compareProperties()">⚖️ Vergleichen</button>
+      </div>
+
+      <div id="comp-results"></div>
+    </div>
+
   </div>
 </div>
 
@@ -2110,6 +2461,8 @@ function showView(view) {
   if (view === 'new-campaign') { resetCSVImport(); loadClientsForForm(); }
   if (view === 'intelligence') loadIntelligence();
   if (view === 'data-intel') loadDataIntelligence();
+  if (view === 'predictor') { /* nothing to preload */ }
+  if (view === 'compare') { /* nothing to preload */ }
   if (view === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
 
@@ -4301,6 +4654,459 @@ function renderScatterPlot(allData) {
       }
     }
   });
+}
+
+// ============================================
+// PROPERTY PREDICTOR
+// ============================================
+let _compChartInstance = null;
+
+function getPerformanceScore(predictedCPL, avgCPL) {
+  if (!predictedCPL || !avgCPL || avgCPL === 0) return { stars: 3, label: 'Durchschnitt', cls: 'pred-score-yellow' };
+  const ratio = predictedCPL / avgCPL;
+  if (ratio < 0.5) return { stars: 5, label: 'Exzellent', cls: 'pred-score-green' };
+  if (ratio < 0.8) return { stars: 4, label: 'Gut', cls: 'pred-score-yellow-green' };
+  if (ratio < 1.2) return { stars: 3, label: 'Durchschnitt', cls: 'pred-score-yellow' };
+  if (ratio < 1.5) return { stars: 2, label: 'Unterdurchschnittlich', cls: 'pred-score-orange' };
+  return { stars: 1, label: 'Schwach', cls: 'pred-score-red' };
+}
+
+function renderStars(count) {
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    html += '<span class="' + (i <= count ? 'star-active' : 'star-inactive') + '">★</span>';
+  }
+  return html;
+}
+
+async function loadCampaignDataForPrediction() {
+  const allRaw = await sbGet('campaigns', 'select=*,properties(*),campaign_daily_metrics(spend,leads,impressions)');
+  return (allRaw || []).map(function(c) {
+    const m = c.campaign_daily_metrics || [];
+    const spend = m.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
+    const leads = m.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+    const days = m.length || 0;
+    return {
+      id: c.id,
+      name: c.campaign_name,
+      prop: c.properties,
+      spend: spend,
+      leads: leads,
+      days: days,
+      cpl: leads > 0 ? spend / leads : null
+    };
+  }).filter(function(d) { return d.leads > 0 && d.cpl !== null; });
+}
+
+function predictCPLForProperty(inputPrice, inputType, inputCity, inputRating, allData) {
+  const N = allData.length;
+  const estimates = [];
+
+  // 1. Global average CPL
+  const totalSpend = allData.reduce(function(s,d) { return s + d.spend; }, 0);
+  const totalLeads = allData.reduce(function(s,d) { return s + d.leads; }, 0);
+  const globalAvgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+
+  if (globalAvgCPL > 0) estimates.push(globalAvgCPL);
+
+  // 2. Linear regression: price → CPL
+  let regressionCPL = null;
+  const withPrice = allData.filter(function(d) { return d.prop && d.prop.price && d.cpl; });
+  if (withPrice.length >= 2 && inputPrice) {
+    const reg = linearRegression(
+      withPrice.map(function(d) { return d.prop.price; }),
+      withPrice.map(function(d) { return d.cpl; })
+    );
+    if (reg && reg.slope !== 0) {
+      regressionCPL = reg.slope * inputPrice + reg.intercept;
+      if (regressionCPL > 0) estimates.push(regressionCPL);
+      else regressionCPL = null;
+    }
+  }
+
+  // 3. Segment averages
+  const segmentCPLs = [];
+
+  // Same type
+  if (inputType) {
+    const sameType = allData.filter(function(d) { return d.prop && d.prop.property_type === inputType; });
+    if (sameType.length > 0) {
+      const ts = sameType.reduce(function(s,d) { return s + d.spend; }, 0);
+      const tl = sameType.reduce(function(s,d) { return s + d.leads; }, 0);
+      if (tl > 0) segmentCPLs.push(ts / tl);
+    }
+  }
+
+  // Same city
+  if (inputCity) {
+    const cityLower = inputCity.toLowerCase().trim();
+    const sameCity = allData.filter(function(d) { return d.prop && d.prop.city && d.prop.city.toLowerCase().trim() === cityLower; });
+    if (sameCity.length > 0) {
+      const ts = sameCity.reduce(function(s,d) { return s + d.spend; }, 0);
+      const tl = sameCity.reduce(function(s,d) { return s + d.leads; }, 0);
+      if (tl > 0) segmentCPLs.push(ts / tl);
+    }
+  }
+
+  // Same rating
+  if (inputRating) {
+    const sameRating = allData.filter(function(d) {
+      const r = (d.prop && d.prop.location_rating) || (d.prop && d.prop.city ? getCityRating(d.prop.city) : null);
+      return r === inputRating;
+    });
+    if (sameRating.length > 0) {
+      const ts = sameRating.reduce(function(s,d) { return s + d.spend; }, 0);
+      const tl = sameRating.reduce(function(s,d) { return s + d.leads; }, 0);
+      if (tl > 0) segmentCPLs.push(ts / tl);
+    }
+  }
+
+  // Same price range
+  if (inputPrice) {
+    const inputRange = priceRange(inputPrice);
+    const samePriceRange = allData.filter(function(d) { return d.prop && d.prop.price && priceRange(d.prop.price) === inputRange; });
+    if (samePriceRange.length > 0) {
+      const ts = samePriceRange.reduce(function(s,d) { return s + d.spend; }, 0);
+      const tl = samePriceRange.reduce(function(s,d) { return s + d.leads; }, 0);
+      if (tl > 0) segmentCPLs.push(ts / tl);
+    }
+  }
+
+  const segmentAvg = segmentCPLs.length > 0 ? segmentCPLs.reduce(function(s,v) { return s + v; }, 0) / segmentCPLs.length : null;
+  if (segmentAvg) estimates.push(segmentAvg);
+
+  // Combine: range from min to max of all estimates
+  const allEstimates = estimates.filter(function(v) { return v > 0; });
+  if (allEstimates.length === 0) return { minCPL: 0, maxCPL: 0, regressionCPL: null, segmentAvg: null, globalAvgCPL: globalAvgCPL, pointEstimate: globalAvgCPL, N: N };
+
+  const minCPL = Math.min.apply(null, allEstimates);
+  const maxCPL = Math.max.apply(null, allEstimates);
+  const pointEstimate = allEstimates.reduce(function(s,v) { return s + v; }, 0) / allEstimates.length;
+
+  return { minCPL: minCPL, maxCPL: maxCPL, regressionCPL: regressionCPL, segmentAvg: segmentAvg, globalAvgCPL: globalAvgCPL, pointEstimate: pointEstimate, N: N };
+}
+
+function findSimilarCampaigns(inputPrice, inputType, inputCity, allData) {
+  // Score similarity for each campaign
+  const scored = allData.map(function(d) {
+    let score = 0;
+    if (d.prop) {
+      if (inputType && d.prop.property_type === inputType) score += 3;
+      if (inputCity && d.prop.city && d.prop.city.toLowerCase().trim() === inputCity.toLowerCase().trim()) score += 2;
+      if (inputPrice && d.prop.price) {
+        const priceDiff = Math.abs(d.prop.price - inputPrice) / Math.max(d.prop.price, inputPrice, 1);
+        score += Math.max(0, 1 - priceDiff); // 0-1 points based on price closeness
+      }
+    }
+    return { campaign: d, score: score };
+  });
+
+  scored.sort(function(a,b) { return b.score - a.score; });
+  return scored.slice(0, 3).filter(function(s) { return s.score > 0; }).map(function(s) { return s.campaign; });
+}
+
+async function predictPerformance() {
+  const resultsEl = document.getElementById('pred-results');
+  const inputType = document.getElementById('pred-type').value;
+  const inputSize = parseFloat(document.getElementById('pred-size').value) || null;
+  const inputPrice = parseFloat(document.getElementById('pred-price').value) || null;
+  const inputCity = document.getElementById('pred-city').value.trim();
+  const inputRating = document.getElementById('pred-rating').value || (inputCity ? getCityRating(inputCity) : null);
+
+  if (!inputPrice) {
+    showToast('Bitte mindestens den Preis eingeben', 'error');
+    return;
+  }
+
+  resultsEl.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+
+  try {
+    const allData = await loadCampaignDataForPrediction();
+    const N = allData.length;
+
+    if (N === 0) {
+      resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">Keine Daten</div><div class="empty-state-desc">Noch keine Kampagnen mit Leads vorhanden. Bitte zuerst Kampagnen anlegen.</div></div>';
+      return;
+    }
+
+    const prediction = predictCPLForProperty(inputPrice, inputType, inputCity, inputRating, allData);
+    const score = getPerformanceScore(prediction.pointEstimate, prediction.globalAvgCPL);
+    const similar = findSimilarCampaigns(inputPrice, inputType, inputCity, allData);
+
+    // Format CPL range
+    const minFormatted = formatEur(prediction.minCPL);
+    const maxFormatted = formatEur(prediction.maxCPL);
+    const rangeText = prediction.minCPL === prediction.maxCPL ? '~' + minFormatted : minFormatted + ' – ' + maxFormatted;
+
+    // Details line
+    const detailParts = [];
+    if (prediction.regressionCPL) detailParts.push('Regression: ' + formatEur(prediction.regressionCPL));
+    if (prediction.segmentAvg) detailParts.push('Segment Ø: ' + formatEur(prediction.segmentAvg));
+    if (detailParts.length === 0) detailParts.push('Global Ø: ' + formatEur(prediction.globalAvgCPL));
+    const detailText = detailParts.join(' | ');
+
+    // Similar campaigns HTML
+    let similarHtml = '';
+    if (similar.length > 0) {
+      similarHtml = similar.map(function(c) {
+        return '<div class="pred-similar-item"><span class="pred-similar-name">' + escHtml(c.name) + '</span><span class="pred-similar-detail">CPL ' + formatEur(c.cpl) + ' · ' + c.leads + ' Leads · ' + c.days + ' Tage</span></div>';
+      }).join('');
+    } else {
+      similarHtml = '<div style="font-size:13px;color:var(--text-muted);">Keine ähnlichen Kampagnen gefunden.</div>';
+    }
+
+    // Confidence note
+    let confidenceHtml = '';
+    if (N < 5) {
+      confidenceHtml = '⚠️ Frühe Prognose – noch wenig Vergleichsdaten vorhanden (' + N + ' Kampagnen)';
+    } else if (N >= 10) {
+      confidenceHtml = '✅ Gute Datenbasis (' + N + ' Kampagnen)';
+    } else {
+      confidenceHtml = 'Basierend auf ' + N + ' Kampagnen. Vorhersagegenauigkeit verbessert sich mit mehr Daten.';
+    }
+
+    // Render
+    resultsEl.innerHTML =
+      '<div class="pred-result-card">' +
+        '<div class="card-body">' +
+          '<div class="pred-section">' +
+            '<div class="pred-section-title">Erwarteter CPL</div>' +
+            '<div class="pred-cpl-range">' + rangeText + '</div>' +
+            '<div class="pred-cpl-details">' + escHtml(detailText) + '</div>' +
+          '</div>' +
+          '<div class="pred-section">' +
+            '<div class="pred-section-title">Performance-Score</div>' +
+            '<div class="pred-stars">' + renderStars(score.stars) + '</div>' +
+            '<div class="pred-score-label ' + score.cls + '">' + score.label + '</div>' +
+          '</div>' +
+          '<div class="pred-section">' +
+            '<div class="pred-section-title">Ähnliche Kampagnen</div>' +
+            similarHtml +
+          '</div>' +
+          '<div class="pred-section">' +
+            '<div class="pred-confidence">' + confidenceHtml + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+  } catch (e) {
+    console.error('Prediction error:', e);
+    resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Fehler</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
+  }
+}
+
+// ============================================
+// PROPERTY COMPARISON
+// ============================================
+let _compPropertyCount = 2;
+
+function addCompareProperty() {
+  if (_compPropertyCount >= 4) {
+    showToast('Maximal 4 Objekte möglich', 'error');
+    return;
+  }
+  const n = _compPropertyCount;
+  const container = document.getElementById('comp-inputs');
+  const card = document.createElement('div');
+  card.className = 'compare-input-card';
+  card.id = 'comp-card-' + n;
+  card.innerHTML =
+    '<button class="compare-remove-btn" onclick="removeCompareProperty(' + n + ')" title="Entfernen">✕</button>' +
+    '<div class="compare-card-title">Objekt ' + (n + 1) + '</div>' +
+    '<div class="form-group"><label class="form-label">Name</label><input class="form-input" id="comp-' + n + '-name" placeholder="Objekt ' + (n + 1) + '"></div>' +
+    '<div class="form-group"><label class="form-label">Objektart</label><select class="form-select" id="comp-' + n + '-type"><option value="wohnung">Wohnung</option><option value="haus">Haus</option><option value="penthouse">Penthouse</option><option value="villa">Villa</option><option value="reihenhaus">Reihenhaus</option><option value="grundstueck">Grundstück</option><option value="gewerbe">Gewerbe</option><option value="sonstige">Sonstige</option></select></div>' +
+    '<div class="form-group"><label class="form-label">Wohnfläche (qm)</label><input class="form-input" id="comp-' + n + '-size" type="number" step="0.1"></div>' +
+    '<div class="form-group"><label class="form-label">Preis (€)</label><input class="form-input" id="comp-' + n + '-price" type="number" step="1"></div>' +
+    '<div class="form-group"><label class="form-label">Stadt</label><input class="form-input" id="comp-' + n + '-city" oninput="autoFillCityRating(\'comp-' + n + '-city\',\'comp-' + n + '-rating\')"></div>' +
+    '<div class="form-group"><label class="form-label">Standort-Rating</label><select class="form-select" id="comp-' + n + '-rating"><option value="">— Auto —</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>';
+  container.appendChild(card);
+  _compPropertyCount++;
+  if (_compPropertyCount >= 4) {
+    document.getElementById('comp-add-btn').style.display = 'none';
+  }
+}
+
+function removeCompareProperty(n) {
+  const card = document.getElementById('comp-card-' + n);
+  if (card) card.remove();
+  if (_compPropertyCount > 2) _compPropertyCount--;
+  document.getElementById('comp-add-btn').style.display = '';
+}
+
+async function compareProperties() {
+  const resultsEl = document.getElementById('comp-results');
+  resultsEl.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+
+  try {
+    // Collect inputs from all visible cards
+    const inputs = [];
+    for (let n = 0; n < 4; n++) {
+      const card = document.getElementById('comp-card-' + n);
+      if (!card) continue;
+      const priceEl = document.getElementById('comp-' + n + '-price');
+      const price = priceEl ? parseFloat(priceEl.value) || 0 : 0;
+      if (price <= 0) continue;
+
+      const nameEl = document.getElementById('comp-' + n + '-name');
+      const typeEl = document.getElementById('comp-' + n + '-type');
+      const sizeEl = document.getElementById('comp-' + n + '-size');
+      const cityEl = document.getElementById('comp-' + n + '-city');
+      const ratingEl = document.getElementById('comp-' + n + '-rating');
+
+      const city = cityEl ? cityEl.value.trim() : '';
+      const rating = (ratingEl ? ratingEl.value : '') || (city ? getCityRating(city) : null);
+
+      inputs.push({
+        index: n,
+        name: (nameEl ? nameEl.value.trim() : '') || ('Objekt ' + (n + 1)),
+        type: typeEl ? typeEl.value : 'wohnung',
+        size: sizeEl ? (parseFloat(sizeEl.value) || null) : null,
+        price: price,
+        city: city,
+        rating: rating
+      });
+    }
+
+    if (inputs.length < 2) {
+      showToast('Bitte mindestens 2 Objekte mit Preis eingeben', 'error');
+      resultsEl.innerHTML = '';
+      return;
+    }
+
+    const allData = await loadCampaignDataForPrediction();
+    if (allData.length === 0) {
+      resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">Keine Daten</div><div class="empty-state-desc">Noch keine Kampagnen mit Leads vorhanden.</div></div>';
+      return;
+    }
+
+    // Predict for each property
+    const results = inputs.map(function(inp) {
+      const pred = predictCPLForProperty(inp.price, inp.type, inp.city, inp.rating, allData);
+      const score = getPerformanceScore(pred.pointEstimate, pred.globalAvgCPL);
+      const similar = findSimilarCampaigns(inp.price, inp.type, inp.city, allData);
+      const sqmPrice = (inp.size && inp.size > 0) ? Math.round(inp.price / inp.size) : null;
+      const propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',sonstige:'Sonstige'};
+      return {
+        input: inp,
+        prediction: pred,
+        score: score,
+        similar: similar,
+        sqmPrice: sqmPrice,
+        typeLabel: propTypeLabels[inp.type] || inp.type
+      };
+    });
+
+    // Sort by predicted CPL (best first)
+    const ranked = [...results].sort(function(a,b) { return a.prediction.pointEstimate - b.prediction.pointEstimate; });
+
+    // A) Ranking
+    const medals = ['🥇', '🥈', '🥉', '4.'];
+    let rankingHtml = '<div class="comp-ranking">';
+    ranked.forEach(function(r, i) {
+      rankingHtml += '<div class="comp-ranking-item">' +
+        '<span class="comp-ranking-medal">' + medals[i] + '</span>' +
+        '<span class="comp-ranking-name">' + escHtml(r.input.name) + '</span>' +
+        '<span class="comp-ranking-stars pred-stars">' + renderStars(r.score.stars) + '</span>' +
+        '<span class="comp-ranking-cpl">~' + formatEur(r.prediction.pointEstimate) + '</span>' +
+      '</div>';
+    });
+    rankingHtml += '</div>';
+
+    // Recommendation
+    const best = ranked[0];
+    const recHtml = '<div class="comp-recommendation">💡 Empfehlung: <strong>' + escHtml(best.input.name) + '</strong> hat das beste Performance-Potenzial (erwarteter CPL ~' + formatEur(best.prediction.pointEstimate) + ')</div>';
+
+    // B) Comparison table
+    let tableHtml = '<div class="card" style="margin-bottom:24px;"><div class="card-header"><div class="card-title">Detail-Vergleich</div></div><div class="card-body" style="padding:0;overflow-x:auto;">';
+    tableHtml += '<table class="comp-table"><thead><tr><th>Metrik</th>';
+    results.forEach(function(r) { tableHtml += '<th>' + escHtml(r.input.name) + '</th>'; });
+    tableHtml += '</tr></thead><tbody>';
+
+    // Rows
+    const rowData = [
+      { label: 'Objektart', fn: function(r) { return r.typeLabel; } },
+      { label: 'Preis', fn: function(r) { return formatEur(r.input.price); } },
+      { label: 'qm-Preis', fn: function(r) { return r.sqmPrice ? formatEur(r.sqmPrice) : '—'; } },
+      { label: 'Predicted CPL', fn: function(r) { return '~' + formatEur(r.prediction.pointEstimate); } },
+      { label: 'Performance-Score', fn: function(r) { return '<span class="pred-stars" style="font-size:14px;">' + renderStars(r.score.stars) + '</span> <span class="' + r.score.cls + '" style="font-size:12px;">' + r.score.label + '</span>'; } },
+      { label: 'Ähnlichste Kampagne', fn: function(r) { return r.similar.length > 0 ? escHtml(r.similar[0].name) + ' (CPL ' + formatEur(r.similar[0].cpl) + ')' : '—'; } }
+    ];
+
+    rowData.forEach(function(row) {
+      tableHtml += '<tr><td style="font-weight:600;color:var(--text-secondary);">' + row.label + '</td>';
+      results.forEach(function(r) { tableHtml += '<td>' + row.fn(r) + '</td>'; });
+      tableHtml += '</tr>';
+    });
+
+    tableHtml += '</tbody></table></div></div>';
+
+    // C) Bar Chart
+    let chartHtml = '<div class="card"><div class="card-header"><div class="card-title">CPL-Vergleich</div></div><div class="card-body"><div class="comp-chart-container"><canvas id="comp-bar-chart"></canvas></div></div></div>';
+
+    resultsEl.innerHTML = recHtml + rankingHtml + tableHtml + chartHtml;
+
+    // Render Chart.js bar chart
+    const chartCanvas = document.getElementById('comp-bar-chart');
+    if (chartCanvas) {
+      if (_compChartInstance) _compChartInstance.destroy();
+      const ctx = chartCanvas.getContext('2d');
+      const sortedForChart = [...results].sort(function(a,b) { return a.prediction.pointEstimate - b.prediction.pointEstimate; });
+
+      // Color coding: green (low) to red (high)
+      const maxCPL = Math.max.apply(null, sortedForChart.map(function(r) { return r.prediction.pointEstimate; }));
+      const minCPL = Math.min.apply(null, sortedForChart.map(function(r) { return r.prediction.pointEstimate; }));
+      const colors = sortedForChart.map(function(r) {
+        if (maxCPL === minCPL) return 'rgba(99, 102, 241, 0.8)';
+        const ratio = (r.prediction.pointEstimate - minCPL) / (maxCPL - minCPL);
+        const red = Math.round(50 + ratio * 189);
+        const green = Math.round(197 - ratio * 153);
+        return 'rgba(' + red + ',' + green + ',50,0.8)';
+      });
+
+      _compChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: sortedForChart.map(function(r) { return r.input.name; }),
+          datasets: [{
+            label: 'Erwarteter CPL (€)',
+            data: sortedForChart.map(function(r) { return Math.round(r.prediction.pointEstimate * 100) / 100; }),
+            backgroundColor: colors,
+            borderColor: colors.map(function(c) { return c.replace('0.8', '1'); }),
+            borderWidth: 1,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(tooltipCtx) { return 'CPL: ' + formatEur(tooltipCtx.raw); }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Erwarteter CPL (€)', color: '#8888a0' },
+              ticks: { callback: function(v) { return v.toFixed(0) + ' €'; } },
+              grid: { color: 'rgba(38, 38, 54, 0.5)' },
+              beginAtZero: true
+            },
+            y: {
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+  } catch (e) {
+    console.error('Comparison error:', e);
+    resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Fehler</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
+  }
 }
 
 // ============================================
