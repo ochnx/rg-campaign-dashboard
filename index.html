@@ -1813,6 +1813,261 @@
       border: 1px solid rgba(34, 197, 94, 0.2);
     }
 
+    /* ============================================ */
+    /* COMPETITOR WATCH */
+    /* ============================================ */
+    .comp-watchlist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .comp-brand-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .comp-brand-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .comp-brand-card.inactive {
+      opacity: 0.5;
+    }
+
+    .comp-brand-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .comp-brand-name {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .comp-brand-page {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .comp-brand-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .comp-brand-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      font-size: 14px;
+      opacity: 0.6;
+      transition: opacity var(--transition);
+    }
+
+    .comp-brand-actions button:hover {
+      opacity: 1;
+    }
+
+    .comp-brand-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .comp-brand-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .comp-brand-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .comp-brand-stat-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .comp-brand-notes {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    .comp-ads-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+
+    .comp-ad-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .comp-ad-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .comp-ad-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .comp-ad-brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-light);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .comp-ad-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .comp-ad-body {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .comp-ad-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .comp-platform-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .comp-days-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .comp-days-green {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .comp-days-orange {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--orange);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .comp-days-red {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .comp-top-performer {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(239,68,68,0.1));
+      color: var(--gold);
+      border: 1px solid rgba(251,191,36,0.3);
+    }
+
+    .comp-ad-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .comp-ad-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--accent-light);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+
+    .comp-ad-link:hover {
+      color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      .comp-watchlist-grid { grid-template-columns: 1fr; }
+      .comp-ads-grid { grid-template-columns: 1fr; }
+    }
+
   </style>
 </head>
 <body>
@@ -1839,6 +2094,7 @@
     <button class="btn btn-ghost btn-sm" id="nav-data-intel" onclick="showView('data-intel')">📈 Data Intelligence</button>
     <button class="btn btn-ghost btn-sm" id="nav-predictor" onclick="showView('predictor')">🔮 Prognose</button>
     <button class="btn btn-ghost btn-sm" id="nav-compare" onclick="showView('compare')">⚖️ Vergleich</button>
+    <button class="btn btn-ghost btn-sm" id="nav-competitor" onclick="showView('competitor')">🔍 Competitor Watch</button>
     <button class="btn btn-primary btn-sm" onclick="showView('new-campaign')">
       + Neue Kampagne
     </button>
@@ -2778,6 +3034,159 @@
       <div id="comp-results"></div>
     </div>
 
+    <!-- ============================================ -->
+    <!-- COMPETITOR WATCH VIEW -->
+    <!-- ============================================ -->
+    <div id="view-competitor" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">🔍 Competitor Watch</h1>
+          <div class="page-subtitle">Wettbewerber-Ads aus der Meta Ad Library beobachten und analysieren</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-secondary btn-sm" onclick="toggleCompetitorSettings()" id="comp-settings-toggle">⚙️ API Settings</button>
+          <button class="btn btn-primary btn-sm" id="comp-sync-btn" onclick="syncCompetitorAds()" disabled>🔄 Sync Now</button>
+        </div>
+      </div>
+
+      <!-- Alert Banner -->
+      <div id="comp-alert-banner" style="display:none;" class="setup-banner" style="border-color:rgba(245,158,11,0.3);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.05));">
+        <div class="setup-banner-icon">🔔</div>
+        <div class="setup-banner-content" style="flex:1;">
+          <h3 id="comp-alert-title">Neue Alerts</h3>
+          <p id="comp-alert-text"></p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="markAlertsRead()">✓ Gelesen</button>
+      </div>
+
+      <!-- API Settings Panel (hidden by default) -->
+      <div id="comp-settings-panel" style="display:none;margin-bottom:24px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Meta Ad Library API</div>
+          </div>
+          <div class="card-body">
+            <div id="comp-api-status-banner" class="setup-banner" style="margin-bottom:20px;border-color:rgba(245,158,11,0.3);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(6,182,212,0.05));">
+              <div class="setup-banner-icon">⏳</div>
+              <div class="setup-banner-content">
+                <h3>Ad Library API Verifizierung läuft</h3>
+                <p>Sobald freigeschaltet, werden hier automatisch Competitor-Ads geladen. Du kannst trotzdem schon Brands zur Watchlist hinzufügen.</p>
+              </div>
+            </div>
+            <div class="form-group" style="max-width:600px;">
+              <label class="form-label">API Access Token</label>
+              <input class="form-input" id="comp-api-token" type="password" placeholder="Meta Ad Library API Token einfügen..." value="">
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Token wird lokal im Browser gespeichert (localStorage).</div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" onclick="saveCompetitorToken()">💾 Token speichern</button>
+              <button class="btn btn-ghost btn-sm" onclick="clearCompetitorToken()">🗑️ Token löschen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="kpi-grid" id="comp-stats">
+        <div class="kpi-card">
+          <div class="kpi-label">Beobachtete Brands</div>
+          <div class="kpi-value" id="comp-stat-brands">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Erfasste Ads</div>
+          <div class="kpi-value" id="comp-stat-total">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Aktive Ads</div>
+          <div class="kpi-value" id="comp-stat-active" style="color:var(--green);">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Ø Laufzeit</div>
+          <div class="kpi-value" id="comp-stat-avg-days">–</div>
+          <div style="font-size:11px;color:var(--text-muted);">Tage</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Längste Ad</div>
+          <div class="kpi-value" id="comp-stat-longest" style="color:var(--orange);">–</div>
+          <div style="font-size:11px;color:var(--text-muted);">Tage</div>
+        </div>
+      </div>
+
+      <!-- Watchlist Section -->
+      <div style="margin-bottom:32px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h2 style="font-size:18px;font-weight:800;">📋 Watchlist</h2>
+          <button class="btn btn-primary btn-sm" onclick="openWatchlistModal()">+ Brand hinzufügen</button>
+        </div>
+
+        <div id="comp-watchlist-loading" class="loading-spinner"><div class="spinner"></div></div>
+        <div id="comp-watchlist-empty" style="display:none;" class="empty-state">
+          <div class="empty-state-icon">👀</div>
+          <div class="empty-state-title">Noch keine Brands auf der Watchlist</div>
+          <div class="empty-state-desc">Füge Wettbewerber hinzu, um deren Ads zu beobachten.</div>
+        </div>
+        <div id="comp-watchlist-grid" class="comp-watchlist-grid" style="display:none;"></div>
+      </div>
+
+      <!-- Ad Feed Section -->
+      <div>
+        <h2 style="font-size:18px;font-weight:800;margin-bottom:16px;">📰 Ad Feed</h2>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar" id="comp-filter-bar">
+          <select class="form-select" id="comp-filter-brand" onchange="applyCompetitorFilters()">
+            <option value="">Alle Brands</option>
+          </select>
+          <select class="form-select" id="comp-filter-status" onchange="applyCompetitorFilters()">
+            <option value="">Alle Status</option>
+            <option value="active">Aktiv</option>
+            <option value="stopped">Gestoppt</option>
+          </select>
+          <select class="form-select" id="comp-sort" onchange="applyCompetitorFilters()">
+            <option value="newest">Neueste zuerst</option>
+            <option value="longest">Längste Laufzeit</option>
+            <option value="recently_removed">Kürzlich gestoppt</option>
+          </select>
+        </div>
+
+        <div id="comp-ads-loading" class="loading-spinner" style="display:none;"><div class="spinner"></div></div>
+        <div id="comp-ads-empty" style="display:none;" class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <div class="empty-state-title">Keine Ads gefunden</div>
+          <div class="empty-state-desc">Sobald die API verbunden ist und ein Sync durchgeführt wurde, erscheinen hier die Competitor-Ads.</div>
+        </div>
+        <div id="comp-ads-grid" class="comp-ads-grid" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Watchlist Add/Edit Modal -->
+    <div id="comp-watchlist-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:150;display:none;align-items:center;justify-content:center;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;max-width:480px;width:90vw;box-shadow:var(--shadow-lg);">
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;" id="comp-modal-title">Brand zur Watchlist hinzufügen</h3>
+        <input type="hidden" id="comp-modal-edit-id" value="">
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Seitenname *</label>
+          <input class="form-input" id="comp-modal-pagename" placeholder="z.B. Engel & Völkers Hamburg">
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Brand</label>
+          <input class="form-input" id="comp-modal-brand" placeholder="z.B. Engel & Völkers">
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Facebook Page ID</label>
+          <input class="form-input" id="comp-modal-pageid" placeholder="Optional – wird ggf. automatisch erkannt">
+        </div>
+        <div class="form-group" style="margin-bottom:20px;">
+          <label class="form-label">Notizen</label>
+          <input class="form-input" id="comp-modal-notes" placeholder="Optional">
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-secondary" onclick="closeWatchlistModal()">Abbrechen</button>
+          <button class="btn btn-primary" onclick="saveWatchlistItem()">💾 Speichern</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2992,6 +3401,7 @@ function showView(view) {
   if (view === 'data-intel') loadDataIntelligence();
   if (view === 'predictor') { /* nothing to preload */ }
   if (view === 'compare') { /* nothing to preload */ }
+  if (view === 'competitor') loadCompetitorView();
   if (view === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
 
@@ -6473,6 +6883,607 @@ async function compareProperties() {
   } catch (e) {
     console.error('Comparison error:', e);
     resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Fehler</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
+  }
+}
+
+// ============================================
+// COMPETITOR WATCH
+// ============================================
+let competitorWatchlist = [];
+let competitorAds = [];
+let competitorAlerts = [];
+let competitorViewLoaded = false;
+
+async function loadCompetitorView() {
+  // Load token from localStorage
+  const token = localStorage.getItem('meta_ad_library_token') || '';
+  document.getElementById('comp-api-token').value = token;
+  updateSyncButton();
+
+  if (!competitorViewLoaded) {
+    await seedCompetitorWatchlist();
+    competitorViewLoaded = true;
+  }
+  await Promise.all([loadWatchlist(), loadCompetitorAds(), loadAlerts()]);
+}
+
+// --- Watchlist CRUD ---
+async function loadWatchlist() {
+  const loadingEl = document.getElementById('comp-watchlist-loading');
+  const emptyEl = document.getElementById('comp-watchlist-empty');
+  const gridEl = document.getElementById('comp-watchlist-grid');
+
+  loadingEl.style.display = 'flex';
+  emptyEl.style.display = 'none';
+  gridEl.style.display = 'none';
+
+  try {
+    competitorWatchlist = await sbGet('competitor_watchlist', 'select=*&order=brand.asc.nullsfirst,page_name.asc');
+  } catch (e) {
+    console.error('Watchlist laden fehlgeschlagen:', e);
+    competitorWatchlist = [];
+  }
+
+  loadingEl.style.display = 'none';
+
+  if (competitorWatchlist.length === 0) {
+    emptyEl.style.display = 'block';
+    gridEl.style.display = 'none';
+  } else {
+    emptyEl.style.display = 'none';
+    gridEl.style.display = 'grid';
+    renderWatchlistGrid();
+  }
+
+  // Update stats
+  document.getElementById('comp-stat-brands').textContent = competitorWatchlist.filter(function(w) { return w.is_active; }).length;
+
+  // Update brand filter dropdown
+  updateBrandFilter();
+}
+
+function renderWatchlistGrid() {
+  const gridEl = document.getElementById('comp-watchlist-grid');
+  gridEl.innerHTML = competitorWatchlist.map(function(w) {
+    const adCount = competitorAds.filter(function(a) { return a.watchlist_id === w.id && a.is_active; }).length;
+    const inactiveClass = w.is_active ? '' : ' inactive';
+    const toggleIcon = w.is_active ? '⏸️' : '▶️';
+    const toggleTitle = w.is_active ? 'Deaktivieren' : 'Aktivieren';
+    const notesHtml = w.notes ? '<div class="comp-brand-notes">' + escHtml(w.notes) + '</div>' : '';
+
+    return '<div class="comp-brand-card' + inactiveClass + '">' +
+      '<div class="comp-brand-header">' +
+        '<div>' +
+          '<div class="comp-brand-name">' + escHtml(w.brand || w.page_name) + '</div>' +
+          (w.brand && w.page_name !== w.brand ? '<div class="comp-brand-page">' + escHtml(w.page_name) + '</div>' : '') +
+        '</div>' +
+        '<div class="comp-brand-actions">' +
+          '<button onclick="toggleWatchlistItem(\'' + w.id + '\',' + !w.is_active + ')" title="' + toggleTitle + '">' + toggleIcon + '</button>' +
+          '<button onclick="editWatchlistItem(\'' + w.id + '\')" title="Bearbeiten">✏️</button>' +
+          '<button onclick="removeFromWatchlist(\'' + w.id + '\')" title="Löschen">🗑️</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="comp-brand-stats">' +
+        '<div class="comp-brand-stat">' +
+          '<div class="comp-brand-stat-label">Aktive Ads</div>' +
+          '<div class="comp-brand-stat-value">' + adCount + '</div>' +
+        '</div>' +
+        '<div class="comp-brand-stat">' +
+          '<div class="comp-brand-stat-label">Page ID</div>' +
+          '<div class="comp-brand-stat-value" style="font-size:12px;color:var(--text-secondary);">' + (w.page_id ? escHtml(w.page_id) : '–') + '</div>' +
+        '</div>' +
+        '<div class="comp-brand-stat">' +
+          '<div class="comp-brand-stat-label">Status</div>' +
+          '<div class="comp-brand-stat-value">' + (w.is_active ? '<span style="color:var(--green);">Aktiv</span>' : '<span style="color:var(--text-muted);">Inaktiv</span>') + '</div>' +
+        '</div>' +
+      '</div>' +
+      notesHtml +
+    '</div>';
+  }).join('');
+}
+
+async function addToWatchlist(pageName, brand, notes, pageId) {
+  try {
+    var data = { page_name: pageName };
+    if (brand) data.brand = brand;
+    if (notes) data.notes = notes;
+    if (pageId) data.page_id = pageId;
+    await sbInsert('competitor_watchlist', data);
+    showToast('Brand zur Watchlist hinzugefügt', 'success');
+    await loadWatchlist();
+  } catch (e) {
+    console.error('Watchlist-Eintrag fehlgeschlagen:', e);
+    showToast('Fehler: ' + e.message, 'error');
+  }
+}
+
+async function removeFromWatchlist(id) {
+  if (!confirm('Brand wirklich von der Watchlist entfernen? Alle zugehörigen Ads werden ebenfalls gelöscht.')) return;
+  try {
+    await sbDelete('competitor_watchlist', id);
+    showToast('Brand entfernt', 'success');
+    await Promise.all([loadWatchlist(), loadCompetitorAds()]);
+  } catch (e) {
+    console.error('Löschen fehlgeschlagen:', e);
+    showToast('Fehler: ' + e.message, 'error');
+  }
+}
+
+async function toggleWatchlistItem(id, isActive) {
+  try {
+    await sbPatch('competitor_watchlist', id, { is_active: isActive });
+    showToast(isActive ? 'Brand aktiviert' : 'Brand deaktiviert', 'success');
+    await loadWatchlist();
+  } catch (e) {
+    console.error('Toggle fehlgeschlagen:', e);
+    showToast('Fehler: ' + e.message, 'error');
+  }
+}
+
+function editWatchlistItem(id) {
+  var item = competitorWatchlist.find(function(w) { return w.id === id; });
+  if (!item) return;
+  document.getElementById('comp-modal-edit-id').value = id;
+  document.getElementById('comp-modal-title').textContent = 'Brand bearbeiten';
+  document.getElementById('comp-modal-pagename').value = item.page_name || '';
+  document.getElementById('comp-modal-brand').value = item.brand || '';
+  document.getElementById('comp-modal-pageid').value = item.page_id || '';
+  document.getElementById('comp-modal-notes').value = item.notes || '';
+  document.getElementById('comp-watchlist-modal').style.display = 'flex';
+}
+
+function openWatchlistModal() {
+  document.getElementById('comp-modal-edit-id').value = '';
+  document.getElementById('comp-modal-title').textContent = 'Brand zur Watchlist hinzufügen';
+  document.getElementById('comp-modal-pagename').value = '';
+  document.getElementById('comp-modal-brand').value = '';
+  document.getElementById('comp-modal-pageid').value = '';
+  document.getElementById('comp-modal-notes').value = '';
+  document.getElementById('comp-watchlist-modal').style.display = 'flex';
+}
+
+function closeWatchlistModal() {
+  document.getElementById('comp-watchlist-modal').style.display = 'none';
+}
+
+async function saveWatchlistItem() {
+  var pageName = document.getElementById('comp-modal-pagename').value.trim();
+  var brand = document.getElementById('comp-modal-brand').value.trim();
+  var pageId = document.getElementById('comp-modal-pageid').value.trim();
+  var notes = document.getElementById('comp-modal-notes').value.trim();
+  var editId = document.getElementById('comp-modal-edit-id').value;
+
+  if (!pageName) {
+    showToast('Seitenname ist erforderlich', 'error');
+    return;
+  }
+
+  try {
+    if (editId) {
+      await sbPatch('competitor_watchlist', editId, {
+        page_name: pageName,
+        brand: brand || null,
+        page_id: pageId || null,
+        notes: notes || null
+      });
+      showToast('Brand aktualisiert', 'success');
+    } else {
+      await addToWatchlist(pageName, brand, notes, pageId);
+    }
+    closeWatchlistModal();
+    await loadWatchlist();
+  } catch (e) {
+    showToast('Fehler: ' + e.message, 'error');
+  }
+}
+
+// --- Ad Display ---
+async function loadCompetitorAds(watchlistId) {
+  var loadingEl = document.getElementById('comp-ads-loading');
+  var emptyEl = document.getElementById('comp-ads-empty');
+  var gridEl = document.getElementById('comp-ads-grid');
+
+  loadingEl.style.display = 'flex';
+  emptyEl.style.display = 'none';
+  gridEl.style.display = 'none';
+
+  try {
+    var query = 'select=*&order=ad_delivery_start_time.desc.nullslast';
+    if (watchlistId) query += '&watchlist_id=eq.' + watchlistId;
+    competitorAds = await sbGet('competitor_ads', query);
+  } catch (e) {
+    console.error('Ads laden fehlgeschlagen:', e);
+    competitorAds = [];
+  }
+
+  loadingEl.style.display = 'none';
+  applyCompetitorFilters();
+  updateCompetitorStats();
+}
+
+function calcDaysRunning(ad) {
+  if (!ad.ad_delivery_start_time) return 0;
+  var start = new Date(ad.ad_delivery_start_time);
+  var end = ad.ad_delivery_stop_time ? new Date(ad.ad_delivery_stop_time) : new Date();
+  var days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+  return days;
+}
+
+function renderAdCard(ad) {
+  var brand = ad.page_name || '–';
+  var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : 'Kein Anzeigentext verfügbar';
+  var days = ad.days_running || calcDaysRunning(ad);
+  var isActive = ad.is_active;
+  var platforms = ad.publisher_platforms || [];
+  var startDate = ad.ad_delivery_start_time ? new Date(ad.ad_delivery_start_time).toLocaleDateString('de-DE') : '–';
+
+  // Days badge color
+  var daysClass = 'comp-days-green';
+  if (days >= 90) daysClass = 'comp-days-red';
+  else if (days >= 30) daysClass = 'comp-days-orange';
+
+  // Top performer badge
+  var topPerformer = days >= 60 ? '<span class="comp-top-performer">🔥 Top Performer</span>' : '';
+
+  // Status badge
+  var statusHtml = isActive
+    ? '<span class="badge badge-active"><span class="badge-dot"></span>Aktiv</span>'
+    : '<span class="badge badge-completed"><span class="badge-dot"></span>Gestoppt</span>';
+
+  // Platform badges
+  var platformsHtml = platforms.map(function(p) {
+    var label = p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'MESSENGER' ? 'MSG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p;
+    return '<span class="comp-platform-badge">' + escHtml(label) + '</span>';
+  }).join('');
+
+  // Link
+  var linkHtml = ad.ad_snapshot_url
+    ? '<a href="' + escHtml(ad.ad_snapshot_url) + '" target="_blank" rel="noopener" class="comp-ad-link">↗ Ad ansehen</a>'
+    : '';
+
+  // Link title
+  var titleHtml = '';
+  if (ad.ad_creative_link_titles && ad.ad_creative_link_titles.length > 0 && ad.ad_creative_link_titles[0]) {
+    titleHtml = '<div style="font-size:13px;font-weight:600;color:var(--text-primary);">' + escHtml(ad.ad_creative_link_titles[0]) + '</div>';
+  }
+
+  return '<div class="comp-ad-card">' +
+    '<div class="comp-ad-top">' +
+      '<span class="comp-ad-brand-tag">' + escHtml(brand) + '</span>' +
+      '<div class="comp-ad-status">' + statusHtml + '</div>' +
+    '</div>' +
+    titleHtml +
+    '<div class="comp-ad-body">' + escHtml(bodyText) + '</div>' +
+    '<div class="comp-ad-meta">' +
+      platformsHtml +
+      '<span class="comp-days-badge ' + daysClass + '">' + days + ' Tage</span>' +
+      topPerformer +
+    '</div>' +
+    '<div class="comp-ad-footer">' +
+      '<span>Start: ' + startDate + '</span>' +
+      linkHtml +
+    '</div>' +
+  '</div>';
+}
+
+function renderAdFeed(ads, filterBrand, filterStatus, sortBy) {
+  var filtered = ads.slice();
+
+  // Filter by brand
+  if (filterBrand) {
+    filtered = filtered.filter(function(a) { return a.watchlist_id === filterBrand || a.page_name === filterBrand; });
+  }
+
+  // Filter by status
+  if (filterStatus === 'active') {
+    filtered = filtered.filter(function(a) { return a.is_active; });
+  } else if (filterStatus === 'stopped') {
+    filtered = filtered.filter(function(a) { return !a.is_active; });
+  }
+
+  // Sort
+  if (sortBy === 'longest') {
+    filtered.sort(function(a, b) {
+      return (b.days_running || calcDaysRunning(b)) - (a.days_running || calcDaysRunning(a));
+    });
+  } else if (sortBy === 'recently_removed') {
+    filtered = filtered.filter(function(a) { return !a.is_active; });
+    filtered.sort(function(a, b) {
+      var da = a.ad_delivery_stop_time ? new Date(a.ad_delivery_stop_time) : new Date(0);
+      var db = b.ad_delivery_stop_time ? new Date(b.ad_delivery_stop_time) : new Date(0);
+      return db - da;
+    });
+  } else {
+    // newest
+    filtered.sort(function(a, b) {
+      var da = a.ad_delivery_start_time ? new Date(a.ad_delivery_start_time) : new Date(0);
+      var db = b.ad_delivery_start_time ? new Date(b.ad_delivery_start_time) : new Date(0);
+      return db - da;
+    });
+  }
+
+  return filtered;
+}
+
+function applyCompetitorFilters() {
+  var filterBrand = document.getElementById('comp-filter-brand').value;
+  var filterStatus = document.getElementById('comp-filter-status').value;
+  var sortBy = document.getElementById('comp-sort').value;
+
+  var filtered = renderAdFeed(competitorAds, filterBrand, filterStatus, sortBy);
+
+  var emptyEl = document.getElementById('comp-ads-empty');
+  var gridEl = document.getElementById('comp-ads-grid');
+
+  if (filtered.length === 0) {
+    emptyEl.style.display = 'block';
+    gridEl.style.display = 'none';
+  } else {
+    emptyEl.style.display = 'none';
+    gridEl.style.display = 'grid';
+    gridEl.innerHTML = filtered.map(renderAdCard).join('');
+  }
+}
+
+function updateCompetitorStats() {
+  var total = competitorAds.length;
+  var active = competitorAds.filter(function(a) { return a.is_active; }).length;
+  var daysArr = competitorAds.map(function(a) { return a.days_running || calcDaysRunning(a); });
+  var avgDays = daysArr.length > 0 ? Math.round(daysArr.reduce(function(s, d) { return s + d; }, 0) / daysArr.length) : 0;
+  var longest = daysArr.length > 0 ? Math.max.apply(null, daysArr) : 0;
+
+  document.getElementById('comp-stat-total').textContent = total;
+  document.getElementById('comp-stat-active').textContent = active;
+  document.getElementById('comp-stat-avg-days').textContent = avgDays || '–';
+  document.getElementById('comp-stat-longest').textContent = longest || '–';
+}
+
+function updateBrandFilter() {
+  var select = document.getElementById('comp-filter-brand');
+  var current = select.value;
+  select.innerHTML = '<option value="">Alle Brands</option>';
+  competitorWatchlist.forEach(function(w) {
+    var opt = document.createElement('option');
+    opt.value = w.id;
+    opt.textContent = w.brand || w.page_name;
+    select.appendChild(opt);
+  });
+  select.value = current;
+}
+
+// --- Alerts ---
+async function loadAlerts() {
+  try {
+    competitorAlerts = await sbGet('competitor_alerts', 'select=*&is_read=eq.false&order=created_at.desc&limit=50');
+  } catch (e) {
+    console.error('Alerts laden fehlgeschlagen:', e);
+    competitorAlerts = [];
+  }
+  renderAlertBanner(competitorAlerts);
+}
+
+function renderAlertBanner(alerts) {
+  var banner = document.getElementById('comp-alert-banner');
+  if (!alerts || alerts.length === 0) {
+    banner.style.display = 'none';
+    return;
+  }
+  banner.style.display = 'flex';
+  document.getElementById('comp-alert-title').textContent = alerts.length + ' neue Alert' + (alerts.length > 1 ? 's' : '');
+  var messages = alerts.slice(0, 3).map(function(a) { return a.message || a.alert_type; });
+  document.getElementById('comp-alert-text').textContent = messages.join(' • ') + (alerts.length > 3 ? ' …' : '');
+}
+
+async function markAlertsRead() {
+  try {
+    for (var i = 0; i < competitorAlerts.length; i++) {
+      await sbPatch('competitor_alerts', competitorAlerts[i].id, { is_read: true });
+    }
+    competitorAlerts = [];
+    renderAlertBanner([]);
+    showToast('Alerts als gelesen markiert', 'success');
+  } catch (e) {
+    showToast('Fehler: ' + e.message, 'error');
+  }
+}
+
+// --- Meta Ad Library API (prepared) ---
+async function fetchAdLibrary(searchPageIds, searchTerms, adType) {
+  var token = localStorage.getItem('meta_ad_library_token');
+  if (!token) throw new Error('Kein API Token konfiguriert');
+
+  var params = new URLSearchParams();
+  params.set('access_token', token);
+  params.set('ad_reached_countries', '["DE"]');
+  params.set('fields', 'id,ad_creative_bodies,ad_creative_link_titles,ad_creative_link_descriptions,ad_snapshot_url,page_name,page_id,ad_delivery_start_time,ad_delivery_stop_time,publisher_platforms');
+  params.set('limit', '100');
+
+  if (searchPageIds && searchPageIds.length > 0) {
+    params.set('search_page_ids', JSON.stringify(searchPageIds));
+  }
+  if (searchTerms) {
+    params.set('search_terms', searchTerms);
+  }
+  if (adType) {
+    params.set('ad_type', adType);
+  } else {
+    params.set('ad_type', 'HOUSING_ADS');
+  }
+
+  var url = 'https://graph.facebook.com/v24.0/ads_archive?' + params.toString();
+  var res = await fetch(url);
+  if (!res.ok) {
+    var errData = await res.json().catch(function() { return {}; });
+    throw new Error((errData.error && errData.error.message) || 'API Fehler ' + res.status);
+  }
+  var data = await res.json();
+  return data.data || [];
+}
+
+async function syncCompetitorAds() {
+  var token = localStorage.getItem('meta_ad_library_token');
+  if (!token) {
+    showToast('Kein API Token konfiguriert', 'error');
+    return;
+  }
+
+  var syncBtn = document.getElementById('comp-sync-btn');
+  syncBtn.disabled = true;
+  syncBtn.textContent = '⏳ Sync läuft...';
+
+  try {
+    var activeWatchlist = competitorWatchlist.filter(function(w) { return w.is_active; });
+    var totalNew = 0;
+    var totalRemoved = 0;
+
+    for (var i = 0; i < activeWatchlist.length; i++) {
+      var w = activeWatchlist[i];
+      var searchPageIds = w.page_id ? [w.page_id] : null;
+      var searchTerms = !w.page_id ? w.page_name : null;
+
+      try {
+        var apiAds = await fetchAdLibrary(searchPageIds, searchTerms);
+        var apiAdIds = apiAds.map(function(a) { return a.id; });
+
+        // Get existing ads for this watchlist item
+        var existingAds = competitorAds.filter(function(a) { return a.watchlist_id === w.id; });
+        var existingAdIds = existingAds.map(function(a) { return a.ad_library_id; });
+
+        // Find new ads
+        for (var j = 0; j < apiAds.length; j++) {
+          var apiAd = apiAds[j];
+          if (existingAdIds.indexOf(apiAd.id) === -1) {
+            // New ad — insert
+            await sbInsert('competitor_ads', {
+              watchlist_id: w.id,
+              ad_library_id: apiAd.id,
+              page_name: apiAd.page_name,
+              page_id: apiAd.page_id,
+              ad_creative_bodies: apiAd.ad_creative_bodies || [],
+              ad_creative_link_titles: apiAd.ad_creative_link_titles || [],
+              ad_creative_link_descriptions: apiAd.ad_creative_link_descriptions || [],
+              ad_snapshot_url: apiAd.ad_snapshot_url,
+              publisher_platforms: apiAd.publisher_platforms || [],
+              ad_delivery_start_time: apiAd.ad_delivery_start_time || null,
+              ad_delivery_stop_time: apiAd.ad_delivery_stop_time || null,
+              ad_type: 'HOUSING_ADS',
+              is_active: true
+            });
+            // Create alert
+            await sbInsert('competitor_alerts', {
+              watchlist_id: w.id,
+              alert_type: 'new_ad',
+              message: 'Neue Ad von ' + (apiAd.page_name || w.page_name)
+            });
+            totalNew++;
+          } else {
+            // Existing ad — update last_seen_at
+            var existing = existingAds.find(function(a) { return a.ad_library_id === apiAd.id; });
+            if (existing) {
+              await sbPatch('competitor_ads', existing.id, {
+                last_seen_at: new Date().toISOString(),
+                is_active: true,
+                ad_delivery_stop_time: apiAd.ad_delivery_stop_time || null
+              });
+            }
+          }
+        }
+
+        // Find removed ads (were active, not in API results anymore)
+        for (var k = 0; k < existingAds.length; k++) {
+          var ea = existingAds[k];
+          if (ea.is_active && apiAdIds.indexOf(ea.ad_library_id) === -1) {
+            await sbPatch('competitor_ads', ea.id, {
+              is_active: false,
+              ad_delivery_stop_time: new Date().toISOString()
+            });
+            await sbInsert('competitor_alerts', {
+              ad_id: ea.id,
+              watchlist_id: w.id,
+              alert_type: 'removed_ad',
+              message: 'Ad entfernt: ' + (ea.page_name || w.page_name)
+            });
+            totalRemoved++;
+          }
+        }
+      } catch (apiErr) {
+        console.error('Sync fehlgeschlagen für ' + w.page_name + ':', apiErr);
+      }
+    }
+
+    showToast('Sync abgeschlossen: ' + totalNew + ' neue, ' + totalRemoved + ' entfernte Ads', 'success');
+    await Promise.all([loadCompetitorAds(), loadAlerts(), loadWatchlist()]);
+  } catch (e) {
+    console.error('Sync fehlgeschlagen:', e);
+    showToast('Sync-Fehler: ' + e.message, 'error');
+  } finally {
+    syncBtn.disabled = !localStorage.getItem('meta_ad_library_token');
+    syncBtn.textContent = '🔄 Sync Now';
+  }
+}
+
+// --- Settings ---
+function toggleCompetitorSettings() {
+  var panel = document.getElementById('comp-settings-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveCompetitorToken() {
+  var token = document.getElementById('comp-api-token').value.trim();
+  if (token) {
+    localStorage.setItem('meta_ad_library_token', token);
+    showToast('API Token gespeichert', 'success');
+  } else {
+    showToast('Bitte Token eingeben', 'error');
+    return;
+  }
+  updateSyncButton();
+}
+
+function clearCompetitorToken() {
+  localStorage.removeItem('meta_ad_library_token');
+  document.getElementById('comp-api-token').value = '';
+  showToast('API Token gelöscht', 'success');
+  updateSyncButton();
+}
+
+function updateSyncButton() {
+  var token = localStorage.getItem('meta_ad_library_token');
+  var btn = document.getElementById('comp-sync-btn');
+  btn.disabled = !token;
+
+  var statusBanner = document.getElementById('comp-api-status-banner');
+  if (token) {
+    statusBanner.innerHTML = '<div class="setup-banner-icon">✅</div><div class="setup-banner-content"><h3>API Token konfiguriert</h3><p>Klicke "Sync Now" um Competitor-Ads zu laden.</p></div>';
+    statusBanner.style.borderColor = 'rgba(34,197,94,0.3)';
+    statusBanner.style.background = 'linear-gradient(135deg,rgba(34,197,94,0.08),rgba(6,182,212,0.05))';
+  } else {
+    statusBanner.innerHTML = '<div class="setup-banner-icon">⏳</div><div class="setup-banner-content"><h3>Ad Library API Verifizierung läuft</h3><p>Sobald freigeschaltet, werden hier automatisch Competitor-Ads geladen. Du kannst trotzdem schon Brands zur Watchlist hinzufügen.</p></div>';
+    statusBanner.style.borderColor = 'rgba(245,158,11,0.3)';
+    statusBanner.style.background = 'linear-gradient(135deg,rgba(245,158,11,0.08),rgba(6,182,212,0.05))';
+  }
+}
+
+// --- Seed Watchlist ---
+async function seedCompetitorWatchlist() {
+  try {
+    var existing = await sbGet('competitor_watchlist', 'select=id&limit=1');
+    if (existing.length > 0) return; // Already has data
+
+    var seeds = [
+      { page_name: 'Engel & Völkers', brand: 'Engel & Völkers', notes: 'Internationales Maklernetzwerk' },
+      { page_name: 'Von Poll Immobilien', brand: 'Von Poll', notes: 'Premium-Segment Makler' },
+      { page_name: 'Dahler & Company', brand: 'Dahler', notes: 'Luxus-Immobilien' },
+      { page_name: 'Grossmann & Berger', brand: 'Grossmann & Berger', notes: 'Hamburg & Norddeutschland' },
+      { page_name: 'McMakler', brand: 'McMakler', notes: 'Hybrid-Makler / Digital' }
+    ];
+
+    for (var i = 0; i < seeds.length; i++) {
+      await sbInsert('competitor_watchlist', seeds[i]);
+    }
+    showToast('Watchlist mit 5 Beispiel-Brands befüllt', 'success');
+  } catch (e) {
+    console.error('Seed fehlgeschlagen:', e);
   }
 }
 
