@@ -4908,22 +4908,30 @@ async function renderBenchmarks(campaign, property, metrics) {
       });
 
       var totalCreativeLeads = creativeStats.reduce(function(s,c) { return s + c.leads; }, 0);
+      var totalCreativeSpend = creativeStats.reduce(function(s,c) { return s + c.spend; }, 0);
+      var campaignAvgCPL = totalCreativeLeads > 0 ? totalCreativeSpend / totalCreativeLeads : 0;
       var withLeads = creativeStats.filter(function(c) { return c.leads > 0 && c.cpl !== null; });
       var zeroLeads = creativeStats.filter(function(c) { return c.leads === 0 && c.spend > 0; });
+
+      // Calculate Performance Score for each creative (rewards volume + efficiency)
+      withLeads.forEach(function(c) {
+        c.score = calcScore(c.leads, c.cpl, campaignAvgCPL > 0 ? campaignAvgCPL : (avgCPL || 1));
+      });
 
       var creativeText = '';
 
       if (withLeads.length >= 1) {
-        withLeads.sort(function(a,b) { return a.cpl - b.cpl; });
+        withLeads.sort(function(a,b) { return b.score - a.score; });
         var best = withLeads[0];
         var bestPct = totalCreativeLeads > 0 ? Math.round((best.leads / totalCreativeLeads) * 100) : 0;
-        creativeText += 'Bestes Creative: <strong>' + escHtml(best.name) + '</strong> (' + escHtml(best.typeLabel) + ') mit <strong>' + formatEur(best.cpl) + ' CPL</strong> — ' + bestPct + '% der Leads.';
+        creativeText += 'Bestes Creative: <strong>' + escHtml(best.name) + '</strong> (' + escHtml(best.typeLabel) + ') — ' + bestPct + '% der Leads bei <strong>' + formatEur(best.cpl) + ' CPL</strong>.';
 
         if (withLeads.length >= 2) {
           var worst = withLeads[withLeads.length - 1];
+          var worstPct = totalCreativeLeads > 0 ? Math.round((worst.leads / totalCreativeLeads) * 100) : 0;
           var worstPctMore = best.cpl > 0 ? Math.round(((worst.cpl - best.cpl) / best.cpl) * 100) : 0;
-          creativeText += ' Schwächstes: <strong>' + escHtml(worst.name) + '</strong> (' + escHtml(worst.typeLabel) + ') mit ' + formatEur(worst.cpl) + ' CPL';
-          if (worstPctMore > 0) creativeText += ' (' + worstPctMore + '% teurer als bestes)';
+          creativeText += ' Schwächstes: <strong>' + escHtml(worst.name) + '</strong> (' + escHtml(worst.typeLabel) + ') — ' + worstPct + '% der Leads bei ' + formatEur(worst.cpl) + ' CPL';
+          if (worstPctMore > 0) creativeText += ' (' + worstPctMore + '% teurer)';
           creativeText += '.';
         }
       }
