@@ -1161,6 +1161,27 @@
             <form id="csv-import-form" onsubmit="handleCSVImport(event)">
               <div class="form-grid">
 
+                <div class="form-section-title">Kunde</div>
+
+                <div class="form-group">
+                  <label class="form-label">Kunde auswählen</label>
+                  <select class="form-select" id="csv-client" onchange="toggleCSVNewClient(this)">
+                    <option value="">— Neuen Kunden anlegen —</option>
+                  </select>
+                </div>
+
+                <div class="form-group" id="csv-new-client-group">
+                  <label class="form-label">Kundenname</label>
+                  <input class="form-input" id="csv-client-name" placeholder="z.B. Von Poll">
+                </div>
+
+                <div class="form-group" id="csv-brand-group">
+                  <label class="form-label">Brand / Franchise</label>
+                  <input class="form-input" id="csv-client-brand" placeholder="z.B. Von Poll, Engel & Völkers">
+                </div>
+
+                <div class="form-section-title">Objekt</div>
+
                 <div class="form-group">
                   <label class="form-label">Objektname *</label>
                   <input class="form-input" id="csv-prop-name" required placeholder="z.B. Bennyweg">
@@ -1492,6 +1513,15 @@
         <div class="card-body">
           <form id="edit-campaign-form" onsubmit="handleEditCampaign(event)">
             <div class="form-grid">
+
+              <!-- Client Section -->
+              <div class="form-section-title">Kunde</div>
+
+              <div class="form-group">
+                <label class="form-label">Kunde</label>
+                <select class="form-select" id="edit-client">
+                </select>
+              </div>
 
               <!-- Property Section -->
               <div class="form-section-title">Objekt</div>
@@ -1907,14 +1937,40 @@ async function loadClients() {
 async function loadClientsForForm() {
   if (!dbReady) return;
   const data = await sbGet('clients', 'select=*&order=name');
+  const clientOptions = (data || []).map(c => `<option value="${c.id}">${escHtml(c.name)}${c.brand ? ' (' + escHtml(c.brand) + ')' : ''}</option>`).join('');
+
+  // Manual form
   const select = document.getElementById('form-client');
-  select.innerHTML = '<option value="">— Neuen Kunden anlegen —</option>' +
-    (data || []).map(c => `<option value="${c.id}">${escHtml(c.name)}${c.brand ? ' (' + escHtml(c.brand) + ')' : ''}</option>`).join('');
+  if (select) select.innerHTML = '<option value="">— Neuen Kunden anlegen —</option>' + clientOptions;
+
+  // CSV import form
+  const csvSelect = document.getElementById('csv-client');
+  if (csvSelect) {
+    const prev = csvSelect.value;
+    csvSelect.innerHTML = '<option value="">— Neuen Kunden anlegen —</option>' + clientOptions;
+    if (prev) csvSelect.value = prev;
+  }
+
+  // Edit form
+  const editSelect = document.getElementById('edit-client');
+  if (editSelect) {
+    const prev = editSelect.value;
+    editSelect.innerHTML = clientOptions;
+    if (prev) editSelect.value = prev;
+  }
 }
 
 function toggleNewClient(select) {
   const group = document.getElementById('form-new-client-group');
   group.style.display = select.value ? 'none' : 'flex';
+}
+
+function toggleCSVNewClient(select) {
+  const nameGroup = document.getElementById('csv-new-client-group');
+  const brandGroup = document.getElementById('csv-brand-group');
+  const hidden = select.value ? true : false;
+  nameGroup.style.display = hidden ? 'none' : 'flex';
+  brandGroup.style.display = hidden ? 'none' : 'flex';
 }
 
 // ============================================
@@ -2514,12 +2570,19 @@ function renderIntelAllTime(typeData, mode) {
 // ============================================
 // EDIT CAMPAIGN
 // ============================================
-function openEditCampaign() {
+async function openEditCampaign() {
   const campaign = window._editCampaignData;
   const property = window._editPropertyData;
   if (!campaign || !property) { showToast('Keine Daten zum Bearbeiten', 'error'); return; }
 
   document.getElementById('edit-subtitle').textContent = campaign.campaign_name;
+
+  // Load clients and pre-fill
+  await loadClientsForForm();
+  const editClientSelect = document.getElementById('edit-client');
+  if (editClientSelect && property.client_id) {
+    editClientSelect.value = property.client_id;
+  }
 
   // Fill property fields
   document.getElementById('edit-prop-name').value = property.name || '';
@@ -2555,9 +2618,11 @@ async function handleEditCampaign(event) {
   if (!editCampaignId || !editPropertyId) { showToast('Keine Kampagne ausgewählt', 'error'); return; }
 
   try {
-    // Update property
+    // Update property (including client)
+    const selectedClientId = document.getElementById('edit-client').value;
     const locationRating = document.getElementById('edit-prop-location-rating').value || null;
     const propData = {
+      client_id: selectedClientId || null,
       name: document.getElementById('edit-prop-name').value,
       address: document.getElementById('edit-prop-address').value || null,
       plz: document.getElementById('edit-prop-plz').value || null,
@@ -3010,6 +3075,26 @@ function showCSVPreview(analysis) {
     if (stadtteil) document.getElementById('csv-prop-stadtteil').value = stadtteil;
     autoFillCityRating('csv-prop-city', 'csv-prop-location-rating');
   }
+
+  // Pre-fill client: try to match existing, otherwise fill name/brand fields
+  loadClientsForForm().then(() => {
+    const csvClientSelect = document.getElementById('csv-client');
+    if (csvClientSelect && analysis.clientName) {
+      // Try to find matching client by name
+      const match = Array.from(csvClientSelect.options).find(o =>
+        o.textContent.toLowerCase().includes(analysis.clientName.toLowerCase())
+      );
+      if (match) {
+        csvClientSelect.value = match.value;
+        toggleCSVNewClient(csvClientSelect);
+      } else {
+        csvClientSelect.value = '';
+        document.getElementById('csv-client-name').value = analysis.clientName || '';
+        document.getElementById('csv-client-brand').value = analysis.clientName || '';
+        toggleCSVNewClient(csvClientSelect);
+      }
+    }
+  });
 }
 
 function resetCSVImport() {
@@ -3073,15 +3158,20 @@ async function handleCSVImport(event) {
   showCSVImportLoading(true);
 
   try {
-    // 1. Get or create client
-    let clientId = null;
-    const existingClients = await sbGet('clients', `name=eq.${encodeURIComponent(analysis.clientName)}&select=id,name`);
-    if (existingClients && existingClients.length > 0) {
-      clientId = existingClients[0].id;
-    } else {
+    // 1. Get or create client (from form dropdown)
+    let clientId = document.getElementById('csv-client').value || null;
+    if (!clientId) {
+      // Create new client from form fields or CSV auto-detect
+      const clientName = document.getElementById('csv-client-name').value || analysis.clientName;
+      const clientBrand = document.getElementById('csv-client-brand').value || clientName;
+      if (!clientName) {
+        showCSVImportLoading(false);
+        showToast('Bitte Kunden auswählen oder Namen eingeben', 'error');
+        return;
+      }
       const [newClient] = await sbInsert('clients', {
-        name: analysis.clientName,
-        brand: analysis.clientName
+        name: clientName,
+        brand: clientBrand
       });
       clientId = newClient.id;
     }
