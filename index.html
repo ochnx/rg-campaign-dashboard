@@ -1069,6 +1069,9 @@
         <div style="display:flex;align-items:center;gap:12px;">
           <div id="detail-status"></div>
           <button class="btn btn-secondary btn-sm" id="detail-edit-btn" onclick="openEditCampaign()">✏️ Bearbeiten</button>
+          <button class="btn btn-secondary btn-sm" onclick="openCSVReimport()">📊 CSV aktualisieren</button>
+          <button class="btn btn-sm" style="background:var(--red-muted);color:var(--red);border:1px solid var(--red);" onclick="deleteCampaign()">🗑️ Löschen</button>
+          <input type="file" id="reimport-csv-input" accept=".csv" style="display:none" onchange="handleCSVReimport(event)">
         </div>
       </div>
 
@@ -1649,6 +1652,13 @@ async function sbPatch(table, id, data) {
   });
   if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `HTTP ${res.status}`); }
   return res.json();
+}
+
+async function sbDelete(table, id) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE', headers: SB_HEADERS
+  });
+  if (!res.ok) throw new Error(await res.text());
 }
 
 // ============================================
@@ -2581,6 +2591,134 @@ async function handleEditCampaign(event) {
   } catch (e) {
     console.error('Bearbeitung fehlgeschlagen:', e);
     showToast('Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  }
+}
+
+// ============================================
+// DELETE CAMPAIGN
+// ============================================
+async function deleteCampaign() {
+  if (!editCampaignId) { showToast('Keine Kampagne ausgewählt', 'error'); return; }
+  const campaign = window._editCampaignData;
+  const campaignName = campaign?.campaign_name || 'Unbekannt';
+  if (!confirm('Kampagne "' + campaignName + '" wirklich löschen? Alle Metriken und Creatives werden ebenfalls gelöscht.')) return;
+  try {
+    await sbDelete('campaigns', editCampaignId);
+    if (editPropertyId) {
+      await sbDelete('properties', editPropertyId);
+    }
+    showToast('Kampagne gelöscht ✓');
+    editCampaignId = null;
+    editPropertyId = null;
+    window._editCampaignData = null;
+    window._editPropertyData = null;
+    showView('campaigns');
+  } catch (e) {
+    console.error('Löschen fehlgeschlagen:', e);
+    showToast('Fehler beim Löschen: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  }
+}
+
+// ============================================
+// CSV RE-IMPORT FOR EXISTING CAMPAIGNS
+// ============================================
+function openCSVReimport() {
+  document.getElementById('reimport-csv-input').click();
+}
+
+async function handleCSVReimport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const rows = parseMetaCSV(text);
+    if (!rows || rows.length === 0) {
+      showToast('CSV-Datei ist leer oder konnte nicht gelesen werden', 'error');
+      return;
+    }
+    const analysis = analyzeCSV(rows);
+    if (!analysis) {
+      showToast('CSV konnte nicht analysiert werden', 'error');
+      return;
+    }
+    if (!confirm('CSV importieren? ' + rows.length + ' Zeilen, ' + analysis.totalLeads + ' Leads, ' + analysis.dailyMetrics.length + ' Tage. Bestehende Metriken werden ersetzt.')) {
+      event.target.value = '';
+      return;
+    }
+    const campaignId = editCampaignId;
+
+    // 1. Delete existing campaign_daily_metrics
+    await fetch(`${SB_URL}/rest/v1/campaign_daily_metrics?campaign_id=eq.${campaignId}`, {
+      method: 'DELETE', headers: SB_HEADERS
+    });
+
+    // 2. Get existing creative IDs and delete their metrics, then delete creatives
+    const existingCreatives = await sbGet('creatives', `campaign_id=eq.${campaignId}&select=id`);
+    for (const cr of existingCreatives) {
+      await fetch(`${SB_URL}/rest/v1/creative_daily_metrics?creative_id=eq.${cr.id}`, {
+        method: 'DELETE', headers: SB_HEADERS
+      });
+    }
+    await fetch(`${SB_URL}/rest/v1/creatives?campaign_id=eq.${campaignId}`, {
+      method: 'DELETE', headers: SB_HEADERS
+    });
+
+    // 3. Insert new campaign_daily_metrics (NO cpl/cpm/ctr — GENERATED ALWAYS)
+    const dailyRows = analysis.dailyMetrics.map(d => ({
+      campaign_id: campaignId,
+      date: d.date,
+      spend: Math.round(d.spend * 100) / 100,
+      impressions: Math.round(d.impressions),
+      reach: Math.round(d.reach),
+      clicks: null,
+      leads: Math.round(d.leads)
+    }));
+    if (dailyRows.length > 0) {
+      await sbInsert('campaign_daily_metrics', dailyRows);
+    }
+
+    // 4. Insert new creatives
+    const creativeIdMap = {};
+    for (const cr of analysis.creatives) {
+      const [newCreative] = await sbInsert('creatives', {
+        campaign_id: campaignId,
+        creative_name: cr.name,
+        creative_type: ['single_image','carousel','reel','video','story','scn_reel','th_reel'].includes(cr.type) ? cr.type : 'video'
+      });
+      creativeIdMap[cr.name] = newCreative.id;
+    }
+
+    // 5. Insert new creative_daily_metrics (NO cpl/cpm — GENERATED ALWAYS)
+    const creativeDailyRows = analysis.creativeDailyMetrics
+      .filter(m => creativeIdMap[m.creativeName])
+      .map(m => ({
+        creative_id: creativeIdMap[m.creativeName],
+        date: m.date,
+        spend: Math.round(m.spend * 100) / 100,
+        impressions: Math.round(m.impressions),
+        reach: Math.round(m.reach),
+        clicks: null,
+        leads: Math.round(m.leads)
+      }));
+    if (creativeDailyRows.length > 0) {
+      await sbInsert('creative_daily_metrics', creativeDailyRows);
+    }
+
+    // 6. Update campaign dates and budget
+    await sbPatch('campaigns', campaignId, {
+      start_date: analysis.startDate || null,
+      end_date: analysis.endDate || null,
+      total_budget: Math.round(analysis.totalSpend * 100) / 100,
+      status: analysis.campaignStatus
+    });
+
+    showToast('CSV-Daten aktualisiert ✓ ' + analysis.totalLeads + ' Leads, ' + analysis.creatives.length + ' Creatives, ' + analysis.dailyMetrics.length + ' Tage');
+    openCampaign(campaignId);
+  } catch (e) {
+    console.error('CSV-Reimport fehlgeschlagen:', e);
+    showToast('Reimport-Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  } finally {
+    event.target.value = '';
   }
 }
 
