@@ -1718,7 +1718,10 @@ function toggleNewClient(select) {
 // ============================================
 // CAMPAIGN DETAIL
 // ============================================
+let _openingCampaign = false;
 async function openCampaign(id) {
+  if (_openingCampaign) return;
+  _openingCampaign = true;
   showView('detail');
 
   try {
@@ -1813,6 +1816,8 @@ async function openCampaign(id) {
   } catch (e) {
     console.error('Kampagnendetail-Ladefehler:', e);
     showToast('Fehler beim Laden der Kampagne', 'error');
+  } finally {
+    _openingCampaign = false;
   }
 }
 
