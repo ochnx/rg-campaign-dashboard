@@ -3511,6 +3511,319 @@
 
     /* Creative preview modal removed - thumbnails too low-res */
 
+    /* ==========================================
+       EXPOSÉS SECTION
+       ========================================== */
+    .expose-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .expose-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    /* Upload Modal */
+    .expose-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .expose-modal-overlay.visible {
+      display: flex;
+    }
+    .expose-modal {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: var(--shadow-lg);
+    }
+    .expose-modal h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .expose-dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    .expose-dropzone:hover,
+    .expose-dropzone.dragover {
+      border-color: var(--accent);
+      background: var(--bg-secondary);
+    }
+    .expose-dropzone .dropzone-icon {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .expose-dropzone .dropzone-file {
+      margin-top: 8px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .expose-form-group {
+      margin-bottom: 16px;
+    }
+    .expose-form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+    .expose-form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .expose-upload-status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      min-height: 20px;
+    }
+    .expose-modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    /* Job List */
+    .expose-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .expose-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .expose-empty .empty-icon {
+      font-size: 40px;
+      display: block;
+      margin-bottom: 12px;
+    }
+    .expose-card {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto auto auto;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .expose-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-light);
+    }
+    .expose-card-filename {
+      font-weight: 600;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .expose-card-client {
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .expose-card-title {
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+    .expose-card-city {
+      font-size: 13px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .expose-card-price {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .expose-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .expose-badge.uploaded,
+    .expose-badge.processing {
+      background: var(--orange-muted);
+      color: var(--orange);
+    }
+    .expose-badge.done {
+      background: var(--green-muted);
+      color: var(--green);
+    }
+    .expose-badge.error {
+      background: var(--red-muted);
+      color: var(--red);
+    }
+
+    /* Detail View */
+    .expose-detail {
+      display: none;
+      margin-top: 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-card);
+      padding: 24px;
+    }
+    .expose-detail.visible {
+      display: block;
+    }
+    .expose-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .expose-detail-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .expose-detail-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px 8px;
+    }
+    .expose-detail-close:hover {
+      color: var(--text-primary);
+    }
+    .expose-props {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .expose-prop {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+    }
+    .expose-prop-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .expose-prop-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .expose-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 20px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .expose-md-content {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-primary);
+    }
+    .expose-md-content h1 { font-size: 20px; font-weight: 700; margin: 16px 0 8px; }
+    .expose-md-content h2 { font-size: 17px; font-weight: 700; margin: 14px 0 6px; }
+    .expose-md-content h3 { font-size: 15px; font-weight: 600; margin: 12px 0 6px; }
+    .expose-md-content p { margin-bottom: 8px; }
+    .expose-md-content ul, .expose-md-content ol { margin: 8px 0 8px 20px; }
+    .expose-md-content li { margin-bottom: 4px; }
+    .expose-md-content code {
+      background: var(--bg-secondary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .expose-md-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+    .expose-md-content th,
+    .expose-md-content td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .expose-md-content th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+    }
+    .expose-meta-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .expose-card {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+      .expose-card-title,
+      .expose-card-city,
+      .expose-card-price {
+        max-width: 100%;
+      }
+      .expose-props {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -3552,6 +3865,7 @@
         <button class="nav-dropdown-item" onclick="showView('competitors','insights')">🧠 Insights</button>
       </div>
     </div>
+    <button class="nav-item" id="nav-exposes" onclick="showView('exposes')">📝 Exposés</button>
   </div>
 
   <div class="topnav-right">
@@ -3586,6 +3900,10 @@
     <button class="mobile-nav-item" onclick="showView('competitors','leaderboard');closeMobileMenu();">🏆 Leaderboard</button>
     <button class="mobile-nav-item" onclick="showView('competitors','trends');closeMobileMenu();">📈 Trends</button>
     <button class="mobile-nav-item" onclick="showView('competitors','insights');closeMobileMenu();">🧠 Insights</button>
+  </div>
+  <div class="mobile-nav-section">
+    <div class="mobile-nav-section-title">📝 Exposés</div>
+    <button class="mobile-nav-item" onclick="showView('exposes');closeMobileMenu();">📝 Exposés</button>
   </div>
   <div class="mobile-nav-section">
     <button class="mobile-nav-item" onclick="showView('new-campaign');closeMobileMenu();" style="color:var(--accent);font-weight:600;">➕ Neue Kampagne</button>
@@ -4998,6 +5316,60 @@
   </div>
 </div>
 
+    <!-- ======== EXPOSÉS VIEW ======== -->
+    <div id="view-exposes" class="view">
+      <div class="expose-header">
+        <h2>📝 Exposés</h2>
+        <button class="btn btn-primary" onclick="openExposeUploadModal()">📤 Neues Exposé</button>
+      </div>
+
+      <div id="expose-list-container">
+        <div class="expose-empty" id="expose-empty">
+          <span class="empty-icon">📄</span>
+          Noch keine Exposés hochgeladen.<br>Klicke auf "Neues Exposé" um zu starten.
+        </div>
+        <div class="expose-list" id="expose-list"></div>
+      </div>
+
+      <div class="expose-detail" id="expose-detail"></div>
+    </div>
+
+    <!-- Expose Upload Modal -->
+    <div class="expose-modal-overlay" id="expose-upload-modal">
+      <div class="expose-modal">
+        <h3>📤 Neues Exposé hochladen</h3>
+
+        <div class="expose-dropzone" id="expose-dropzone"
+             ondragover="event.preventDefault(); this.classList.add('dragover');"
+             ondragleave="this.classList.remove('dragover');"
+             ondrop="handleExposeDrop(event);"
+             onclick="document.getElementById('expose-file-input').click();">
+          <span class="dropzone-icon">📁</span>
+          PDF hier hineinziehen oder klicken
+          <div class="dropzone-file" id="expose-file-name"></div>
+          <input type="file" id="expose-file-input" accept=".pdf" style="display:none;" onchange="handleExposeFileSelect(event)">
+        </div>
+
+        <div class="expose-form-group">
+          <label for="expose-client-select">Kunde</label>
+          <select id="expose-client-select">
+            <option value="">— Bitte wählen —</option>
+            <option value="engel-voelkers">Engel &amp; Völkers</option>
+            <option value="von-poll">Von Poll</option>
+          </select>
+        </div>
+
+        <div class="expose-upload-status" id="expose-upload-status"></div>
+
+        <div class="expose-modal-actions">
+          <button class="btn btn-secondary" onclick="closeExposeUploadModal()">Abbrechen</button>
+          <button class="btn btn-primary" id="expose-upload-btn" onclick="doExposeUpload()" disabled>📤 Hochladen</button>
+        </div>
+      </div>
+    </div>
+
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -5230,6 +5602,10 @@ function showView(sectionOrView, subTab) {
     section = 'competitors';
     activeSubTab = subTab || 'overview';
     viewId = 'view-competitor';
+  } else if (sectionOrView === 'exposes') {
+    section = 'exposes';
+    viewId = 'view-exposes';
+    activeSubTab = null;
   } else {
     // Fallback
     section = 'home';
@@ -5292,6 +5668,7 @@ function showView(sectionOrView, subTab) {
     if (activeSubTab === 'trends') renderTrends();
     if (activeSubTab === 'insights') renderCompInsights();
   }
+  if (section === 'exposes') loadExposes();
   if (sectionOrView === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
 
@@ -5320,6 +5697,7 @@ function updateNavActiveStates(section) {
   document.getElementById('nav-home').classList.toggle('active', section === 'home');
   document.getElementById('nav-analytics').classList.toggle('active', section === 'analytics');
   document.getElementById('nav-competitors').classList.toggle('active', section === 'competitors');
+  document.getElementById('nav-exposes').classList.toggle('active', section === 'exposes');
 }
 
 function updateBreadcrumbs(section, subTab, viewName) {
@@ -5362,6 +5740,9 @@ function updateBreadcrumbs(section, subTab, viewName) {
     parts.push('<span class="app-bc-sep">→</span>');
     const tabLabels = {overview:'Overview',feed:'Ad Feed',leaderboard:'Leaderboard',trends:'Trends',insights:'Insights'};
     parts.push('<span class="app-bc-current">Competitors → ' + (tabLabels[subTab] || subTab) + '</span>');
+  } else if (section === 'exposes') {
+    parts.push('<span class="app-bc-sep">→</span>');
+    parts.push('<span class="app-bc-current">Exposés</span>');
   }
 
   bc.innerHTML = parts.join(' ');
@@ -11968,6 +12349,283 @@ async function syncAllLiveCampaigns() {
 
 // ============================================
 // INIT
+// ============================================
+// EXPOSÉS MANAGEMENT
+// ============================================
+let _exposeSelectedFile = null;
+let _exposePollingTimer = null;
+
+function renderMarkdown(md) {
+  if (!md) return '';
+  let html = md;
+  // Escape HTML
+  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Headers
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  // Bold + Italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Pipe tables
+  html = html.replace(/((?:\|.+\|\n?)+)/g, function(tableBlock) {
+    const rows = tableBlock.trim().split('\n').filter(r => r.trim());
+    if (rows.length < 2) return tableBlock;
+    // Check if second row is separator
+    const isSep = /^\|[\s\-:|]+\|$/.test(rows[1].trim());
+    let out = '<table>';
+    rows.forEach((row, i) => {
+      if (isSep && i === 1) return; // skip separator
+      const cells = row.split('|').filter((c, ci, arr) => ci > 0 && ci < arr.length - 1);
+      const tag = (isSep && i === 0) ? 'th' : 'td';
+      out += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+    });
+    out += '</table>';
+    return out;
+  });
+  // Unordered lists
+  html = html.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/((?:<li>.+<\/li>\n?)+)/g, '<ul>$1</ul>');
+  // Paragraphs: double newline
+  html = html.replace(/\n\n+/g, '</p><p>');
+  // Line breaks
+  html = html.replace(/\n/g, '<br>');
+  html = '<p>' + html + '</p>';
+  // Clean up empty paragraphs
+  html = html.replace(/<p>\s*<\/p>/g, '');
+  // Clean up p wrapping block elements
+  html = html.replace(/<p>(<h[1-3]>)/g, '$1');
+  html = html.replace(/(<\/h[1-3]>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<table>)/g, '$1');
+  html = html.replace(/(<\/table>)<\/p>/g, '$1');
+  html = html.replace(/<p>(<ul>)/g, '$1');
+  html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+  return html;
+}
+
+function openExposeUploadModal() {
+  _exposeSelectedFile = null;
+  document.getElementById('expose-file-name').textContent = '';
+  document.getElementById('expose-client-select').value = '';
+  document.getElementById('expose-upload-status').textContent = '';
+  document.getElementById('expose-upload-btn').disabled = true;
+  document.getElementById('expose-upload-modal').classList.add('visible');
+}
+
+function closeExposeUploadModal() {
+  document.getElementById('expose-upload-modal').classList.remove('visible');
+  _exposeSelectedFile = null;
+}
+
+function handleExposeDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files.length && files[0].type === 'application/pdf') {
+    _exposeSelectedFile = files[0];
+    document.getElementById('expose-file-name').textContent = files[0].name;
+    updateExposeUploadBtn();
+  } else {
+    document.getElementById('expose-upload-status').textContent = '⚠️ Bitte nur PDF-Dateien hochladen.';
+  }
+}
+
+function handleExposeFileSelect(e) {
+  const file = e.target.files[0];
+  if (file && file.type === 'application/pdf') {
+    _exposeSelectedFile = file;
+    document.getElementById('expose-file-name').textContent = file.name;
+    updateExposeUploadBtn();
+  }
+}
+
+function updateExposeUploadBtn() {
+  const client = document.getElementById('expose-client-select').value;
+  document.getElementById('expose-upload-btn').disabled = !(_exposeSelectedFile && client);
+}
+
+// Attach change listener to client select
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('expose-client-select');
+  if (sel) sel.addEventListener('change', updateExposeUploadBtn);
+});
+
+async function doExposeUpload() {
+  const file = _exposeSelectedFile;
+  const client = document.getElementById('expose-client-select').value;
+  if (!file || !client) return;
+
+  const statusEl = document.getElementById('expose-upload-status');
+  const uploadBtn = document.getElementById('expose-upload-btn');
+  uploadBtn.disabled = true;
+  statusEl.textContent = '⏳ Wird hochgeladen...';
+
+  try {
+    // 1. Upload PDF to Supabase Storage
+    const storagePath = `${client}/${Date.now()}_${file.name}`;
+    const uploadRes = await fetch(`${SB_URL}/storage/v1/object/exposes/${storagePath}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': `Bearer ${SB_KEY}`,
+        'Content-Type': 'application/pdf',
+        'x-upsert': 'true'
+      },
+      body: file
+    });
+    if (!uploadRes.ok) {
+      const err = await uploadRes.json().catch(() => ({}));
+      throw new Error(err.message || `Upload fehlgeschlagen (HTTP ${uploadRes.status})`);
+    }
+
+    // 2. Create expose_jobs row
+    await sbInsert('expose_jobs', {
+      client: client,
+      filename: file.name,
+      status: 'uploaded',
+      pdf_storage_path: storagePath
+    });
+
+    statusEl.textContent = '✅ Hochgeladen! Wird verarbeitet...';
+    showToast('Exposé hochgeladen ✓');
+    closeExposeUploadModal();
+    loadExposes();
+  } catch (err) {
+    console.error('Expose upload error:', err);
+    statusEl.textContent = '❌ Fehler: ' + err.message;
+    uploadBtn.disabled = false;
+  }
+}
+
+async function loadExposes() {
+  try {
+    const jobs = await sbGet('expose_jobs', 'order=created_at.desc');
+    const listEl = document.getElementById('expose-list');
+    const emptyEl = document.getElementById('expose-empty');
+
+    if (!jobs || jobs.length === 0) {
+      emptyEl.style.display = 'block';
+      listEl.innerHTML = '';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+
+    const clientLabels = { 'engel-voelkers': 'Engel & Völkers', 'von-poll': 'Von Poll' };
+    const statusLabels = { 'uploaded': '⏳ Hochgeladen', 'processing': '⏳ Wird verarbeitet', 'done': '✅ Fertig', 'error': '❌ Fehler' };
+
+    listEl.innerHTML = jobs.map(j => {
+      const price = j.property_price ? new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(j.property_price) : '—';
+      const created = j.created_at ? new Date(j.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+      return `
+        <div class="expose-card" onclick="showExposeDetail('${j.id}')">
+          <div class="expose-card-filename" title="${escHtml(j.filename)}">${escHtml(j.filename)}</div>
+          <span class="expose-card-client">${clientLabels[j.client] || j.client}</span>
+          <span class="expose-badge ${j.status}">${statusLabels[j.status] || j.status}</span>
+          <span class="expose-card-title" title="${escHtml(j.property_title || '')}">${escHtml(j.property_title || '—')}</span>
+          <span class="expose-card-city">${escHtml(j.property_city || '—')}</span>
+          <span class="expose-card-price">${price}</span>
+        </div>`;
+    }).join('');
+
+    // Poll if any jobs are still processing
+    const hasPending = jobs.some(j => j.status === 'uploaded' || j.status === 'processing');
+    if (hasPending) {
+      clearTimeout(_exposePollingTimer);
+      _exposePollingTimer = setTimeout(() => {
+        if (_currentSection === 'exposes') loadExposes();
+      }, 10000);
+    }
+  } catch (err) {
+    console.error('loadExposes error:', err);
+    showToast('Fehler beim Laden der Exposés', 'error');
+  }
+}
+
+async function showExposeDetail(id) {
+  try {
+    const rows = await sbGet('expose_jobs', `id=eq.${id}`);
+    if (!rows || rows.length === 0) return;
+    const j = rows[0];
+
+    const clientLabels = { 'engel-voelkers': 'Engel & Völkers', 'von-poll': 'Von Poll' };
+    const statusLabels = { 'uploaded': '⏳ Hochgeladen', 'processing': '⏳ Wird verarbeitet', 'done': '✅ Fertig', 'error': '❌ Fehler' };
+    const price = j.property_price ? new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(j.property_price) : '—';
+    const fmtDate = (d) => d ? new Date(d).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+
+    let html = `
+      <div class="expose-detail-header">
+        <h3>${escHtml(j.property_title || j.filename)}</h3>
+        <button class="expose-detail-close" onclick="closeExposeDetail()">✕</button>
+      </div>
+
+      <div class="expose-props">
+        <div class="expose-prop"><div class="expose-prop-label">Kunde</div><div class="expose-prop-value">${clientLabels[j.client] || j.client}</div></div>
+        <div class="expose-prop"><div class="expose-prop-label">Status</div><div class="expose-prop-value"><span class="expose-badge ${j.status}">${statusLabels[j.status]}</span></div></div>
+        <div class="expose-prop"><div class="expose-prop-label">Titel</div><div class="expose-prop-value">${escHtml(j.property_title || '—')}</div></div>
+        <div class="expose-prop"><div class="expose-prop-label">Adresse</div><div class="expose-prop-value">${escHtml(j.property_address || '—')}</div></div>
+        <div class="expose-prop"><div class="expose-prop-label">Stadt</div><div class="expose-prop-value">${escHtml(j.property_city || '—')} ${escHtml(j.property_plz || '')}</div></div>
+        <div class="expose-prop"><div class="expose-prop-label">Preis</div><div class="expose-prop-value">${price}</div></div>
+        <div class="expose-prop"><div class="expose-prop-label">Fläche</div><div class="expose-prop-value">${j.property_size_sqm ? j.property_size_sqm + ' m²' : '—'}</div></div>
+        <div class="expose-prop"><div class="expose-prop-label">Zimmer</div><div class="expose-prop-value">${j.property_rooms || '—'}</div></div>
+        <div class="expose-prop"><div class="expose-prop-label">Typ</div><div class="expose-prop-value">${escHtml(j.property_type || '—')}</div></div>
+      </div>`;
+
+    if (j.error_message) {
+      html += `<div class="expose-section-title">❌ Fehler</div>
+        <div class="expose-md-content" style="color:var(--red);">${escHtml(j.error_message)}</div>`;
+    }
+
+    if (j.ad_copy_md) {
+      html += `<div class="expose-section-title">📝 Ad Copy</div>
+        <div class="expose-md-content">${renderMarkdown(j.ad_copy_md)}</div>`;
+    }
+
+    if (j.video_concept_md) {
+      html += `<div class="expose-section-title">🎬 Video Concept</div>
+        <div class="expose-md-content">${renderMarkdown(j.video_concept_md)}</div>`;
+    }
+
+    if (j.drive_folder_url) {
+      html += `<div style="margin-top:16px;">
+        <a href="${escHtml(j.drive_folder_url)}" target="_blank" class="btn btn-primary">📁 Google Drive Ordner öffnen</a>
+      </div>`;
+    }
+
+    html += `<div class="expose-meta-row">
+      <span>📄 ${escHtml(j.filename)}</span>
+      <span>Erstellt: ${fmtDate(j.created_at)}</span>
+      <span>Aktualisiert: ${fmtDate(j.updated_at)}</span>
+      ${j.completed_at ? `<span>Fertig: ${fmtDate(j.completed_at)}</span>` : ''}
+    </div>`;
+
+    const detailEl = document.getElementById('expose-detail');
+    detailEl.innerHTML = html;
+    detailEl.classList.add('visible');
+    detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Auto-refresh if still processing
+    if (j.status === 'uploaded' || j.status === 'processing') {
+      clearTimeout(_exposePollingTimer);
+      _exposePollingTimer = setTimeout(() => {
+        if (_currentSection === 'exposes') showExposeDetail(id);
+      }, 8000);
+    }
+  } catch (err) {
+    console.error('showExposeDetail error:', err);
+    showToast('Fehler beim Laden des Exposés', 'error');
+  }
+}
+
+function closeExposeDetail() {
+  document.getElementById('expose-detail').classList.remove('visible');
+}
+
+// ============================================
+// INITIALIZATION
 // ============================================
 async function init() {
   try {
