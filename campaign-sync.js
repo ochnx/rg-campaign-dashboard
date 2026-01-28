@@ -192,7 +192,7 @@ async function fetchAllInsights(entityId, token, sinceDate) {
     params += '&time_range=' + encodeURIComponent(JSON.stringify({ since: sinceDate, until: new Date().toISOString().slice(0, 10) }));
   } else {
     // No sinceDate — use lifetime to get all data including today
-    params += '&date_preset=lifetime';
+    params += '&date_preset=maximum';
   }
 
   var data = await metaGet(entityId + '/insights', params);
@@ -223,7 +223,7 @@ async function fetchAllInsightsPages(entityId, token, sinceDate) {
   if (sinceDate) {
     params += '&time_range=' + encodeURIComponent(JSON.stringify({ since: sinceDate, until: new Date().toISOString().slice(0, 10) }));
   } else {
-    params += '&date_preset=lifetime';
+    params += '&date_preset=maximum';
   }
 
   var url = 'https://graph.facebook.com/v24.0/' + entityId + '/insights?' + params;

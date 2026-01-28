@@ -11673,7 +11673,7 @@ async function syncCampaignInsights(metaCampaignId, campaignId, campaignName) {
     barEl.style.width = '10%';
     detailEl.textContent = 'Lade Tagesmetriken...';
 
-    var insightsUrl = 'https://graph.facebook.com/v24.0/' + metaCampaignId + '/insights?fields=spend,impressions,reach,actions,cost_per_action_type&time_increment=1&date_preset=lifetime&limit=500&access_token=' + encodeURIComponent(token);
+    var insightsUrl = 'https://graph.facebook.com/v24.0/' + metaCampaignId + '/insights?fields=spend,impressions,reach,actions,cost_per_action_type&time_increment=1&date_preset=maximum&limit=500&access_token=' + encodeURIComponent(token);
     var allInsights = [];
     var nextUrl = insightsUrl;
 
@@ -11776,7 +11776,7 @@ async function syncCampaignInsights(metaCampaignId, campaignId, campaignName) {
 
       // Fetch ad-level insights
       try {
-        var adInsightsUrl = 'https://graph.facebook.com/v24.0/' + ad.id + '/insights?fields=spend,impressions,reach,actions&time_increment=1&date_preset=lifetime&limit=500&access_token=' + encodeURIComponent(token);
+        var adInsightsUrl = 'https://graph.facebook.com/v24.0/' + ad.id + '/insights?fields=spend,impressions,reach,actions&time_increment=1&date_preset=maximum&limit=500&access_token=' + encodeURIComponent(token);
         var adAllInsights = [];
         var adNextUrl = adInsightsUrl;
 
