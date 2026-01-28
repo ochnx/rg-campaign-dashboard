@@ -3650,6 +3650,9 @@
         <div class="live-section-header">
           <h2 class="live-section-title">🔴 Live Status</h2>
           <span class="live-pulse"></span>
+          <button id="home-sync-all-btn" class="btn btn-sm" onclick="syncAllLiveCampaigns()" style="margin-left:auto;background:var(--primary);color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;">
+            🔄 Refresh All
+          </button>
         </div>
 
         <!-- Action Required Alerts -->
@@ -11922,10 +11925,12 @@ async function syncCurrentCampaign() {
 // Sync all live campaigns
 async function syncAllLiveCampaigns() {
   var btn = document.getElementById('sync-all-live-btn');
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = '⏳ Syncing...';
-  }
+  var homeBtn = document.getElementById('home-sync-all-btn');
+  var allBtns = [btn, homeBtn].filter(Boolean);
+  allBtns.forEach(function(b) {
+    b.disabled = true;
+    b.textContent = '⏳ Syncing...';
+  });
   try {
     // Fetch all live campaigns with meta_campaign_id
     var liveCampaigns = await sbGet('campaigns', 'select=id,campaign_name,meta_campaign_id&is_live=eq.true&meta_campaign_id=not.is.null');
@@ -11937,7 +11942,7 @@ async function syncAllLiveCampaigns() {
     var synced = 0;
     for (var i = 0; i < liveCampaigns.length; i++) {
       var c = liveCampaigns[i];
-      if (btn) btn.textContent = '⏳ ' + (i + 1) + '/' + liveCampaigns.length;
+      allBtns.forEach(function(b) { b.textContent = '⏳ ' + (i + 1) + '/' + liveCampaigns.length; });
       try {
         await syncCampaignInsights(c.meta_campaign_id, c.id, c.campaign_name);
         synced++;
@@ -11948,15 +11953,16 @@ async function syncAllLiveCampaigns() {
       await new Promise(function(r) { setTimeout(r, 1000); });
     }
     showToast('✅ ' + synced + ' Kampagnen synchronisiert', 'success');
-    // Refresh campaign list
+    // Refresh home stats and campaign list
+    await loadHomeStats();
     await loadCampaigns();
   } catch (e) {
     showToast('Sync-Fehler: ' + e.message, 'error');
   } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = '🔄 Sync All Live';
-    }
+    allBtns.forEach(function(b) {
+      b.disabled = false;
+      b.textContent = '🔄 Refresh All';
+    });
   }
 }
 
