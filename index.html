@@ -4084,6 +4084,13 @@
         </div>
       </div>
 
+      <!-- Property Category Filter -->
+      <div class="tabs" style="margin-bottom:24px;">
+        <div class="tab active" id="di-cat-all" onclick="switchDataIntelCategory('all')">📋 Gesamt</div>
+        <div class="tab" id="di-cat-neubau" onclick="switchDataIntelCategory('neubauprojekt')">🏗️ Neubauprojekt</div>
+        <div class="tab" id="di-cat-einzel" onclick="switchDataIntelCategory('einzel')">🏠 Einzelobjekte</div>
+      </div>
+
       <div id="data-intel-loading" class="loading-spinner">
         <div class="spinner"></div>
       </div>
@@ -4605,6 +4612,7 @@ let intelData = null;
 let currentRanking = 'score';
 let intelTimeFilter = 'alltime';
 var intelCategoryFilter = 'all'; // 'all', 'neubauprojekt', 'einzel'
+var dataIntelCategoryFilter = 'all'; // 'all', 'neubauprojekt', 'einzel'
 let editCampaignId = null;
 let editPropertyId = null;
 
@@ -7375,6 +7383,24 @@ async function renderBenchmarks(campaign, property, metrics) {
 // ============================================
 let _diScatterChart = null;
 
+function switchDataIntelCategory(cat) {
+  dataIntelCategoryFilter = cat;
+  document.getElementById('di-cat-all').classList.toggle('active', cat === 'all');
+  document.getElementById('di-cat-neubau').classList.toggle('active', cat === 'neubauprojekt');
+  document.getElementById('di-cat-einzel').classList.toggle('active', cat === 'einzel');
+  loadDataIntelligence();
+}
+
+// Helper: get effective price from property (handles price_from/price_to for Neubauprojekte)
+function getEffectivePrice(prop) {
+  if (!prop) return null;
+  if (prop.price) return prop.price;
+  if (prop.price_from && prop.price_to) return (prop.price_from + prop.price_to) / 2;
+  if (prop.price_from) return prop.price_from;
+  if (prop.price_to) return prop.price_to;
+  return null;
+}
+
 async function loadDataIntelligence() {
   if (!dbReady) return;
 
@@ -7386,17 +7412,21 @@ async function loadDataIntelligence() {
   try {
     var allCampaignsRaw = await sbGet('campaigns', 'select=*,properties(*),campaign_daily_metrics(spend,leads,impressions,reach),creatives(*,creative_daily_metrics(spend,leads,impressions))');
 
-    // Prepare campaign data
+    // Prepare campaign data with effective price (handles price_from/price_to)
     var allData = (allCampaignsRaw || []).map(function(c) {
       var m = c.campaign_daily_metrics || [];
       var spend = m.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
       var leads = m.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
       var impr = m.reduce(function(s,x) { return s + (x.impressions || 0); }, 0);
       var days = m.length || 1;
+      var prop = c.properties;
+      // Compute effective price: price > avg(price_from, price_to) > price_from > price_to
+      var effPrice = getEffectivePrice(prop);
       return {
         id: c.id,
         name: c.campaign_name,
-        prop: c.properties,
+        prop: prop,
+        effectivePrice: effPrice,
         creatives: c.creatives || [],
         spend: spend,
         leads: leads,
@@ -7409,34 +7439,58 @@ async function loadDataIntelligence() {
       };
     }).filter(function(d) { return d.leads > 0; });
 
-    var N = allData.length;
-
-    // Global averages
+    // ALWAYS calculate global averages from ALL campaigns (not filtered by category)
     var totalSpendAll = allData.reduce(function(s,d) { return s + d.spend; }, 0);
     var totalLeadsAll = allData.reduce(function(s,d) { return s + d.leads; }, 0);
     var totalImprAll = allData.reduce(function(s,d) { return s + d.impressions; }, 0);
     var globalAvgCPL = totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 0;
     var globalAvgCPM = totalImprAll > 0 ? (totalSpendAll / totalImprAll) * 1000 : 0;
 
-    // Warning for small N
+    // Filter by property category (AFTER computing global benchmark)
+    var catLabels = { all: 'Gesamt', neubauprojekt: 'Neubauprojekt', einzel: 'Einzelobjekte' };
+    var filteredData = allData;
+    if (dataIntelCategoryFilter === 'neubauprojekt') {
+      filteredData = allData.filter(function(d) {
+        return d.prop && d.prop.property_type === 'neubauprojekt';
+      });
+    } else if (dataIntelCategoryFilter === 'einzel') {
+      filteredData = allData.filter(function(d) {
+        return !d.prop || d.prop.property_type !== 'neubauprojekt';
+      });
+    }
+
+    var N = filteredData.length;
+
+    // Warning for small N or empty after filter
     var warningEl = document.getElementById('data-intel-warning');
-    if (N < 5) {
-      warningEl.innerHTML = '<div class="data-intel-warning">⚠️ Noch zu wenig Daten für statistische Signifikanz (' + N + ' Kampagnen). Die Ergebnisse sind erste Tendenzen.</div>';
+    if (N === 0) {
+      warningEl.innerHTML = '<div class="data-intel-warning">📭 Keine Kampagnen in der Kategorie „' + catLabels[dataIntelCategoryFilter] + '".</div>';
+      document.getElementById('data-intel-segments').innerHTML = '';
+      document.getElementById('data-intel-correlations').innerHTML = '';
+      document.getElementById('data-intel-insights').innerHTML = '';
+      if (_diScatterChart) { _diScatterChart.destroy(); _diScatterChart = null; }
+      var scatterCont = document.querySelector('.scatter-container');
+      if (scatterCont) scatterCont.innerHTML = '<canvas id="chart-scatter-cpl"></canvas>';
+      loading.style.display = 'none';
+      content.style.display = 'block';
+      return;
+    } else if (N < 5) {
+      warningEl.innerHTML = '<div class="data-intel-warning">⚠️ Noch zu wenig Daten für statistische Signifikanz (' + N + ' Kampagnen in „' + catLabels[dataIntelCategoryFilter] + '"). Die Ergebnisse sind erste Tendenzen.</div>';
     } else {
       warningEl.innerHTML = '';
     }
 
     // === SECTION A: Segment Performance Matrix ===
-    renderSegmentMatrix(allData, globalAvgCPL, globalAvgCPM);
+    renderSegmentMatrix(filteredData, globalAvgCPL, globalAvgCPM);
 
     // === SECTION B: Correlation Analysis ===
-    renderCorrelationAnalysis(allData);
+    renderCorrelationAnalysis(filteredData);
 
     // === SECTION C: Auto-Insights ===
-    renderAutoInsights(allData, globalAvgCPL, N);
+    renderAutoInsights(filteredData, globalAvgCPL, N);
 
     // === SECTION D: Scatter Plot ===
-    renderScatterPlot(allData);
+    renderScatterPlot(filteredData);
 
     loading.style.display = 'none';
     content.style.display = 'block';
@@ -7487,8 +7541,8 @@ function renderSegmentMatrix(allData, globalAvgCPL, globalAvgCPM) {
   var byType = groupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
   // By Location Rating
   var byRating = groupBy(allData.filter(function(d) { return d.prop && (d.prop.location_rating || d.prop.city); }), function(d) { return d.prop.location_rating || getCityRating(d.prop.city) || '?'; });
-  // By Price Range
-  var byPrice = groupBy(allData.filter(function(d) { return d.prop && d.prop.price; }), function(d) { return priceRange(d.prop.price); });
+  // By Price Range (uses effectivePrice: handles price_from/price_to)
+  var byPrice = groupBy(allData.filter(function(d) { return d.effectivePrice; }), function(d) { return priceRange(d.effectivePrice); });
 
   var html = '';
   html += buildTable('Nach Stadt', byCity);
@@ -7503,12 +7557,13 @@ function renderCorrelationAnalysis(allData) {
   var container = document.getElementById('data-intel-correlations');
 
   var correlations = [];
-  var withPrice = allData.filter(function(d) { return d.prop && d.prop.price && d.cpl; });
+  // Use effectivePrice for correlations (handles price_from/price_to)
+  var withPrice = allData.filter(function(d) { return d.effectivePrice && d.cpl; });
   var withSize = allData.filter(function(d) { return d.prop && d.prop.size_sqm && d.cpl; });
-  var withPPSQM = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.size_sqm && d.cpl; });
+  var withPPSQM = allData.filter(function(d) { return d.effectivePrice && d.prop && d.prop.size_sqm && d.cpl; });
 
   if (withPrice.length >= 2) {
-    var r = pearsonCorrelation(withPrice.map(function(d) { return d.prop.price; }), withPrice.map(function(d) { return d.cpl; }));
+    var r = pearsonCorrelation(withPrice.map(function(d) { return d.effectivePrice; }), withPrice.map(function(d) { return d.cpl; }));
     if (r !== null) correlations.push({ label: 'Preis ↔ CPL', r: r, n: withPrice.length });
   }
   if (withSize.length >= 2) {
@@ -7516,7 +7571,7 @@ function renderCorrelationAnalysis(allData) {
     if (r2 !== null) correlations.push({ label: 'Wohnfläche ↔ CPL', r: r2, n: withSize.length });
   }
   if (withPPSQM.length >= 2) {
-    var ppsqm = withPPSQM.map(function(d) { return d.prop.price / d.prop.size_sqm; });
+    var ppsqm = withPPSQM.map(function(d) { return d.effectivePrice / d.prop.size_sqm; });
     var r3 = pearsonCorrelation(ppsqm, withPPSQM.map(function(d) { return d.cpl; }));
     if (r3 !== null) correlations.push({ label: 'qm-Preis ↔ CPL', r: r3, n: withPPSQM.length });
   }
@@ -7558,9 +7613,9 @@ function renderAutoInsights(allData, globalAvgCPL, N) {
   var container = document.getElementById('data-intel-insights');
   var insights = [];
 
-  // 1. Price segments
-  var cheap = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.price < 1000000; });
-  var expensive = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.price >= 1000000; });
+  // 1. Price segments (uses effectivePrice: handles price_from/price_to)
+  var cheap = allData.filter(function(d) { return d.effectivePrice && d.effectivePrice < 1000000; });
+  var expensive = allData.filter(function(d) { return d.effectivePrice && d.effectivePrice >= 1000000; });
   if (cheap.length > 0 && expensive.length > 0) {
     var cs = cheap.reduce(function(s,d) { return s + d.spend; }, 0);
     var cl = cheap.reduce(function(s,d) { return s + d.leads; }, 0);
@@ -7598,22 +7653,22 @@ function renderAutoInsights(allData, globalAvgCPL, N) {
     }
   }
 
-  // 3. Strongest correlation
-  var withPrice = allData.filter(function(d) { return d.prop && d.prop.price && d.cpl; });
-  var withSize = allData.filter(function(d) { return d.prop && d.prop.size_sqm && d.cpl; });
-  var withPPSQM = allData.filter(function(d) { return d.prop && d.prop.price && d.prop.size_sqm && d.cpl; });
+  // 3. Strongest correlation (uses effectivePrice)
+  var withPrice2 = allData.filter(function(d) { return d.effectivePrice && d.cpl; });
+  var withSize2 = allData.filter(function(d) { return d.prop && d.prop.size_sqm && d.cpl; });
+  var withPPSQM2 = allData.filter(function(d) { return d.effectivePrice && d.prop && d.prop.size_sqm && d.cpl; });
   var corrs = [];
-  if (withPrice.length >= 2) {
-    var r1 = pearsonCorrelation(withPrice.map(function(d) { return d.prop.price; }), withPrice.map(function(d) { return d.cpl; }));
+  if (withPrice2.length >= 2) {
+    var r1 = pearsonCorrelation(withPrice2.map(function(d) { return d.effectivePrice; }), withPrice2.map(function(d) { return d.cpl; }));
     if (r1 !== null) corrs.push({ label: 'Objektpreis', r: r1 });
   }
-  if (withSize.length >= 2) {
-    var r2 = pearsonCorrelation(withSize.map(function(d) { return d.prop.size_sqm; }), withSize.map(function(d) { return d.cpl; }));
+  if (withSize2.length >= 2) {
+    var r2 = pearsonCorrelation(withSize2.map(function(d) { return d.prop.size_sqm; }), withSize2.map(function(d) { return d.cpl; }));
     if (r2 !== null) corrs.push({ label: 'Wohnfläche', r: r2 });
   }
-  if (withPPSQM.length >= 2) {
-    var ppsqm = withPPSQM.map(function(d) { return d.prop.price / d.prop.size_sqm; });
-    var r3 = pearsonCorrelation(ppsqm, withPPSQM.map(function(d) { return d.cpl; }));
+  if (withPPSQM2.length >= 2) {
+    var ppsqm = withPPSQM2.map(function(d) { return d.effectivePrice / d.prop.size_sqm; });
+    var r3 = pearsonCorrelation(ppsqm, withPPSQM2.map(function(d) { return d.cpl; }));
     if (r3 !== null) corrs.push({ label: 'qm-Preis', r: r3 });
   }
   if (corrs.length > 0) {
@@ -7692,28 +7747,32 @@ function renderAutoInsights(allData, globalAvgCPL, N) {
 }
 
 function renderScatterPlot(allData) {
+  // Always reset the scatter container to ensure canvas exists
+  var scatterContainer = document.querySelector('.scatter-container');
+  if (!scatterContainer) return;
+  if (_diScatterChart) { _diScatterChart.destroy(); _diScatterChart = null; }
+  scatterContainer.innerHTML = '<canvas id="chart-scatter-cpl"></canvas>';
   var canvas = document.getElementById('chart-scatter-cpl');
-  if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  if (_diScatterChart) _diScatterChart.destroy();
 
-  var withPrice = allData.filter(function(d) { return d.prop && d.prop.price && d.cpl; });
+  // Use effectivePrice: includes price_from/price_to for Neubauprojekte
+  var withPrice = allData.filter(function(d) { return d.effectivePrice && d.cpl; });
   if (withPrice.length < 2) {
-    var parent = canvas.parentElement;
-    parent.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:60px;">Mindestens 2 Kampagnen mit Preisdaten nötig.</div>';
+    scatterContainer.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:60px;">Mindestens 2 Kampagnen mit Preisdaten nötig.</div>';
     return;
   }
 
-  var prices = withPrice.map(function(d) { return d.prop.price; });
+  var prices = withPrice.map(function(d) { return d.effectivePrice; });
   var cpls = withPrice.map(function(d) { return d.cpl; });
 
-  // Trend line
+  // Trend line (dynamically scaled to actual data)
   var reg = linearRegression(prices, cpls);
   var minPrice = Math.min.apply(null, prices);
   var maxPrice = Math.max.apply(null, prices);
 
   var scatterData = withPrice.map(function(d) {
-    return { x: d.prop.price, y: d.cpl, label: d.name };
+    var priceLabel = d.prop && d.prop.price ? formatEur(d.effectivePrice) : 'ab ' + formatEur(d.effectivePrice);
+    return { x: d.effectivePrice, y: d.cpl, label: d.name, priceLabel: priceLabel };
   });
 
   var trendData = [];
@@ -7757,8 +7816,9 @@ function renderScatterPlot(allData) {
           callbacks: {
             label: function(tooltipCtx) {
               var item = tooltipCtx.raw;
-              if (item.label) return item.label + ': Preis ' + formatEur(item.x) + ', CPL ' + formatEur(item.y);
-              return 'Preis ' + formatEur(item.x) + ', CPL ' + formatEur(item.y);
+              var pLabel = item.priceLabel || formatEur(item.x);
+              if (item.label) return item.label + ': Preis ' + pLabel + ', CPL ' + formatEur(item.y);
+              return 'Preis ' + pLabel + ', CPL ' + formatEur(item.y);
             }
           }
         }
