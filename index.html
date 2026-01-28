@@ -9423,6 +9423,7 @@ async function linkCampaignToProperty() {
   try {
     var existingPropId = document.getElementById('meta-link-existing-prop').value;
     var propertyId = existingPropId;
+    var isNewProperty = false;
 
     // If no existing property selected, create new one
     if (!propertyId) {
@@ -9471,37 +9472,202 @@ async function linkCampaignToProperty() {
 
       var newProps = await sbInsert('properties', propData);
       propertyId = newProps[0].id;
+      isNewProperty = true;
     }
 
-    // Create campaign record
+    // Save campaign type for later use in upgrade/create flow
     var campType = document.getElementById('meta-link-camp-type').value;
-    var metaStatus = metaCamp.status === 'ACTIVE' ? 'active' : metaCamp.status === 'PAUSED' ? 'paused' : 'completed';
-    var startDate = metaCamp.start_time ? metaCamp.start_time.substring(0, 10) : null;
 
-    var campData = {
-      property_id: propertyId,
-      platform: 'meta',
-      campaign_name: metaCamp.name,
-      campaign_type: campType,
-      start_date: startDate,
-      status: metaStatus,
-      meta_campaign_id: metaCamp.id,
-      is_live: true
-    };
+    // For existing properties, check if they already have campaigns
+    if (!isNewProperty) {
+      var existingCampaigns = await sbGet('campaigns', 'property_id=eq.' + propertyId + '&select=id,campaign_name,meta_campaign_id');
 
-    var newCamps = await sbInsert('campaigns', campData);
-    var campaignId = newCamps[0].id;
+      if (existingCampaigns && existingCampaigns.length > 0) {
+        // Check if any campaign already has THIS meta_campaign_id
+        var alreadyLinked = existingCampaigns.find(function(c) { return c.meta_campaign_id === metaCamp.id; });
+        if (alreadyLinked) {
+          showToast('Diese Kampagne ist bereits verknüpft ✅', 'info');
+          closeMetaLinkModal();
+          return;
+        }
 
-    // Close modal and show sync progress
-    document.getElementById('meta-link-modal-container').innerHTML = '';
+        // Filter campaigns that can be upgraded (no meta_campaign_id yet)
+        var upgradeable = existingCampaigns.filter(function(c) { return !c.meta_campaign_id; });
 
-    // Trigger initial sync
-    await syncCampaignInsights(metaCamp.id, campaignId, metaCamp.name);
+        if (upgradeable.length === 1) {
+          // Single upgradeable campaign — show upgrade prompt
+          showUpgradePrompt(upgradeable[0], metaCamp, propertyId, campType);
+          return;
+        } else if (upgradeable.length > 1) {
+          // Multiple upgradeable — show selection
+          showUpgradeSelection(upgradeable, metaCamp, propertyId, campType);
+          return;
+        }
+        // If upgradeable.length === 0, all existing campaigns already have meta links
+        // Fall through to create a new campaign
+      }
+    }
+
+    // No existing campaigns or all already linked — create new campaign
+    await createAndSyncNewCampaign(metaCamp, propertyId, campType);
 
   } catch (e) {
     console.error('Link campaign error:', e);
     showToast('Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
   }
+}
+
+// ============================================
+// UPGRADE PROMPT — Single existing campaign
+// ============================================
+function showUpgradePrompt(existingCampaign, metaCamp, propertyId, campType) {
+  var container = document.getElementById('meta-link-modal-container');
+  container.innerHTML = '<div class="meta-link-modal-overlay" onclick="closeMetaLinkModal(event)">' +
+    '<div class="meta-link-modal" onclick="event.stopPropagation()">' +
+      '<h3>📎 Bestehende Kampagne gefunden</h3>' +
+      '<div style="padding:16px 0;">' +
+        '<p style="margin:0 0 12px 0;">Dieses Objekt hat bereits eine Kampagne:</p>' +
+        '<div style="background:var(--bg-secondary);padding:12px 16px;border-radius:8px;border:1px solid var(--border);margin-bottom:16px;">' +
+          '<strong>' + escHtml(existingCampaign.campaign_name) + '</strong>' +
+          '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">ID: ' + existingCampaign.id.substring(0, 8) + '… · Noch kein Live-Tracking</div>' +
+        '</div>' +
+        '<p style="margin:0 0 8px 0;">Bestehende Kampagne mit Live-Tracking verbinden?</p>' +
+        '<p style="margin:0;font-size:12px;color:var(--text-muted);">Die Meta-Daten werden in die bestehende Kampagne synchronisiert.</p>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);">' +
+        '<button class="btn btn-secondary" onclick="closeMetaLinkModal()">Abbrechen</button>' +
+        '<button class="btn btn-secondary" onclick="confirmCreateNewCampaign()">Neue Kampagne erstellen</button>' +
+        '<button class="btn btn-primary" onclick="confirmUpgradeCampaign(\'' + existingCampaign.id + '\')">✅ Bestehende verbinden</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  // Store context for the confirm handlers
+  window._upgradeContext = { metaCamp: metaCamp, propertyId: propertyId, campType: campType };
+}
+
+// ============================================
+// UPGRADE SELECTION — Multiple existing campaigns
+// ============================================
+function showUpgradeSelection(upgradeable, metaCamp, propertyId, campType) {
+  var radioItems = upgradeable.map(function(c, idx) {
+    return '<label style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);cursor:pointer;background:var(--bg-secondary);">' +
+      '<input type="radio" name="upgrade-campaign" value="' + c.id + '"' + (idx === 0 ? ' checked' : '') + ' style="margin:0;">' +
+      '<div>' +
+        '<strong>' + escHtml(c.campaign_name) + '</strong>' +
+        '<div style="font-size:12px;color:var(--text-muted);">ID: ' + c.id.substring(0, 8) + '…</div>' +
+      '</div>' +
+    '</label>';
+  }).join('');
+
+  var container = document.getElementById('meta-link-modal-container');
+  container.innerHTML = '<div class="meta-link-modal-overlay" onclick="closeMetaLinkModal(event)">' +
+    '<div class="meta-link-modal" onclick="event.stopPropagation()">' +
+      '<h3>📎 Mehrere Kampagnen gefunden</h3>' +
+      '<div style="padding:16px 0;">' +
+        '<p style="margin:0 0 12px 0;">Welche Kampagne soll mit Live-Tracking verbunden werden?</p>' +
+        '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">' +
+          radioItems +
+        '</div>' +
+        '<p style="margin:0;font-size:12px;color:var(--text-muted);">Die Meta-Daten werden in die gewählte Kampagne synchronisiert.</p>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);">' +
+        '<button class="btn btn-secondary" onclick="closeMetaLinkModal()">Abbrechen</button>' +
+        '<button class="btn btn-secondary" onclick="confirmCreateNewCampaign()">Neue Kampagne erstellen</button>' +
+        '<button class="btn btn-primary" onclick="confirmUpgradeSelected()">✅ Verbinden</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  // Store context for the confirm handlers
+  window._upgradeContext = { metaCamp: metaCamp, propertyId: propertyId, campType: campType };
+}
+
+// ============================================
+// CONFIRM UPGRADE — Patch existing campaign
+// ============================================
+async function confirmUpgradeCampaign(campaignId) {
+  var ctx = window._upgradeContext;
+  if (!ctx) return;
+
+  try {
+    var metaCamp = ctx.metaCamp;
+
+    // Update the existing campaign with meta_campaign_id and is_live
+    await sbPatch('campaigns', campaignId, {
+      meta_campaign_id: metaCamp.id,
+      is_live: true,
+      platform: 'meta',
+      status: metaCamp.status === 'ACTIVE' ? 'active' : metaCamp.status === 'PAUSED' ? 'paused' : 'completed'
+    });
+
+    // Close modal and sync insights into the existing campaign
+    document.getElementById('meta-link-modal-container').innerHTML = '';
+    window._upgradeContext = null;
+
+    showToast('Kampagne mit Live-Tracking verbunden ✅', 'success');
+    await syncCampaignInsights(metaCamp.id, campaignId, metaCamp.name);
+
+  } catch (e) {
+    console.error('Upgrade campaign error:', e);
+    showToast('Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  }
+}
+
+// ============================================
+// CONFIRM UPGRADE — From radio selection
+// ============================================
+async function confirmUpgradeSelected() {
+  var selected = document.querySelector('input[name="upgrade-campaign"]:checked');
+  if (!selected) {
+    showToast('Bitte eine Kampagne auswählen', 'error');
+    return;
+  }
+  await confirmUpgradeCampaign(selected.value);
+}
+
+// ============================================
+// CONFIRM CREATE NEW — Skip upgrade, create fresh
+// ============================================
+async function confirmCreateNewCampaign() {
+  var ctx = window._upgradeContext;
+  if (!ctx) return;
+
+  try {
+    await createAndSyncNewCampaign(ctx.metaCamp, ctx.propertyId, ctx.campType);
+    window._upgradeContext = null;
+  } catch (e) {
+    console.error('Create campaign error:', e);
+    showToast('Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  }
+}
+
+// ============================================
+// CREATE & SYNC NEW CAMPAIGN
+// ============================================
+async function createAndSyncNewCampaign(metaCamp, propertyId, campType) {
+  var metaStatus = metaCamp.status === 'ACTIVE' ? 'active' : metaCamp.status === 'PAUSED' ? 'paused' : 'completed';
+  var startDate = metaCamp.start_time ? metaCamp.start_time.substring(0, 10) : null;
+
+  var campData = {
+    property_id: propertyId,
+    platform: 'meta',
+    campaign_name: metaCamp.name,
+    campaign_type: campType,
+    start_date: startDate,
+    status: metaStatus,
+    meta_campaign_id: metaCamp.id,
+    is_live: true
+  };
+
+  var newCamps = await sbInsert('campaigns', campData);
+  var campaignId = newCamps[0].id;
+
+  // Close modal and show sync progress
+  document.getElementById('meta-link-modal-container').innerHTML = '';
+
+  // Trigger initial sync
+  await syncCampaignInsights(metaCamp.id, campaignId, metaCamp.name);
 }
 
 // ============================================

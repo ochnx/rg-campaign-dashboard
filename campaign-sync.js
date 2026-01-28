@@ -395,15 +395,27 @@ async function main() {
     process.exit(0);
   }
 
-  // 2. Sync each campaign
+  // 2. Check Meta status for each campaign — only sync ACTIVE ones
   var totalDays = 0;
   var totalLeads = 0;
   var totalSpend = 0;
   var totalErrors = 0;
+  var skippedInactive = 0;
 
   for (var i = 0; i < liveCampaigns.length; i++) {
     var campaign = liveCampaigns[i];
     try {
+      // Check if campaign is still active on Meta
+      var metaStatus = await fetchMeta(
+        'https://graph.facebook.com/v24.0/' + campaign.meta_campaign_id +
+        '?fields=status&access_token=' + encodeURIComponent(token));
+      var statusData = JSON.parse(metaStatus);
+      if (statusData.status && statusData.status !== 'ACTIVE') {
+        log('SKIP: ' + campaign.campaign_name + ' (Meta status: ' + statusData.status + ')');
+        skippedInactive++;
+        continue;
+      }
+
       var result = await syncCampaign(campaign, token);
       totalDays += result.days;
       totalLeads += result.leads;
@@ -424,7 +436,7 @@ async function main() {
   // 3. Summary
   log('========================================');
   log('Sync complete!');
-  log('  Campaigns: ' + liveCampaigns.length);
+  log('  Campaigns: ' + liveCampaigns.length + ' (' + skippedInactive + ' skipped — not active on Meta)');
   log('  Days synced: ' + totalDays);
   log('  Total leads: ' + totalLeads);
   log('  Total spend: ' + totalSpend.toFixed(2) + '€');
