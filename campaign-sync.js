@@ -97,6 +97,25 @@ async function sbUpsert(table, data, onConflict) {
   return JSON.parse(res.body);
 }
 
+async function sbPatch(table, id, data) {
+  var url = SB_URL + '/rest/v1/' + table + '?id=eq.' + id;
+  var headers = {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+  var res = await httpRequest(url, {
+    method: 'PATCH',
+    headers: headers,
+    body: JSON.stringify(data)
+  });
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error('sbPatch ' + table + ' failed: HTTP ' + res.status + ' — ' + res.body);
+  }
+  return JSON.parse(res.body);
+}
+
 async function metaGet(endpoint, params) {
   var url = 'https://graph.facebook.com/v24.0/' + endpoint;
   if (params) {
@@ -312,25 +331,38 @@ async function syncCampaign(campaign, token) {
         }
       }
 
-      // Upsert creative (by meta_ad_id)
-      var creativeUpsertData = {
-        campaign_id: campaignId,
-        creative_name: adName,
-        creative_type: creativeType,
-        meta_ad_id: adId
-      };
-      if (metaCreativeId) creativeUpsertData.meta_creative_id = metaCreativeId;
-      if (thumbnailUrl) creativeUpsertData.thumbnail_url = thumbnailUrl;
-
-      var creativeRows;
+      // Check if creative exists by campaign_id + creative_name (from CSV import, no meta_ad_id)
+      var creativeId;
       try {
-        creativeRows = await sbUpsert('creatives', [creativeUpsertData], 'meta_ad_id');
+        var existingCreative = await sbGet('creatives',
+          'campaign_id=eq.' + campaignId + '&creative_name=eq.' + encodeURIComponent(adName) + '&limit=1');
+
+        if (existingCreative.length > 0 && !existingCreative[0].meta_ad_id) {
+          // Update existing creative (from CSV import) with Meta data
+          var patchData = { meta_ad_id: adId };
+          if (metaCreativeId) patchData.meta_creative_id = metaCreativeId;
+          if (thumbnailUrl) patchData.thumbnail_url = thumbnailUrl;
+          await sbPatch('creatives', existingCreative[0].id, patchData);
+          creativeId = existingCreative[0].id;
+          log('  Updated existing creative (matched by name): ' + adName);
+        } else {
+          // Normal upsert by meta_ad_id
+          var creativeUpsertData = {
+            campaign_id: campaignId,
+            creative_name: adName,
+            creative_type: creativeType,
+            meta_ad_id: adId
+          };
+          if (metaCreativeId) creativeUpsertData.meta_creative_id = metaCreativeId;
+          if (thumbnailUrl) creativeUpsertData.thumbnail_url = thumbnailUrl;
+
+          var creativeRows = await sbUpsert('creatives', [creativeUpsertData], 'meta_ad_id');
+          creativeId = creativeRows[0].id;
+        }
       } catch (e) {
         log('  WARNING: Creative upsert failed for ' + adName + ': ' + e.message);
         continue;
       }
-
-      var creativeId = creativeRows[0].id;
 
       // Find last synced date for this creative
       var creativeSinceDate = sinceDate; // Use campaign-level since date as fallback
