@@ -191,15 +191,21 @@ async function main() {
   }
 
   // Pre-fetch all existing ad_library_ids to detect true new ads (cross-brand dedup)
-  const allExistingAdLibraryIds = new Set(
-    (await sbGet('competitor_ads', 'select=ad_library_id')).map(a => a.ad_library_id)
-  );
-  console.log(`[SYNC] ${allExistingAdLibraryIds.size} existing ads in database`);
-
-  // Pre-fetch which watchlist entries already have ads (for baseline detection)
-  const watchlistWithAds = new Set(
-    (await sbGet('competitor_ads', 'select=watchlist_id')).map(a => a.watchlist_id)
-  );
+  // Fetch ALL existing ad_library_ids (paginate past Supabase 1000-row default limit)
+  const allExistingAdLibraryIds = new Set();
+  const watchlistWithAds = new Set();
+  let offset = 0;
+  const PAGE_SIZE = 1000;
+  while (true) {
+    const batch = await sbGet('competitor_ads', `select=ad_library_id,watchlist_id&limit=${PAGE_SIZE}&offset=${offset}`);
+    for (const a of batch) {
+      allExistingAdLibraryIds.add(a.ad_library_id);
+      watchlistWithAds.add(a.watchlist_id);
+    }
+    if (batch.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+  console.log(`[SYNC] ${allExistingAdLibraryIds.size} existing ads in database (fetched in ${Math.ceil(offset / PAGE_SIZE) + 1} pages)`);
 
   let totalNew = 0;
   let totalRemoved = 0;

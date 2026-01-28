@@ -77,6 +77,9 @@ async function sbGet(table, query) {
 
 async function sbUpsert(table, data, onConflict) {
   var url = SB_URL + '/rest/v1/' + table;
+  if (onConflict) {
+    url += '?on_conflict=' + onConflict;
+  }
   var headers = {
     'apikey': SB_KEY,
     'Authorization': 'Bearer ' + SB_KEY,
@@ -274,7 +277,7 @@ async function syncCampaign(campaign, token) {
     for (var i = 0; i < metricsToUpsert.length; i += 50) {
       var batch = metricsToUpsert.slice(i, i + 50);
       try {
-        await sbUpsert('campaign_daily_metrics', batch);
+        await sbUpsert('campaign_daily_metrics', batch, 'campaign_id,date');
       } catch (e) {
         log('  ERROR upserting campaign metrics batch: ' + e.message);
       }
@@ -304,7 +307,7 @@ async function syncCampaign(campaign, token) {
           creative_name: adName,
           creative_type: creativeType,
           meta_ad_id: adId
-        }]);
+        }], 'meta_ad_id');
       } catch (e) {
         log('  WARNING: Creative upsert failed for ' + adName + ': ' + e.message);
         continue;
@@ -344,7 +347,7 @@ async function syncCampaign(campaign, token) {
           for (var ci = 0; ci < crMetrics.length; ci += 50) {
             var crBatch = crMetrics.slice(ci, ci + 50);
             try {
-              await sbUpsert('creative_daily_metrics', crBatch);
+              await sbUpsert('creative_daily_metrics', crBatch, 'creative_id,date');
             } catch (e) {
               log('  WARNING: Creative metrics upsert failed: ' + e.message);
             }
@@ -406,10 +409,10 @@ async function main() {
     var campaign = liveCampaigns[i];
     try {
       // Check if campaign is still active on Meta
-      var metaStatus = await fetchMeta(
+      var metaStatusRes = await httpRequest(
         'https://graph.facebook.com/v24.0/' + campaign.meta_campaign_id +
-        '?fields=status&access_token=' + encodeURIComponent(token));
-      var statusData = JSON.parse(metaStatus);
+        '?fields=status&access_token=' + encodeURIComponent(token), {});
+      var statusData = JSON.parse(metaStatusRes.body);
       if (statusData.status && statusData.status !== 'ACTIVE') {
         log('SKIP: ' + campaign.campaign_name + ' (Meta status: ' + statusData.status + ')');
         skippedInactive++;
