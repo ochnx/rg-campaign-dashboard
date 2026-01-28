@@ -4910,15 +4910,9 @@
           <select class="form-select" id="comp-filter-standort" onchange="onStandortFilterChange()" style="display:none;">
             <option value="">📍 Alle Standorte</option>
           </select>
-          <select class="form-select" id="comp-filter-status" onchange="applyCompetitorFilters()">
-            <option value="">Alle Status</option>
-            <option value="active">Aktiv</option>
-            <option value="stopped">Gestoppt</option>
-          </select>
           <select class="form-select" id="comp-sort" onchange="applyCompetitorFilters()">
             <option value="newest">Neueste zuerst</option>
             <option value="longest">Längste Laufzeit</option>
-            <option value="recently_removed">Kürzlich gestoppt</option>
           </select>
           <input type="text" class="comp-search-input" id="comp-search-input" placeholder="🔍 Standort oder Account suchen..." oninput="onCompSearchInput()">
         </div>
@@ -5795,7 +5789,7 @@ async function renderLiveCompetitorAds() {
           <div class="competitor-preview-body">${escHtml(snippet) || '(Kein Text)'}</div>
           <div class="competitor-preview-footer">
             <span>${daysRunning !== null ? daysRunning + ' Tage' : '—'}</span>
-            <span>${a.is_active ? '🟢 Aktiv' : '⏹️ Gestoppt'}</span>
+            <span>🟢 Aktiv</span>
           </div>
         </div>
       `;
@@ -9839,10 +9833,8 @@ function renderAdCard(ad) {
   // Top performer badge
   var topPerformer = days >= 60 ? '<span class="comp-top-performer">🔥 Top Performer</span>' : '';
 
-  // Status badge
-  var statusHtml = isActive
-    ? '<span class="badge badge-active"><span class="badge-dot"></span>Aktiv</span>'
-    : '<span class="badge badge-completed"><span class="badge-dot"></span>Gestoppt</span>';
+  // Status badge (always active since we only track active ads now)
+  var statusHtml = '<span class="badge badge-active"><span class="badge-dot"></span>Aktiv</span>';
 
   // Platform badges with colors
   var platformsHtml = platforms.map(function(p) {
@@ -9920,24 +9912,10 @@ function renderAdFeed(ads, filterBrand, filterStatus, sortBy) {
     filtered = filtered.filter(function(a) { return brandIds.indexOf(a.watchlist_id) !== -1; });
   }
 
-  // Filter by status
-  if (filterStatus === 'active') {
-    filtered = filtered.filter(function(a) { return a.is_active; });
-  } else if (filterStatus === 'stopped') {
-    filtered = filtered.filter(function(a) { return !a.is_active; });
-  }
-
   // Sort
   if (sortBy === 'longest') {
     filtered.sort(function(a, b) {
       return (b.days_running || calcDaysRunning(b)) - (a.days_running || calcDaysRunning(a));
-    });
-  } else if (sortBy === 'recently_removed') {
-    filtered = filtered.filter(function(a) { return !a.is_active; });
-    filtered.sort(function(a, b) {
-      var da = a.ad_delivery_stop_time ? new Date(a.ad_delivery_stop_time) : new Date(0);
-      var db = b.ad_delivery_stop_time ? new Date(b.ad_delivery_stop_time) : new Date(0);
-      return db - da;
     });
   } else {
     // newest
@@ -9953,7 +9931,6 @@ function renderAdFeed(ads, filterBrand, filterStatus, sortBy) {
 
 function applyCompetitorFilters() {
   var filterBrand = document.getElementById('comp-filter-brand').value;
-  var filterStatus = document.getElementById('comp-filter-status').value;
   var sortBy = document.getElementById('comp-sort').value;
   var standortFilter = document.getElementById('comp-filter-standort').value;
 
@@ -9961,7 +9938,7 @@ function applyCompetitorFilters() {
   _selectedBrandForDrilldown = filterBrand || null;
   _selectedStandort = standortFilter || null;
 
-  var filtered = renderAdFeed(competitorAds, filterBrand, filterStatus, sortBy);
+  var filtered = renderAdFeed(competitorAds, filterBrand, '', sortBy);
 
   // Apply standort sub-filter from dropdown
   if (_selectedStandort) {
@@ -10051,8 +10028,6 @@ async function loadAlerts() {
 function getAlertTypeInfo(alertType) {
   switch (alertType) {
     case 'new_ad': return { icon: '🆕', cls: 'comp-alert-new', label: 'Neue Ad' };
-    case 'removed_ad': return { icon: '⏹️', cls: 'comp-alert-removed', label: 'Gestoppt' };
-    case 'long_running': return { icon: '🔥', cls: 'comp-alert-long-running', label: 'Top Performer gestoppt' };
     case 'burst': return { icon: '📢', cls: 'comp-alert-burst', label: 'Burst' };
     default: return { icon: '🔔', cls: '', label: alertType || 'Alert' };
   }
@@ -10131,7 +10106,6 @@ function onCompStatClick(stat) {
     case 'active':
       showView('competitors', 'feed');
       setTimeout(function() {
-        document.getElementById('comp-filter-status').value = 'active';
         applyCompetitorFilters();
       }, 100);
       break;
@@ -10158,7 +10132,6 @@ function scrollToLongestAd() {
   if (competitorAds.length === 0) return;
   // Reset filters to show all
   document.getElementById('comp-filter-brand').value = '';
-  document.getElementById('comp-filter-status').value = '';
   document.getElementById('comp-sort').value = 'longest';
   applyCompetitorFilters();
   // After rendering, scroll to the first card and flash it
@@ -10228,7 +10201,6 @@ function scrollToAdInFeed(adId) {
   setTimeout(function() {
     // Reset filters, sort by longest (matches leaderboard context)
     document.getElementById('comp-filter-brand').value = '';
-    document.getElementById('comp-filter-status').value = '';
     document.getElementById('comp-sort').value = 'longest';
     applyCompetitorFilters();
     // Expand pagination if the ad is beyond the current page
@@ -10449,7 +10421,6 @@ function filterFeedByBrand(brandName) {
   setTimeout(function() {
     document.getElementById('comp-filter-brand').value = brandName;
     document.getElementById('comp-filter-standort').value = '';
-    document.getElementById('comp-filter-status').value = '';
     document.getElementById('comp-sort').value = 'newest';
     _adsDisplayed = _adsPageSize;
     updateStandortDropdown();
@@ -10466,7 +10437,6 @@ function clearAllDrilldown() {
   document.getElementById('comp-search-input').value = '';
   document.getElementById('comp-filter-brand').value = '';
   document.getElementById('comp-filter-standort').value = '';
-  document.getElementById('comp-filter-status').value = '';
   document.getElementById('comp-sort').value = 'newest';
   _adsDisplayed = _adsPageSize;
   updateStandortDropdown();
@@ -10522,14 +10492,7 @@ function renderTrends() {
     return new Date(b.ad_delivery_start_time) - new Date(a.ad_delivery_start_time);
   });
 
-  // 2. Recently stopped
-  var recentlyStopped = competitorAds.filter(function(a) {
-    return !a.is_active && a.ad_delivery_stop_time;
-  }).sort(function(a, b) {
-    return new Date(b.ad_delivery_stop_time) - new Date(a.ad_delivery_stop_time);
-  }).slice(0, 5);
-
-  // 3. Longest runner (active)
+  // 2. Longest runner (active)
   var activeAds = competitorAds.filter(function(a) { return a.is_active; });
   var longestRunner = null;
   var longestDays = 0;
@@ -10538,7 +10501,7 @@ function renderTrends() {
     if (d > longestDays) { longestDays = d; longestRunner = a; }
   });
 
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">';
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">';
 
   // New ads
   html += '<div class="card"><div class="card-body">' +
@@ -10553,23 +10516,6 @@ function renderTrends() {
     });
     html += '</ul>';
     if (newAds.length > 5) html += '<div class="comp-trend-sublabel">… und ' + (newAds.length - 5) + ' weitere</div>';
-  }
-  html += '</div></div>';
-
-  // Recently stopped
-  html += '<div class="card"><div class="card-body">' +
-    '<div style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:8px;">⏹️ Kürzlich gestoppt</div>' +
-    '<div class="comp-trend-count">' + recentlyStopped.length + '</div>';
-  if (recentlyStopped.length > 0) {
-    html += '<ul class="comp-trend-list">';
-    recentlyStopped.forEach(function(a) {
-      var brand = a.page_name || '–';
-      var days = calcDaysRunning(a);
-      html += '<li><span style="color:var(--orange);">●</span> ' + escHtml(brand) + ' <span style="color:var(--text-muted);font-size:11px;">(' + days + ' Tage)</span></li>';
-    });
-    html += '</ul>';
-  } else {
-    html += '<div style="font-size:12px;color:var(--text-muted);">Keine gestoppten Ads</div>';
   }
   html += '</div></div>';
 
@@ -10646,12 +10592,11 @@ function renderCompInsights() {
   var _kBrandStats = {};
   competitorAds.forEach(function(a) {
     var brand = getBrand(a);
-    if (!_kBrandStats[brand]) _kBrandStats[brand] = { active: 0, stopped: 0, totalDays: 0, count: 0, longestDays: 0 };
+    if (!_kBrandStats[brand]) _kBrandStats[brand] = { active: 0, totalDays: 0, count: 0, longestDays: 0 };
     var d = daysRunning(a);
     _kBrandStats[brand].count++;
     _kBrandStats[brand].totalDays += d;
-    if (a.is_active) _kBrandStats[brand].active++;
-    else _kBrandStats[brand].stopped++;
+    _kBrandStats[brand].active++;
     if (d > _kBrandStats[brand].longestDays) _kBrandStats[brand].longestDays = d;
   });
 
@@ -10672,11 +10617,6 @@ function renderCompInsights() {
       if (start >= sevenDaysAgo) _kVelocity[brand].last7++;
       if (start >= thirtyDaysAgo) _kVelocity[brand].last30++;
     }
-  });
-
-  // Pre-compute quick deaths for Key Takeaways
-  var _kQuickDeaths = adsWithDays.filter(function(x) {
-    return !x.ad.is_active && x.ad.ad_delivery_stop_time && x.days > 0 && x.days < 14;
   });
 
   // ============================================
@@ -10752,15 +10692,6 @@ function renderCompInsights() {
     }
   }
 
-  // Insight: Quick deaths ratio
-  if (_kQuickDeaths.length > 0 && competitorAds.length > 0) {
-    var stoppedTotal = competitorAds.filter(function(a) { return !a.is_active && a.ad_delivery_stop_time; }).length;
-    if (stoppedTotal >= 3) {
-      var qdPct = Math.round((_kQuickDeaths.length / stoppedTotal) * 100);
-      insights.push('⏹️ <strong>' + qdPct + '%</strong> aller gestoppten Ads liefen unter 14 Tage (' + _kQuickDeaths.length + ' von ' + stoppedTotal + ') — ein hoher Anteil an schnellen Fehlschlägen.');
-    }
-  }
-
   // Render Key Takeaways
   html += '<div class="card" style="margin-bottom:24px;border-left:4px solid var(--accent);">';
   html += '<div class="card-body">';
@@ -10784,12 +10715,11 @@ function renderCompInsights() {
   var brandStats = {};
   competitorAds.forEach(function(a) {
     var brand = getBrand(a);
-    if (!brandStats[brand]) brandStats[brand] = { active: 0, stopped: 0, totalDays: 0, count: 0, longestDays: 0, longestAd: null };
+    if (!brandStats[brand]) brandStats[brand] = { active: 0, totalDays: 0, count: 0, longestDays: 0, longestAd: null };
     var d = daysRunning(a);
     brandStats[brand].count++;
     brandStats[brand].totalDays += d;
-    if (a.is_active) brandStats[brand].active++;
-    else brandStats[brand].stopped++;
+    brandStats[brand].active++;
     if (d > brandStats[brand].longestDays) {
       brandStats[brand].longestDays = d;
       brandStats[brand].longestAd = a;
@@ -10809,22 +10739,13 @@ function renderCompInsights() {
     html += '<div style="font-size:13px;color:var(--text-muted);">Keine Brand-Daten vorhanden.</div>';
   } else {
     html += '<div style="overflow-x:auto;"><table class="comp-table" style="width:100%;">';
-    html += '<thead><tr><th>Brand</th><th>Aktive Ads</th><th>Gestoppte Ads</th><th>Gesamt</th><th>Ø Laufzeit</th><th>Längste Ad</th></tr></thead><tbody>';
+    html += '<thead><tr><th>Brand</th><th>Aktive Ads</th><th>Ø Laufzeit</th><th>Längste Ad</th></tr></thead><tbody>';
     brandNames.forEach(function(brand) {
       var s = brandStats[brand];
       var avgDays = s.count > 0 ? Math.round(s.totalDays / s.count) : 0;
-      // Active bar visualization
-      var totalAds = s.active + s.stopped;
-      var activePct = totalAds > 0 ? Math.round((s.active / totalAds) * 100) : 0;
-      var barHtml = '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<div style="flex:1;height:6px;background:var(--red-muted);border-radius:3px;overflow:hidden;min-width:60px;">' +
-        '<div style="width:' + activePct + '%;height:100%;background:var(--green);border-radius:3px;"></div></div>' +
-        '<span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">' + activePct + '% aktiv</span></div>';
       html += '<tr>';
       html += '<td style="font-weight:600;">' + escHtml(brand) + '</td>';
       html += '<td style="color:var(--green);font-weight:700;">' + s.active + '</td>';
-      html += '<td style="color:var(--red);font-weight:600;">' + s.stopped + '</td>';
-      html += '<td>' + barHtml + '</td>';
       html += '<td style="font-weight:600;">' + avgDays + ' Tage</td>';
       html += '<td style="font-weight:700;color:var(--orange);">' + s.longestDays + ' Tage</td>';
       html += '</tr>';
@@ -10921,41 +10842,6 @@ function renderCompInsights() {
   }
   html += '</div></div>';
 
-  // ============================================
-  // 5. ⏹️ Quick Deaths (Gestoppte Ads < 14 Tage)
-  // ============================================
-  var quickDeaths = adsWithDays.filter(function(x) {
-    return !x.ad.is_active && x.ad.ad_delivery_stop_time && x.days > 0 && x.days < 14;
-  }).sort(function(a, b) {
-    return new Date(b.ad.ad_delivery_stop_time) - new Date(a.ad.ad_delivery_stop_time);
-  }).slice(0, 10);
-
-  html += '<div class="card" style="margin-bottom:24px;">';
-  html += '<div class="card-body">';
-  html += '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">⏹️ Quick Deaths — Gestoppte Ads unter 14 Tagen</h3>';
-  html += '<p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Diese Ansätze haben nicht funktioniert — Ads die innerhalb von 14 Tagen gestoppt wurden.</p>';
-
-  if (quickDeaths.length === 0) {
-    html += '<div style="font-size:13px;color:var(--text-muted);">Keine kurzlebigen Ads gefunden — entweder alle Ads laufen gut, oder es gibt keine gestoppten Ads.</div>';
-  } else {
-    html += '<div style="overflow-x:auto;"><table class="comp-table" style="width:100%;">';
-    html += '<thead><tr><th>#</th><th>Brand</th><th>Ad Text</th><th>Laufzeit</th><th>Gestoppt am</th></tr></thead><tbody>';
-    quickDeaths.forEach(function(x, idx) {
-      var body = getBodyText(x.ad);
-      var snippet = body.length > 80 ? body.substring(0, 80) + '…' : (body || '–');
-      var stopDate = x.ad.ad_delivery_stop_time ? new Date(x.ad.ad_delivery_stop_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
-      html += '<tr>';
-      html += '<td style="font-weight:700;color:var(--text-muted);">' + (idx + 1) + '</td>';
-      html += '<td style="font-weight:600;">' + escHtml(x.brand) + '</td>';
-      html += '<td style="font-size:12px;color:var(--text-secondary);max-width:300px;">' + escHtml(snippet) + '</td>';
-      html += '<td style="font-weight:700;color:var(--red);">' + x.days + ' Tage</td>';
-      html += '<td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">' + stopDate + '</td>';
-      html += '</tr>';
-    });
-    html += '</tbody></table></div>';
-  }
-  html += '</div></div>';
-
   container.innerHTML = html;
 }
 
@@ -11006,7 +10892,6 @@ async function syncCompetitorAds() {
   try {
     var activeWatchlist = competitorWatchlist.filter(function(w) { return w.is_active; });
     var totalNew = 0;
-    var totalRemoved = 0;
 
     for (var i = 0; i < activeWatchlist.length; i++) {
       var w = activeWatchlist[i];
@@ -11073,36 +10958,12 @@ async function syncCompetitorAds() {
           });
         }
 
-        // Find removed ads (were active, not in API results anymore)
-        for (var k = 0; k < existingAds.length; k++) {
-          var ea = existingAds[k];
-          if (ea.is_active && apiAdIds.indexOf(ea.ad_library_id) === -1) {
-            var eaDays = calcDaysRunning(ea);
-            await sbPatch('competitor_ads', ea.id, {
-              is_active: false,
-              ad_delivery_stop_time: new Date().toISOString()
-            });
-            // Determine alert type: long_running if 30+ days
-            var eaAlertType = eaDays >= 30 ? 'long_running' : 'removed_ad';
-            var eaSnippet = (ea.ad_creative_bodies && ea.ad_creative_bodies[0]) ? ea.ad_creative_bodies[0].substring(0, 60) : '';
-            var eaMsg = eaDays >= 30
-              ? '🔥 Top Performer gestoppt: "' + eaSnippet + '…" von ' + (ea.page_name || w.page_name) + ' nach ' + eaDays + ' Tagen'
-              : '⏹️ Ad gestoppt: "' + eaSnippet + '…" von ' + (ea.page_name || w.page_name) + ' nach ' + eaDays + ' Tagen';
-            await sbInsert('competitor_alerts', {
-              ad_id: ea.id,
-              watchlist_id: w.id,
-              alert_type: eaAlertType,
-              message: eaMsg
-            });
-            totalRemoved++;
-          }
-        }
       } catch (apiErr) {
         console.error('Sync fehlgeschlagen für ' + w.page_name + ':', apiErr);
       }
     }
 
-    showToast('Sync abgeschlossen: ' + totalNew + ' neue, ' + totalRemoved + ' entfernte Ads', 'success');
+    showToast('Sync abgeschlossen: ' + totalNew + ' neue Ads', 'success');
     await Promise.all([loadCompetitorAds(), loadAlerts(), loadWatchlist()]);
   } catch (e) {
     console.error('Sync fehlgeschlagen:', e);

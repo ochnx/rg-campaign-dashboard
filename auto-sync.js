@@ -230,7 +230,6 @@ async function main() {
   console.log(`[SYNC] ${allExistingAdLibraryIds.size} existing ads in database (fetched in ${Math.ceil(offset / PAGE_SIZE) + 1} pages)`);
 
   let totalNew = 0;
-  let totalRemoved = 0;
   let totalAlerts = 0;
   let brandsProcessed = 0;
 
@@ -259,7 +258,6 @@ async function main() {
       const existingAdIds = existingAds.map(a => a.ad_library_id);
 
       let newAdsThisBrand = 0;
-      let removedThisBrand = 0;
       const now = new Date().toISOString();
 
       // Detect if this is the first/baseline sync for this watchlist entry
@@ -331,37 +329,6 @@ async function main() {
         totalAlerts++;
       }
 
-      // Detect removed ads
-      for (const ea of existingAds) {
-        if (ea.is_active && !apiAdIds.includes(ea.ad_library_id)) {
-          const days = calcDaysRunning(ea);
-          await sbPatch('competitor_ads', ea.id, {
-            is_active: false,
-            ad_delivery_stop_time: ea.ad_delivery_stop_time || now
-          });
-
-          // Create removed/long_running alerts (suppressed only by --no-alerts, not baseline)
-          if (!NO_ALERTS) {
-            const eaSnippet = (ea.ad_creative_bodies && ea.ad_creative_bodies[0])
-              ? ea.ad_creative_bodies[0].substring(0, 60)
-              : '';
-            const alertType = days >= 30 ? 'long_running' : 'removed_ad';
-            const alertMsg = days >= 30
-              ? `🔥 Top Performer gestoppt: "${eaSnippet}…" von ${ea.page_name || w.page_name} nach ${days} Tagen`
-              : `⏹️ Ad gestoppt: "${eaSnippet}…" von ${ea.page_name || w.page_name} nach ${days} Tagen`;
-
-            await sbInsert('competitor_alerts', {
-              ad_id: ea.id,
-              watchlist_id: w.id,
-              alert_type: alertType,
-              message: alertMsg
-            });
-            totalAlerts++;
-          }
-          removedThisBrand++;
-        }
-      }
-
       // Update watchlist page_id if missing but API returned one
       if (!w.page_id && apiAds.length > 0 && apiAds[0].page_id) {
         const matchingAd = apiAds.find(a =>
@@ -379,10 +346,9 @@ async function main() {
       }
 
       totalNew += newAdsThisBrand;
-      totalRemoved += removedThisBrand;
       brandsProcessed++;
 
-      console.log(`[SYNC] Brand: ${brandLabel} — found ${apiAds.length} ads (${newAdsThisBrand} new, ${removedThisBrand} removed)`);
+      console.log(`[SYNC] Brand: ${brandLabel} — found ${apiAds.length} ads (${newAdsThisBrand} new)`);
 
       // Rate limit: wait 2s between brands
       if (i < watchlist.length - 1) {
@@ -395,7 +361,7 @@ async function main() {
     }
   }
 
-  console.log(`[SYNC] Complete: ${brandsProcessed} brands synced, ${totalNew} new ads, ${totalRemoved} removed, ${totalAlerts} alerts created`);
+  console.log(`[SYNC] Complete: ${brandsProcessed} brands synced, ${totalNew} new ads, ${totalAlerts} alerts created`);
   process.exit(0);
 }
 
