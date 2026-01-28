@@ -3797,6 +3797,9 @@
           <div class="page-subtitle">Alle aktiven und abgeschlossenen Kampagnen</div>
         </div>
         <div style="display:flex;gap:8px;">
+          <button id="sync-all-live-btn" class="btn btn-secondary" onclick="syncAllLiveCampaigns()" title="Sync alle Live-Kampagnen">
+            🔄 Sync All Live
+          </button>
           <button class="btn btn-secondary" onclick="showView('meta-import')">
             📡 Meta-Kampagnen importieren
           </button>
@@ -3852,7 +3855,8 @@
       <a class="back-link" onclick="showView('analytics','campaigns')">← Zurück zu Kampagnen</a>
 
       <div id="detail-live-banner" class="live-banner" style="display:none;">
-        🟢 Live-Tracking aktiv — Metriken werden täglich automatisch synchronisiert
+        <span>🟢 Live-Tracking aktiv — Metriken werden täglich automatisch synchronisiert</span>
+        <button id="detail-sync-btn" class="btn btn-sm" style="margin-left:auto;background:#10b981;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;" onclick="syncCurrentCampaign()">🔄 Sync Now</button>
       </div>
 
       <div class="page-header">
@@ -6113,6 +6117,13 @@ async function openCampaign(id) {
     editPropertyId = property?.id;
     window._editCampaignData = campaign;
     window._editPropertyData = property;
+
+    // Store meta info for sync button
+    _currentCampaignMeta = campaign.meta_campaign_id ? {
+      id: campaign.id,
+      meta_campaign_id: campaign.meta_campaign_id,
+      name: campaign.campaign_name
+    } : null;
 
     // Header (no platform badge — always Meta)
     const liveSuffix = campaign.is_live ? ' <span class="badge-live">🟢 Live</span>' : '';
@@ -11662,7 +11673,7 @@ async function syncCampaignInsights(metaCampaignId, campaignId, campaignName) {
     barEl.style.width = '10%';
     detailEl.textContent = 'Lade Tagesmetriken...';
 
-    var insightsUrl = 'https://graph.facebook.com/v24.0/' + metaCampaignId + '/insights?fields=spend,impressions,reach,actions,cost_per_action_type&time_increment=1&limit=500&access_token=' + encodeURIComponent(token);
+    var insightsUrl = 'https://graph.facebook.com/v24.0/' + metaCampaignId + '/insights?fields=spend,impressions,reach,actions,cost_per_action_type&time_increment=1&date_preset=lifetime&limit=500&access_token=' + encodeURIComponent(token);
     var allInsights = [];
     var nextUrl = insightsUrl;
 
@@ -11765,7 +11776,7 @@ async function syncCampaignInsights(metaCampaignId, campaignId, campaignName) {
 
       // Fetch ad-level insights
       try {
-        var adInsightsUrl = 'https://graph.facebook.com/v24.0/' + ad.id + '/insights?fields=spend,impressions,reach,actions&time_increment=1&limit=500&access_token=' + encodeURIComponent(token);
+        var adInsightsUrl = 'https://graph.facebook.com/v24.0/' + ad.id + '/insights?fields=spend,impressions,reach,actions&time_increment=1&date_preset=lifetime&limit=500&access_token=' + encodeURIComponent(token);
         var adAllInsights = [];
         var adNextUrl = adInsightsUrl;
 
@@ -11875,6 +11886,78 @@ async function triggerLiveSync(metaCampaignId, campaignId) {
   var metaCamp = _metaCampaigns.find(function(c) { return c.id === metaCampaignId; });
   var name = metaCamp ? metaCamp.name : 'Kampagne';
   await syncCampaignInsights(metaCampaignId, campaignId, name);
+}
+
+// Sync current campaign from detail view
+var _currentCampaignMeta = null; // {id, meta_campaign_id, name}
+async function syncCurrentCampaign() {
+  if (!_currentCampaignMeta || !_currentCampaignMeta.meta_campaign_id) {
+    showToast('Keine Meta-Kampagne verknüpft', 'error');
+    return;
+  }
+  var btn = document.getElementById('detail-sync-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Syncing...';
+  }
+  try {
+    await syncCampaignInsights(
+      _currentCampaignMeta.meta_campaign_id,
+      _currentCampaignMeta.id,
+      _currentCampaignMeta.name
+    );
+    showToast('✅ Sync abgeschlossen', 'success');
+    // Refresh the campaign view
+    await openCampaign(_currentCampaignMeta.id);
+  } catch (e) {
+    showToast('Sync-Fehler: ' + e.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🔄 Sync Now';
+    }
+  }
+}
+
+// Sync all live campaigns
+async function syncAllLiveCampaigns() {
+  var btn = document.getElementById('sync-all-live-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Syncing...';
+  }
+  try {
+    // Fetch all live campaigns with meta_campaign_id
+    var liveCampaigns = await sbGet('campaigns', 'select=id,campaign_name,meta_campaign_id&is_live=eq.true&meta_campaign_id=not.is.null');
+    if (liveCampaigns.length === 0) {
+      showToast('Keine Live-Kampagnen gefunden', 'info');
+      return;
+    }
+    showToast('Synce ' + liveCampaigns.length + ' Kampagnen...', 'info');
+    var synced = 0;
+    for (var i = 0; i < liveCampaigns.length; i++) {
+      var c = liveCampaigns[i];
+      if (btn) btn.textContent = '⏳ ' + (i + 1) + '/' + liveCampaigns.length;
+      try {
+        await syncCampaignInsights(c.meta_campaign_id, c.id, c.campaign_name);
+        synced++;
+      } catch (e) {
+        console.warn('Sync error for ' + c.campaign_name + ':', e);
+      }
+      // Small delay between campaigns
+      await new Promise(function(r) { setTimeout(r, 1000); });
+    }
+    showToast('✅ ' + synced + ' Kampagnen synchronisiert', 'success');
+    // Refresh campaign list
+    await loadCampaigns();
+  } catch (e) {
+    showToast('Sync-Fehler: ' + e.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🔄 Sync All Live';
+    }
+  }
 }
 
 // ============================================
