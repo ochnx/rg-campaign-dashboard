@@ -143,10 +143,13 @@ function sleep(ms) {
 function inferCreativeType(adName) {
   if (!adName) return 'video';
   var lower = adName.toLowerCase();
+  // Check specific types first (more specific → less specific)
   if (lower.includes('single image')) return 'single_image';
   if (lower.includes('carousel')) return 'carousel';
   if (lower.includes('th-reel') || lower.includes('th reel')) return 'th_reel';
   if (lower.includes('scn-reel') || lower.includes('scn reel')) return 'scn_reel';
+  // "Bild" means image in German - check before reel/video
+  if (lower.includes('bild')) return 'single_image';
   if (lower.includes('reel')) return 'video';
   if (lower.includes('video')) return 'video';
   if (lower.includes('story')) return 'story';

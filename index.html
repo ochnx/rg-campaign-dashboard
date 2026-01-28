@@ -3610,9 +3610,13 @@
     .creative-preview-img {
       max-width: 100%;
       max-height: 70vh;
+      min-width: 200px;
+      min-height: 200px;
       width: auto;
       height: auto;
       object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
     .creative-preview-placeholder {
       display: flex;
@@ -12298,16 +12302,10 @@ function openCreativePreview(creative) {
   const leadsEl = document.getElementById('creative-preview-leads');
   const cplEl = document.getElementById('creative-preview-cpl');
   
-  // Get larger thumbnail URL - Meta thumbnails have size params like p64x64
+  // Get thumbnail URL - Meta provides small thumbnails (64x64), CSS scales them up
+  // Note: Larger sizes (p480x480, p960x960) return 403 errors, so we use the original
   let thumbnailUrl = creative.thumbnail_url || creative.thumbnailUrl || '';
-  if (thumbnailUrl) {
-    // Upgrade thumbnail size: p64x64 → p960x960 for larger preview
-    thumbnailUrl = thumbnailUrl
-      .replace(/\/p\d+x\d+\//g, '/p960x960/')
-      .replace(/p64x64/g, 'p960x960')
-      .replace(/p128x128/g, 'p960x960')
-      .replace(/p480x480/g, 'p960x960');
-  }
+  console.log('[CreativePreview] thumbnail_url:', thumbnailUrl);
   
   // Set image or placeholder
   if (thumbnailUrl) {
