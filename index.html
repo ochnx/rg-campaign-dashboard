@@ -9837,44 +9837,147 @@ function renderCompInsights() {
   }
 
   // ============================================
-  // 1. 🏆 Top Performer Ads (Longevity-based)
+  // Pre-compute all data for insights + sections
   // ============================================
   var adsWithDays = competitorAds.map(function(a) {
     return { ad: a, days: daysRunning(a), brand: getBrand(a) };
   }).filter(function(x) { return x.days > 0; });
 
   adsWithDays.sort(function(a, b) { return b.days - a.days; });
-  var top10 = adsWithDays.slice(0, 10);
 
-  html += '<div class="card" style="margin-bottom:24px;">';
+  // Pre-compute brand stats for Key Takeaways
+  var _kBrandStats = {};
+  competitorAds.forEach(function(a) {
+    var brand = getBrand(a);
+    if (!_kBrandStats[brand]) _kBrandStats[brand] = { active: 0, stopped: 0, totalDays: 0, count: 0, longestDays: 0 };
+    var d = daysRunning(a);
+    _kBrandStats[brand].count++;
+    _kBrandStats[brand].totalDays += d;
+    if (a.is_active) _kBrandStats[brand].active++;
+    else _kBrandStats[brand].stopped++;
+    if (d > _kBrandStats[brand].longestDays) _kBrandStats[brand].longestDays = d;
+  });
+
+  // Pre-compute copy patterns for Key Takeaways
+  var _kWinning = adsWithDays.filter(function(x) { return x.days >= 30; });
+  var _kWinTexts = _kWinning.map(function(x) { return getBodyText(x.ad); }).filter(function(t) { return t.length > 0; });
+  var _kAllTexts = adsWithDays.map(function(x) { return { text: getBodyText(x.ad), days: x.days }; }).filter(function(x) { return x.text.length > 0; });
+
+  // Pre-compute velocity for Key Takeaways
+  var sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
+  var thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000);
+  var _kVelocity = {};
+  competitorAds.forEach(function(a) {
+    var brand = getBrand(a);
+    if (!_kVelocity[brand]) _kVelocity[brand] = { last7: 0, last30: 0 };
+    if (a.ad_delivery_start_time) {
+      var start = new Date(a.ad_delivery_start_time);
+      if (start >= sevenDaysAgo) _kVelocity[brand].last7++;
+      if (start >= thirtyDaysAgo) _kVelocity[brand].last30++;
+    }
+  });
+
+  // Pre-compute quick deaths for Key Takeaways
+  var _kQuickDeaths = adsWithDays.filter(function(x) {
+    return !x.ad.is_active && x.ad.ad_delivery_stop_time && x.days > 0 && x.days < 14;
+  });
+
+  // ============================================
+  // 1. 🔑 Key Takeaways (Auto-generated Insights)
+  // ============================================
+  var insights = [];
+  var _kBrandNames = Object.keys(_kBrandStats);
+
+  // Insight: Brand with most active ads vs brand with longest avg runtime
+  if (_kBrandNames.length >= 2) {
+    var mostActive = _kBrandNames.reduce(function(best, b) {
+      return _kBrandStats[b].active > _kBrandStats[best].active ? b : best;
+    }, _kBrandNames[0]);
+    var longestAvg = _kBrandNames.reduce(function(best, b) {
+      var avg = _kBrandStats[b].count > 0 ? _kBrandStats[b].totalDays / _kBrandStats[b].count : 0;
+      var bestAvg = _kBrandStats[best].count > 0 ? _kBrandStats[best].totalDays / _kBrandStats[best].count : 0;
+      return avg > bestAvg ? b : best;
+    }, _kBrandNames[0]);
+    var longestAvgDays = Math.round(_kBrandStats[longestAvg].totalDays / (_kBrandStats[longestAvg].count || 1));
+    if (mostActive !== longestAvg) {
+      insights.push('📊 <strong>' + escHtml(mostActive) + '</strong> hat die meisten aktiven Ads (' + _kBrandStats[mostActive].active + '), aber <strong>' + escHtml(longestAvg) + '</strong> die längste Ø Laufzeit (' + longestAvgDays + ' Tage).');
+    } else {
+      insights.push('📊 <strong>' + escHtml(mostActive) + '</strong> dominiert mit den meisten aktiven Ads (' + _kBrandStats[mostActive].active + ') und der längsten Ø Laufzeit (' + longestAvgDays + ' Tage).');
+    }
+  }
+
+  // Insight: Copy patterns from winning ads
+  if (_kWinTexts.length >= 3) {
+    var winTotal = _kWinTexts.length;
+    var winWithPrice = _kWinTexts.filter(function(t) { return /€|\d{3,}[\.,]?\d*|\bab\s+\d/.test(t); }).length;
+    var pctPrice = Math.round((winWithPrice / winTotal) * 100);
+    if (pctPrice >= 40) {
+      insights.push('💰 <strong>' + pctPrice + '%</strong> der Ads mit 30+ Tagen Laufzeit enthalten eine Preisangabe oder konkrete Zahlen — Spezifik zahlt sich aus.');
+    }
+    var winWithQuestion = _kWinTexts.filter(function(t) { return /\?/.test(t); }).length;
+    var pctQ = Math.round((winWithQuestion / winTotal) * 100);
+    if (pctQ >= 30) {
+      insights.push('❓ <strong>' + pctQ + '%</strong> der Top-Ads stellen eine Frage — Fragen triggern Engagement.');
+    }
+  }
+
+  // Insight: Launch velocity outlier
+  var velBrandNames = Object.keys(_kVelocity);
+  if (velBrandNames.length >= 2) {
+    var totalLast30 = velBrandNames.reduce(function(s, b) { return s + _kVelocity[b].last30; }, 0);
+    var avgLast30 = totalLast30 / velBrandNames.length;
+    var fastestLauncher = velBrandNames.reduce(function(best, b) {
+      return _kVelocity[b].last30 > _kVelocity[best].last30 ? b : best;
+    }, velBrandNames[0]);
+    var fl30 = _kVelocity[fastestLauncher].last30;
+    if (avgLast30 > 0 && fl30 > avgLast30 * 1.5 && fl30 >= 3) {
+      var multiple = (fl30 / avgLast30).toFixed(1);
+      insights.push('🚀 <strong>' + escHtml(fastestLauncher) + '</strong> launched ' + fl30 + ' neue Ads in 30 Tagen — <strong>' + multiple + 'x</strong> über dem Durchschnitt (' + Math.round(avgLast30) + ').');
+    }
+  }
+
+  // Insight: Emoji vs no-emoji longevity comparison
+  if (_kAllTexts.length >= 5) {
+    var emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;
+    var withEmoji = _kAllTexts.filter(function(x) { return emojiRegex.test(x.text); });
+    var noEmoji = _kAllTexts.filter(function(x) { return !emojiRegex.test(x.text); });
+    if (withEmoji.length >= 3 && noEmoji.length >= 3) {
+      var avgEm = Math.round(withEmoji.reduce(function(s, x) { return s + x.days; }, 0) / withEmoji.length);
+      var avgNo = Math.round(noEmoji.reduce(function(s, x) { return s + x.days; }, 0) / noEmoji.length);
+      var diff = Math.abs(avgEm - avgNo);
+      if (diff >= 3) {
+        if (avgEm > avgNo) {
+          insights.push('😀 Ads <strong>mit Emoji</strong> laufen im Schnitt <strong>' + diff + ' Tage länger</strong> (' + avgEm + ' vs. ' + avgNo + ' Tage).');
+        } else {
+          insights.push('✍️ Ads <strong>ohne Emoji</strong> laufen im Schnitt <strong>' + diff + ' Tage länger</strong> (' + avgNo + ' vs. ' + avgEm + ' Tage).');
+        }
+      }
+    }
+  }
+
+  // Insight: Quick deaths ratio
+  if (_kQuickDeaths.length > 0 && competitorAds.length > 0) {
+    var stoppedTotal = competitorAds.filter(function(a) { return !a.is_active && a.ad_delivery_stop_time; }).length;
+    if (stoppedTotal >= 3) {
+      var qdPct = Math.round((_kQuickDeaths.length / stoppedTotal) * 100);
+      insights.push('⏹️ <strong>' + qdPct + '%</strong> aller gestoppten Ads liefen unter 14 Tage (' + _kQuickDeaths.length + ' von ' + stoppedTotal + ') — ein hoher Anteil an schnellen Fehlschlägen.');
+    }
+  }
+
+  // Render Key Takeaways
+  html += '<div class="card" style="margin-bottom:24px;border-left:4px solid var(--accent);">';
   html += '<div class="card-body">';
-  html += '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">🏆 Top Performer Ads (nach Laufzeit)</h3>';
-  html += '<p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Die 10 am längsten laufenden Ads aller Wettbewerber. Langlebigkeit = bewährte Performance.</p>';
+  html += '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">🔑 Key Takeaways</h3>';
+  html += '<p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Automatisch generierte Insights aus ' + competitorAds.length + ' Ads von ' + _kBrandNames.length + ' Brands.</p>';
 
-  if (top10.length === 0) {
-    html += '<div style="font-size:13px;color:var(--text-muted);">Keine Ads mit Laufzeitdaten vorhanden.</div>';
+  if (insights.length === 0) {
+    html += '<div style="font-size:13px;color:var(--text-muted);">Noch nicht genug Daten für aussagekräftige Insights. Mehr Ads synchronisieren!</div>';
   } else {
-    html += '<div style="overflow-x:auto;"><table class="comp-table" style="width:100%;">';
-    html += '<thead><tr><th>#</th><th>Brand</th><th>Ad Text</th><th>Laufzeit</th><th>Startdatum</th><th>Status</th></tr></thead><tbody>';
-    top10.forEach(function(x, idx) {
-      var body = getBodyText(x.ad);
-      var snippet = body.length > 80 ? body.substring(0, 80) + '…' : (body || '–');
-      var startDate = x.ad.ad_delivery_start_time ? new Date(x.ad.ad_delivery_start_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
-      var isActive = x.ad.is_active;
-      var statusBadge = isActive
-        ? '<span style="background:var(--green-muted);color:var(--green);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;">Aktiv</span>'
-        : '<span style="background:var(--red-muted);color:var(--red);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;">Gestoppt</span>';
-      var provenBadge = x.days >= 60 ? ' <span style="background:var(--orange-muted);color:var(--orange);padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700;">⭐ Proven</span>' : '';
-      html += '<tr>';
-      html += '<td style="font-weight:700;color:var(--text-muted);">' + (idx + 1) + '</td>';
-      html += '<td style="font-weight:600;white-space:nowrap;">' + escHtml(x.brand) + '</td>';
-      html += '<td style="font-size:12px;color:var(--text-secondary);max-width:300px;">' + escHtml(snippet) + provenBadge + '</td>';
-      html += '<td style="font-weight:700;color:var(--orange);">' + x.days + ' Tage</td>';
-      html += '<td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">' + startDate + '</td>';
-      html += '<td>' + statusBadge + '</td>';
-      html += '</tr>';
+    html += '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;">';
+    insights.forEach(function(insight) {
+      html += '<li style="font-size:14px;line-height:1.6;padding:12px 16px;background:var(--bg-secondary);border-radius:var(--radius-sm);border:1px solid var(--border);">' + insight + '</li>';
     });
-    html += '</tbody></table></div>';
+    html += '</ul>';
   }
   html += '</div></div>';
 
