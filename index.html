@@ -5894,8 +5894,9 @@ function renderLiveCreativePerformance(activeCamps, globalAvgCPL) {
       impressions: cr.impressions, leads: cr.leads, spend: cr.spend, cpl: cr.cpl
     }));
     const thumbHtml = cr.thumbnailUrl
-      ? `<img src="${escHtml(cr.thumbnailUrl)}" alt="${escHtml(cr.name)}" class="creative-thumbnail clickable" onclick="event.stopPropagation();openCreativePreview(JSON.parse(decodeURIComponent('${crDataAttr}')))" onerror="this.outerHTML='<div class=\\'creative-perf-thumb clickable\\' onclick=\\'event.stopPropagation();openCreativePreview(JSON.parse(decodeURIComponent(\\\"${crDataAttr}\\\")))\\'>${typeIcon}</div>'">`
-      : `<div class="creative-perf-thumb clickable" onclick="event.stopPropagation();openCreativePreview(JSON.parse(decodeURIComponent('${crDataAttr}')))">${typeIcon}</div>`;
+      ? `<img src="${escHtml(cr.thumbnailUrl)}" alt="" class="creative-thumbnail clickable" data-creative="${crDataAttr}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        + `<div class="creative-perf-thumb clickable" style="display:none" data-creative="${crDataAttr}">${typeIcon}</div>`
+      : `<div class="creative-perf-thumb clickable" data-creative="${crDataAttr}">${typeIcon}</div>`;
     return `
       <div class="creative-perf-item" onclick="openCampaign('${cr.campaignId}')">
         ${thumbHtml}
@@ -5920,8 +5921,9 @@ function renderLiveCreativePerformance(activeCamps, globalAvgCPL) {
       impressions: cr.impressions, leads: cr.leads, spend: cr.spend, cpl: cr.cpl
     }));
     const thumbHtml = cr.thumbnailUrl
-      ? `<img src="${escHtml(cr.thumbnailUrl)}" alt="${escHtml(cr.name)}" class="creative-thumbnail clickable" onclick="event.stopPropagation();openCreativePreview(JSON.parse(decodeURIComponent('${crDataAttr}')))" onerror="this.outerHTML='<div class=\\'creative-perf-thumb clickable\\' onclick=\\'event.stopPropagation();openCreativePreview(JSON.parse(decodeURIComponent(\\\"${crDataAttr}\\\")))\\'>${typeIcon}</div>'">`
-      : `<div class="creative-perf-thumb clickable" onclick="event.stopPropagation();openCreativePreview(JSON.parse(decodeURIComponent('${crDataAttr}')))">${typeIcon}</div>`;
+      ? `<img src="${escHtml(cr.thumbnailUrl)}" alt="" class="creative-thumbnail clickable" data-creative="${crDataAttr}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        + `<div class="creative-perf-thumb clickable" style="display:none" data-creative="${crDataAttr}">${typeIcon}</div>`
+      : `<div class="creative-perf-thumb clickable" data-creative="${crDataAttr}">${typeIcon}</div>`;
     return `
       <div class="creative-perf-item" onclick="openCampaign('${cr.campaignId}')">
         ${thumbHtml}
@@ -6679,11 +6681,11 @@ function renderCreativeCards(creatives, avgCPL) {
     }));
     
     const thumbHtml = c.thumbnail_url
-      ? `<img src="${escHtml(c.thumbnail_url)}" alt="${escHtml(c.creative_name)}" class="creative-card-thumb clickable" onclick="event.stopPropagation();openCreativePreview(JSON.parse(decodeURIComponent('${crDataAttr}')))" onerror="this.style.display='none'">`
+      ? `<img src="${escHtml(c.thumbnail_url)}" alt="" class="creative-card-thumb clickable" data-creative="${crDataAttr}" onerror="this.style.display='none'">`
       : '';
 
     return `
-      <div class="creative-card ${isWinner ? 'winner' : ''}" style="cursor:pointer;" onclick="openCreativePreview(JSON.parse(decodeURIComponent('${crDataAttr}')))">
+      <div class="creative-card ${isWinner ? 'winner' : ''}" style="cursor:pointer;" data-creative="${crDataAttr}">
         <div class="creative-card-header" style="gap:12px;">
           ${thumbHtml}
           <div style="flex:1;min-width:0;">
@@ -12368,6 +12370,20 @@ function formatNumber(n) {
   if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
   return n.toString();
 }
+
+// Delegated click handler for creative thumbnails (avoids complex inline onclick escaping)
+document.addEventListener('click', function(e) {
+  const thumb = e.target.closest('.creative-thumbnail, .creative-perf-thumb, .creative-card-thumb, .creative-card[data-creative]');
+  if (thumb && thumb.dataset.creative) {
+    e.stopPropagation();
+    try {
+      const data = JSON.parse(decodeURIComponent(thumb.dataset.creative));
+      openCreativePreview(data);
+    } catch (err) {
+      console.error('Failed to parse creative data:', err);
+    }
+  }
+});
 </script>
 </body>
 </html>
