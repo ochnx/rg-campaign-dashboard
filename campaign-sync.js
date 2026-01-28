@@ -290,7 +290,7 @@ async function syncCampaign(campaign, token) {
   // 4. Sync ads (creatives)
   try {
     var adsData = await metaGet(metaCampaignId + '/ads',
-      'fields=name,status&limit=100&access_token=' + encodeURIComponent(token));
+      'fields=name,status,creative&limit=100&access_token=' + encodeURIComponent(token));
     var ads = adsData.data || [];
 
     for (var a = 0; a < ads.length; a++) {
@@ -298,16 +298,33 @@ async function syncCampaign(campaign, token) {
       var adId = ad.id;
       var adName = ad.name || 'Ad ' + adId;
       var creativeType = inferCreativeType(adName);
+      var metaCreativeId = (ad.creative && ad.creative.id) ? ad.creative.id : null;
+
+      // Fetch thumbnail_url from Meta creative
+      var thumbnailUrl = null;
+      if (metaCreativeId) {
+        try {
+          var crData = await metaGet(metaCreativeId,
+            'fields=thumbnail_url&access_token=' + encodeURIComponent(token));
+          thumbnailUrl = crData.thumbnail_url || null;
+        } catch (e) {
+          // Non-fatal: thumbnail fetch can fail
+        }
+      }
 
       // Upsert creative (by meta_ad_id)
+      var creativeUpsertData = {
+        campaign_id: campaignId,
+        creative_name: adName,
+        creative_type: creativeType,
+        meta_ad_id: adId
+      };
+      if (metaCreativeId) creativeUpsertData.meta_creative_id = metaCreativeId;
+      if (thumbnailUrl) creativeUpsertData.thumbnail_url = thumbnailUrl;
+
       var creativeRows;
       try {
-        creativeRows = await sbUpsert('creatives', [{
-          campaign_id: campaignId,
-          creative_name: adName,
-          creative_type: creativeType,
-          meta_ad_id: adId
-        }], 'meta_ad_id');
+        creativeRows = await sbUpsert('creatives', [creativeUpsertData], 'meta_ad_id');
       } catch (e) {
         log('  WARNING: Creative upsert failed for ' + adName + ': ' + e.message);
         continue;
