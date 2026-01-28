@@ -3176,6 +3176,7 @@
         <button class="nav-dropdown-item" onclick="showView('competitors','feed')">📰 Ad Feed</button>
         <button class="nav-dropdown-item" onclick="showView('competitors','leaderboard')">🏆 Leaderboard</button>
         <button class="nav-dropdown-item" onclick="showView('competitors','trends')">📈 Trends</button>
+        <button class="nav-dropdown-item" onclick="showView('competitors','insights')">🧠 Insights</button>
       </div>
     </div>
   </div>
@@ -3211,6 +3212,7 @@
     <button class="mobile-nav-item" onclick="showView('competitors','feed');closeMobileMenu();">📰 Ad Feed</button>
     <button class="mobile-nav-item" onclick="showView('competitors','leaderboard');closeMobileMenu();">🏆 Leaderboard</button>
     <button class="mobile-nav-item" onclick="showView('competitors','trends');closeMobileMenu();">📈 Trends</button>
+    <button class="mobile-nav-item" onclick="showView('competitors','insights');closeMobileMenu();">🧠 Insights</button>
   </div>
   <div class="mobile-nav-section">
     <button class="mobile-nav-item" onclick="showView('new-campaign');closeMobileMenu();" style="color:var(--accent);font-weight:600;">➕ Neue Kampagne</button>
@@ -3236,6 +3238,7 @@
     <button class="sub-nav-tab" data-subtab="feed" onclick="showView('competitors','feed')">Ad Feed</button>
     <button class="sub-nav-tab" data-subtab="leaderboard" onclick="showView('competitors','leaderboard')">🏆 Leaderboard</button>
     <button class="sub-nav-tab" data-subtab="trends" onclick="showView('competitors','trends')">📈 Trends</button>
+    <button class="sub-nav-tab" data-subtab="insights" onclick="showView('competitors','insights')">🧠 Insights</button>
   </div>
 </div>
 
@@ -4495,6 +4498,16 @@
         <div id="comp-trends-content"></div>
       </div>
 
+      <!-- === COMPETITOR SUB-TAB: Insights === -->
+      <div id="comp-sub-insights" class="comp-sub-tab" style="display:none;">
+        <h2 style="font-size:18px;font-weight:800;margin-bottom:16px;">🧠 Competitor Intelligence Insights</h2>
+        <div id="comp-insights-content">
+          <div class="empty-state" style="padding:40px;">
+            <div class="empty-state-desc">Lade Insights…</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Watchlist Add/Edit Modal -->
@@ -4723,7 +4736,8 @@ const COMPETITOR_TABS = {
   'overview': 'comp-sub-overview',
   'feed': 'comp-sub-feed',
   'leaderboard': 'comp-sub-leaderboard',
-  'trends': 'comp-sub-trends'
+  'trends': 'comp-sub-trends',
+  'insights': 'comp-sub-insights'
 };
 
 function showView(sectionOrView, subTab) {
@@ -4819,6 +4833,7 @@ function showView(sectionOrView, subTab) {
     if (activeSubTab === 'feed') applyCompetitorFilters();
     if (activeSubTab === 'leaderboard') renderLeaderboard();
     if (activeSubTab === 'trends') renderTrends();
+    if (activeSubTab === 'insights') renderCompInsights();
   }
   if (sectionOrView === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
@@ -4888,7 +4903,7 @@ function updateBreadcrumbs(section, subTab, viewName) {
     }
   } else if (section === 'competitors') {
     parts.push('<span class="app-bc-sep">→</span>');
-    const tabLabels = {overview:'Overview',feed:'Ad Feed',leaderboard:'Leaderboard',trends:'Trends'};
+    const tabLabels = {overview:'Overview',feed:'Ad Feed',leaderboard:'Leaderboard',trends:'Trends',insights:'Insights'};
     parts.push('<span class="app-bc-current">Competitors → ' + (tabLabels[subTab] || subTab) + '</span>');
   }
 
@@ -8732,6 +8747,7 @@ async function loadCompetitorView() {
   renderLeaderboard();
   renderBrandOverviewCards();
   renderTrends();
+  renderCompInsights();
 }
 
 // --- Watchlist CRUD ---
@@ -8945,6 +8961,7 @@ async function loadCompetitorAds(watchlistId) {
   renderLeaderboard();
   renderBrandOverviewCards();
   renderTrends();
+  renderCompInsights();
 }
 
 function calcDaysRunning(ad) {
@@ -9777,6 +9794,267 @@ function renderTrends() {
   html += '</div></div>';
 
   html += '</div>'; // close grid
+
+  container.innerHTML = html;
+}
+
+// --- Competitor Intelligence Insights ---
+function renderCompInsights() {
+  var container = document.getElementById('comp-insights-content');
+  if (!container) return;
+
+  if (competitorAds.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="empty-state-desc">Keine Ads vorhanden — erst Competitor-Daten synchronisieren.</div></div>';
+    return;
+  }
+
+  var now = new Date();
+  var html = '';
+
+  // Build brand map from watchlist
+  var brandMap = {};
+  competitorWatchlist.forEach(function(w) {
+    brandMap[w.id] = w.brand || w.page_name || '–';
+  });
+
+  // Helper: get brand name for an ad
+  function getBrand(ad) {
+    return brandMap[ad.watchlist_id] || ad.page_name || '–';
+  }
+
+  // Helper: get first ad body text
+  function getBodyText(ad) {
+    if (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) return ad.ad_creative_bodies[0];
+    return '';
+  }
+
+  // Helper: compute days running
+  function daysRunning(ad) {
+    if (!ad.ad_delivery_start_time) return 0;
+    var start = new Date(ad.ad_delivery_start_time);
+    var end = ad.ad_delivery_stop_time ? new Date(ad.ad_delivery_stop_time) : now;
+    return Math.ceil((end - start) / 86400000);
+  }
+
+  // ============================================
+  // 1. 🏆 Top Performer Ads (Longevity-based)
+  // ============================================
+  var adsWithDays = competitorAds.map(function(a) {
+    return { ad: a, days: daysRunning(a), brand: getBrand(a) };
+  }).filter(function(x) { return x.days > 0; });
+
+  adsWithDays.sort(function(a, b) { return b.days - a.days; });
+  var top10 = adsWithDays.slice(0, 10);
+
+  html += '<div class="card" style="margin-bottom:24px;">';
+  html += '<div class="card-body">';
+  html += '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">🏆 Top Performer Ads (nach Laufzeit)</h3>';
+  html += '<p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Die 10 am längsten laufenden Ads aller Wettbewerber. Langlebigkeit = bewährte Performance.</p>';
+
+  if (top10.length === 0) {
+    html += '<div style="font-size:13px;color:var(--text-muted);">Keine Ads mit Laufzeitdaten vorhanden.</div>';
+  } else {
+    html += '<div style="overflow-x:auto;"><table class="comp-table" style="width:100%;">';
+    html += '<thead><tr><th>#</th><th>Brand</th><th>Ad Text</th><th>Laufzeit</th><th>Startdatum</th><th>Status</th></tr></thead><tbody>';
+    top10.forEach(function(x, idx) {
+      var body = getBodyText(x.ad);
+      var snippet = body.length > 80 ? body.substring(0, 80) + '…' : (body || '–');
+      var startDate = x.ad.ad_delivery_start_time ? new Date(x.ad.ad_delivery_start_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+      var isActive = x.ad.is_active;
+      var statusBadge = isActive
+        ? '<span style="background:var(--green-muted);color:var(--green);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;">Aktiv</span>'
+        : '<span style="background:var(--red-muted);color:var(--red);padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;">Gestoppt</span>';
+      var provenBadge = x.days >= 60 ? ' <span style="background:var(--orange-muted);color:var(--orange);padding:2px 6px;border-radius:8px;font-size:10px;font-weight:700;">⭐ Proven</span>' : '';
+      html += '<tr>';
+      html += '<td style="font-weight:700;color:var(--text-muted);">' + (idx + 1) + '</td>';
+      html += '<td style="font-weight:600;white-space:nowrap;">' + escHtml(x.brand) + '</td>';
+      html += '<td style="font-size:12px;color:var(--text-secondary);max-width:300px;">' + escHtml(snippet) + provenBadge + '</td>';
+      html += '<td style="font-weight:700;color:var(--orange);">' + x.days + ' Tage</td>';
+      html += '<td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">' + startDate + '</td>';
+      html += '<td>' + statusBadge + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  html += '</div></div>';
+
+  // ============================================
+  // 2. 🎨 Creative Mix by Brand
+  // ============================================
+  var brandStats = {};
+  competitorAds.forEach(function(a) {
+    var brand = getBrand(a);
+    if (!brandStats[brand]) brandStats[brand] = { active: 0, stopped: 0, totalDays: 0, count: 0, longestDays: 0, longestAd: null };
+    var d = daysRunning(a);
+    brandStats[brand].count++;
+    brandStats[brand].totalDays += d;
+    if (a.is_active) brandStats[brand].active++;
+    else brandStats[brand].stopped++;
+    if (d > brandStats[brand].longestDays) {
+      brandStats[brand].longestDays = d;
+      brandStats[brand].longestAd = a;
+    }
+  });
+
+  var brandNames = Object.keys(brandStats).sort(function(a, b) {
+    return brandStats[b].active - brandStats[a].active;
+  });
+
+  html += '<div class="card" style="margin-bottom:24px;">';
+  html += '<div class="card-body">';
+  html += '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">🎨 Brand Performance Übersicht</h3>';
+  html += '<p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Aktive Ads, Durchschnittslaufzeit und Top-Ad je Brand.</p>';
+
+  if (brandNames.length === 0) {
+    html += '<div style="font-size:13px;color:var(--text-muted);">Keine Brand-Daten vorhanden.</div>';
+  } else {
+    html += '<div style="overflow-x:auto;"><table class="comp-table" style="width:100%;">';
+    html += '<thead><tr><th>Brand</th><th>Aktive Ads</th><th>Gestoppte Ads</th><th>Gesamt</th><th>Ø Laufzeit</th><th>Längste Ad</th></tr></thead><tbody>';
+    brandNames.forEach(function(brand) {
+      var s = brandStats[brand];
+      var avgDays = s.count > 0 ? Math.round(s.totalDays / s.count) : 0;
+      // Active bar visualization
+      var totalAds = s.active + s.stopped;
+      var activePct = totalAds > 0 ? Math.round((s.active / totalAds) * 100) : 0;
+      var barHtml = '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<div style="flex:1;height:6px;background:var(--red-muted);border-radius:3px;overflow:hidden;min-width:60px;">' +
+        '<div style="width:' + activePct + '%;height:100%;background:var(--green);border-radius:3px;"></div></div>' +
+        '<span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">' + activePct + '% aktiv</span></div>';
+      html += '<tr>';
+      html += '<td style="font-weight:600;">' + escHtml(brand) + '</td>';
+      html += '<td style="color:var(--green);font-weight:700;">' + s.active + '</td>';
+      html += '<td style="color:var(--red);font-weight:600;">' + s.stopped + '</td>';
+      html += '<td>' + barHtml + '</td>';
+      html += '<td style="font-weight:600;">' + avgDays + ' Tage</td>';
+      html += '<td style="font-weight:700;color:var(--orange);">' + s.longestDays + ' Tage</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  html += '</div></div>';
+
+  // ============================================
+  // 3. 📝 Ad Copy Insights (Winning Copy)
+  // ============================================
+  var winningAds = adsWithDays.filter(function(x) { return x.days >= 30; });
+  var winTexts = winningAds.map(function(x) { return getBodyText(x.ad); }).filter(function(t) { return t.length > 0; });
+
+  html += '<div class="card" style="margin-bottom:24px;">';
+  html += '<div class="card-body">';
+  html += '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">📝 Ad Copy Insights (Ads mit 30+ Tagen Laufzeit)</h3>';
+  html += '<p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Muster in langlebigen Ads — was funktioniert in den erfolgreichsten Werbetexten.</p>';
+
+  if (winTexts.length === 0) {
+    html += '<div style="font-size:13px;color:var(--text-muted);">Noch keine Ads mit 30+ Tagen Laufzeit vorhanden.</div>';
+  } else {
+    // Analyze patterns
+    var totalWin = winTexts.length;
+    var avgLength = Math.round(winTexts.reduce(function(sum, t) { return sum + t.length; }, 0) / totalWin);
+    var withPrice = winTexts.filter(function(t) { return /€|\d{3,}[\.,]?\d*|\bab\s+\d/.test(t); }).length;
+    var withQuestion = winTexts.filter(function(t) { return /\?/.test(t); }).length;
+    var withEmoji = winTexts.filter(function(t) { return /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(t); }).length;
+    var withCTA = winTexts.filter(function(t) { return /jetzt|hier|mehr erfahren|kontakt|anfrag|termin|buchen|sichern|entdecken/i.test(t); }).length;
+
+    var pctPrice = Math.round((withPrice / totalWin) * 100);
+    var pctQuestion = Math.round((withQuestion / totalWin) * 100);
+    var pctEmoji = Math.round((withEmoji / totalWin) * 100);
+    var pctCTA = Math.round((withCTA / totalWin) * 100);
+
+    html += '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Basis: <strong>' + totalWin + ' Ads</strong> mit 30+ Tagen Laufzeit</div>';
+    html += '<div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));">';
+
+    // Stat cards
+    html += '<div class="kpi-card"><div class="kpi-label">Ø Textlänge</div><div class="kpi-value" style="color:var(--blue);">' + avgLength + '</div><div style="font-size:11px;color:var(--text-muted);">Zeichen</div></div>';
+    html += '<div class="kpi-card"><div class="kpi-label">💰 Mit Preis/Zahl</div><div class="kpi-value" style="color:var(--green);">' + pctPrice + '%</div><div style="font-size:11px;color:var(--text-muted);">' + withPrice + ' von ' + totalWin + ' Ads</div></div>';
+    html += '<div class="kpi-card"><div class="kpi-label">❓ Mit Frage</div><div class="kpi-value" style="color:var(--orange);">' + pctQuestion + '%</div><div style="font-size:11px;color:var(--text-muted);">' + withQuestion + ' von ' + totalWin + ' Ads</div></div>';
+    html += '<div class="kpi-card"><div class="kpi-label">😀 Mit Emoji</div><div class="kpi-value" style="color:var(--cyan);">' + pctEmoji + '%</div><div style="font-size:11px;color:var(--text-muted);">' + withEmoji + ' von ' + totalWin + ' Ads</div></div>';
+    html += '<div class="kpi-card"><div class="kpi-label">🎯 Mit CTA</div><div class="kpi-value" style="color:var(--accent);">' + pctCTA + '%</div><div style="font-size:11px;color:var(--text-muted);">' + withCTA + ' von ' + totalWin + ' Ads</div></div>';
+
+    html += '</div>';
+  }
+  html += '</div></div>';
+
+  // ============================================
+  // 4. 📊 Launch Velocity
+  // ============================================
+  var sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
+  var thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000);
+
+  var velocityMap = {};
+  competitorAds.forEach(function(a) {
+    var brand = getBrand(a);
+    if (!velocityMap[brand]) velocityMap[brand] = { last7: 0, last30: 0, active: 0 };
+    if (a.is_active) velocityMap[brand].active++;
+    if (a.ad_delivery_start_time) {
+      var start = new Date(a.ad_delivery_start_time);
+      if (start >= sevenDaysAgo) velocityMap[brand].last7++;
+      if (start >= thirtyDaysAgo) velocityMap[brand].last30++;
+    }
+  });
+
+  var velBrands = Object.keys(velocityMap).sort(function(a, b) {
+    return velocityMap[b].last30 - velocityMap[a].last30;
+  });
+
+  html += '<div class="card" style="margin-bottom:24px;">';
+  html += '<div class="card-body">';
+  html += '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">📊 Launch Velocity</h3>';
+  html += '<p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Wie viele neue Ads hat jede Brand in den letzten 7 und 30 Tagen gestartet?</p>';
+
+  if (velBrands.length === 0) {
+    html += '<div style="font-size:13px;color:var(--text-muted);">Keine Daten vorhanden.</div>';
+  } else {
+    html += '<div style="overflow-x:auto;"><table class="comp-table" style="width:100%;">';
+    html += '<thead><tr><th>Brand</th><th>Letzte 7 Tage</th><th>Letzte 30 Tage</th><th>Aktive Ads</th></tr></thead><tbody>';
+    velBrands.forEach(function(brand) {
+      var v = velocityMap[brand];
+      var heat7 = v.last7 >= 3 ? 'color:var(--accent);font-weight:800;' : (v.last7 > 0 ? 'color:var(--green);font-weight:700;' : 'color:var(--text-muted);');
+      var heat30 = v.last30 >= 5 ? 'color:var(--accent);font-weight:800;' : (v.last30 > 0 ? 'color:var(--green);font-weight:700;' : 'color:var(--text-muted);');
+      html += '<tr>';
+      html += '<td style="font-weight:600;">' + escHtml(brand) + '</td>';
+      html += '<td style="' + heat7 + '">' + v.last7 + (v.last7 >= 3 ? ' 🔥' : '') + '</td>';
+      html += '<td style="' + heat30 + '">' + v.last30 + (v.last30 >= 5 ? ' 🔥' : '') + '</td>';
+      html += '<td style="font-weight:600;">' + v.active + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  html += '</div></div>';
+
+  // ============================================
+  // 5. ⏹️ Quick Deaths (Gestoppte Ads < 14 Tage)
+  // ============================================
+  var quickDeaths = adsWithDays.filter(function(x) {
+    return !x.ad.is_active && x.ad.ad_delivery_stop_time && x.days > 0 && x.days < 14;
+  }).sort(function(a, b) {
+    return new Date(b.ad.ad_delivery_stop_time) - new Date(a.ad.ad_delivery_stop_time);
+  }).slice(0, 10);
+
+  html += '<div class="card" style="margin-bottom:24px;">';
+  html += '<div class="card-body">';
+  html += '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">⏹️ Quick Deaths — Gestoppte Ads unter 14 Tagen</h3>';
+  html += '<p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Diese Ansätze haben nicht funktioniert — Ads die innerhalb von 14 Tagen gestoppt wurden.</p>';
+
+  if (quickDeaths.length === 0) {
+    html += '<div style="font-size:13px;color:var(--text-muted);">Keine kurzlebigen Ads gefunden — entweder alle Ads laufen gut, oder es gibt keine gestoppten Ads.</div>';
+  } else {
+    html += '<div style="overflow-x:auto;"><table class="comp-table" style="width:100%;">';
+    html += '<thead><tr><th>#</th><th>Brand</th><th>Ad Text</th><th>Laufzeit</th><th>Gestoppt am</th></tr></thead><tbody>';
+    quickDeaths.forEach(function(x, idx) {
+      var body = getBodyText(x.ad);
+      var snippet = body.length > 80 ? body.substring(0, 80) + '…' : (body || '–');
+      var stopDate = x.ad.ad_delivery_stop_time ? new Date(x.ad.ad_delivery_stop_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+      html += '<tr>';
+      html += '<td style="font-weight:700;color:var(--text-muted);">' + (idx + 1) + '</td>';
+      html += '<td style="font-weight:600;">' + escHtml(x.brand) + '</td>';
+      html += '<td style="font-size:12px;color:var(--text-secondary);max-width:300px;">' + escHtml(snippet) + '</td>';
+      html += '<td style="font-weight:700;color:var(--red);">' + x.days + ' Tage</td>';
+      html += '<td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">' + stopDate + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+  html += '</div></div>';
 
   container.innerHTML = html;
 }
