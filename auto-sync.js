@@ -163,10 +163,15 @@ function sleep(ms) {
 }
 
 // ============================================
+// CLI FLAGS
+// ============================================
+const NO_ALERTS = process.argv.includes('--no-alerts');
+
+// ============================================
 // MAIN SYNC
 // ============================================
 async function main() {
-  console.log(`[SYNC] Starting at ${new Date().toISOString()}`);
+  console.log(`[SYNC] Starting at ${new Date().toISOString()}${NO_ALERTS ? ' (alerts suppressed via --no-alerts)' : ''}`);
 
   // 1. Validate Supabase connection
   try {
@@ -190,6 +195,11 @@ async function main() {
     (await sbGet('competitor_ads', 'select=ad_library_id')).map(a => a.ad_library_id)
   );
   console.log(`[SYNC] ${allExistingAdLibraryIds.size} existing ads in database`);
+
+  // Pre-fetch which watchlist entries already have ads (for baseline detection)
+  const watchlistWithAds = new Set(
+    (await sbGet('competitor_ads', 'select=watchlist_id')).map(a => a.watchlist_id)
+  );
 
   let totalNew = 0;
   let totalRemoved = 0;
@@ -224,6 +234,12 @@ async function main() {
       let removedThisBrand = 0;
       const now = new Date().toISOString();
 
+      // Detect if this is the first/baseline sync for this watchlist entry
+      const isBaselineSync = !watchlistWithAds.has(w.id);
+      if (isBaselineSync) {
+        console.log(`[SYNC] Brand: ${brandLabel} — first sync (baseline), will skip new_ad alerts`);
+      }
+
       // Process each ad from API
       for (const apiAd of apiAds) {
         const isNewToThisBrand = !existingAdIds.includes(apiAd.id);
@@ -250,16 +266,18 @@ async function main() {
           });
           allExistingAdLibraryIds.add(apiAd.id);
 
-          // Create new_ad alert
-          const adSnippet = (apiAd.ad_creative_bodies && apiAd.ad_creative_bodies[0])
-            ? apiAd.ad_creative_bodies[0].substring(0, 80)
-            : '';
-          await sbInsert('competitor_alerts', {
-            watchlist_id: w.id,
-            alert_type: 'new_ad',
-            message: `🆕 Neue Ad von ${apiAd.page_name || w.page_name}${adSnippet ? ': "' + adSnippet + '…"' : ''}`
-          });
-          totalAlerts++;
+          // Create new_ad alert (skip on baseline sync or --no-alerts)
+          if (!isBaselineSync && !NO_ALERTS) {
+            const adSnippet = (apiAd.ad_creative_bodies && apiAd.ad_creative_bodies[0])
+              ? apiAd.ad_creative_bodies[0].substring(0, 80)
+              : '';
+            await sbInsert('competitor_alerts', {
+              watchlist_id: w.id,
+              alert_type: 'new_ad',
+              message: `🆕 Neue Ad von ${apiAd.page_name || w.page_name}${adSnippet ? ': "' + adSnippet + '…"' : ''}`
+            });
+            totalAlerts++;
+          }
           newAdsThisBrand++;
         } else if (!isNewToThisBrand) {
           // EXISTING AD for this brand — update last_seen_at
@@ -275,8 +293,8 @@ async function main() {
         // else: exists in DB under different brand — skip (don't duplicate)
       }
 
-      // Burst detection: 3+ new ads from one brand
-      if (newAdsThisBrand >= 3) {
+      // Burst detection: 3+ new ads from one brand (skip on baseline sync or --no-alerts)
+      if (newAdsThisBrand >= 3 && !isBaselineSync && !NO_ALERTS) {
         await sbInsert('competitor_alerts', {
           watchlist_id: w.id,
           alert_type: 'burst',
@@ -294,21 +312,24 @@ async function main() {
             ad_delivery_stop_time: ea.ad_delivery_stop_time || now
           });
 
-          const eaSnippet = (ea.ad_creative_bodies && ea.ad_creative_bodies[0])
-            ? ea.ad_creative_bodies[0].substring(0, 60)
-            : '';
-          const alertType = days >= 30 ? 'long_running' : 'removed_ad';
-          const alertMsg = days >= 30
-            ? `🔥 Top Performer gestoppt: "${eaSnippet}…" von ${ea.page_name || w.page_name} nach ${days} Tagen`
-            : `⏹️ Ad gestoppt: "${eaSnippet}…" von ${ea.page_name || w.page_name} nach ${days} Tagen`;
+          // Create removed/long_running alerts (suppressed only by --no-alerts, not baseline)
+          if (!NO_ALERTS) {
+            const eaSnippet = (ea.ad_creative_bodies && ea.ad_creative_bodies[0])
+              ? ea.ad_creative_bodies[0].substring(0, 60)
+              : '';
+            const alertType = days >= 30 ? 'long_running' : 'removed_ad';
+            const alertMsg = days >= 30
+              ? `🔥 Top Performer gestoppt: "${eaSnippet}…" von ${ea.page_name || w.page_name} nach ${days} Tagen`
+              : `⏹️ Ad gestoppt: "${eaSnippet}…" von ${ea.page_name || w.page_name} nach ${days} Tagen`;
 
-          await sbInsert('competitor_alerts', {
-            ad_id: ea.id,
-            watchlist_id: w.id,
-            alert_type: alertType,
-            message: alertMsg
-          });
-          totalAlerts++;
+            await sbInsert('competitor_alerts', {
+              ad_id: ea.id,
+              watchlist_id: w.id,
+              alert_type: alertType,
+              message: alertMsg
+            });
+            totalAlerts++;
+          }
           removedThisBrand++;
         }
       }
@@ -322,6 +343,11 @@ async function main() {
           await sbPatch('competitor_watchlist', w.id, { page_id: matchingAd.page_id });
           console.log(`[SYNC] Updated page_id for ${brandLabel}: ${matchingAd.page_id}`);
         }
+      }
+
+      // Mark this watchlist entry as having ads (for baseline detection of other entries in same run)
+      if (newAdsThisBrand > 0) {
+        watchlistWithAds.add(w.id);
       }
 
       totalNew += newAdsThisBrand;

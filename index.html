@@ -2219,42 +2219,7 @@
       margin-top: 10px;
     }
 
-    /* Ad Preview Embed */
-    .comp-ad-preview-container {
-      margin-top: 12px;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow-lg);
-      border: 1px solid var(--border);
-      position: relative;
-    }
-    .comp-ad-preview-container iframe {
-      width: 100%;
-      height: 400px;
-      border: none;
-      display: block;
-    }
-    .comp-ad-preview-close {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      border: none;
-      border-radius: 999px;
-      width: 28px;
-      height: 28px;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-      transition: background var(--transition);
-    }
-    .comp-ad-preview-close:hover {
-      background: rgba(231,53,46,0.8);
-    }
+    /* Ad Preview — opens in popup window (no iframe needed) */
 
     /* Improved alert type colors */
     .comp-alert-item {
@@ -7485,6 +7450,12 @@ async function loadCompetitorView() {
     competitorViewLoaded = true;
   }
   await Promise.all([loadWatchlist(), loadCompetitorAds(), loadAlerts()]);
+  // Re-render watchlist grid now that competitorAds is fully loaded
+  // (loadWatchlist may have rendered before competitorAds was ready)
+  if (competitorWatchlist.length > 0) {
+    renderWatchlistGrid();
+  }
+  updateCompetitorStats();
   // Render new sections after data is loaded
   renderLeaderboard();
   renderBrandOverviewCards();
@@ -7502,10 +7473,21 @@ async function loadWatchlist() {
   gridEl.style.display = 'none';
 
   try {
-    competitorWatchlist = await sbGet('competitor_watchlist', 'select=*&order=brand.asc.nullsfirst,page_name.asc');
+    // Fetch watchlist and active ad counts in parallel
+    var results = await Promise.all([
+      sbGet('competitor_watchlist', 'select=*&order=brand.asc.nullsfirst,page_name.asc'),
+      sbGet('competitor_ads', 'select=watchlist_id&is_active=eq.true')
+    ]);
+    competitorWatchlist = results[0];
+    // Build ad count map: { watchlist_id: count }
+    _watchlistAdCounts = {};
+    results[1].forEach(function(row) {
+      _watchlistAdCounts[row.watchlist_id] = (_watchlistAdCounts[row.watchlist_id] || 0) + 1;
+    });
   } catch (e) {
     console.error('Watchlist laden fehlgeschlagen:', e);
     competitorWatchlist = [];
+    _watchlistAdCounts = {};
   }
 
   loadingEl.style.display = 'none';
@@ -7526,10 +7508,12 @@ async function loadWatchlist() {
   updateBrandFilter();
 }
 
+var _watchlistAdCounts = {};
+
 function renderWatchlistGrid() {
   const gridEl = document.getElementById('comp-watchlist-grid');
   gridEl.innerHTML = competitorWatchlist.map(function(w) {
-    const adCount = competitorAds.filter(function(a) { return a.watchlist_id === w.id && a.is_active; }).length;
+    const adCount = _watchlistAdCounts[w.id] || 0;
     const inactiveClass = w.is_active ? '' : ' inactive';
     const toggleIcon = w.is_active ? '⏸️' : '▶️';
     const toggleTitle = w.is_active ? 'Deaktivieren' : 'Aktivieren';
@@ -7698,7 +7682,6 @@ function calcDaysRunning(ad) {
 
 // Unique ID for ad cards
 var _adCardIdCounter = 0;
-var _currentPreviewAdId = null;
 
 function platformBadgeColor(p) {
   switch(p) {
@@ -7739,17 +7722,6 @@ function copyAdTextFromEl(btn) {
 }
 
 function openAdPreview(adId) {
-  // Close previous preview
-  if (_currentPreviewAdId && _currentPreviewAdId !== adId) {
-    var prev = document.getElementById('ad-preview-' + _currentPreviewAdId);
-    if (prev) prev.remove();
-  }
-  var existing = document.getElementById('ad-preview-' + adId);
-  if (existing) {
-    existing.remove();
-    _currentPreviewAdId = null;
-    return;
-  }
   var card = document.getElementById('ad-card-' + adId);
   if (!card) return;
   var url = card.dataset.snapshotUrl;
@@ -7758,19 +7730,7 @@ function openAdPreview(adId) {
   if (token) {
     url += (url.indexOf('?') >= 0 ? '&' : '?') + 'access_token=' + encodeURIComponent(token);
   }
-  var container = document.createElement('div');
-  container.id = 'ad-preview-' + adId;
-  container.className = 'comp-ad-preview-container';
-  container.innerHTML = '<button class="comp-ad-preview-close" onclick="closeAdPreview(\'' + adId + '\')">✕</button>' +
-    '<iframe src="' + escHtml(url) + '" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>';
-  card.appendChild(container);
-  _currentPreviewAdId = adId;
-}
-
-function closeAdPreview(adId) {
-  var el = document.getElementById('ad-preview-' + adId);
-  if (el) el.remove();
-  if (_currentPreviewAdId === adId) _currentPreviewAdId = null;
+  window.open(url, '_blank', 'width=480,height=720,scrollbars=yes,resizable=yes');
 }
 
 function renderAdCard(ad) {
