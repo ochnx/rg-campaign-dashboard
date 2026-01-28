@@ -2177,12 +2177,10 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 18px;
-      cursor: pointer;
       transition: all var(--transition);
     }
     .comp-brand-overview-card:hover {
       border-color: var(--accent);
-      transform: translateY(-2px);
       box-shadow: var(--shadow);
     }
     .comp-brand-overview-card .brand-name {
@@ -2217,6 +2215,176 @@
       flex-wrap: wrap;
       gap: 4px;
       margin-top: 10px;
+    }
+
+    /* Standort Drill-Down */
+    .comp-brand-overview-card {
+      cursor: default;
+    }
+    .comp-brand-overview-card .brand-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .comp-brand-overview-card .brand-card-header:hover {
+      opacity: 0.8;
+    }
+    .comp-brand-overview-card .brand-chevron {
+      font-size: 12px;
+      color: var(--text-muted);
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .comp-brand-overview-card .brand-chevron.expanded {
+      transform: rotate(90deg);
+    }
+    .comp-brand-overview-card .brand-standort-count {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .comp-brand-standort-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+      opacity: 0;
+    }
+    .comp-brand-standort-list.expanded {
+      max-height: 2000px;
+      opacity: 1;
+    }
+    .comp-brand-standort-list .standort-list-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 12px;
+    }
+    @media (max-width: 900px) {
+      .comp-brand-standort-list .standort-list-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .comp-brand-standort-list .standort-list-inner { grid-template-columns: 1fr; }
+    }
+    .standort-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 12px;
+    }
+    .standort-item:hover {
+      border-color: var(--accent);
+      background: rgba(231, 53, 46, 0.04);
+    }
+    .standort-item.active {
+      border-color: var(--accent);
+      background: rgba(231, 53, 46, 0.08);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .standort-item .standort-name {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .standort-item .standort-stats {
+      display: flex;
+      gap: 8px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .standort-item .standort-stats .s-active {
+      color: var(--green);
+      font-weight: 600;
+    }
+    .standort-alle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      border: 1px dashed var(--border);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .standort-alle-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Breadcrumbs */
+    .comp-breadcrumb {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .comp-breadcrumb.visible {
+      display: flex;
+    }
+    .comp-breadcrumb .bc-item {
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color var(--transition);
+      font-weight: 500;
+    }
+    .comp-breadcrumb .bc-item:hover {
+      color: var(--accent);
+    }
+    .comp-breadcrumb .bc-sep {
+      color: var(--border);
+      font-size: 11px;
+    }
+    .comp-breadcrumb .bc-current {
+      color: var(--text-primary);
+      font-weight: 700;
+      cursor: default;
+    }
+
+    /* Standort Filter Chip */
+    .comp-filter-chip {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(231, 53, 46, 0.08);
+      border: 1px solid rgba(231, 53, 46, 0.2);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .comp-filter-chip.visible {
+      display: inline-flex;
+    }
+    .comp-filter-chip .chip-close {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      opacity: 0.7;
+      transition: opacity var(--transition);
+    }
+    .comp-filter-chip .chip-close:hover {
+      opacity: 1;
     }
 
     /* Ad Preview — opens in popup window (no iframe needed) */
@@ -3667,6 +3835,12 @@
       <!-- Ad Feed Section -->
       <div>
         <h2 style="font-size:18px;font-weight:800;margin-bottom:16px;">📰 Ad Feed</h2>
+
+        <!-- Breadcrumb -->
+        <div class="comp-breadcrumb" id="comp-breadcrumb"></div>
+
+        <!-- Standort Filter Chip -->
+        <div class="comp-filter-chip" id="comp-filter-chip"></div>
 
         <!-- Filter Bar -->
         <div class="filter-bar" id="comp-filter-bar">
@@ -7438,6 +7612,9 @@ let competitorWatchlist = [];
 let competitorAds = [];
 let competitorAlerts = [];
 let competitorViewLoaded = false;
+var _selectedStandort = null; // page_name filter
+var _selectedBrandIdForDrilldown = null; // brand watchlist_id for breadcrumb
+var _expandedBrandIds = {}; // { watchlistId: true/false }
 
 async function loadCompetitorView() {
   // Load token from localStorage
@@ -7867,7 +8044,25 @@ function applyCompetitorFilters() {
   var filterStatus = document.getElementById('comp-filter-status').value;
   var sortBy = document.getElementById('comp-sort').value;
 
+  // Track brand selection for breadcrumbs
+  if (filterBrand && filterBrand !== _selectedBrandIdForDrilldown) {
+    _selectedBrandIdForDrilldown = filterBrand;
+    _selectedStandort = null;
+    renderBreadcrumbs();
+    renderStandortFilterChip();
+  } else if (!filterBrand && _selectedBrandIdForDrilldown) {
+    _selectedBrandIdForDrilldown = null;
+    _selectedStandort = null;
+    renderBreadcrumbs();
+    renderStandortFilterChip();
+  }
+
   var filtered = renderAdFeed(competitorAds, filterBrand, filterStatus, sortBy);
+
+  // Apply standort sub-filter
+  if (_selectedStandort) {
+    filtered = filtered.filter(function(a) { return a.page_name === _selectedStandort; });
+  }
 
   var emptyEl = document.getElementById('comp-ads-empty');
   var gridEl = document.getElementById('comp-ads-grid');
@@ -7883,9 +8078,18 @@ function applyCompetitorFilters() {
 }
 
 function updateCompetitorStats() {
-  var total = competitorAds.length;
-  var active = competitorAds.filter(function(a) { return a.is_active; }).length;
-  var daysArr = competitorAds.map(function(a) { return a.days_running || calcDaysRunning(a); });
+  var adsPool = competitorAds;
+
+  // Apply standort/brand filter to stats
+  if (_selectedStandort) {
+    adsPool = adsPool.filter(function(a) { return a.page_name === _selectedStandort; });
+  } else if (_selectedBrandIdForDrilldown) {
+    adsPool = adsPool.filter(function(a) { return a.watchlist_id === _selectedBrandIdForDrilldown; });
+  }
+
+  var total = adsPool.length;
+  var active = adsPool.filter(function(a) { return a.is_active; }).length;
+  var daysArr = adsPool.map(function(a) { return a.days_running || calcDaysRunning(a); });
   var avgDays = daysArr.length > 0 ? Math.round(daysArr.reduce(function(s, d) { return s + d; }, 0) / daysArr.length) : 0;
   var longest = daysArr.length > 0 ? Math.max.apply(null, daysArr) : 0;
 
@@ -8108,7 +8312,7 @@ function scrollToAdInFeed(adId) {
   }, 100);
 }
 
-// --- Brand Overview ---
+// --- Brand Overview with Standort Drill-Down ---
 function renderBrandOverviewCards() {
   var container = document.getElementById('comp-brand-overview-content');
   if (competitorWatchlist.length === 0 || competitorAds.length === 0) {
@@ -8124,6 +8328,11 @@ function renderBrandOverviewCards() {
     var avgDays = daysArr.length > 0 ? Math.round(daysArr.reduce(function(s,d) { return s + d; }, 0) / daysArr.length) : 0;
     var longestDays = daysArr.length > 0 ? Math.max.apply(null, daysArr) : 0;
 
+    // Unique standorte count
+    var standortSet = {};
+    brandAds.forEach(function(a) { if (a.page_name) standortSet[a.page_name] = true; });
+    var standortCount = Object.keys(standortSet).length;
+
     // Platforms used
     var platformSet = {};
     brandAds.forEach(function(a) {
@@ -8138,8 +8347,48 @@ function renderBrandOverviewCards() {
     var dates = brandAds.filter(function(a) { return a.ad_delivery_start_time; }).map(function(a) { return new Date(a.ad_delivery_start_time); });
     var newestDate = dates.length > 0 ? new Date(Math.max.apply(null, dates)).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
 
-    return '<div class="comp-brand-overview-card" onclick="filterFeedByBrand(\'' + w.id + '\')">' +
-      '<div class="brand-name">' + escHtml(w.brand || w.page_name) + '</div>' +
+    var isExpanded = !!_expandedBrandIds[w.id];
+    var chevronClass = isExpanded ? ' expanded' : '';
+    var listClass = isExpanded ? ' expanded' : '';
+
+    // Build standort list
+    var standorteData = [];
+    Object.keys(standortSet).forEach(function(pn) {
+      var sAds = brandAds.filter(function(a) { return a.page_name === pn; });
+      var sActive = sAds.filter(function(a) { return a.is_active; }).length;
+      var sTotal = sAds.length;
+      var sDays = sAds.map(function(a) { return calcDaysRunning(a); });
+      var sLongest = sDays.length > 0 ? Math.max.apply(null, sDays) : 0;
+      standorteData.push({ name: pn, active: sActive, total: sTotal, longest: sLongest });
+    });
+    standorteData.sort(function(a, b) { return b.active - a.active; });
+
+    var standortListHtml = '<div class="comp-brand-standort-list' + listClass + '" id="standort-list-' + w.id + '">' +
+      '<div class="standort-list-inner">' +
+        '<div class="standort-alle-btn" onclick="event.stopPropagation();clearStandortFilter(\'' + w.id + '\')">⟳ Alle anzeigen</div>' +
+        standorteData.map(function(s) {
+          var isActiveStandort = _selectedStandort === s.name ? ' active' : '';
+          var encodedName = encodeURIComponent(s.name);
+          return '<div class="standort-item' + isActiveStandort + '" onclick="event.stopPropagation();filterByStandortEncoded(\'' + encodedName + '\',\'' + w.id + '\')" title="' + escHtml(s.name) + '">' +
+            '<div class="standort-name">' + escHtml(s.name) + '</div>' +
+            '<div class="standort-stats">' +
+              '<span class="s-active">' + s.active + ' aktiv</span>' +
+              '<span>' + s.total + ' ges.</span>' +
+              '<span>⏱ ' + s.longest + ' T</span>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+
+    return '<div class="comp-brand-overview-card">' +
+      '<div class="brand-card-header" onclick="toggleBrandStandorte(\'' + w.id + '\')">' +
+        '<div>' +
+          '<div class="brand-name">' + escHtml(w.brand || w.page_name) + '</div>' +
+          '<div class="brand-standort-count">📍 ' + standortCount + ' Standort' + (standortCount !== 1 ? 'e' : '') + '</div>' +
+        '</div>' +
+        '<span class="brand-chevron' + chevronClass + '">▶</span>' +
+      '</div>' +
       '<div class="brand-stats-grid">' +
         '<div class="brand-stat-item"><div class="brand-stat-label">Aktive Ads</div><div class="brand-stat-val" style="color:var(--green);">' + activeAds.length + '</div></div>' +
         '<div class="brand-stat-item"><div class="brand-stat-label">Gesamt</div><div class="brand-stat-val">' + totalAds + '</div></div>' +
@@ -8148,17 +8397,128 @@ function renderBrandOverviewCards() {
         '<div class="brand-stat-item"><div class="brand-stat-label">Neueste Ad</div><div class="brand-stat-val" style="font-size:12px;">' + newestDate + '</div></div>' +
       '</div>' +
       '<div class="brand-platforms">' + platformBadges + '</div>' +
+      standortListHtml +
     '</div>';
   }).join('');
 
   container.innerHTML = html || '<div class="empty-state" style="padding:40px;grid-column:1/-1;"><div class="empty-state-desc">Keine aktiven Brands</div></div>';
 }
 
+function toggleBrandStandorte(brandId) {
+  _expandedBrandIds[brandId] = !_expandedBrandIds[brandId];
+  var listEl = document.getElementById('standort-list-' + brandId);
+  if (!listEl) return;
+  // Find the chevron in the same card
+  var card = listEl.closest('.comp-brand-overview-card');
+  var chevron = card ? card.querySelector('.brand-chevron') : null;
+  if (_expandedBrandIds[brandId]) {
+    listEl.classList.add('expanded');
+    if (chevron) chevron.classList.add('expanded');
+  } else {
+    listEl.classList.remove('expanded');
+    if (chevron) chevron.classList.remove('expanded');
+  }
+}
+
+function filterByStandortEncoded(encodedName, brandId) {
+  filterByStandort(decodeURIComponent(encodedName), brandId);
+}
+
+function filterByStandort(pageName, brandId) {
+  _selectedStandort = pageName;
+  _selectedBrandIdForDrilldown = brandId;
+  // Set the brand dropdown to match
+  document.getElementById('comp-filter-brand').value = brandId;
+  applyCompetitorFilters();
+  updateCompetitorStats();
+  renderBreadcrumbs();
+  renderStandortFilterChip();
+  // Re-render brand overview to show active highlight
+  renderBrandOverviewCards();
+  document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearStandortFilter(brandId) {
+  _selectedStandort = null;
+  if (brandId) {
+    _selectedBrandIdForDrilldown = brandId;
+    document.getElementById('comp-filter-brand').value = brandId;
+  } else {
+    _selectedBrandIdForDrilldown = null;
+    document.getElementById('comp-filter-brand').value = '';
+  }
+  applyCompetitorFilters();
+  updateCompetitorStats();
+  renderBreadcrumbs();
+  renderStandortFilterChip();
+  renderBrandOverviewCards();
+  document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearAllDrilldown() {
+  _selectedStandort = null;
+  _selectedBrandIdForDrilldown = null;
+  document.getElementById('comp-filter-brand').value = '';
+  document.getElementById('comp-filter-status').value = '';
+  document.getElementById('comp-sort').value = 'newest';
+  applyCompetitorFilters();
+  updateCompetitorStats();
+  renderBreadcrumbs();
+  renderStandortFilterChip();
+  renderBrandOverviewCards();
+}
+
+function renderBreadcrumbs() {
+  var el = document.getElementById('comp-breadcrumb');
+  if (!el) return;
+  if (!_selectedBrandIdForDrilldown && !_selectedStandort) {
+    el.classList.remove('visible');
+    el.innerHTML = '';
+    return;
+  }
+  el.classList.add('visible');
+  var parts = [];
+  parts.push('<span class="bc-item" onclick="clearAllDrilldown()">Alle Brands</span>');
+
+  if (_selectedBrandIdForDrilldown) {
+    var w = competitorWatchlist.find(function(x) { return x.id === _selectedBrandIdForDrilldown; });
+    var brandLabel = w ? (w.brand || w.page_name) : '–';
+    if (_selectedStandort) {
+      parts.push('<span class="bc-sep">›</span>');
+      parts.push('<span class="bc-item" onclick="clearStandortFilter(\'' + _selectedBrandIdForDrilldown + '\')">' + escHtml(brandLabel) + '</span>');
+      parts.push('<span class="bc-sep">›</span>');
+      parts.push('<span class="bc-current">' + escHtml(_selectedStandort) + '</span>');
+    } else {
+      parts.push('<span class="bc-sep">›</span>');
+      parts.push('<span class="bc-current">' + escHtml(brandLabel) + '</span>');
+    }
+  }
+  el.innerHTML = parts.join('');
+}
+
+function renderStandortFilterChip() {
+  var el = document.getElementById('comp-filter-chip');
+  if (!el) return;
+  if (!_selectedStandort) {
+    el.classList.remove('visible');
+    el.innerHTML = '';
+    return;
+  }
+  el.classList.add('visible');
+  el.innerHTML = '🏢 ' + escHtml(_selectedStandort) + ' <span class="chip-close" onclick="clearStandortFilter(\'' + (_selectedBrandIdForDrilldown || '') + '\')">&times;</span>';
+}
+
 function filterFeedByBrand(watchlistId) {
+  _selectedStandort = null;
+  _selectedBrandIdForDrilldown = watchlistId;
   document.getElementById('comp-filter-brand').value = watchlistId;
   document.getElementById('comp-filter-status').value = '';
   document.getElementById('comp-sort').value = 'newest';
   applyCompetitorFilters();
+  updateCompetitorStats();
+  renderBreadcrumbs();
+  renderStandortFilterChip();
+  renderBrandOverviewCards();
   document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
