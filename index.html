@@ -2067,6 +2067,308 @@
       .comp-ads-grid { grid-template-columns: 1fr; }
     }
 
+    /* Clickable KPI cards for competitor */
+    .kpi-card.clickable {
+      cursor: pointer;
+      user-select: none;
+    }
+    .kpi-card.clickable:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Flash highlight animation */
+    @keyframes flashHighlight {
+      0% { box-shadow: 0 0 0 0 rgba(231,53,46,0.6); }
+      25% { box-shadow: 0 0 20px 4px rgba(231,53,46,0.4); border-color: var(--accent); }
+      50% { box-shadow: 0 0 10px 2px rgba(231,53,46,0.2); }
+      75% { box-shadow: 0 0 20px 4px rgba(231,53,46,0.4); border-color: var(--accent); }
+      100% { box-shadow: none; border-color: var(--border); }
+    }
+    .comp-ad-card.flash-highlight {
+      animation: flashHighlight 1.5s ease;
+    }
+
+    /* Collapsible section */
+    .comp-collapsible-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      margin-bottom: 16px;
+    }
+    .comp-collapsible-header h2 {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0;
+    }
+    .comp-collapsible-chevron {
+      font-size: 14px;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+    .comp-collapsible-body.collapsed {
+      display: none;
+    }
+
+    /* Longevity Leaderboard */
+    .comp-leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .comp-leaderboard-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-input);
+    }
+    .comp-leaderboard-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .comp-leaderboard-table tbody tr {
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .comp-leaderboard-table tbody tr:hover {
+      background: var(--bg-card-hover);
+    }
+    .comp-leaderboard-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .comp-leaderboard-rank {
+      font-weight: 800;
+      font-size: 15px;
+      min-width: 32px;
+      text-align: center;
+    }
+    .comp-leaderboard-text {
+      max-width: 250px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Brand Overview Cards */
+    .comp-brand-overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .comp-brand-overview-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .comp-brand-overview-grid { grid-template-columns: 1fr; }
+    }
+    .comp-brand-overview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .comp-brand-overview-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .comp-brand-overview-card .brand-name {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .comp-brand-overview-card .brand-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .comp-brand-overview-card .brand-stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .comp-brand-overview-card .brand-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+    .comp-brand-overview-card .brand-stat-val {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .comp-brand-overview-card .brand-platforms {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 10px;
+    }
+
+    /* Ad Preview Embed */
+    .comp-ad-preview-container {
+      margin-top: 12px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .comp-ad-preview-container iframe {
+      width: 100%;
+      height: 400px;
+      border: none;
+      display: block;
+    }
+    .comp-ad-preview-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: background var(--transition);
+    }
+    .comp-ad-preview-close:hover {
+      background: rgba(231,53,46,0.8);
+    }
+
+    /* Improved alert type colors */
+    .comp-alert-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .comp-alert-item:last-child { border-bottom: none; }
+    .comp-alert-icon { font-size: 16px; flex-shrink: 0; }
+    .comp-alert-new { color: var(--green); }
+    .comp-alert-removed { color: var(--orange); }
+    .comp-alert-long-running { color: var(--red); }
+    .comp-alert-burst { color: var(--blue); }
+
+    /* Trend section */
+    .comp-trend-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .comp-trend-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .comp-trend-list li:last-child { border-bottom: none; }
+    .comp-trend-count {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .comp-trend-sublabel {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Better Ad Cards */
+    .comp-ad-body-full {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .comp-ad-body-toggle {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      margin-left: 4px;
+    }
+    .comp-ad-body-toggle:hover {
+      text-decoration: underline;
+    }
+    .comp-ad-link-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+    .comp-ad-link-meta .link-title {
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .comp-ad-copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      transition: all var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .comp-ad-copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .comp-ad-preview-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .comp-ad-preview-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(231,53,46,0.04);
+    }
+
+    /* Trends grid responsive */
+    @media (max-width: 900px) {
+      #comp-trends-content > div {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
     /* ============================================ */
     /* HOME PAGE / HUB                              */
     /* ============================================ */
@@ -3280,11 +3582,11 @@
       </div>
 
       <!-- Alert Banner -->
-      <div id="comp-alert-banner" style="display:none;" class="setup-banner" style="border-color:rgba(245,158,11,0.3);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.05));">
+      <div id="comp-alert-banner" class="setup-banner" style="display:none;border-color:rgba(245,158,11,0.3);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.05));">
         <div class="setup-banner-icon">🔔</div>
         <div class="setup-banner-content" style="flex:1;">
           <h3 id="comp-alert-title">Neue Alerts</h3>
-          <p id="comp-alert-text"></p>
+          <div id="comp-alert-text"></div>
         </div>
         <button class="btn btn-ghost btn-sm" onclick="markAlertsRead()">✓ Gelesen</button>
       </div>
@@ -3318,27 +3620,66 @@
 
       <!-- Stats Bar -->
       <div class="kpi-grid" id="comp-stats">
-        <div class="kpi-card">
+        <div class="kpi-card clickable" onclick="onCompStatClick('brands')" title="Beobachtete Brands">
           <div class="kpi-label">Beobachtete Brands</div>
           <div class="kpi-value" id="comp-stat-brands">0</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card clickable" onclick="onCompStatClick('total')" title="Erfasste Ads">
           <div class="kpi-label">Erfasste Ads</div>
           <div class="kpi-value" id="comp-stat-total">0</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card clickable" onclick="onCompStatClick('active')" title="Aktive Ads filtern">
           <div class="kpi-label">Aktive Ads</div>
           <div class="kpi-value" id="comp-stat-active" style="color:var(--green);">0</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card clickable" onclick="onCompStatClick('avg-days')" title="Nach Laufzeit sortieren">
           <div class="kpi-label">Ø Laufzeit</div>
           <div class="kpi-value" id="comp-stat-avg-days">–</div>
           <div style="font-size:11px;color:var(--text-muted);">Tage</div>
         </div>
-        <div class="kpi-card">
+        <div class="kpi-card clickable" onclick="onCompStatClick('longest')" title="Zur längsten Ad scrollen">
           <div class="kpi-label">Längste Ad</div>
           <div class="kpi-value" id="comp-stat-longest" style="color:var(--orange);">–</div>
           <div style="font-size:11px;color:var(--text-muted);">Tage</div>
+        </div>
+      </div>
+
+      <!-- Longevity Leaderboard -->
+      <div style="margin-bottom:32px;" id="comp-leaderboard-section">
+        <div class="comp-collapsible-header" onclick="toggleCollapsible('leaderboard')">
+          <h2>🏆 Longevity Leaderboard</h2>
+          <span class="comp-collapsible-chevron" id="comp-leaderboard-chevron">▼</span>
+        </div>
+        <div class="comp-collapsible-body" id="comp-leaderboard-body">
+          <div class="card">
+            <div class="card-body" style="padding:0;overflow-x:auto;" id="comp-leaderboard-content">
+              <div class="empty-state" style="padding:40px;">
+                <div class="empty-state-desc">Keine Ads vorhanden</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brand Overview -->
+      <div style="margin-bottom:32px;" id="comp-brand-overview-section">
+        <div class="comp-collapsible-header" onclick="toggleCollapsible('brand-overview')">
+          <h2>📊 Brand Overview</h2>
+          <span class="comp-collapsible-chevron" id="comp-brand-overview-chevron">▼</span>
+        </div>
+        <div class="comp-collapsible-body" id="comp-brand-overview-body">
+          <div id="comp-brand-overview-content" class="comp-brand-overview-grid"></div>
+        </div>
+      </div>
+
+      <!-- Trends -->
+      <div style="margin-bottom:32px;" id="comp-trends-section">
+        <div class="comp-collapsible-header" onclick="toggleCollapsible('trends')">
+          <h2>📈 Trends</h2>
+          <span class="comp-collapsible-chevron" id="comp-trends-chevron">▼</span>
+        </div>
+        <div class="comp-collapsible-body" id="comp-trends-body">
+          <div id="comp-trends-content"></div>
         </div>
       </div>
 
@@ -7144,6 +7485,10 @@ async function loadCompetitorView() {
     competitorViewLoaded = true;
   }
   await Promise.all([loadWatchlist(), loadCompetitorAds(), loadAlerts()]);
+  // Render new sections after data is loaded
+  renderLeaderboard();
+  renderBrandOverviewCards();
+  renderTrends();
 }
 
 // --- Watchlist CRUD ---
@@ -7338,28 +7683,110 @@ async function loadCompetitorAds(watchlistId) {
   loadingEl.style.display = 'none';
   applyCompetitorFilters();
   updateCompetitorStats();
+  // Re-render new sections
+  renderLeaderboard();
+  renderBrandOverviewCards();
+  renderTrends();
 }
 
 function calcDaysRunning(ad) {
   if (!ad.ad_delivery_start_time) return 0;
   var start = new Date(ad.ad_delivery_start_time);
   var end = ad.ad_delivery_stop_time ? new Date(ad.ad_delivery_stop_time) : new Date();
-  var days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
-  return days;
+  return Math.max(1, Math.ceil((end - start) / 86400000));
+}
+
+// Unique ID for ad cards
+var _adCardIdCounter = 0;
+var _currentPreviewAdId = null;
+
+function platformBadgeColor(p) {
+  switch(p) {
+    case 'FACEBOOK': return 'background:rgba(37,99,235,0.08);color:var(--blue);border-color:rgba(37,99,235,0.2);';
+    case 'INSTAGRAM': return 'background:rgba(231,53,46,0.08);color:var(--accent);border-color:rgba(231,53,46,0.2);';
+    case 'MESSENGER': return 'background:rgba(8,145,178,0.08);color:var(--cyan);border-color:rgba(8,145,178,0.2);';
+    case 'AUDIENCE_NETWORK': return 'background:rgba(202,138,4,0.08);color:var(--gold);border-color:rgba(202,138,4,0.2);';
+    default: return '';
+  }
+}
+
+function toggleAdBodyExpand(id) {
+  var el = document.getElementById('ad-body-' + id);
+  var btn = document.getElementById('ad-body-toggle-' + id);
+  if (!el || !btn) return;
+  if (el.dataset.expanded === 'true') {
+    el.textContent = el.dataset.short;
+    el.dataset.expanded = 'false';
+    btn.textContent = 'Mehr anzeigen';
+  } else {
+    el.textContent = el.dataset.full;
+    el.dataset.expanded = 'true';
+    btn.textContent = 'Weniger';
+  }
+}
+
+function copyAdText(text) {
+  navigator.clipboard.writeText(text).then(function() {
+    showToast('Text kopiert 📋', 'success');
+  }).catch(function() {
+    showToast('Kopieren fehlgeschlagen', 'error');
+  });
+}
+
+function copyAdTextFromEl(btn) {
+  var text = btn.getAttribute('data-copy-text') || '';
+  copyAdText(text);
+}
+
+function openAdPreview(adId) {
+  // Close previous preview
+  if (_currentPreviewAdId && _currentPreviewAdId !== adId) {
+    var prev = document.getElementById('ad-preview-' + _currentPreviewAdId);
+    if (prev) prev.remove();
+  }
+  var existing = document.getElementById('ad-preview-' + adId);
+  if (existing) {
+    existing.remove();
+    _currentPreviewAdId = null;
+    return;
+  }
+  var card = document.getElementById('ad-card-' + adId);
+  if (!card) return;
+  var url = card.dataset.snapshotUrl;
+  if (!url) { showToast('Keine Preview-URL verfügbar', 'error'); return; }
+  var token = localStorage.getItem('meta_ad_library_token');
+  if (token) {
+    url += (url.indexOf('?') >= 0 ? '&' : '?') + 'access_token=' + encodeURIComponent(token);
+  }
+  var container = document.createElement('div');
+  container.id = 'ad-preview-' + adId;
+  container.className = 'comp-ad-preview-container';
+  container.innerHTML = '<button class="comp-ad-preview-close" onclick="closeAdPreview(\'' + adId + '\')">✕</button>' +
+    '<iframe src="' + escHtml(url) + '" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>';
+  card.appendChild(container);
+  _currentPreviewAdId = adId;
+}
+
+function closeAdPreview(adId) {
+  var el = document.getElementById('ad-preview-' + adId);
+  if (el) el.remove();
+  if (_currentPreviewAdId === adId) _currentPreviewAdId = null;
 }
 
 function renderAdCard(ad) {
+  var cardId = 'ac-' + (++_adCardIdCounter);
   var brand = ad.page_name || '–';
-  var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : 'Kein Anzeigentext verfügbar';
-  var days = ad.days_running || calcDaysRunning(ad);
+  var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : '';
+  var days = calcDaysRunning(ad);
   var isActive = ad.is_active;
   var platforms = ad.publisher_platforms || [];
-  var startDate = ad.ad_delivery_start_time ? new Date(ad.ad_delivery_start_time).toLocaleDateString('de-DE') : '–';
+  var startDate = ad.ad_delivery_start_time ? new Date(ad.ad_delivery_start_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
 
   // Days badge color
   var daysClass = 'comp-days-green';
   if (days >= 90) daysClass = 'comp-days-red';
   else if (days >= 30) daysClass = 'comp-days-orange';
+  var daysEmoji = days >= 90 ? ' 🔥' : '';
 
   // Top performer badge
   var topPerformer = days >= 60 ? '<span class="comp-top-performer">🔥 Top Performer</span>' : '';
@@ -7369,37 +7796,68 @@ function renderAdCard(ad) {
     ? '<span class="badge badge-active"><span class="badge-dot"></span>Aktiv</span>'
     : '<span class="badge badge-completed"><span class="badge-dot"></span>Gestoppt</span>';
 
-  // Platform badges
+  // Platform badges with colors
   var platformsHtml = platforms.map(function(p) {
     var label = p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'MESSENGER' ? 'MSG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p;
-    return '<span class="comp-platform-badge">' + escHtml(label) + '</span>';
+    return '<span class="comp-platform-badge" style="' + platformBadgeColor(p) + '">' + escHtml(label) + '</span>';
   }).join('');
+
+  // Body text with expand/collapse
+  var bodyHtml = '';
+  if (bodyText) {
+    if (bodyText.length > 150) {
+      var shortText = bodyText.substring(0, 150) + '…';
+      bodyHtml = '<div class="comp-ad-body-full">' +
+        '<span id="ad-body-' + cardId + '" data-short="' + escHtml(shortText) + '" data-full="' + escHtml(bodyText) + '" data-expanded="false">' + escHtml(shortText) + '</span>' +
+        '<span class="comp-ad-body-toggle" id="ad-body-toggle-' + cardId + '" onclick="toggleAdBodyExpand(\'' + cardId + '\')">Mehr anzeigen</span>' +
+      '</div>';
+    } else {
+      bodyHtml = '<div class="comp-ad-body-full">' + escHtml(bodyText) + '</div>';
+    }
+  } else {
+    bodyHtml = '<div class="comp-ad-body-full" style="color:var(--text-muted);font-style:italic;">Kein Anzeigentext verfügbar</div>';
+  }
+
+  // Link title & description
+  var linkMetaHtml = '';
+  var linkTitle = (ad.ad_creative_link_titles && ad.ad_creative_link_titles.length > 0) ? ad.ad_creative_link_titles[0] : '';
+  var linkDesc = (ad.ad_creative_link_descriptions && ad.ad_creative_link_descriptions.length > 0) ? ad.ad_creative_link_descriptions[0] : '';
+  if (linkTitle) {
+    linkMetaHtml += '<div class="comp-ad-link-meta"><span class="link-title">' + escHtml(linkTitle) + '</span>';
+    if (linkDesc) linkMetaHtml += '<br>' + escHtml(linkDesc);
+    linkMetaHtml += '</div>';
+  }
+
+  // Copy button — use data attribute to avoid escaping issues
+  var copyBtnHtml = bodyText ? '<button class="comp-ad-copy-btn" data-copy-text="' + escHtml(bodyText) + '" onclick="copyAdTextFromEl(this)" title="Text kopieren">📋 Kopieren</button>' : '';
+
+  // Preview button
+  var previewBtnHtml = ad.ad_snapshot_url
+    ? '<button class="comp-ad-preview-btn" onclick="openAdPreview(\'' + cardId + '\')" title="Vorschau öffnen">👁 Preview</button>'
+    : '';
 
   // Link
   var linkHtml = ad.ad_snapshot_url
     ? '<a href="' + escHtml(ad.ad_snapshot_url) + '" target="_blank" rel="noopener" class="comp-ad-link">↗ Ad ansehen</a>'
     : '';
 
-  // Link title
-  var titleHtml = '';
-  if (ad.ad_creative_link_titles && ad.ad_creative_link_titles.length > 0 && ad.ad_creative_link_titles[0]) {
-    titleHtml = '<div style="font-size:13px;font-weight:600;color:var(--text-primary);">' + escHtml(ad.ad_creative_link_titles[0]) + '</div>';
-  }
+  // Days display with start date
+  var daysDisplay = days + ' Tage' + daysEmoji + ' (seit ' + startDate + ')';
 
-  return '<div class="comp-ad-card">' +
+  return '<div class="comp-ad-card" id="ad-card-' + cardId + '" data-ad-id="' + (ad.id || '') + '" data-snapshot-url="' + escHtml(ad.ad_snapshot_url || '') + '">' +
     '<div class="comp-ad-top">' +
       '<span class="comp-ad-brand-tag">' + escHtml(brand) + '</span>' +
       '<div class="comp-ad-status">' + statusHtml + '</div>' +
     '</div>' +
-    titleHtml +
-    '<div class="comp-ad-body">' + escHtml(bodyText) + '</div>' +
+    bodyHtml +
+    linkMetaHtml +
     '<div class="comp-ad-meta">' +
       platformsHtml +
-      '<span class="comp-days-badge ' + daysClass + '">' + days + ' Tage</span>' +
+      '<span class="comp-days-badge ' + daysClass + '">' + daysDisplay + '</span>' +
       topPerformer +
     '</div>' +
     '<div class="comp-ad-footer">' +
-      '<span>Start: ' + startDate + '</span>' +
+      '<div style="display:flex;gap:6px;align-items:center;">' + copyBtnHtml + previewBtnHtml + '</div>' +
       linkHtml +
     '</div>' +
   '</div>';
@@ -7501,6 +7959,16 @@ async function loadAlerts() {
   renderAlertBanner(competitorAlerts);
 }
 
+function getAlertTypeInfo(alertType) {
+  switch (alertType) {
+    case 'new_ad': return { icon: '🆕', cls: 'comp-alert-new', label: 'Neue Ad' };
+    case 'removed_ad': return { icon: '⏹️', cls: 'comp-alert-removed', label: 'Gestoppt' };
+    case 'long_running': return { icon: '🔥', cls: 'comp-alert-long-running', label: 'Top Performer gestoppt' };
+    case 'burst': return { icon: '📢', cls: 'comp-alert-burst', label: 'Burst' };
+    default: return { icon: '🔔', cls: '', label: alertType || 'Alert' };
+  }
+}
+
 function renderAlertBanner(alerts) {
   var banner = document.getElementById('comp-alert-banner');
   if (!alerts || alerts.length === 0) {
@@ -7509,21 +7977,321 @@ function renderAlertBanner(alerts) {
   }
   banner.style.display = 'flex';
   document.getElementById('comp-alert-title').textContent = alerts.length + ' neue Alert' + (alerts.length > 1 ? 's' : '');
-  var messages = alerts.slice(0, 3).map(function(a) { return a.message || a.alert_type; });
-  document.getElementById('comp-alert-text').textContent = messages.join(' • ') + (alerts.length > 3 ? ' …' : '');
+
+  // Render detailed alert items
+  var html = alerts.slice(0, 5).map(function(a) {
+    var info = getAlertTypeInfo(a.alert_type);
+    var msg = a.message || info.label;
+    return '<div class="comp-alert-item"><span class="comp-alert-icon ' + info.cls + '">' + info.icon + '</span><span>' + escHtml(msg) + '</span></div>';
+  }).join('');
+  if (alerts.length > 5) {
+    html += '<div style="font-size:12px;color:var(--text-muted);padding-top:6px;">… und ' + (alerts.length - 5) + ' weitere</div>';
+  }
+  document.getElementById('comp-alert-text').innerHTML = html;
 }
 
 async function markAlertsRead() {
+  var banner = document.getElementById('comp-alert-banner');
   try {
-    for (var i = 0; i < competitorAlerts.length; i++) {
-      await sbPatch('competitor_alerts', competitorAlerts[i].id, { is_read: true });
+    // Bulk update: patch all unread alerts at once
+    var ids = competitorAlerts.map(function(a) { return a.id; });
+    if (ids.length > 0) {
+      // Use Supabase bulk PATCH with in filter
+      var url = SB_URL + '/rest/v1/competitor_alerts?id=in.(' + ids.join(',') + ')';
+      var res = await fetch(url, {
+        method: 'PATCH',
+        headers: SB_HEADERS,
+        body: JSON.stringify({ is_read: true })
+      });
+      if (!res.ok) {
+        // Fallback: individual patches
+        for (var i = 0; i < competitorAlerts.length; i++) {
+          await sbPatch('competitor_alerts', competitorAlerts[i].id, { is_read: true });
+        }
+      }
     }
     competitorAlerts = [];
-    renderAlertBanner([]);
-    showToast('Alerts als gelesen markiert', 'success');
+    banner.style.display = 'none';
+    showToast('Alerts als gelesen markiert ✓', 'success');
   } catch (e) {
-    showToast('Fehler: ' + e.message, 'error');
+    console.error('markAlertsRead Fehler:', e);
+    // Still hide banner on UI even if DB update failed
+    competitorAlerts = [];
+    banner.style.display = 'none';
+    showToast('Alerts ausgeblendet (DB-Update fehlgeschlagen)', 'error');
   }
+}
+
+// --- Collapsible Sections ---
+function toggleCollapsible(sectionName) {
+  var body = document.getElementById('comp-' + sectionName + '-body');
+  var chevron = document.getElementById('comp-' + sectionName + '-chevron');
+  if (!body || !chevron) return;
+  if (body.classList.contains('collapsed')) {
+    body.classList.remove('collapsed');
+    chevron.textContent = '▼';
+  } else {
+    body.classList.add('collapsed');
+    chevron.textContent = '▶';
+  }
+}
+
+// --- Clickable Stats ---
+function onCompStatClick(stat) {
+  switch (stat) {
+    case 'active':
+      // Filter feed to active only
+      document.getElementById('comp-filter-status').value = 'active';
+      applyCompetitorFilters();
+      document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      break;
+    case 'avg-days':
+      // Sort by longest
+      document.getElementById('comp-sort').value = 'longest';
+      applyCompetitorFilters();
+      document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      break;
+    case 'longest':
+      // Find the longest ad and scroll to it
+      scrollToLongestAd();
+      break;
+    case 'brands':
+    case 'total':
+    default:
+      // Scroll to ad feed
+      document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      break;
+  }
+}
+
+function scrollToLongestAd() {
+  if (competitorAds.length === 0) return;
+  // Reset filters to show all
+  document.getElementById('comp-filter-brand').value = '';
+  document.getElementById('comp-filter-status').value = '';
+  document.getElementById('comp-sort').value = 'longest';
+  applyCompetitorFilters();
+  // After rendering, scroll to the first card and flash it
+  setTimeout(function() {
+    var grid = document.getElementById('comp-ads-grid');
+    if (grid && grid.firstElementChild) {
+      grid.firstElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      grid.firstElementChild.classList.add('flash-highlight');
+      setTimeout(function() {
+        grid.firstElementChild.classList.remove('flash-highlight');
+      }, 1600);
+    }
+  }, 100);
+}
+
+// --- Longevity Leaderboard ---
+function renderLeaderboard() {
+  var container = document.getElementById('comp-leaderboard-content');
+  if (competitorAds.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="empty-state-desc">Keine Ads vorhanden</div></div>';
+    return;
+  }
+  // Get top 10 by days running
+  var sorted = competitorAds.slice().map(function(ad) {
+    ad._days = calcDaysRunning(ad);
+    return ad;
+  }).sort(function(a, b) { return b._days - a._days; }).slice(0, 10);
+
+  var html = '<table class="comp-leaderboard-table"><thead><tr>' +
+    '<th>#</th><th>Brand / Seite</th><th>Anzeigentext</th><th>Tage</th><th>Plattform</th><th>Status</th>' +
+    '</tr></thead><tbody>';
+
+  sorted.forEach(function(ad, i) {
+    var rank = i + 1;
+    var rankDisplay = rank <= 3 ? ['🥇','🥈','🥉'][i] : rank + '.';
+    var brand = ad.page_name || '–';
+    var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : '–';
+    if (bodyText.length > 60) bodyText = bodyText.substring(0, 60) + '…';
+    var days = ad._days;
+    var daysClass = days >= 90 ? 'comp-days-red' : days >= 30 ? 'comp-days-orange' : 'comp-days-green';
+    var daysEmoji = days >= 90 ? ' 🔥' : '';
+    var platforms = (ad.publisher_platforms || []).map(function(p) {
+      return p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'MESSENGER' ? 'MSG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p;
+    }).join(', ');
+    var statusBadge = ad.is_active
+      ? '<span class="badge badge-active" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Aktiv</span>'
+      : '<span class="badge badge-completed" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Gestoppt</span>';
+
+    html += '<tr onclick="scrollToAdInFeed(\'' + (ad.id || '') + '\')">' +
+      '<td class="comp-leaderboard-rank">' + rankDisplay + '</td>' +
+      '<td style="font-weight:600;">' + escHtml(brand) + '</td>' +
+      '<td class="comp-leaderboard-text">' + escHtml(bodyText) + '</td>' +
+      '<td><span class="comp-days-badge ' + daysClass + '">' + days + daysEmoji + '</span></td>' +
+      '<td style="font-size:11px;">' + escHtml(platforms || '–') + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+    '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function scrollToAdInFeed(adId) {
+  if (!adId) return;
+  // Reset filters
+  document.getElementById('comp-filter-brand').value = '';
+  document.getElementById('comp-filter-status').value = '';
+  document.getElementById('comp-sort').value = 'newest';
+  applyCompetitorFilters();
+  setTimeout(function() {
+    var cards = document.querySelectorAll('.comp-ad-card[data-ad-id="' + adId + '"]');
+    if (cards.length > 0) {
+      cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      cards[0].classList.add('flash-highlight');
+      setTimeout(function() { cards[0].classList.remove('flash-highlight'); }, 1600);
+    }
+  }, 100);
+}
+
+// --- Brand Overview ---
+function renderBrandOverviewCards() {
+  var container = document.getElementById('comp-brand-overview-content');
+  if (competitorWatchlist.length === 0 || competitorAds.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding:40px;grid-column:1/-1;"><div class="empty-state-desc">Keine Daten vorhanden</div></div>';
+    return;
+  }
+
+  var html = competitorWatchlist.filter(function(w) { return w.is_active; }).map(function(w) {
+    var brandAds = competitorAds.filter(function(a) { return a.watchlist_id === w.id; });
+    var activeAds = brandAds.filter(function(a) { return a.is_active; });
+    var totalAds = brandAds.length;
+    var daysArr = brandAds.map(function(a) { return calcDaysRunning(a); });
+    var avgDays = daysArr.length > 0 ? Math.round(daysArr.reduce(function(s,d) { return s + d; }, 0) / daysArr.length) : 0;
+    var longestDays = daysArr.length > 0 ? Math.max.apply(null, daysArr) : 0;
+
+    // Platforms used
+    var platformSet = {};
+    brandAds.forEach(function(a) {
+      (a.publisher_platforms || []).forEach(function(p) { platformSet[p] = true; });
+    });
+    var platformBadges = Object.keys(platformSet).map(function(p) {
+      var label = p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'MESSENGER' ? 'MSG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p;
+      return '<span class="comp-platform-badge" style="' + platformBadgeColor(p) + '">' + label + '</span>';
+    }).join('');
+
+    // Newest ad date
+    var dates = brandAds.filter(function(a) { return a.ad_delivery_start_time; }).map(function(a) { return new Date(a.ad_delivery_start_time); });
+    var newestDate = dates.length > 0 ? new Date(Math.max.apply(null, dates)).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+
+    return '<div class="comp-brand-overview-card" onclick="filterFeedByBrand(\'' + w.id + '\')">' +
+      '<div class="brand-name">' + escHtml(w.brand || w.page_name) + '</div>' +
+      '<div class="brand-stats-grid">' +
+        '<div class="brand-stat-item"><div class="brand-stat-label">Aktive Ads</div><div class="brand-stat-val" style="color:var(--green);">' + activeAds.length + '</div></div>' +
+        '<div class="brand-stat-item"><div class="brand-stat-label">Gesamt</div><div class="brand-stat-val">' + totalAds + '</div></div>' +
+        '<div class="brand-stat-item"><div class="brand-stat-label">Ø Laufzeit</div><div class="brand-stat-val">' + avgDays + ' T</div></div>' +
+        '<div class="brand-stat-item"><div class="brand-stat-label">Längste</div><div class="brand-stat-val" style="color:var(--orange);">' + longestDays + ' T</div></div>' +
+        '<div class="brand-stat-item"><div class="brand-stat-label">Neueste Ad</div><div class="brand-stat-val" style="font-size:12px;">' + newestDate + '</div></div>' +
+      '</div>' +
+      '<div class="brand-platforms">' + platformBadges + '</div>' +
+    '</div>';
+  }).join('');
+
+  container.innerHTML = html || '<div class="empty-state" style="padding:40px;grid-column:1/-1;"><div class="empty-state-desc">Keine aktiven Brands</div></div>';
+}
+
+function filterFeedByBrand(watchlistId) {
+  document.getElementById('comp-filter-brand').value = watchlistId;
+  document.getElementById('comp-filter-status').value = '';
+  document.getElementById('comp-sort').value = 'newest';
+  applyCompetitorFilters();
+  document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// --- Trends Section ---
+function renderTrends() {
+  var container = document.getElementById('comp-trends-content');
+  if (competitorAds.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="empty-state-desc">Keine Ads vorhanden</div></div>';
+    return;
+  }
+
+  var now = new Date();
+  var sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
+
+  // 1. New ads in last 7 days
+  var newAds = competitorAds.filter(function(a) {
+    if (!a.ad_delivery_start_time) return false;
+    return new Date(a.ad_delivery_start_time) >= sevenDaysAgo;
+  }).sort(function(a, b) {
+    return new Date(b.ad_delivery_start_time) - new Date(a.ad_delivery_start_time);
+  });
+
+  // 2. Recently stopped
+  var recentlyStopped = competitorAds.filter(function(a) {
+    return !a.is_active && a.ad_delivery_stop_time;
+  }).sort(function(a, b) {
+    return new Date(b.ad_delivery_stop_time) - new Date(a.ad_delivery_stop_time);
+  }).slice(0, 5);
+
+  // 3. Longest runner (active)
+  var activeAds = competitorAds.filter(function(a) { return a.is_active; });
+  var longestRunner = null;
+  var longestDays = 0;
+  activeAds.forEach(function(a) {
+    var d = calcDaysRunning(a);
+    if (d > longestDays) { longestDays = d; longestRunner = a; }
+  });
+
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">';
+
+  // New ads
+  html += '<div class="card"><div class="card-body">' +
+    '<div style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:8px;">🆕 Neue Ads (7 Tage)</div>' +
+    '<div class="comp-trend-count">' + newAds.length + '</div>';
+  if (newAds.length > 0) {
+    html += '<ul class="comp-trend-list">';
+    newAds.slice(0, 5).forEach(function(a) {
+      var brand = a.page_name || '–';
+      var date = new Date(a.ad_delivery_start_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit'});
+      html += '<li><span style="color:var(--green);">●</span> ' + escHtml(brand) + ' <span style="color:var(--text-muted);font-size:11px;">(' + date + ')</span></li>';
+    });
+    html += '</ul>';
+    if (newAds.length > 5) html += '<div class="comp-trend-sublabel">… und ' + (newAds.length - 5) + ' weitere</div>';
+  }
+  html += '</div></div>';
+
+  // Recently stopped
+  html += '<div class="card"><div class="card-body">' +
+    '<div style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:8px;">⏹️ Kürzlich gestoppt</div>' +
+    '<div class="comp-trend-count">' + recentlyStopped.length + '</div>';
+  if (recentlyStopped.length > 0) {
+    html += '<ul class="comp-trend-list">';
+    recentlyStopped.forEach(function(a) {
+      var brand = a.page_name || '–';
+      var days = calcDaysRunning(a);
+      html += '<li><span style="color:var(--orange);">●</span> ' + escHtml(brand) + ' <span style="color:var(--text-muted);font-size:11px;">(' + days + ' Tage)</span></li>';
+    });
+    html += '</ul>';
+  } else {
+    html += '<div style="font-size:12px;color:var(--text-muted);">Keine gestoppten Ads</div>';
+  }
+  html += '</div></div>';
+
+  // Longest runner
+  html += '<div class="card"><div class="card-body">' +
+    '<div style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:8px;">🏃 Längster Läufer</div>';
+  if (longestRunner) {
+    var lrBrand = longestRunner.page_name || '–';
+    var lrBody = (longestRunner.ad_creative_bodies && longestRunner.ad_creative_bodies.length > 0) ? longestRunner.ad_creative_bodies[0] : '';
+    if (lrBody.length > 80) lrBody = lrBody.substring(0, 80) + '…';
+    var lrStart = longestRunner.ad_delivery_start_time ? new Date(longestRunner.ad_delivery_start_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+    html += '<div class="comp-trend-count" style="color:var(--orange);">' + longestDays + ' <span style="font-size:14px;font-weight:500;">Tage</span></div>' +
+      '<div style="font-weight:600;font-size:14px;margin-bottom:4px;">' + escHtml(lrBrand) + '</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">' + escHtml(lrBody) + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Seit ' + lrStart + '</div>';
+  } else {
+    html += '<div style="font-size:12px;color:var(--text-muted);">Keine aktiven Ads</div>';
+  }
+  html += '</div></div>';
+
+  html += '</div>'; // close grid
+
+  container.innerHTML = html;
 }
 
 // --- Meta Ad Library API (prepared) ---
@@ -7589,6 +8357,7 @@ async function syncCompetitorAds() {
         var existingAdIds = existingAds.map(function(a) { return a.ad_library_id; });
 
         // Find new ads
+        var newAdsThisBrand = 0;
         for (var j = 0; j < apiAds.length; j++) {
           var apiAd = apiAds[j];
           if (existingAdIds.indexOf(apiAd.id) === -1) {
@@ -7608,13 +8377,15 @@ async function syncCompetitorAds() {
               ad_type: 'HOUSING_ADS',
               is_active: true
             });
-            // Create alert
+            // Create alert with ad text snippet
+            var adSnippet = (apiAd.ad_creative_bodies && apiAd.ad_creative_bodies[0]) ? apiAd.ad_creative_bodies[0].substring(0, 80) : '';
             await sbInsert('competitor_alerts', {
               watchlist_id: w.id,
               alert_type: 'new_ad',
-              message: 'Neue Ad von ' + (apiAd.page_name || w.page_name)
+              message: '🆕 Neue Ad von ' + (apiAd.page_name || w.page_name) + (adSnippet ? ': "' + adSnippet + '…"' : '')
             });
             totalNew++;
+            newAdsThisBrand++;
           } else {
             // Existing ad — update last_seen_at
             var existing = existingAds.find(function(a) { return a.ad_library_id === apiAd.id; });
@@ -7628,19 +8399,35 @@ async function syncCompetitorAds() {
           }
         }
 
+        // Burst detection: 3+ new ads from one brand in one sync
+        if (newAdsThisBrand >= 3) {
+          await sbInsert('competitor_alerts', {
+            watchlist_id: w.id,
+            alert_type: 'burst',
+            message: '📢 ' + (w.brand || w.page_name) + ' hat ' + newAdsThisBrand + ' neue Ads gestartet'
+          });
+        }
+
         // Find removed ads (were active, not in API results anymore)
         for (var k = 0; k < existingAds.length; k++) {
           var ea = existingAds[k];
           if (ea.is_active && apiAdIds.indexOf(ea.ad_library_id) === -1) {
+            var eaDays = calcDaysRunning(ea);
             await sbPatch('competitor_ads', ea.id, {
               is_active: false,
               ad_delivery_stop_time: new Date().toISOString()
             });
+            // Determine alert type: long_running if 30+ days
+            var eaAlertType = eaDays >= 30 ? 'long_running' : 'removed_ad';
+            var eaSnippet = (ea.ad_creative_bodies && ea.ad_creative_bodies[0]) ? ea.ad_creative_bodies[0].substring(0, 60) : '';
+            var eaMsg = eaDays >= 30
+              ? '🔥 Top Performer gestoppt: "' + eaSnippet + '…" von ' + (ea.page_name || w.page_name) + ' nach ' + eaDays + ' Tagen'
+              : '⏹️ Ad gestoppt: "' + eaSnippet + '…" von ' + (ea.page_name || w.page_name) + ' nach ' + eaDays + ' Tagen';
             await sbInsert('competitor_alerts', {
               ad_id: ea.id,
               watchlist_id: w.id,
-              alert_type: 'removed_ad',
-              message: 'Ad entfernt: ' + (ea.page_name || w.page_name)
+              alert_type: eaAlertType,
+              message: eaMsg
             });
             totalRemoved++;
           }
