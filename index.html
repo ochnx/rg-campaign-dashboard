@@ -2788,6 +2788,356 @@
       color: var(--text-primary);
     }
 
+    /* ============================================ */
+    /* APP NAVIGATION - Restructured                */
+    /* ============================================ */
+    .topnav-center {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .nav-item {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition);
+      border: none;
+      background: none;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .nav-item:hover {
+      color: var(--text-primary);
+      background: var(--bg-card);
+    }
+    .nav-item.active {
+      color: var(--accent);
+      background: rgba(231, 53, 46, 0.06);
+    }
+    .nav-item .nav-chevron {
+      font-size: 10px;
+      transition: transform 0.2s ease;
+    }
+    .nav-item.open .nav-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Dropdown menus */
+    .nav-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      min-width: 220px;
+      z-index: 110;
+      padding: 6px;
+    }
+    .nav-dropdown.open {
+      display: block;
+    }
+    .nav-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+    }
+    .nav-dropdown-item:hover {
+      color: var(--text-primary);
+      background: var(--bg-card);
+    }
+    .nav-dropdown-item.active {
+      color: var(--accent);
+      background: rgba(231, 53, 46, 0.06);
+    }
+
+    /* Sub-navigation bar */
+    .sub-nav {
+      display: none;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      height: 44px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      z-index: 99;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .sub-nav.visible {
+      display: flex;
+    }
+    .sub-nav-inner {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 32px;
+      height: 100%;
+    }
+    .sub-nav-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all var(--transition);
+      white-space: nowrap;
+      font-family: inherit;
+      height: 100%;
+    }
+    .sub-nav-tab:hover {
+      color: var(--text-secondary);
+    }
+    .sub-nav-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* Breadcrumbs bar */
+    .app-breadcrumbs {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .app-breadcrumbs.visible {
+      display: flex;
+    }
+    .app-bc-item {
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 500;
+      transition: color var(--transition);
+      text-decoration: none;
+    }
+    .app-bc-item:hover {
+      color: var(--accent);
+    }
+    .app-bc-sep {
+      color: var(--border);
+      font-size: 11px;
+    }
+    .app-bc-current {
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
+    /* Smart Home Page Enhancements */
+    .home-chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .home-chart-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .home-chart-container {
+      position: relative;
+      width: 100%;
+      height: 280px;
+    }
+
+    .home-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 768px) {
+      .home-two-col { grid-template-columns: 1fr; }
+    }
+
+    .home-performer-card,
+    .home-activity-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .home-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .home-performer-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: color var(--transition);
+    }
+    .home-performer-name:hover { color: var(--accent); }
+    .home-performer-detail {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .home-performer-cpl {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .home-activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .home-activity-item:last-child { border-bottom: none; }
+    .home-activity-icon { font-size: 16px; flex-shrink: 0; }
+
+    .home-quick-nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 768px) {
+      .home-quick-nav { grid-template-columns: repeat(2, 1fr); }
+    }
+    .home-quick-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .home-quick-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+    .home-quick-icon { font-size: 22px; }
+
+    /* Adjust main padding when sub-nav visible */
+    .main.has-sub-nav {
+      padding-top: 108px;
+    }
+
+    /* Mobile: App Nav */
+    @media (max-width: 768px) {
+      .topnav-center { display: none; }
+      .topnav-burger { display: flex; }
+      .topnav-actions {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-lg);
+        flex-direction: column;
+        padding: 12px 16px;
+        gap: 4px;
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        z-index: 99;
+      }
+      .topnav-actions.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: all;
+      }
+      .topnav-actions .btn {
+        width: 100%;
+        text-align: left;
+        justify-content: flex-start;
+        padding: 12px 16px;
+        font-size: 15px;
+        border-radius: var(--radius);
+      }
+      .mobile-nav-section {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .mobile-nav-section:last-child { border-bottom: none; }
+      .mobile-nav-section-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        padding: 4px 16px 8px;
+      }
+      .mobile-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+        border-radius: var(--radius);
+        transition: background var(--transition);
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        font-family: inherit;
+      }
+      .mobile-nav-item:hover, .mobile-nav-item.active {
+        background: rgba(231, 53, 46, 0.06);
+        color: var(--accent);
+      }
+      .sub-nav { top: 64px; }
+      .sub-nav-inner { padding: 0 16px; }
+      .main.has-sub-nav { padding-top: 108px; }
+    }
+
   </style>
 </head>
 <body>
@@ -2800,17 +3150,101 @@
       <div class="topnav-title">Campaign Dashboard</div>
     </div>
   </div>
+
+  <!-- Desktop Nav -->
+  <div class="topnav-center">
+    <button class="nav-item" onclick="showView('home')" id="nav-home" title="Home">🏠</button>
+    <div style="position:relative;">
+      <button class="nav-item" id="nav-analytics" onclick="handleNavClick('analytics')" onmouseenter="openNavDropdown('analytics')" onmouseleave="scheduleCloseDropdown('analytics')">
+        📊 Analytics <span class="nav-chevron">▾</span>
+      </button>
+      <div class="nav-dropdown" id="dropdown-analytics" onmouseenter="cancelCloseDropdown('analytics')" onmouseleave="closeNavDropdown('analytics')">
+        <button class="nav-dropdown-item" onclick="showView('analytics','campaigns')">📋 Kampagnen</button>
+        <button class="nav-dropdown-item" onclick="showView('analytics','intelligence')">🎨 Creative Intelligence</button>
+        <button class="nav-dropdown-item" onclick="showView('analytics','data-intel')">📈 Data Intelligence</button>
+        <button class="nav-dropdown-item" onclick="showView('analytics','predictor')">🔮 Prognose</button>
+        <button class="nav-dropdown-item" onclick="showView('analytics','compare')">⚖️ Vergleich</button>
+        <button class="nav-dropdown-item" onclick="showView('analytics','meta-import')">📡 Live-Tracking</button>
+      </div>
+    </div>
+    <div style="position:relative;">
+      <button class="nav-item" id="nav-competitors" onclick="handleNavClick('competitors')" onmouseenter="openNavDropdown('competitors')" onmouseleave="scheduleCloseDropdown('competitors')">
+        🔍 Competitors <span class="nav-chevron">▾</span>
+      </button>
+      <div class="nav-dropdown" id="dropdown-competitors" onmouseenter="cancelCloseDropdown('competitors')" onmouseleave="closeNavDropdown('competitors')">
+        <button class="nav-dropdown-item" onclick="showView('competitors','overview')">📊 Overview</button>
+        <button class="nav-dropdown-item" onclick="showView('competitors','feed')">📰 Ad Feed</button>
+        <button class="nav-dropdown-item" onclick="showView('competitors','leaderboard')">🏆 Leaderboard</button>
+        <button class="nav-dropdown-item" onclick="showView('competitors','trends')">📈 Trends</button>
+      </div>
+    </div>
+  </div>
+
   <div class="topnav-right">
-    <button class="topnav-home-btn" onclick="showView('home')" title="Home">🏠</button>
     <button class="btn btn-primary btn-sm" onclick="showView('new-campaign')">
       ➕ Neue Kampagne
+    </button>
+    <!-- Hamburger for mobile -->
+    <button class="topnav-burger" id="mobile-burger" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
 
+<!-- Mobile Menu -->
+<div class="topnav-actions" id="mobile-menu">
+  <div class="mobile-nav-section">
+    <button class="mobile-nav-item" onclick="showView('home');closeMobileMenu();">🏠 Home</button>
+  </div>
+  <div class="mobile-nav-section">
+    <div class="mobile-nav-section-title">📊 Campaign Analytics</div>
+    <button class="mobile-nav-item" onclick="showView('analytics','campaigns');closeMobileMenu();">📋 Kampagnen</button>
+    <button class="mobile-nav-item" onclick="showView('analytics','intelligence');closeMobileMenu();">🎨 Creative Intelligence</button>
+    <button class="mobile-nav-item" onclick="showView('analytics','data-intel');closeMobileMenu();">📈 Data Intelligence</button>
+    <button class="mobile-nav-item" onclick="showView('analytics','predictor');closeMobileMenu();">🔮 Prognose</button>
+    <button class="mobile-nav-item" onclick="showView('analytics','compare');closeMobileMenu();">⚖️ Vergleich</button>
+    <button class="mobile-nav-item" onclick="showView('analytics','meta-import');closeMobileMenu();">📡 Live-Tracking</button>
+  </div>
+  <div class="mobile-nav-section">
+    <div class="mobile-nav-section-title">🔍 Competitor Watch</div>
+    <button class="mobile-nav-item" onclick="showView('competitors','overview');closeMobileMenu();">📊 Overview</button>
+    <button class="mobile-nav-item" onclick="showView('competitors','feed');closeMobileMenu();">📰 Ad Feed</button>
+    <button class="mobile-nav-item" onclick="showView('competitors','leaderboard');closeMobileMenu();">🏆 Leaderboard</button>
+    <button class="mobile-nav-item" onclick="showView('competitors','trends');closeMobileMenu();">📈 Trends</button>
+  </div>
+  <div class="mobile-nav-section">
+    <button class="mobile-nav-item" onclick="showView('new-campaign');closeMobileMenu();" style="color:var(--accent);font-weight:600;">➕ Neue Kampagne</button>
+  </div>
+</div>
+
+<!-- Sub-Navigation: Analytics -->
+<div class="sub-nav" id="sub-nav-analytics">
+  <div class="sub-nav-inner">
+    <button class="sub-nav-tab" data-subtab="campaigns" onclick="showView('analytics','campaigns')">Kampagnen</button>
+    <button class="sub-nav-tab" data-subtab="intelligence" onclick="showView('analytics','intelligence')">Creative Intelligence</button>
+    <button class="sub-nav-tab" data-subtab="data-intel" onclick="showView('analytics','data-intel')">Data Intelligence</button>
+    <button class="sub-nav-tab" data-subtab="predictor" onclick="showView('analytics','predictor')">Prognose</button>
+    <button class="sub-nav-tab" data-subtab="compare" onclick="showView('analytics','compare')">Vergleich</button>
+    <button class="sub-nav-tab" data-subtab="meta-import" onclick="showView('analytics','meta-import')">📡 Live-Tracking</button>
+  </div>
+</div>
+
+<!-- Sub-Navigation: Competitors -->
+<div class="sub-nav" id="sub-nav-competitors">
+  <div class="sub-nav-inner">
+    <button class="sub-nav-tab" data-subtab="overview" onclick="showView('competitors','overview')">Overview</button>
+    <button class="sub-nav-tab" data-subtab="feed" onclick="showView('competitors','feed')">Ad Feed</button>
+    <button class="sub-nav-tab" data-subtab="leaderboard" onclick="showView('competitors','leaderboard')">🏆 Leaderboard</button>
+    <button class="sub-nav-tab" data-subtab="trends" onclick="showView('competitors','trends')">📈 Trends</button>
+  </div>
+</div>
+
 <!-- Main Content -->
-<div class="main">
+<div class="main" id="app-main">
   <div class="container">
+
+    <!-- App Breadcrumbs -->
+    <div class="app-breadcrumbs" id="app-breadcrumbs"></div>
 
     <!-- SETUP BANNER (shown when DB not ready) -->
     <div id="setup-banner" class="setup-banner" style="display:none;">
@@ -2825,19 +3259,20 @@
       </div>
     </div>
 
-    <!-- VIEW: Home / Hub -->
+    <!-- VIEW: Home / Smart Dashboard -->
     <div id="view-home" class="view active">
-      <div class="home-hero">
+      <div class="home-hero" style="padding-bottom:24px;">
         <img src="assets/rg-logo.png" alt="Run & Gun" class="home-logo">
         <h1 class="home-title">Campaign Dashboard</h1>
         <p class="home-subtitle">Dein Performance-Hub für alle Kampagnen & Competitor-Insights</p>
       </div>
 
-      <!-- Quick Stats -->
+      <!-- Row 1: KPI Cards -->
       <div class="home-stats">
         <div class="home-stat-card">
           <div class="home-stat-label">Total Kampagnen</div>
           <div class="home-stat-value" id="home-stat-total">–</div>
+          <div id="home-stat-total-delta" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
         </div>
         <div class="home-stat-card">
           <div class="home-stat-label">Aktive Kampagnen</div>
@@ -2853,68 +3288,50 @@
         </div>
       </div>
 
-      <!-- Navigation Cards -->
-      <div class="home-nav-grid">
-        <div class="home-nav-card" onclick="showView('campaigns')">
-          <div class="home-nav-icon">📊</div>
-          <div>
-            <div class="home-nav-title">Kampagnen</div>
-            <div class="home-nav-desc">Alle Kampagnen verwalten, analysieren und importieren</div>
+      <!-- Row 2: Leads Trend Chart -->
+      <div class="home-chart-card">
+        <div class="home-chart-title">📈 Leads-Trend (letzte 30 Tage)</div>
+        <div class="home-chart-container">
+          <canvas id="homeLeadsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Row 3: Top Performer + Alerts -->
+      <div class="home-two-col">
+        <div class="home-performer-card">
+          <div class="home-card-title">🏆 Top Performer</div>
+          <div id="home-top-performer">
+            <div style="color:var(--text-muted);font-size:13px;">Lade...</div>
           </div>
         </div>
-        <div class="home-nav-card" onclick="showView('intelligence')">
-          <div class="home-nav-icon">🎨</div>
-          <div>
-            <div class="home-nav-title">Creative Intelligence</div>
-            <div class="home-nav-desc">Performance nach Creative-Typ analysieren</div>
-          </div>
-        </div>
-        <div class="home-nav-card" onclick="showView('data-intel')">
-          <div class="home-nav-icon">📈</div>
-          <div>
-            <div class="home-nav-title">Data Intelligence</div>
-            <div class="home-nav-desc">Korrelationen & Segment-Analyse</div>
-          </div>
-        </div>
-        <div class="home-nav-card" onclick="showView('predictor')">
-          <div class="home-nav-icon">🔮</div>
-          <div>
-            <div class="home-nav-title">Prognose</div>
-            <div class="home-nav-desc">CPL & Performance für neue Objekte vorhersagen</div>
-          </div>
-        </div>
-        <div class="home-nav-card" onclick="showView('compare')">
-          <div class="home-nav-icon">⚖️</div>
-          <div>
-            <div class="home-nav-title">Vergleich</div>
-            <div class="home-nav-desc">Objekte direkt gegenüberstellen</div>
-          </div>
-        </div>
-        <div class="home-nav-card" onclick="showView('competitor')">
-          <div class="home-nav-icon">🔍</div>
-          <div>
-            <div class="home-nav-title">Competitor Watch</div>
-            <div class="home-nav-desc">Competitor-Ads tracken & analysieren</div>
-          </div>
-        </div>
-        <div class="home-nav-card" onclick="showView('meta-import')">
-          <div class="home-nav-icon">📡</div>
-          <div>
-            <div class="home-nav-title">Live-Tracking</div>
-            <div class="home-nav-desc">Meta-Kampagnen verknüpfen & täglich automatisch synchronisieren</div>
+        <div class="home-activity-card">
+          <div class="home-card-title">🔔 Alerts & Aktivität</div>
+          <div id="home-alerts-activity">
+            <div style="color:var(--text-muted);font-size:13px;">Lade...</div>
           </div>
         </div>
       </div>
 
-      <!-- CTA -->
-      <div class="home-cta">
-        <button class="btn btn-primary" onclick="showView('new-campaign')">➕ Neue Kampagne erstellen</button>
+      <!-- Row 4: Quick Navigation -->
+      <div class="home-quick-nav">
+        <div class="home-quick-card" onclick="showView('analytics','campaigns')">
+          <span class="home-quick-icon">📊</span> Analytics
+        </div>
+        <div class="home-quick-card" onclick="showView('competitors','overview')">
+          <span class="home-quick-icon">🔍</span> Competitors
+        </div>
+        <div class="home-quick-card" onclick="showView('new-campaign')">
+          <span class="home-quick-icon">➕</span> Neue Kampagne
+        </div>
+        <div class="home-quick-card" onclick="showView('analytics','meta-import')">
+          <span class="home-quick-icon">📡</span> Meta Import
+        </div>
       </div>
     </div>
 
     <!-- VIEW: Campaign List -->
     <div id="view-campaigns" class="view">
-      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
+      <a class="view-breadcrumb" style="display:none;">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">Kampagnen</h1>
@@ -2973,7 +3390,7 @@
 
     <!-- VIEW: Campaign Detail -->
     <div id="view-detail" class="view">
-      <a class="back-link" onclick="showView('campaigns')">← Zurück zu Kampagnen</a>
+      <a class="back-link" onclick="showView('analytics','campaigns')">← Zurück zu Kampagnen</a>
 
       <div id="detail-live-banner" class="live-banner" style="display:none;">
         🟢 Live-Tracking aktiv — Metriken werden täglich automatisch synchronisiert
@@ -3051,7 +3468,7 @@
 
     <!-- VIEW: New Campaign (CSV Import) -->
     <div id="view-new-campaign" class="view">
-      <a class="back-link" onclick="showView('campaigns')">← Zurück zu Kampagnen</a>
+      <a class="back-link" onclick="showView('analytics','campaigns')">← Zurück zu Kampagnen</a>
 
       <div class="page-header">
         <div>
@@ -3423,7 +3840,7 @@
 
     <!-- VIEW: Creative Intelligence -->
     <div id="view-intelligence" class="view">
-      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
+      <a class="view-breadcrumb" style="display:none;">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">🎨 Creative Intelligence</h1>
@@ -3659,7 +4076,7 @@
 
     <!-- VIEW: Data Intelligence -->
     <div id="view-data-intel" class="view">
-      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
+      <a class="view-breadcrumb" style="display:none;">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">📈 Data Intelligence</h1>
@@ -3716,7 +4133,7 @@
 
     <!-- VIEW: Property Predictor -->
     <div id="view-predictor" class="view">
-      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
+      <a class="view-breadcrumb" style="display:none;">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">🔮 Performance-Prognose</h1>
@@ -3803,7 +4220,7 @@
 
     <!-- VIEW: Property Comparison -->
     <div id="view-compare" class="view">
-      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
+      <a class="view-breadcrumb" style="display:none;">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">⚖️ Objekt-Vergleich</h1>
@@ -3846,7 +4263,7 @@
     <!-- META IMPORT / LIVE TRACKING VIEW -->
     <!-- ============================================ -->
     <div id="view-meta-import" class="view">
-      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
+      <a class="view-breadcrumb" style="display:none;">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">📡 Meta-Kampagnen importieren</h1>
@@ -3913,7 +4330,7 @@
     <!-- COMPETITOR WATCH VIEW -->
     <!-- ============================================ -->
     <div id="view-competitor" class="view">
-      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
+      <a class="view-breadcrumb" style="display:none;">← Home</a>
       <div class="page-header">
         <div>
           <h1 class="page-title">🔍 Competitor Watch</h1>
@@ -3962,96 +4379,64 @@
         </div>
       </div>
 
-      <!-- Stats Bar -->
-      <div class="kpi-grid" id="comp-stats">
-        <div class="kpi-card clickable" onclick="onCompStatClick('brands')" title="Beobachtete Brands">
-          <div class="kpi-label">Beobachtete Brands</div>
-          <div class="kpi-value" id="comp-stat-brands">0</div>
-        </div>
-        <div class="kpi-card clickable" onclick="onCompStatClick('total')" title="Erfasste Ads">
-          <div class="kpi-label">Erfasste Ads</div>
-          <div class="kpi-value" id="comp-stat-total">0</div>
-        </div>
-        <div class="kpi-card clickable" onclick="onCompStatClick('active')" title="Aktive Ads filtern">
-          <div class="kpi-label">Aktive Ads</div>
-          <div class="kpi-value" id="comp-stat-active" style="color:var(--green);">0</div>
-        </div>
-        <div class="kpi-card clickable" onclick="onCompStatClick('avg-days')" title="Nach Laufzeit sortieren">
-          <div class="kpi-label">Ø Laufzeit</div>
-          <div class="kpi-value" id="comp-stat-avg-days">–</div>
-          <div style="font-size:11px;color:var(--text-muted);">Tage</div>
-        </div>
-        <div class="kpi-card clickable" onclick="onCompStatClick('longest')" title="Zur längsten Ad scrollen">
-          <div class="kpi-label">Längste Ad</div>
-          <div class="kpi-value" id="comp-stat-longest" style="color:var(--orange);">–</div>
-          <div style="font-size:11px;color:var(--text-muted);">Tage</div>
-        </div>
-      </div>
-
-      <!-- Longevity Leaderboard -->
-      <div style="margin-bottom:32px;" id="comp-leaderboard-section">
-        <div class="comp-collapsible-header" onclick="toggleCollapsible('leaderboard')">
-          <h2>🏆 Longevity Leaderboard</h2>
-          <span class="comp-collapsible-chevron" id="comp-leaderboard-chevron">▼</span>
-        </div>
-        <div class="comp-collapsible-body" id="comp-leaderboard-body">
-          <div class="card">
-            <div class="card-body" style="padding:0;overflow-x:auto;" id="comp-leaderboard-content">
-              <div class="empty-state" style="padding:40px;">
-                <div class="empty-state-desc">Keine Ads vorhanden</div>
-              </div>
-            </div>
+      <!-- === COMPETITOR SUB-TAB: Overview === -->
+      <div id="comp-sub-overview" class="comp-sub-tab">
+        <!-- Stats Bar -->
+        <div class="kpi-grid" id="comp-stats">
+          <div class="kpi-card clickable" onclick="onCompStatClick('brands')" title="Beobachtete Brands">
+            <div class="kpi-label">Beobachtete Brands</div>
+            <div class="kpi-value" id="comp-stat-brands">0</div>
+          </div>
+          <div class="kpi-card clickable" onclick="onCompStatClick('total')" title="Erfasste Ads">
+            <div class="kpi-label">Erfasste Ads</div>
+            <div class="kpi-value" id="comp-stat-total">0</div>
+          </div>
+          <div class="kpi-card clickable" onclick="onCompStatClick('active')" title="Aktive Ads filtern">
+            <div class="kpi-label">Aktive Ads</div>
+            <div class="kpi-value" id="comp-stat-active" style="color:var(--green);">0</div>
+          </div>
+          <div class="kpi-card clickable" onclick="onCompStatClick('avg-days')" title="Nach Laufzeit sortieren">
+            <div class="kpi-label">Ø Laufzeit</div>
+            <div class="kpi-value" id="comp-stat-avg-days">–</div>
+            <div style="font-size:11px;color:var(--text-muted);">Tage</div>
+          </div>
+          <div class="kpi-card clickable" onclick="onCompStatClick('longest')" title="Zur längsten Ad scrollen">
+            <div class="kpi-label">Längste Ad</div>
+            <div class="kpi-value" id="comp-stat-longest" style="color:var(--orange);">–</div>
+            <div style="font-size:11px;color:var(--text-muted);">Tage</div>
           </div>
         </div>
-      </div>
 
-      <!-- Brand Overview -->
-      <div style="margin-bottom:32px;" id="comp-brand-overview-section">
-        <div class="comp-collapsible-header" onclick="toggleCollapsible('brand-overview')">
-          <h2>📊 Brand Overview</h2>
-          <span class="comp-collapsible-chevron" id="comp-brand-overview-chevron">▼</span>
-        </div>
-        <div class="comp-collapsible-body" id="comp-brand-overview-body">
+        <!-- Brand Overview -->
+        <div style="margin-bottom:32px;" id="comp-brand-overview-section">
+          <h2 style="font-size:18px;font-weight:800;margin-bottom:16px;">📊 Brand Overview</h2>
           <div id="comp-brand-overview-content" class="comp-brand-overview-grid"></div>
         </div>
+
+        <!-- Watchlist Section -->
+        <div style="margin-bottom:32px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h2 style="font-size:18px;font-weight:800;">📋 Watchlist</h2>
+            <button class="btn btn-primary btn-sm" onclick="openWatchlistModal()">+ Brand hinzufügen</button>
+          </div>
+
+          <div id="comp-watchlist-loading" class="loading-spinner"><div class="spinner"></div></div>
+          <div id="comp-watchlist-empty" style="display:none;" class="empty-state">
+            <div class="empty-state-icon">👀</div>
+            <div class="empty-state-title">Noch keine Brands auf der Watchlist</div>
+            <div class="empty-state-desc">Füge Wettbewerber hinzu, um deren Ads zu beobachten.</div>
+          </div>
+          <div id="comp-watchlist-grid" class="comp-watchlist-grid" style="display:none;"></div>
+        </div>
       </div>
 
-      <!-- Trends -->
-      <div style="margin-bottom:32px;" id="comp-trends-section">
-        <div class="comp-collapsible-header" onclick="toggleCollapsible('trends')">
-          <h2>📈 Trends</h2>
-          <span class="comp-collapsible-chevron" id="comp-trends-chevron">▼</span>
-        </div>
-        <div class="comp-collapsible-body" id="comp-trends-body">
-          <div id="comp-trends-content"></div>
-        </div>
-      </div>
-
-      <!-- Watchlist Section -->
-      <div style="margin-bottom:32px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <h2 style="font-size:18px;font-weight:800;">📋 Watchlist</h2>
-          <button class="btn btn-primary btn-sm" onclick="openWatchlistModal()">+ Brand hinzufügen</button>
-        </div>
-
-        <div id="comp-watchlist-loading" class="loading-spinner"><div class="spinner"></div></div>
-        <div id="comp-watchlist-empty" style="display:none;" class="empty-state">
-          <div class="empty-state-icon">👀</div>
-          <div class="empty-state-title">Noch keine Brands auf der Watchlist</div>
-          <div class="empty-state-desc">Füge Wettbewerber hinzu, um deren Ads zu beobachten.</div>
-        </div>
-        <div id="comp-watchlist-grid" class="comp-watchlist-grid" style="display:none;"></div>
-      </div>
-
-      <!-- Ad Feed Section -->
-      <div>
+      <!-- === COMPETITOR SUB-TAB: Ad Feed === -->
+      <div id="comp-sub-feed" class="comp-sub-tab" style="display:none;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
           <h2 style="font-size:18px;font-weight:800;margin:0;">📰 Ad Feed</h2>
-          <!-- Breadcrumb inline -->
           <div class="comp-breadcrumb" id="comp-breadcrumb" style="margin-bottom:0;"></div>
         </div>
 
-        <!-- Filter Bar -->
         <div class="filter-bar" id="comp-filter-bar">
           <select class="form-select" id="comp-filter-brand" onchange="onBrandFilterChange()">
             <option value="">Alle Brands</option>
@@ -4079,12 +4464,30 @@
           <div class="empty-state-desc">Sobald die API verbunden ist und ein Sync durchgeführt wurde, erscheinen hier die Competitor-Ads.</div>
         </div>
         <div id="comp-ads-grid" class="comp-ads-grid" style="display:none;"></div>
-        <!-- Load More + Count -->
         <div id="comp-load-more-container" class="comp-load-more-container" style="display:none;">
           <button class="comp-load-more-btn" id="comp-load-more-btn" onclick="loadMoreAds()">⬇️ Mehr laden</button>
           <div class="comp-ads-count" id="comp-ads-count"></div>
         </div>
       </div>
+
+      <!-- === COMPETITOR SUB-TAB: Leaderboard === -->
+      <div id="comp-sub-leaderboard" class="comp-sub-tab" style="display:none;">
+        <h2 style="font-size:18px;font-weight:800;margin-bottom:16px;">🏆 Longevity Leaderboard</h2>
+        <div class="card">
+          <div class="card-body" style="padding:0;overflow-x:auto;" id="comp-leaderboard-content">
+            <div class="empty-state" style="padding:40px;">
+              <div class="empty-state-desc">Keine Ads vorhanden</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- === COMPETITOR SUB-TAB: Trends === -->
+      <div id="comp-sub-trends" class="comp-sub-tab" style="display:none;">
+        <h2 style="font-size:18px;font-weight:800;margin-bottom:16px;">📈 Trends</h2>
+        <div id="comp-trends-content"></div>
+      </div>
+
     </div>
 
     <!-- Watchlist Add/Edit Modal -->
@@ -4287,39 +4690,278 @@ function calcScore(leads, cpl, avgCPL) {
 }
 
 // ============================================
-// NAVIGATION
+// NAVIGATION — App-like with sections/sub-tabs
 // ============================================
-function toggleMobileNav() { /* no-op — nav simplified */ }
-function closeMobileNav() { /* no-op — nav simplified */ }
+let _currentSection = 'home'; // 'home', 'analytics', 'competitors'
+let _currentSubTab = null;
+let _dropdownTimers = {};
+let _competitorDataLoaded = false;
 
-function showView(view) {
+// Analytics sub-tab → view ID mapping
+const ANALYTICS_TABS = {
+  'campaigns': 'view-campaigns',
+  'intelligence': 'view-intelligence',
+  'data-intel': 'view-data-intel',
+  'predictor': 'view-predictor',
+  'compare': 'view-compare',
+  'meta-import': 'view-meta-import'
+};
+
+// Views that belong to analytics section (including deep views)
+const ANALYTICS_VIEWS = ['campaigns', 'intelligence', 'data-intel', 'predictor', 'compare', 'meta-import', 'detail', 'new-campaign', 'edit-campaign'];
+
+// Competitor sub-tab → DOM ID mapping
+const COMPETITOR_TABS = {
+  'overview': 'comp-sub-overview',
+  'feed': 'comp-sub-feed',
+  'leaderboard': 'comp-sub-leaderboard',
+  'trends': 'comp-sub-trends'
+};
+
+function showView(sectionOrView, subTab) {
+  // Close dropdowns
+  closeAllDropdowns();
+
+  // Determine section + subTab from arguments
+  let section, viewId, activeSubTab;
+
+  if (sectionOrView === 'home') {
+    section = 'home';
+    viewId = 'view-home';
+    activeSubTab = null;
+  } else if (sectionOrView === 'analytics') {
+    section = 'analytics';
+    activeSubTab = subTab || 'campaigns';
+    viewId = ANALYTICS_TABS[activeSubTab] || 'view-campaigns';
+  } else if (sectionOrView === 'competitors') {
+    section = 'competitors';
+    activeSubTab = subTab || 'overview';
+    viewId = 'view-competitor';
+  } else if (sectionOrView === 'detail' || sectionOrView === 'new-campaign' || sectionOrView === 'edit-campaign') {
+    section = 'analytics';
+    viewId = 'view-' + sectionOrView;
+    activeSubTab = null; // deep view, no sub-tab highlight
+  } else if (ANALYTICS_TABS[sectionOrView]) {
+    // Legacy: direct view name that belongs to analytics
+    section = 'analytics';
+    activeSubTab = sectionOrView;
+    viewId = ANALYTICS_TABS[sectionOrView];
+  } else if (sectionOrView === 'competitor') {
+    // Legacy: old 'competitor' view name
+    section = 'competitors';
+    activeSubTab = subTab || 'overview';
+    viewId = 'view-competitor';
+  } else {
+    // Fallback
+    section = 'home';
+    viewId = 'view-home';
+    activeSubTab = null;
+  }
+
+  _currentSection = section;
+  _currentSubTab = activeSubTab;
+  currentView = sectionOrView;
+
+  // Hide all views
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  const el = document.getElementById(`view-${view}`);
-  if (el) el.classList.add('active');
-  currentView = view;
 
-  // Scroll to top on view change
+  // Show the target view
+  const el = document.getElementById(viewId);
+  if (el) el.classList.add('active');
+
+  // Handle competitor sub-tabs
+  if (section === 'competitors') {
+    document.querySelectorAll('.comp-sub-tab').forEach(t => t.style.display = 'none');
+    const subEl = document.getElementById(COMPETITOR_TABS[activeSubTab] || 'comp-sub-overview');
+    if (subEl) subEl.style.display = 'block';
+  }
+
+  // Update sub-navigation visibility
+  updateSubNav(section, activeSubTab);
+
+  // Update top nav active states
+  updateNavActiveStates(section);
+
+  // Update breadcrumbs
+  updateBreadcrumbs(section, activeSubTab, sectionOrView);
+
+  // Adjust main padding for sub-nav
+  const mainEl = document.getElementById('app-main');
+  if (section === 'analytics' || section === 'competitors') {
+    mainEl.classList.add('has-sub-nav');
+  } else {
+    mainEl.classList.remove('has-sub-nav');
+  }
+
+  // Scroll to top
   window.scrollTo(0, 0);
 
-  if (view === 'home') loadHomeStats();
-  if (view === 'campaigns') loadCampaigns();
-  if (view === 'new-campaign') { resetCSVImport(); loadClientsForForm(); }
-  if (view === 'intelligence') loadIntelligence();
-  if (view === 'data-intel') loadDataIntelligence();
-  if (view === 'predictor') { /* nothing to preload */ }
-  if (view === 'compare') { /* nothing to preload */ }
-  if (view === 'meta-import') loadMetaCampaigns();
-  if (view === 'competitor') loadCompetitorView();
-  if (view === 'detail' && editCampaignId) openCampaign(editCampaignId);
+  // Load data for the view
+  if (section === 'home') loadHomeStats();
+  if (activeSubTab === 'campaigns' || sectionOrView === 'campaigns') loadCampaigns();
+  if (sectionOrView === 'new-campaign') { resetCSVImport(); loadClientsForForm(); }
+  if (activeSubTab === 'intelligence' || sectionOrView === 'intelligence') loadIntelligence();
+  if (activeSubTab === 'data-intel' || sectionOrView === 'data-intel') loadDataIntelligence();
+  if (activeSubTab === 'meta-import' || sectionOrView === 'meta-import') loadMetaCampaigns();
+  if (section === 'competitors' && !_competitorDataLoaded) {
+    loadCompetitorView();
+    _competitorDataLoaded = true;
+  } else if (section === 'competitors' && _competitorDataLoaded) {
+    // Refresh stats/rendering for the active sub-tab
+    if (activeSubTab === 'feed') applyCompetitorFilters();
+    if (activeSubTab === 'leaderboard') renderLeaderboard();
+    if (activeSubTab === 'trends') renderTrends();
+  }
+  if (sectionOrView === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
 
+function updateSubNav(section, activeSubTab) {
+  // Hide all sub-navs
+  document.getElementById('sub-nav-analytics').classList.remove('visible');
+  document.getElementById('sub-nav-competitors').classList.remove('visible');
+
+  if (section === 'analytics') {
+    const subNav = document.getElementById('sub-nav-analytics');
+    subNav.classList.add('visible');
+    // Highlight active tab
+    subNav.querySelectorAll('.sub-nav-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.subtab === activeSubTab);
+    });
+  } else if (section === 'competitors') {
+    const subNav = document.getElementById('sub-nav-competitors');
+    subNav.classList.add('visible');
+    subNav.querySelectorAll('.sub-nav-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.subtab === activeSubTab);
+    });
+  }
+}
+
+function updateNavActiveStates(section) {
+  document.getElementById('nav-home').classList.toggle('active', section === 'home');
+  document.getElementById('nav-analytics').classList.toggle('active', section === 'analytics');
+  document.getElementById('nav-competitors').classList.toggle('active', section === 'competitors');
+}
+
+function updateBreadcrumbs(section, subTab, viewName) {
+  const bc = document.getElementById('app-breadcrumbs');
+  if (section === 'home') {
+    bc.classList.remove('visible');
+    bc.innerHTML = '';
+    return;
+  }
+
+  let parts = ['<span class="app-bc-item" onclick="showView(\'home\')">🏠 Home</span>'];
+
+  if (section === 'analytics') {
+    if (viewName === 'detail') {
+      parts.push('<span class="app-bc-sep">→</span>');
+      parts.push('<span class="app-bc-item" onclick="showView(\'analytics\',\'campaigns\')">Analytics</span>');
+      parts.push('<span class="app-bc-sep">→</span>');
+      parts.push('<span class="app-bc-item" onclick="showView(\'analytics\',\'campaigns\')">Kampagnen</span>');
+      const titleEl = document.getElementById('detail-title');
+      if (titleEl && titleEl.textContent && titleEl.textContent !== '—') {
+        parts.push('<span class="app-bc-sep">→</span>');
+        parts.push('<span class="app-bc-current">' + escHtml(titleEl.textContent) + '</span>');
+      }
+    } else if (viewName === 'new-campaign') {
+      parts.push('<span class="app-bc-sep">→</span>');
+      parts.push('<span class="app-bc-item" onclick="showView(\'analytics\',\'campaigns\')">Analytics</span>');
+      parts.push('<span class="app-bc-sep">→</span>');
+      parts.push('<span class="app-bc-current">Neue Kampagne</span>');
+    } else if (viewName === 'edit-campaign') {
+      parts.push('<span class="app-bc-sep">→</span>');
+      parts.push('<span class="app-bc-item" onclick="showView(\'analytics\',\'campaigns\')">Analytics</span>');
+      parts.push('<span class="app-bc-sep">→</span>');
+      parts.push('<span class="app-bc-current">Bearbeiten</span>');
+    } else {
+      parts.push('<span class="app-bc-sep">→</span>');
+      const tabLabels = {campaigns:'Kampagnen',intelligence:'Creative Intelligence','data-intel':'Data Intelligence',predictor:'Prognose',compare:'Vergleich','meta-import':'Live-Tracking'};
+      parts.push('<span class="app-bc-current">Analytics → ' + (tabLabels[subTab] || subTab) + '</span>');
+    }
+  } else if (section === 'competitors') {
+    parts.push('<span class="app-bc-sep">→</span>');
+    const tabLabels = {overview:'Overview',feed:'Ad Feed',leaderboard:'Leaderboard',trends:'Trends'};
+    parts.push('<span class="app-bc-current">Competitors → ' + (tabLabels[subTab] || subTab) + '</span>');
+  }
+
+  bc.innerHTML = parts.join(' ');
+  bc.classList.add('visible');
+}
+
+// Dropdown navigation
+function handleNavClick(section) {
+  closeAllDropdowns();
+  showView(section);
+}
+
+function openNavDropdown(section) {
+  cancelCloseDropdown(section);
+  const dd = document.getElementById('dropdown-' + section);
+  const btn = document.getElementById('nav-' + section);
+  if (dd) dd.classList.add('open');
+  if (btn) btn.classList.add('open');
+}
+
+function closeNavDropdown(section) {
+  const dd = document.getElementById('dropdown-' + section);
+  const btn = document.getElementById('nav-' + section);
+  if (dd) dd.classList.remove('open');
+  if (btn) btn.classList.remove('open');
+}
+
+function scheduleCloseDropdown(section) {
+  _dropdownTimers[section] = setTimeout(() => closeNavDropdown(section), 200);
+}
+
+function cancelCloseDropdown(section) {
+  if (_dropdownTimers[section]) {
+    clearTimeout(_dropdownTimers[section]);
+    _dropdownTimers[section] = null;
+  }
+}
+
+function closeAllDropdowns() {
+  ['analytics', 'competitors'].forEach(s => {
+    closeNavDropdown(s);
+    cancelCloseDropdown(s);
+  });
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nav-item') && !e.target.closest('.nav-dropdown')) {
+    closeAllDropdowns();
+  }
+});
+
+// Mobile menu
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const burger = document.getElementById('mobile-burger');
+  menu.classList.toggle('open');
+  burger.classList.toggle('open');
+}
+
+function closeMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const burger = document.getElementById('mobile-burger');
+  menu.classList.remove('open');
+  burger.classList.remove('open');
+}
+
+// Legacy compat
+function toggleMobileNav() { toggleMobileMenu(); }
+function closeMobileNav() { closeMobileMenu(); }
+
 // ============================================
-// HOME PAGE STATS
+// HOME PAGE — Smart Dashboard
 // ============================================
+let _homeLeadsChart = null;
+
 async function loadHomeStats() {
   if (!dbReady) return;
   try {
-    const camps = await sbGet('campaigns', 'select=id,status,properties!inner(id),campaign_daily_metrics(spend,leads)');
+    const camps = await sbGet('campaigns', 'select=id,status,campaign_name,properties!inner(id,name),campaign_daily_metrics(date,spend,leads)');
     const total = camps.length;
     const active = camps.filter(c => c.status === 'active').length;
     let totalLeads = 0;
@@ -4338,9 +4980,158 @@ async function loadHomeStats() {
     document.getElementById('home-stat-active').textContent = formatNum(active);
     document.getElementById('home-stat-cpl').textContent = avgCPL > 0 ? formatEur(avgCPL) : '–';
     document.getElementById('home-stat-leads').textContent = formatNum(totalLeads);
+
+    // Leads Trend Chart (last 30 days)
+    renderHomeLeadsChart(camps);
+
+    // Top Performer
+    renderHomeTopPerformer(camps);
+
+    // Alerts & Activity
+    renderHomeAlertsActivity();
+
   } catch (e) {
     console.error('Home stats error:', e);
   }
+}
+
+function renderHomeLeadsChart(camps) {
+  const canvas = document.getElementById('homeLeadsChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (_homeLeadsChart) _homeLeadsChart.destroy();
+
+  // Aggregate leads per day across ALL campaigns (last 30 days)
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000);
+  const cutoff = thirtyDaysAgo.toISOString().slice(0, 10);
+
+  const dailyMap = {};
+  camps.forEach(c => {
+    (c.campaign_daily_metrics || []).forEach(m => {
+      if (m.date >= cutoff) {
+        if (!dailyMap[m.date]) dailyMap[m.date] = 0;
+        dailyMap[m.date] += (m.leads || 0);
+      }
+    });
+  });
+
+  // Fill in missing dates
+  const labels = [];
+  const data = [];
+  for (let d = new Date(thirtyDaysAgo); d <= now; d.setDate(d.getDate() + 1)) {
+    const key = d.toISOString().slice(0, 10);
+    labels.push(formatDateShort(key));
+    data.push(dailyMap[key] || 0);
+  }
+
+  _homeLeadsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Leads',
+        data,
+        borderColor: 'rgba(231, 53, 46, 1)',
+        backgroundColor: 'rgba(231, 53, 46, 0.08)',
+        borderWidth: 2,
+        pointRadius: 2,
+        pointHoverRadius: 5,
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (tooltipCtx) => tooltipCtx.raw + ' Leads'
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
+        y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+}
+
+function renderHomeTopPerformer(camps) {
+  const container = document.getElementById('home-top-performer');
+  if (!container) return;
+
+  // Find campaign with lowest CPL (best performer)
+  let bestCamp = null;
+  let bestCPL = Infinity;
+
+  camps.forEach(c => {
+    const metrics = c.campaign_daily_metrics || [];
+    const spend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
+    const leads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
+    if (leads > 0) {
+      const cpl = spend / leads;
+      if (cpl < bestCPL) {
+        bestCPL = cpl;
+        bestCamp = { ...c, totalSpend: spend, totalLeads: leads, cpl };
+      }
+    }
+  });
+
+  if (!bestCamp) {
+    container.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Noch keine Kampagnen mit Leads</div>';
+    return;
+  }
+
+  const propName = bestCamp.properties ? bestCamp.properties.name : '—';
+  const statusCls = bestCamp.status === 'active' ? 'badge-active' : bestCamp.status === 'paused' ? 'badge-paused' : 'badge-completed';
+  const statusLabel = bestCamp.status === 'active' ? 'Aktiv' : bestCamp.status === 'paused' ? 'Pausiert' : 'Abgeschlossen';
+
+  container.innerHTML =
+    '<div class="home-performer-name" onclick="openCampaign(\'' + bestCamp.id + '\')">' + escHtml(bestCamp.campaign_name) + '</div>' +
+    '<div class="home-performer-detail">' + escHtml(propName) + ' · ' + bestCamp.totalLeads + ' Leads</div>' +
+    '<div style="display:flex;align-items:center;gap:12px;">' +
+      '<div class="home-performer-cpl">' + formatEur(bestCPL) + ' CPL</div>' +
+      '<span class="badge ' + statusCls + '"><span class="badge-dot"></span>' + statusLabel + '</span>' +
+    '</div>' +
+    '<div style="margin-top:10px;"><span class="app-bc-item" style="font-size:12px;color:var(--accent);" onclick="openCampaign(\'' + bestCamp.id + '\')">Details ansehen →</span></div>';
+}
+
+async function renderHomeAlertsActivity() {
+  const container = document.getElementById('home-alerts-activity');
+  if (!container) return;
+
+  let items = [];
+
+  // Try to load recent competitor alerts
+  try {
+    const alerts = await sbGet('competitor_alerts', 'select=*&order=created_at.desc&limit=5');
+    if (alerts && alerts.length > 0) {
+      alerts.forEach(a => {
+        const info = getAlertTypeInfo(a.alert_type);
+        const msg = a.message || info.label;
+        const shortMsg = msg.length > 80 ? msg.substring(0, 80) + '…' : msg;
+        items.push({ icon: info.icon, text: shortMsg });
+      });
+    }
+  } catch (e) {
+    // No alerts table or error — skip
+  }
+
+  if (items.length === 0) {
+    items.push({ icon: '📊', text: 'Dashboard bereit — starte mit einer neuen Kampagne' });
+  }
+
+  container.innerHTML = items.map(i =>
+    '<div class="home-activity-item">' +
+      '<span class="home-activity-icon">' + i.icon + '</span>' +
+      '<span>' + escHtml(i.text) + '</span>' +
+    '</div>'
+  ).join('') +
+  '<div style="margin-top:10px;"><span class="app-bc-item" style="font-size:12px;color:var(--accent);" onclick="showView(\'competitors\',\'overview\')">Alle anzeigen →</span></div>';
 }
 
 // ============================================
@@ -8435,26 +9226,27 @@ function toggleCollapsible(sectionName) {
 function onCompStatClick(stat) {
   switch (stat) {
     case 'active':
-      // Filter feed to active only
-      document.getElementById('comp-filter-status').value = 'active';
-      applyCompetitorFilters();
-      document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showView('competitors', 'feed');
+      setTimeout(function() {
+        document.getElementById('comp-filter-status').value = 'active';
+        applyCompetitorFilters();
+      }, 100);
       break;
     case 'avg-days':
-      // Sort by longest
-      document.getElementById('comp-sort').value = 'longest';
-      applyCompetitorFilters();
-      document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showView('competitors', 'feed');
+      setTimeout(function() {
+        document.getElementById('comp-sort').value = 'longest';
+        applyCompetitorFilters();
+      }, 100);
       break;
     case 'longest':
-      // Find the longest ad and scroll to it
-      scrollToLongestAd();
+      showView('competitors', 'feed');
+      setTimeout(scrollToLongestAd, 100);
       break;
     case 'brands':
     case 'total':
     default:
-      // Scroll to ad feed
-      document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showView('competitors', 'feed');
       break;
   }
 }
@@ -8528,19 +9320,22 @@ function renderLeaderboard() {
 
 function scrollToAdInFeed(adId) {
   if (!adId) return;
-  // Reset filters
-  document.getElementById('comp-filter-brand').value = '';
-  document.getElementById('comp-filter-status').value = '';
-  document.getElementById('comp-sort').value = 'newest';
-  applyCompetitorFilters();
+  // Switch to feed tab first
+  showView('competitors', 'feed');
   setTimeout(function() {
-    var cards = document.querySelectorAll('.comp-ad-card[data-ad-id="' + adId + '"]');
-    if (cards.length > 0) {
-      cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-      cards[0].classList.add('flash-highlight');
-      setTimeout(function() { cards[0].classList.remove('flash-highlight'); }, 1600);
-    }
-  }, 100);
+    document.getElementById('comp-filter-brand').value = '';
+    document.getElementById('comp-filter-status').value = '';
+    document.getElementById('comp-sort').value = 'newest';
+    applyCompetitorFilters();
+    setTimeout(function() {
+      var cards = document.querySelectorAll('.comp-ad-card[data-ad-id="' + adId + '"]');
+      if (cards.length > 0) {
+        cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        cards[0].classList.add('flash-highlight');
+        setTimeout(function() { cards[0].classList.remove('flash-highlight'); }, 1600);
+      }
+    }, 100);
+  }, 50);
 }
 
 // --- Brand Overview — compact cards, click to filter ---
@@ -8707,17 +9502,19 @@ function renderPaginatedAds() {
 function filterFeedByBrand(watchlistId) {
   _selectedStandort = null;
   _selectedBrandIdForDrilldown = watchlistId;
-  document.getElementById('comp-filter-brand').value = watchlistId;
-  document.getElementById('comp-filter-standort').value = '';
-  document.getElementById('comp-filter-status').value = '';
-  document.getElementById('comp-sort').value = 'newest';
-  _adsDisplayed = _adsPageSize;
-  updateStandortDropdown();
-  applyCompetitorFilters();
-  updateCompetitorStats();
-  renderBreadcrumbs();
-  renderBrandOverviewCards();
-  document.getElementById('comp-filter-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Switch to feed sub-tab
+  showView('competitors', 'feed');
+  setTimeout(function() {
+    document.getElementById('comp-filter-brand').value = watchlistId;
+    document.getElementById('comp-filter-standort').value = '';
+    document.getElementById('comp-filter-status').value = '';
+    document.getElementById('comp-sort').value = 'newest';
+    _adsDisplayed = _adsPageSize;
+    updateStandortDropdown();
+    applyCompetitorFilters();
+    updateCompetitorStats();
+    renderBreadcrumbs();
+  }, 50);
 }
 
 function clearAllDrilldown() {
