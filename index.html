@@ -4441,7 +4441,7 @@
           <select class="form-select" id="comp-filter-brand" onchange="onBrandFilterChange()">
             <option value="">Alle Brands</option>
           </select>
-          <select class="form-select" id="comp-filter-standort" onchange="onStandortFilterChange()">
+          <select class="form-select" id="comp-filter-standort" onchange="onStandortFilterChange()" style="display:none;">
             <option value="">📍 Alle Standorte</option>
           </select>
           <select class="form-select" id="comp-filter-status" onchange="applyCompetitorFilters()">
@@ -8630,7 +8630,7 @@ let competitorAds = [];
 let competitorAlerts = [];
 let competitorViewLoaded = false;
 var _selectedStandort = null; // page_name filter
-var _selectedBrandIdForDrilldown = null; // brand watchlist_id for breadcrumb
+var _selectedBrandForDrilldown = null; // brand name for breadcrumb/filter
 var _adsPageSize = 50;
 var _adsDisplayed = 50;
 var _filteredAdsCache = []; // cached filtered ads for pagination
@@ -9032,9 +9032,10 @@ function renderAdCard(ad) {
 function renderAdFeed(ads, filterBrand, filterStatus, sortBy) {
   var filtered = ads.slice();
 
-  // Filter by brand
+  // Filter by brand (filterBrand is now a brand name, not a watchlist_id)
   if (filterBrand) {
-    filtered = filtered.filter(function(a) { return a.watchlist_id === filterBrand || a.page_name === filterBrand; });
+    var brandIds = getWatchlistIdsForBrand(filterBrand);
+    filtered = filtered.filter(function(a) { return brandIds.indexOf(a.watchlist_id) !== -1; });
   }
 
   // Filter by status
@@ -9105,8 +9106,9 @@ function updateCompetitorStats() {
   // Apply standort/brand filter to stats
   if (_selectedStandort) {
     adsPool = adsPool.filter(function(a) { return a.page_name === _selectedStandort; });
-  } else if (_selectedBrandIdForDrilldown) {
-    adsPool = adsPool.filter(function(a) { return a.watchlist_id === _selectedBrandIdForDrilldown; });
+  } else if (_selectedBrandForDrilldown) {
+    var _brandIds = getWatchlistIdsForBrand(_selectedBrandForDrilldown);
+    adsPool = adsPool.filter(function(a) { return _brandIds.indexOf(a.watchlist_id) !== -1; });
   }
 
   var total = adsPool.length;
@@ -9125,13 +9127,29 @@ function updateBrandFilter() {
   var select = document.getElementById('comp-filter-brand');
   var current = select.value;
   select.innerHTML = '<option value="">Alle Brands</option>';
+  var seenBrands = {};
   competitorWatchlist.forEach(function(w) {
-    var opt = document.createElement('option');
-    opt.value = w.id;
-    opt.textContent = w.brand || w.page_name;
-    select.appendChild(opt);
+    var brand = w.brand || w.page_name;
+    if (!seenBrands[brand]) {
+      seenBrands[brand] = true;
+      var opt = document.createElement('option');
+      opt.value = brand;
+      opt.textContent = brand;
+      select.appendChild(opt);
+    }
   });
-  select.value = current;
+  // Restore selection if still valid
+  if (current && seenBrands[current]) {
+    select.value = current;
+  } else {
+    select.value = '';
+  }
+}
+
+function getWatchlistIdsForBrand(brandName) {
+  return competitorWatchlist
+    .filter(function(w) { return (w.brand || w.page_name) === brandName; })
+    .map(function(w) { return w.id; });
 }
 
 // --- Alerts ---
@@ -9304,7 +9322,12 @@ function renderLeaderboard() {
       ? '<span class="badge badge-active" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Aktiv</span>'
       : '<span class="badge badge-completed" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Gestoppt</span>';
 
-    html += '<tr onclick="scrollToAdInFeed(\'' + (ad.id || '') + '\')">' +
+    var adUrl = ad.ad_snapshot_url || '';
+    var clickHandler = adUrl
+      ? 'openLeaderboardAd(\'' + escHtml(adUrl).replace(/'/g, "\\'") + '\')'
+      : 'scrollToAdInFeed(\'' + (ad.id || '') + '\')';
+
+    html += '<tr onclick="' + clickHandler + '" style="cursor:pointer;">' +
       '<td class="comp-leaderboard-rank">' + rankDisplay + '</td>' +
       '<td style="font-weight:600;">' + escHtml(brand) + '</td>' +
       '<td class="comp-leaderboard-text">' + escHtml(bodyText) + '</td>' +
@@ -9316,6 +9339,11 @@ function renderLeaderboard() {
 
   html += '</tbody></table>';
   container.innerHTML = html;
+}
+
+function openLeaderboardAd(url) {
+  if (!url) { showToast('Keine Ad-URL verfügbar', 'error'); return; }
+  window.open(url, '_blank', 'width=480,height=720,scrollbars=yes,resizable=yes');
 }
 
 function scrollToAdInFeed(adId) {
@@ -9358,10 +9386,12 @@ function renderBrandOverviewCards() {
     brandAds.forEach(function(a) { if (a.page_name) standortSet[a.page_name] = true; });
     var standortCount = Object.keys(standortSet).length;
 
-    var isSelected = _selectedBrandIdForDrilldown === w.id;
+    var brandName = w.brand || w.page_name;
+    var isSelected = _selectedBrandForDrilldown === brandName;
     var selectedClass = isSelected ? ' selected' : '';
+    var encodedBrand = encodeURIComponent(brandName);
 
-    return '<div class="comp-brand-overview-card' + selectedClass + '" onclick="filterFeedByBrand(\'' + w.id + '\')">' +
+    return '<div class="comp-brand-overview-card' + selectedClass + '" onclick="filterFeedByBrand(decodeURIComponent(\'' + encodedBrand + '\'))">' +
       '<div class="brand-name">' + escHtml(w.brand || w.page_name) + '</div>' +
       '<div class="brand-standort-count">📍 ' + standortCount + ' Standort' + (standortCount !== 1 ? 'e' : '') + '</div>' +
       '<div class="brand-stats-grid" style="margin-top:10px;">' +
@@ -9381,26 +9411,54 @@ function updateStandortDropdown() {
   var select = document.getElementById('comp-filter-standort');
   if (!select) return;
   var brandFilter = document.getElementById('comp-filter-brand').value;
-  var searchTerm = _compSearchTerm.toLowerCase();
 
-  // Get relevant ads
-  var pool = competitorAds;
-  if (brandFilter) {
-    pool = pool.filter(function(a) { return a.watchlist_id === brandFilter; });
+  // Hide standort dropdown if no brand selected
+  if (!brandFilter) {
+    select.style.display = 'none';
+    select.value = '';
+    return;
   }
 
-  // Count ads per page_name
+  // Get unique page_names for this brand from the watchlist
+  var brandPageNames = [];
+  var seenPN = {};
+  competitorWatchlist.forEach(function(w) {
+    if ((w.brand || w.page_name) === brandFilter && !seenPN[w.page_name]) {
+      seenPN[w.page_name] = true;
+      brandPageNames.push(w.page_name);
+    }
+  });
+
+  // Hide if brand has only one page_name (no point showing standort)
+  if (brandPageNames.length < 2) {
+    select.style.display = 'none';
+    select.value = '';
+    return;
+  }
+
+  // Show the dropdown
+  select.style.display = '';
+
+  // Count ads per page_name for this brand
+  var brandIds = getWatchlistIdsForBrand(brandFilter);
   var standortMap = {};
-  pool.forEach(function(a) {
+  competitorAds.forEach(function(a) {
     if (!a.page_name) return;
+    if (brandIds.indexOf(a.watchlist_id) === -1) return;
     if (!standortMap[a.page_name]) standortMap[a.page_name] = { name: a.page_name, active: 0, total: 0 };
     standortMap[a.page_name].total++;
     if (a.is_active) standortMap[a.page_name].active++;
   });
 
+  // Include page_names from watchlist even if they have 0 ads
+  brandPageNames.forEach(function(pn) {
+    if (!standortMap[pn]) standortMap[pn] = { name: pn, active: 0, total: 0 };
+  });
+
   var standorte = Object.values(standortMap);
 
   // Apply search filter to standort list
+  var searchTerm = _compSearchTerm.toLowerCase();
   if (searchTerm) {
     standorte = standorte.filter(function(s) {
       return s.name.toLowerCase().indexOf(searchTerm) !== -1;
@@ -9440,7 +9498,7 @@ function onCompSearchInput() {
 // --- Brand filter change ---
 function onBrandFilterChange() {
   var brandVal = document.getElementById('comp-filter-brand').value;
-  _selectedBrandIdForDrilldown = brandVal || null;
+  _selectedBrandForDrilldown = brandVal || null;
   _selectedStandort = null;
   document.getElementById('comp-filter-standort').value = '';
   _adsDisplayed = _adsPageSize;
@@ -9499,13 +9557,13 @@ function renderPaginatedAds() {
   }
 }
 
-function filterFeedByBrand(watchlistId) {
+function filterFeedByBrand(brandName) {
   _selectedStandort = null;
-  _selectedBrandIdForDrilldown = watchlistId;
+  _selectedBrandForDrilldown = brandName;
   // Switch to feed sub-tab
   showView('competitors', 'feed');
   setTimeout(function() {
-    document.getElementById('comp-filter-brand').value = watchlistId;
+    document.getElementById('comp-filter-brand').value = brandName;
     document.getElementById('comp-filter-standort').value = '';
     document.getElementById('comp-filter-status').value = '';
     document.getElementById('comp-sort').value = 'newest';
@@ -9519,7 +9577,7 @@ function filterFeedByBrand(watchlistId) {
 
 function clearAllDrilldown() {
   _selectedStandort = null;
-  _selectedBrandIdForDrilldown = null;
+  _selectedBrandForDrilldown = null;
   _compSearchTerm = '';
   document.getElementById('comp-search-input').value = '';
   document.getElementById('comp-filter-brand').value = '';
@@ -9537,7 +9595,7 @@ function clearAllDrilldown() {
 function renderBreadcrumbs() {
   var el = document.getElementById('comp-breadcrumb');
   if (!el) return;
-  if (!_selectedBrandIdForDrilldown && !_selectedStandort) {
+  if (!_selectedBrandForDrilldown && !_selectedStandort) {
     el.classList.remove('visible');
     el.innerHTML = '';
     return;
@@ -9546,9 +9604,8 @@ function renderBreadcrumbs() {
   var parts = [];
   parts.push('<span class="bc-item" onclick="clearAllDrilldown()">Alle</span>');
 
-  if (_selectedBrandIdForDrilldown) {
-    var w = competitorWatchlist.find(function(x) { return x.id === _selectedBrandIdForDrilldown; });
-    var brandLabel = w ? (w.brand || w.page_name) : '–';
+  if (_selectedBrandForDrilldown) {
+    var brandLabel = _selectedBrandForDrilldown;
     if (_selectedStandort) {
       parts.push('<span class="bc-sep">→</span>');
       parts.push('<span class="bc-item" onclick="onBrandFilterChange()">' + escHtml(brandLabel) + '</span>');
