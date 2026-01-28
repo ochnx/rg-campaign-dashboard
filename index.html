@@ -3336,6 +3336,32 @@
       margin-top: 2px;
     }
 
+    /* Creative Thumbnails */
+    .creative-thumbnail {
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      flex-shrink: 0;
+    }
+    .creative-thumbnail-lg {
+      width: 64px;
+      height: 64px;
+    }
+    .creative-thumbnail-xl {
+      width: 120px;
+      height: 120px;
+    }
+    .creative-card-thumb {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      background: var(--bg-input);
+      flex-shrink: 0;
+    }
+
     /* Competitor Preview Grid */
     .competitor-preview-grid {
       display: grid;
@@ -5438,7 +5464,7 @@ async function loadHomeStats() {
   if (!dbReady) return;
   try {
     // Load all campaigns with full metrics
-    const camps = await sbGet('campaigns', 'select=id,status,campaign_name,start_date,total_budget,properties!inner(id,name,clients(name)),campaign_daily_metrics(date,spend,leads,impressions),creatives(id,creative_name,creative_type,creative_daily_metrics(date,spend,leads,impressions))');
+    const camps = await sbGet('campaigns', 'select=id,status,campaign_name,start_date,total_budget,properties!inner(id,name,clients(name)),campaign_daily_metrics(date,spend,leads,impressions),creatives(id,creative_name,creative_type,thumbnail_url,creative_daily_metrics(date,spend,leads,impressions))');
     
     const total = camps.length;
     const activeCamps = camps.filter(c => c.status === 'active');
@@ -5661,6 +5687,7 @@ function renderLiveCreativePerformance(activeCamps, globalAvgCPL) {
         id: cr.id,
         name: cr.creative_name,
         type: cr.creative_type,
+        thumbnailUrl: cr.thumbnail_url,
         campaignId: c.id,
         campaignName: c.campaign_name,
         propName: c.properties ? c.properties.name : '—',
@@ -5700,9 +5727,12 @@ function renderLiveCreativePerformance(activeCamps, globalAvgCPL) {
   topContainer.innerHTML = top3.length > 0 ? top3.map((cr, idx) => {
     const medal = ['🥇', '🥈', '🥉'][idx] || '';
     const typeIcon = getCreativeTypeIcon(cr.type);
+    const thumbHtml = cr.thumbnailUrl
+      ? `<img src="${escHtml(cr.thumbnailUrl)}" alt="${escHtml(cr.name)}" class="creative-thumbnail" onerror="this.outerHTML='<div class=\\'creative-perf-thumb\\'>${typeIcon}</div>'">`
+      : `<div class="creative-perf-thumb">${typeIcon}</div>`;
     return `
       <div class="creative-perf-item" onclick="openCampaign('${cr.campaignId}')">
-        <div class="creative-perf-thumb">${typeIcon}</div>
+        ${thumbHtml}
         <div class="creative-perf-info">
           <div class="creative-perf-name">${medal} ${escHtml(cr.name)}</div>
           <div class="creative-perf-meta">
@@ -5719,9 +5749,12 @@ function renderLiveCreativePerformance(activeCamps, globalAvgCPL) {
   bottomContainer.innerHTML = bottom3.length > 0 ? bottom3.map(cr => {
     const typeIcon = getCreativeTypeIcon(cr.type);
     const isZeroLeads = cr.leads === 0;
+    const thumbHtml = cr.thumbnailUrl
+      ? `<img src="${escHtml(cr.thumbnailUrl)}" alt="${escHtml(cr.name)}" class="creative-thumbnail" onerror="this.outerHTML='<div class=\\'creative-perf-thumb\\'>${typeIcon}</div>'">`
+      : `<div class="creative-perf-thumb">${typeIcon}</div>`;
     return `
       <div class="creative-perf-item" onclick="openCampaign('${cr.campaignId}')">
-        <div class="creative-perf-thumb">${typeIcon}</div>
+        ${thumbHtml}
         <div class="creative-perf-info">
           <div class="creative-perf-name">${escHtml(cr.name)}</div>
           <div class="creative-perf-meta">
@@ -6459,16 +6492,23 @@ function renderCreativeCards(creatives, avgCPL) {
 
   const cards = creativeData.map((c, idx) => {
     const typeLabel = getCreativeTypeLabel(c.creative_type);
+    const typeIcon = getCreativeTypeIcon(c.creative_type);
     const medal = idx < 3 && c.score > 0 ? medals[idx] : '';
     const isWinner = idx === 0 && c.score > 0;
+    const thumbHtml = c.thumbnail_url
+      ? `<img src="${escHtml(c.thumbnail_url)}" alt="${escHtml(c.creative_name)}" class="creative-card-thumb" onerror="this.style.display='none'">`
+      : '';
 
     return `
       <div class="creative-card ${isWinner ? 'winner' : ''}">
-        <div class="creative-card-header">
-          <div class="creative-card-name">
-            ${medal ? `<span class="creative-card-badge">${medal}</span>` : ''}${escHtml(c.creative_name)}
+        <div class="creative-card-header" style="gap:12px;">
+          ${thumbHtml}
+          <div style="flex:1;min-width:0;">
+            <div class="creative-card-name">
+              ${medal ? `<span class="creative-card-badge">${medal}</span>` : ''}${escHtml(c.creative_name)}
+            </div>
+            <div class="creative-card-type">${escHtml(typeLabel)}</div>
           </div>
-          <div class="creative-card-type">${escHtml(typeLabel)}</div>
         </div>
         <div class="creative-stats">
           <div>
