@@ -3336,31 +3336,7 @@
       margin-top: 2px;
     }
 
-    /* Creative Thumbnails */
-    .creative-thumbnail {
-      width: 44px;
-      height: 44px;
-      object-fit: cover;
-      border-radius: var(--radius-sm);
-      background: var(--bg-card);
-      flex-shrink: 0;
-    }
-    .creative-thumbnail-lg {
-      width: 64px;
-      height: 64px;
-    }
-    .creative-thumbnail-xl {
-      width: 120px;
-      height: 120px;
-    }
-    .creative-card-thumb {
-      width: 64px;
-      height: 64px;
-      object-fit: cover;
-      border-radius: var(--radius-sm);
-      background: var(--bg-input);
-      flex-shrink: 0;
-    }
+    /* Creative thumbnails removed - using type icons instead */
 
     /* Competitor Preview Grid */
     .competitor-preview-grid {
@@ -3533,171 +3509,7 @@
       .main.has-sub-nav { padding-top: 108px; }
     }
 
-    /* ============================================ */
-    /* CREATIVE PREVIEW MODAL                      */
-    /* ============================================ */
-    .creative-preview-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 300;
-      display: none;
-    }
-    .creative-preview-modal.open {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: modalFadeIn 200ms ease;
-    }
-    @keyframes modalFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .creative-preview-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(8px);
-    }
-    .creative-preview-content {
-      position: relative;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
-      max-width: 90vw;
-      max-height: 90vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      animation: modalSlideUp 250ms ease;
-    }
-    @keyframes modalSlideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .creative-preview-close {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 36px;
-      height: 36px;
-      border: none;
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      font-size: 24px;
-      line-height: 1;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: all var(--transition);
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .creative-preview-close:hover {
-      background: rgba(0, 0, 0, 0.8);
-      transform: scale(1.1);
-    }
-    .creative-preview-image-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #111;
-      min-height: 200px;
-      max-height: 70vh;
-      overflow: hidden;
-    }
-    .creative-preview-img {
-      max-width: 100%;
-      max-height: 70vh;
-      min-width: 200px;
-      min-height: 200px;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
-    }
-    .creative-preview-placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 300px;
-      background: var(--bg-input);
-      color: var(--text-muted);
-      font-size: 64px;
-    }
-    .creative-preview-info {
-      padding: 20px 24px;
-      border-top: 1px solid var(--border);
-    }
-    .creative-preview-name {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .creative-preview-type {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 10px;
-      background: rgba(231, 53, 46, 0.08);
-      color: var(--accent);
-      border-radius: 999px;
-    }
-    .creative-preview-stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-    .creative-preview-stat {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .creative-preview-stat-label {
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-    }
-    .creative-preview-stat-value {
-      font-size: 20px;
-      font-weight: 700;
-    }
-    @media (max-width: 768px) {
-      .creative-preview-content {
-        max-width: 95vw;
-        max-height: 95vh;
-      }
-      .creative-preview-stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .creative-preview-image-container {
-        max-height: 50vh;
-      }
-      .creative-preview-img {
-        max-height: 50vh;
-      }
-    }
-
-    /* Clickable creative thumbnails */
-    .creative-thumbnail.clickable,
-    .creative-perf-thumb.clickable,
-    .creative-card-thumb.clickable {
-      cursor: zoom-in;
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-    .creative-thumbnail.clickable:hover,
-    .creative-perf-thumb.clickable:hover,
-    .creative-card-thumb.clickable:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
+    /* Creative preview modal removed - thumbnails too low-res */
 
   </style>
 </head>
@@ -5893,17 +5705,9 @@ function renderLiveCreativePerformance(activeCamps, globalAvgCPL) {
   topContainer.innerHTML = top3.length > 0 ? top3.map((cr, idx) => {
     const medal = ['🥇', '🥈', '🥉'][idx] || '';
     const typeIcon = getCreativeTypeIcon(cr.type);
-    const crDataAttr = encodeURIComponent(JSON.stringify({
-      id: cr.id, name: cr.name, type: cr.type, thumbnailUrl: cr.thumbnailUrl,
-      impressions: cr.impressions, leads: cr.leads, spend: cr.spend, cpl: cr.cpl
-    }));
-    const thumbHtml = cr.thumbnailUrl
-      ? `<img src="${escHtml(cr.thumbnailUrl)}" alt="" class="creative-thumbnail clickable" data-creative="${crDataAttr}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-        + `<div class="creative-perf-thumb clickable" style="display:none" data-creative="${crDataAttr}">${typeIcon}</div>`
-      : `<div class="creative-perf-thumb clickable" data-creative="${crDataAttr}">${typeIcon}</div>`;
     return `
       <div class="creative-perf-item" onclick="openCampaign('${cr.campaignId}')">
-        ${thumbHtml}
+        <div class="creative-perf-thumb">${typeIcon}</div>
         <div class="creative-perf-info">
           <div class="creative-perf-name">${medal} ${escHtml(cr.name)}</div>
           <div class="creative-perf-meta">
@@ -5920,17 +5724,9 @@ function renderLiveCreativePerformance(activeCamps, globalAvgCPL) {
   bottomContainer.innerHTML = bottom3.length > 0 ? bottom3.map(cr => {
     const typeIcon = getCreativeTypeIcon(cr.type);
     const isZeroLeads = cr.leads === 0;
-    const crDataAttr = encodeURIComponent(JSON.stringify({
-      id: cr.id, name: cr.name, type: cr.type, thumbnailUrl: cr.thumbnailUrl,
-      impressions: cr.impressions, leads: cr.leads, spend: cr.spend, cpl: cr.cpl
-    }));
-    const thumbHtml = cr.thumbnailUrl
-      ? `<img src="${escHtml(cr.thumbnailUrl)}" alt="" class="creative-thumbnail clickable" data-creative="${crDataAttr}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-        + `<div class="creative-perf-thumb clickable" style="display:none" data-creative="${crDataAttr}">${typeIcon}</div>`
-      : `<div class="creative-perf-thumb clickable" data-creative="${crDataAttr}">${typeIcon}</div>`;
     return `
       <div class="creative-perf-item" onclick="openCampaign('${cr.campaignId}')">
-        ${thumbHtml}
+        <div class="creative-perf-thumb">${typeIcon}</div>
         <div class="creative-perf-info">
           <div class="creative-perf-name">${escHtml(cr.name)}</div>
           <div class="creative-perf-meta">
@@ -6671,27 +6467,11 @@ function renderCreativeCards(creatives, avgCPL) {
     const typeIcon = getCreativeTypeIcon(c.creative_type);
     const medal = idx < 3 && c.score > 0 ? medals[idx] : '';
     const isWinner = idx === 0 && c.score > 0;
-    
-    // Prepare creative data for preview modal
-    const crDataAttr = encodeURIComponent(JSON.stringify({
-      id: c.id,
-      creative_name: c.creative_name,
-      creative_type: c.creative_type,
-      thumbnail_url: c.thumbnail_url,
-      impressions: c.totalImpressions,
-      leads: c.totalLeads,
-      spend: c.totalSpend,
-      cpl: c.cpl
-    }));
-    
-    const thumbHtml = c.thumbnail_url
-      ? `<img src="${escHtml(c.thumbnail_url)}" alt="" class="creative-card-thumb clickable" data-creative="${crDataAttr}" onerror="this.style.display='none'">`
-      : '';
 
     return `
-      <div class="creative-card ${isWinner ? 'winner' : ''}" style="cursor:pointer;" data-creative="${crDataAttr}">
+      <div class="creative-card ${isWinner ? 'winner' : ''}">
         <div class="creative-card-header" style="gap:12px;">
-          ${thumbHtml}
+          <div class="creative-card-badge" style="font-size:24px;">${typeIcon}</div>
           <div style="flex:1;min-width:0;">
             <div class="creative-card-name">
               ${medal ? `<span class="creative-card-badge">${medal}</span>` : ''}${escHtml(c.creative_name)}
@@ -12255,133 +12035,6 @@ async function init() {
 init();
 </script>
 
-<!-- Creative Preview Modal -->
-<div id="creative-preview-modal" class="creative-preview-modal">
-  <div class="creative-preview-backdrop" onclick="closeCreativePreview()"></div>
-  <div class="creative-preview-content">
-    <button class="creative-preview-close" onclick="closeCreativePreview()">&times;</button>
-    <div class="creative-preview-image-container">
-      <img id="creative-preview-img" class="creative-preview-img" src="" alt="Creative Preview" style="display:none;">
-      <div id="creative-preview-placeholder" class="creative-preview-placeholder">🎨</div>
-    </div>
-    <div class="creative-preview-info">
-      <h3 id="creative-preview-name" class="creative-preview-name"></h3>
-      <div class="creative-preview-stats">
-        <div class="creative-preview-stat">
-          <div class="creative-preview-stat-label">Impressions</div>
-          <div class="creative-preview-stat-value" id="creative-preview-impressions">—</div>
-        </div>
-        <div class="creative-preview-stat">
-          <div class="creative-preview-stat-label">Clicks</div>
-          <div class="creative-preview-stat-value" id="creative-preview-clicks">—</div>
-        </div>
-        <div class="creative-preview-stat">
-          <div class="creative-preview-stat-label">Leads</div>
-          <div class="creative-preview-stat-value" id="creative-preview-leads">—</div>
-        </div>
-        <div class="creative-preview-stat">
-          <div class="creative-preview-stat-label">CPL</div>
-          <div class="creative-preview-stat-value" id="creative-preview-cpl">—</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-// ============================================
-// CREATIVE PREVIEW MODAL
-// ============================================
-function openCreativePreview(creative) {
-  const modal = document.getElementById('creative-preview-modal');
-  const img = document.getElementById('creative-preview-img');
-  const placeholder = document.getElementById('creative-preview-placeholder');
-  const nameEl = document.getElementById('creative-preview-name');
-  const impressionsEl = document.getElementById('creative-preview-impressions');
-  const clicksEl = document.getElementById('creative-preview-clicks');
-  const leadsEl = document.getElementById('creative-preview-leads');
-  const cplEl = document.getElementById('creative-preview-cpl');
-  
-  // Get thumbnail URL - Meta provides small thumbnails (64x64), CSS scales them up
-  // Note: Larger sizes (p480x480, p960x960) return 403 errors, so we use the original
-  let thumbnailUrl = creative.thumbnail_url || creative.thumbnailUrl || '';
-  console.log('[CreativePreview] thumbnail_url:', thumbnailUrl);
-  
-  // Set image or placeholder
-  if (thumbnailUrl) {
-    img.src = thumbnailUrl;
-    img.style.display = 'block';
-    placeholder.style.display = 'none';
-    img.onerror = function() {
-      img.style.display = 'none';
-      placeholder.style.display = 'flex';
-      placeholder.textContent = getCreativeTypeIcon(creative.creative_type || creative.type || '');
-    };
-  } else {
-    img.style.display = 'none';
-    placeholder.style.display = 'flex';
-    placeholder.textContent = getCreativeTypeIcon(creative.creative_type || creative.type || '');
-  }
-  
-  // Set name with type badge
-  const name = creative.creative_name || creative.name || 'Unbenanntes Creative';
-  const type = creative.creative_type || creative.type || '';
-  const typeLabel = getCreativeTypeLabel(type);
-  nameEl.innerHTML = `${escHtml(name)} ${typeLabel ? `<span class="creative-preview-type">${escHtml(typeLabel)}</span>` : ''}`;
-  
-  // Set stats
-  const impressions = creative.impressions || creative.totalImpressions || 0;
-  const clicks = creative.clicks || creative.totalClicks || 0;
-  const leads = creative.leads || creative.totalLeads || 0;
-  const spend = creative.spend || creative.totalSpend || 0;
-  const cpl = leads > 0 ? spend / leads : (creative.cpl || null);
-  
-  impressionsEl.textContent = formatNumber(impressions);
-  clicksEl.textContent = formatNumber(clicks);
-  leadsEl.textContent = formatNumber(leads);
-  cplEl.textContent = cpl ? formatEur(cpl) : '—';
-  cplEl.className = 'creative-preview-stat-value ' + (cpl && cpl < 10 ? 'value-good' : cpl && cpl > 15 ? 'value-bad' : '');
-  
-  // Show modal
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  
-  // Close on Escape key
-  document.addEventListener('keydown', handleCreativePreviewEscape);
-}
-
-function closeCreativePreview() {
-  const modal = document.getElementById('creative-preview-modal');
-  modal.classList.remove('open');
-  document.body.style.overflow = '';
-  document.removeEventListener('keydown', handleCreativePreviewEscape);
-}
-
-function handleCreativePreviewEscape(e) {
-  if (e.key === 'Escape') {
-    closeCreativePreview();
-  }
-}
-
-function formatNumber(n) {
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
-  return n.toString();
-}
-
-// Delegated click handler for creative thumbnails (avoids complex inline onclick escaping)
-document.addEventListener('click', function(e) {
-  const thumb = e.target.closest('.creative-thumbnail, .creative-perf-thumb, .creative-card-thumb, .creative-card[data-creative]');
-  if (thumb && thumb.dataset.creative) {
-    e.stopPropagation();
-    try {
-      const data = JSON.parse(decodeURIComponent(thumb.dataset.creative));
-      openCreativePreview(data);
-    } catch (err) {
-      console.error('Failed to parse creative data:', err);
-    }
-  }
-});
-</script>
+<!-- Creative preview modal removed - thumbnails too low-res, click goes to campaign instead -->
 </body>
 </html>
