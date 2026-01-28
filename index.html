@@ -9075,7 +9075,8 @@ function applyCompetitorFilters() {
   var sortBy = document.getElementById('comp-sort').value;
   var standortFilter = document.getElementById('comp-filter-standort').value;
 
-  // Use standort dropdown value
+  // Sync drilldown state with dropdown (ensures "Alle Brands" always clears brand filter)
+  _selectedBrandForDrilldown = filterBrand || null;
   _selectedStandort = standortFilter || null;
 
   var filtered = renderAdFeed(competitorAds, filterBrand, filterStatus, sortBy);
@@ -9144,6 +9145,8 @@ function updateBrandFilter() {
   } else {
     select.value = '';
   }
+  // Sync drilldown state with actual dropdown value (fixes "Alle Brands" showing stale brand data)
+  _selectedBrandForDrilldown = select.value || null;
 }
 
 function getWatchlistIdsForBrand(brandName) {
@@ -9419,27 +9422,7 @@ function updateStandortDropdown() {
     return;
   }
 
-  // Get unique page_names for this brand from the watchlist
-  var brandPageNames = [];
-  var seenPN = {};
-  competitorWatchlist.forEach(function(w) {
-    if ((w.brand || w.page_name) === brandFilter && !seenPN[w.page_name]) {
-      seenPN[w.page_name] = true;
-      brandPageNames.push(w.page_name);
-    }
-  });
-
-  // Hide if brand has only one page_name (no point showing standort)
-  if (brandPageNames.length < 2) {
-    select.style.display = 'none';
-    select.value = '';
-    return;
-  }
-
-  // Show the dropdown
-  select.style.display = '';
-
-  // Count ads per page_name for this brand
+  // Count ads per page_name for this brand (use ads, not watchlist — watchlist has 1 entry per brand)
   var brandIds = getWatchlistIdsForBrand(brandFilter);
   var standortMap = {};
   competitorAds.forEach(function(a) {
@@ -9450,10 +9433,23 @@ function updateStandortDropdown() {
     if (a.is_active) standortMap[a.page_name].active++;
   });
 
-  // Include page_names from watchlist even if they have 0 ads
-  brandPageNames.forEach(function(pn) {
-    if (!standortMap[pn]) standortMap[pn] = { name: pn, active: 0, total: 0 };
+  // Also include page_names from watchlist entries even if they have 0 ads
+  competitorWatchlist.forEach(function(w) {
+    if ((w.brand || w.page_name) === brandFilter && !standortMap[w.page_name]) {
+      standortMap[w.page_name] = { name: w.page_name, active: 0, total: 0 };
+    }
   });
+
+  // Hide if brand has only one unique page_name (no point showing standort)
+  var uniquePageNames = Object.keys(standortMap);
+  if (uniquePageNames.length < 2) {
+    select.style.display = 'none';
+    select.value = '';
+    return;
+  }
+
+  // Show the dropdown
+  select.style.display = '';
 
   var standorte = Object.values(standortMap);
 
