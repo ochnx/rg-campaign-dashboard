@@ -3065,6 +3065,375 @@
       padding-top: 108px;
     }
 
+    /* ============================================ */
+    /* LIVE-FIRST DASHBOARD STYLES                 */
+    /* ============================================ */
+    .live-section {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .live-section:last-of-type {
+      border-bottom: none;
+    }
+    .live-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+    .live-section-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .live-pulse {
+      width: 10px;
+      height: 10px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    /* Action Alerts */
+    .live-alerts-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .live-alert-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .live-alert-item:hover {
+      transform: translateX(4px);
+    }
+    .live-alert-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--orange);
+    }
+    .live-alert-danger {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--red);
+    }
+    .live-alert-info {
+      background: rgba(37, 99, 235, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      color: var(--blue);
+    }
+    .live-alert-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .live-alert-content {
+      flex: 1;
+    }
+    .live-alert-title {
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .live-alert-desc {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    .live-alert-action {
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Live Campaigns Grid */
+    .live-campaigns-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .live-campaign-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+    }
+    .live-campaign-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    .live-campaign-card.has-alert {
+      border-left: 4px solid var(--orange);
+    }
+    .live-campaign-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .live-campaign-name {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .live-campaign-property {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .live-campaign-status {
+      flex-shrink: 0;
+    }
+    .live-campaign-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .live-campaign-stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .live-campaign-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+    .live-campaign-stat-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .live-campaign-stat-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .live-empty-state {
+      text-align: center;
+      padding: 40px;
+      background: var(--bg-card);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+    }
+
+    /* Creative Performance Grid */
+    .creative-perf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .creative-perf-grid { grid-template-columns: 1fr; }
+    }
+    .creative-perf-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .creative-perf-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .creative-perf-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .creative-perf-badge.good {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+    .creative-perf-badge.bad {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+    .creative-perf-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .creative-perf-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .creative-perf-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .creative-perf-item:hover {
+      background: var(--bg-card-hover);
+    }
+    .creative-perf-thumb {
+      width: 44px;
+      height: 44px;
+      background: var(--border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .creative-perf-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .creative-perf-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .creative-perf-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 8px;
+    }
+    .creative-perf-cpl {
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .creative-perf-action {
+      font-size: 11px;
+      color: var(--red);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Competitor Preview Grid */
+    .competitor-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .competitor-preview-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .competitor-preview-grid { grid-template-columns: 1fr; }
+    }
+    .competitor-preview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .competitor-preview-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+    .competitor-preview-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .competitor-preview-thumb {
+      width: 40px;
+      height: 40px;
+      background: var(--border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .competitor-preview-brand {
+      flex: 1;
+      min-width: 0;
+    }
+    .competitor-preview-name {
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .competitor-preview-new {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .competitor-preview-body {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .competitor-preview-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* History Section */
+    .history-section {
+      background: var(--bg-secondary);
+      margin-left: -32px;
+      margin-right: -32px;
+      padding-left: 32px;
+      padding-right: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      border-bottom: none;
+    }
+    @media (max-width: 768px) {
+      .history-section {
+        margin-left: -16px;
+        margin-right: -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+
     /* Mobile: App Nav */
     @media (max-width: 768px) {
       .topnav-center { display: none; }
@@ -3262,63 +3631,146 @@
       </div>
     </div>
 
-    <!-- VIEW: Home / Smart Dashboard -->
+    <!-- VIEW: Home / Live-First Dashboard -->
     <div id="view-home" class="view active">
-      <div class="home-hero" style="padding-bottom:24px;">
+      <div class="home-hero" style="padding-bottom:16px;">
         <img src="assets/rg-logo.png" alt="Run & Gun" class="home-logo">
         <h1 class="home-title">Campaign Dashboard</h1>
-        <p class="home-subtitle">Dein Performance-Hub für alle Kampagnen & Competitor-Insights</p>
+        <p class="home-subtitle">Live-Übersicht: Was passiert jetzt?</p>
       </div>
 
-      <!-- Row 1: KPI Cards -->
-      <div class="home-stats">
-        <div class="home-stat-card">
-          <div class="home-stat-label">Total Kampagnen</div>
-          <div class="home-stat-value" id="home-stat-total">–</div>
-          <div id="home-stat-total-delta" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
+      <!-- ============================================ -->
+      <!-- SECTION 1: 🔴 LIVE STATUS (TOP) -->
+      <!-- ============================================ -->
+      <div class="live-section" id="live-section">
+        <div class="live-section-header">
+          <h2 class="live-section-title">🔴 Live Status</h2>
+          <span class="live-pulse"></span>
         </div>
-        <div class="home-stat-card">
-          <div class="home-stat-label">Aktive Kampagnen</div>
-          <div class="home-stat-value" id="home-stat-active" style="color:var(--green);">–</div>
+
+        <!-- Action Required Alerts -->
+        <div id="live-action-alerts" class="live-alerts-container" style="display:none;">
+          <!-- Dynamically populated -->
         </div>
-        <div class="home-stat-card">
-          <div class="home-stat-label">Ø CPL</div>
-          <div class="home-stat-value" id="home-stat-cpl">–</div>
+
+        <!-- Active Campaigns Grid -->
+        <div id="live-campaigns-grid" class="live-campaigns-grid">
+          <div style="color:var(--text-muted);font-size:13px;padding:20px;">Lade aktive Kampagnen...</div>
         </div>
-        <div class="home-stat-card">
-          <div class="home-stat-label">Total Leads</div>
-          <div class="home-stat-value" id="home-stat-leads">–</div>
+
+        <!-- Empty state for no live campaigns -->
+        <div id="live-campaigns-empty" class="live-empty-state" style="display:none;">
+          <div class="empty-state-icon">😴</div>
+          <div class="empty-state-title">Keine aktiven Kampagnen</div>
+          <div class="empty-state-desc">Starte eine neue Kampagne oder importiere aus Meta.</div>
+          <button class="btn btn-primary" style="margin-top:12px;" onclick="showView('new-campaign')">➕ Neue Kampagne</button>
         </div>
       </div>
 
-      <!-- Row 2: Leads Trend Chart -->
-      <div class="home-chart-card">
-        <div class="home-chart-title">📈 Leads-Trend (letzte 30 Tage)</div>
-        <div class="home-chart-container">
-          <canvas id="homeLeadsChart"></canvas>
+      <!-- ============================================ -->
+      <!-- SECTION 2: 📊 CREATIVE PERFORMANCE (MIDDLE) -->
+      <!-- ============================================ -->
+      <div class="live-section" id="creative-section">
+        <div class="live-section-header">
+          <h2 class="live-section-title">📊 Creative Performance (Live-Kampagnen)</h2>
         </div>
-      </div>
 
-      <!-- Row 3: Top Performer + Alerts -->
-      <div class="home-two-col">
-        <div class="home-performer-card">
-          <div class="home-card-title">🏆 Top Performer</div>
-          <div id="home-top-performer">
-            <div style="color:var(--text-muted);font-size:13px;">Lade...</div>
+        <div class="creative-perf-grid">
+          <!-- Top 3 Creatives -->
+          <div class="creative-perf-card creative-perf-top">
+            <div class="creative-perf-card-header">
+              <span class="creative-perf-badge good">🏆 Top 3</span>
+              <span class="creative-perf-subtitle">Beste CTR/CPL</span>
+            </div>
+            <div id="live-top-creatives" class="creative-perf-list">
+              <div style="color:var(--text-muted);font-size:13px;padding:12px;">Lade...</div>
+            </div>
+          </div>
+
+          <!-- Bottom 3 Creatives -->
+          <div class="creative-perf-card creative-perf-bottom">
+            <div class="creative-perf-card-header">
+              <span class="creative-perf-badge bad">⚠️ Underperformer</span>
+              <span class="creative-perf-subtitle">Abschalten?</span>
+            </div>
+            <div id="live-bottom-creatives" class="creative-perf-list">
+              <div style="color:var(--text-muted);font-size:13px;padding:12px;">Lade...</div>
+            </div>
           </div>
         </div>
-        <div class="home-activity-card">
-          <div class="home-card-title">🔔 Alerts & Aktivität</div>
-          <div id="home-alerts-activity">
-            <div style="color:var(--text-muted);font-size:13px;">Lade...</div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- SECTION 3: 🔍 COMPETITOR WATCH -->
+      <!-- ============================================ -->
+      <div class="live-section" id="competitor-section">
+        <div class="live-section-header">
+          <h2 class="live-section-title">🔍 Competitor Watch</h2>
+          <span class="app-bc-item" style="font-size:12px;color:var(--accent);cursor:pointer;" onclick="showView('competitors','feed')">Alle anzeigen →</span>
+        </div>
+
+        <div id="live-competitor-ads" class="competitor-preview-grid">
+          <div style="color:var(--text-muted);font-size:13px;padding:20px;grid-column:1/-1;">Lade neueste Competitor-Ads...</div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- SECTION 4: 📈 BENCHMARKS & HISTORY (BOTTOM) -->
+      <!-- ============================================ -->
+      <div class="live-section history-section" id="history-section">
+        <div class="live-section-header">
+          <h2 class="live-section-title">📈 Benchmarks & Historie</h2>
+        </div>
+
+        <!-- KPI Cards (All-time) -->
+        <div class="home-stats" style="margin-bottom:24px;">
+          <div class="home-stat-card">
+            <div class="home-stat-label">Total Kampagnen</div>
+            <div class="home-stat-value" id="home-stat-total">–</div>
+          </div>
+          <div class="home-stat-card">
+            <div class="home-stat-label">Aktive Kampagnen</div>
+            <div class="home-stat-value" id="home-stat-active" style="color:var(--green);">–</div>
+          </div>
+          <div class="home-stat-card">
+            <div class="home-stat-label">Ø CPL (gesamt)</div>
+            <div class="home-stat-value" id="home-stat-cpl">–</div>
+          </div>
+          <div class="home-stat-card">
+            <div class="home-stat-label">Total Leads</div>
+            <div class="home-stat-value" id="home-stat-leads">–</div>
+          </div>
+        </div>
+
+        <!-- Leads Trend Chart -->
+        <div class="home-chart-card" style="margin-bottom:24px;">
+          <div class="home-chart-title">📈 Leads-Trend (letzte 30 Tage)</div>
+          <div class="home-chart-container">
+            <canvas id="homeLeadsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Top Performer (All-time) -->
+        <div class="home-two-col">
+          <div class="home-performer-card">
+            <div class="home-card-title">🏆 Top Performer (All-time)</div>
+            <div id="home-top-performer">
+              <div style="color:var(--text-muted);font-size:13px;">Lade...</div>
+            </div>
+          </div>
+          <div class="home-activity-card">
+            <div class="home-card-title">🔔 Letzte Aktivität</div>
+            <div id="home-alerts-activity">
+              <div style="color:var(--text-muted);font-size:13px;">Lade...</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Row 4: Quick Navigation -->
-      <div class="home-quick-nav">
+      <!-- Quick Navigation -->
+      <div class="home-quick-nav" style="margin-top:24px;">
         <div class="home-quick-card" onclick="showView('analytics','campaigns')">
-          <span class="home-quick-icon">📊</span> Analytics
+          <span class="home-quick-icon">📊</span> Alle Kampagnen
         </div>
         <div class="home-quick-card" onclick="showView('competitors','overview')">
           <span class="home-quick-icon">🔍</span> Competitors
@@ -4977,16 +5429,20 @@ function toggleMobileNav() { toggleMobileMenu(); }
 function closeMobileNav() { closeMobileMenu(); }
 
 // ============================================
-// HOME PAGE — Smart Dashboard
+// HOME PAGE — LIVE-FIRST DASHBOARD
 // ============================================
 let _homeLeadsChart = null;
+const BENCHMARK_CPL = 15; // Benchmark CPL in EUR
 
 async function loadHomeStats() {
   if (!dbReady) return;
   try {
-    const camps = await sbGet('campaigns', 'select=id,status,campaign_name,properties!inner(id,name),campaign_daily_metrics(date,spend,leads)');
+    // Load all campaigns with full metrics
+    const camps = await sbGet('campaigns', 'select=id,status,campaign_name,start_date,total_budget,properties!inner(id,name,clients(name)),campaign_daily_metrics(date,spend,leads,impressions),creatives(id,creative_name,creative_type,creative_daily_metrics(date,spend,leads,impressions))');
+    
     const total = camps.length;
-    const active = camps.filter(c => c.status === 'active').length;
+    const activeCamps = camps.filter(c => c.status === 'active');
+    const active = activeCamps.length;
     let totalLeads = 0;
     let totalSpend = 0;
     camps.forEach(c => {
@@ -4999,22 +5455,354 @@ async function loadHomeStats() {
     });
     const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
 
+    // Update history section KPIs
     document.getElementById('home-stat-total').textContent = formatNum(total);
     document.getElementById('home-stat-active').textContent = formatNum(active);
     document.getElementById('home-stat-cpl').textContent = avgCPL > 0 ? formatEur(avgCPL) : '–';
     document.getElementById('home-stat-leads').textContent = formatNum(totalLeads);
 
-    // Leads Trend Chart (last 30 days)
+    // === SECTION 1: Live Status ===
+    renderLiveCampaigns(activeCamps);
+    renderLiveActionAlerts(activeCamps);
+
+    // === SECTION 2: Creative Performance (Live) ===
+    renderLiveCreativePerformance(activeCamps, avgCPL);
+
+    // === SECTION 3: Competitor Watch ===
+    renderLiveCompetitorAds();
+
+    // === SECTION 4: History ===
     renderHomeLeadsChart(camps);
-
-    // Top Performer
     renderHomeTopPerformer(camps);
-
-    // Alerts & Activity
     renderHomeAlertsActivity();
 
   } catch (e) {
     console.error('Home stats error:', e);
+  }
+}
+
+// --- Section 1: Live Campaigns ---
+function renderLiveCampaigns(activeCamps) {
+  const grid = document.getElementById('live-campaigns-grid');
+  const empty = document.getElementById('live-campaigns-empty');
+  
+  if (!activeCamps || activeCamps.length === 0) {
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  grid.style.display = 'grid';
+  empty.style.display = 'none';
+  
+  const today = new Date().toISOString().slice(0, 10);
+  
+  grid.innerHTML = activeCamps.map(c => {
+    const metrics = c.campaign_daily_metrics || [];
+    const todayMetrics = metrics.filter(m => m.date === today);
+    const spendToday = todayMetrics.reduce((s, m) => s + (m.spend || 0), 0);
+    const leadsToday = todayMetrics.reduce((s, m) => s + (m.leads || 0), 0);
+    const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
+    const totalLeads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
+    const cpl = totalLeads > 0 ? totalSpend / totalLeads : null;
+    const propName = c.properties ? c.properties.name : '—';
+    const clientName = c.properties && c.properties.clients ? c.properties.clients.name : '';
+    
+    // Check for alerts
+    const daysRunning = metrics.length;
+    const hasZeroLeadsAlert = daysRunning >= 2 && daysRunning <= 3 && totalLeads === 0;
+    const highCPLAlert = cpl && cpl > BENCHMARK_CPL * 2;
+    const budgetAlert = c.total_budget && totalSpend > c.total_budget * 0.9;
+    const hasAlert = hasZeroLeadsAlert || highCPLAlert || budgetAlert;
+    
+    return `
+      <div class="live-campaign-card ${hasAlert ? 'has-alert' : ''}" onclick="openCampaign('${c.id}')">
+        <div class="live-campaign-header">
+          <div>
+            <div class="live-campaign-name">${escHtml(c.campaign_name)}</div>
+            <div class="live-campaign-property">${escHtml(clientName ? clientName + ' · ' : '')}${escHtml(propName)}</div>
+          </div>
+          <div class="live-campaign-status">
+            <span class="badge badge-active"><span class="badge-dot"></span>Live</span>
+          </div>
+        </div>
+        <div class="live-campaign-stats">
+          <div class="live-campaign-stat">
+            <div class="live-campaign-stat-label">Spend heute</div>
+            <div class="live-campaign-stat-value">${formatEur(spendToday)}</div>
+            <div class="live-campaign-stat-sub">/ ${formatEur(totalSpend)} gesamt</div>
+          </div>
+          <div class="live-campaign-stat">
+            <div class="live-campaign-stat-label">Leads heute</div>
+            <div class="live-campaign-stat-value">${leadsToday}</div>
+            <div class="live-campaign-stat-sub">/ ${totalLeads} gesamt</div>
+          </div>
+          <div class="live-campaign-stat">
+            <div class="live-campaign-stat-label">Aktueller CPL</div>
+            <div class="live-campaign-stat-value ${cpl && cpl < 10 ? 'value-good' : cpl && cpl > 20 ? 'value-bad' : ''}">${cpl ? formatEur(cpl) : '—'}</div>
+          </div>
+          <div class="live-campaign-stat">
+            <div class="live-campaign-stat-label">Laufzeit</div>
+            <div class="live-campaign-stat-value">${daysRunning} Tage</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// --- Section 1: Action Alerts ---
+function renderLiveActionAlerts(activeCamps) {
+  const container = document.getElementById('live-action-alerts');
+  const alerts = [];
+  const today = new Date().toISOString().slice(0, 10);
+  
+  activeCamps.forEach(c => {
+    const metrics = c.campaign_daily_metrics || [];
+    const daysRunning = metrics.length;
+    const totalSpend = metrics.reduce((s, m) => s + (m.spend || 0), 0);
+    const totalLeads = metrics.reduce((s, m) => s + (m.leads || 0), 0);
+    const cpl = totalLeads > 0 ? totalSpend / totalLeads : null;
+    const propName = c.properties ? c.properties.name : c.campaign_name;
+    
+    // Alert: Day 2-3 with 0 leads
+    if (daysRunning >= 2 && daysRunning <= 3 && totalLeads === 0) {
+      alerts.push({
+        type: 'warning',
+        icon: '⚠️',
+        title: propName + ': 0 Leads nach ' + daysRunning + ' Tagen',
+        desc: 'Prüfe Targeting und Creative-Performance',
+        action: 'Analysieren →',
+        campaignId: c.id
+      });
+    }
+    
+    // Alert: CPL > 2x benchmark
+    if (cpl && cpl > BENCHMARK_CPL * 2) {
+      alerts.push({
+        type: 'danger',
+        icon: '🔴',
+        title: propName + ': CPL zu hoch (' + formatEur(cpl) + ')',
+        desc: 'Benchmark: ' + formatEur(BENCHMARK_CPL) + ' – aktuell ' + Math.round((cpl / BENCHMARK_CPL - 1) * 100) + '% drüber',
+        action: 'Optimieren →',
+        campaignId: c.id
+      });
+    }
+    
+    // Alert: Budget almost exhausted
+    if (c.total_budget && totalSpend > c.total_budget * 0.9) {
+      const pctUsed = Math.round((totalSpend / c.total_budget) * 100);
+      alerts.push({
+        type: 'info',
+        icon: '💰',
+        title: propName + ': Budget fast aufgebraucht',
+        desc: pctUsed + '% des Budgets verbraucht (' + formatEur(totalSpend) + ' / ' + formatEur(c.total_budget) + ')',
+        action: 'Details →',
+        campaignId: c.id
+      });
+    }
+    
+    // Alert: Underperforming creatives
+    const creatives = c.creatives || [];
+    const zeroLeadCreatives = creatives.filter(cr => {
+      const crMetrics = cr.creative_daily_metrics || [];
+      const crSpend = crMetrics.reduce((s, m) => s + (m.spend || 0), 0);
+      const crLeads = crMetrics.reduce((s, m) => s + (m.leads || 0), 0);
+      return crSpend > 20 && crLeads === 0; // More than 20€ spent, 0 leads
+    });
+    if (zeroLeadCreatives.length > 0) {
+      alerts.push({
+        type: 'warning',
+        icon: '🎨',
+        title: propName + ': ' + zeroLeadCreatives.length + ' Creative(s) ohne Leads',
+        desc: zeroLeadCreatives.map(cr => cr.creative_name).join(', ').substring(0, 50) + (zeroLeadCreatives.length > 1 ? '...' : ''),
+        action: 'Abschalten? →',
+        campaignId: c.id
+      });
+    }
+  });
+  
+  if (alerts.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  
+  container.style.display = 'flex';
+  container.innerHTML = alerts.map(a => `
+    <div class="live-alert-item live-alert-${a.type}" onclick="openCampaign('${a.campaignId}')">
+      <div class="live-alert-icon">${a.icon}</div>
+      <div class="live-alert-content">
+        <div class="live-alert-title">${escHtml(a.title)}</div>
+        <div class="live-alert-desc">${escHtml(a.desc)}</div>
+      </div>
+      <div class="live-alert-action">${a.action}</div>
+    </div>
+  `).join('');
+}
+
+// --- Section 2: Live Creative Performance ---
+function renderLiveCreativePerformance(activeCamps, globalAvgCPL) {
+  const topContainer = document.getElementById('live-top-creatives');
+  const bottomContainer = document.getElementById('live-bottom-creatives');
+  
+  // Collect all creatives from active campaigns
+  const allCreatives = [];
+  activeCamps.forEach(c => {
+    const creatives = c.creatives || [];
+    creatives.forEach(cr => {
+      const crMetrics = cr.creative_daily_metrics || [];
+      const crSpend = crMetrics.reduce((s, m) => s + (m.spend || 0), 0);
+      const crLeads = crMetrics.reduce((s, m) => s + (m.leads || 0), 0);
+      const crImpr = crMetrics.reduce((s, m) => s + (m.impressions || 0), 0);
+      const cpl = crLeads > 0 ? crSpend / crLeads : null;
+      const ctr = crImpr > 0 ? (crLeads / crImpr) * 100 : null;
+      
+      allCreatives.push({
+        id: cr.id,
+        name: cr.creative_name,
+        type: cr.creative_type,
+        campaignId: c.id,
+        campaignName: c.campaign_name,
+        propName: c.properties ? c.properties.name : '—',
+        spend: crSpend,
+        leads: crLeads,
+        impressions: crImpr,
+        cpl: cpl,
+        ctr: ctr,
+        score: calcScore(crLeads, cpl, globalAvgCPL || BENCHMARK_CPL)
+      });
+    });
+  });
+  
+  if (allCreatives.length === 0) {
+    topContainer.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px;">Keine Creatives in aktiven Kampagnen</div>';
+    bottomContainer.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px;">—</div>';
+    return;
+  }
+  
+  // Sort by score for top performers
+  const sortedByScore = [...allCreatives].sort((a, b) => b.score - a.score);
+  const top3 = sortedByScore.slice(0, 3);
+  
+  // For bottom performers: creatives with spend but poor CPL or 0 leads
+  const bottom3 = [...allCreatives]
+    .filter(cr => cr.spend > 10) // Only consider creatives with some spend
+    .sort((a, b) => {
+      // 0 leads = worst, then sort by highest CPL
+      if (a.leads === 0 && b.leads > 0) return -1;
+      if (b.leads === 0 && a.leads > 0) return 1;
+      if (a.leads === 0 && b.leads === 0) return b.spend - a.spend; // Most wasted spend first
+      return (b.cpl || 0) - (a.cpl || 0); // Highest CPL first
+    })
+    .slice(0, 3);
+  
+  // Render top 3
+  topContainer.innerHTML = top3.length > 0 ? top3.map((cr, idx) => {
+    const medal = ['🥇', '🥈', '🥉'][idx] || '';
+    const typeIcon = getCreativeTypeIcon(cr.type);
+    return `
+      <div class="creative-perf-item" onclick="openCampaign('${cr.campaignId}')">
+        <div class="creative-perf-thumb">${typeIcon}</div>
+        <div class="creative-perf-info">
+          <div class="creative-perf-name">${medal} ${escHtml(cr.name)}</div>
+          <div class="creative-perf-meta">
+            <span>${escHtml(cr.propName)}</span>
+            <span>${cr.leads} Leads</span>
+          </div>
+        </div>
+        <div class="creative-perf-cpl value-good">${cr.cpl ? formatEur(cr.cpl) : '—'}</div>
+      </div>
+    `;
+  }).join('') : '<div style="color:var(--text-muted);font-size:13px;padding:12px;">Noch keine Daten</div>';
+  
+  // Render bottom 3
+  bottomContainer.innerHTML = bottom3.length > 0 ? bottom3.map(cr => {
+    const typeIcon = getCreativeTypeIcon(cr.type);
+    const isZeroLeads = cr.leads === 0;
+    return `
+      <div class="creative-perf-item" onclick="openCampaign('${cr.campaignId}')">
+        <div class="creative-perf-thumb">${typeIcon}</div>
+        <div class="creative-perf-info">
+          <div class="creative-perf-name">${escHtml(cr.name)}</div>
+          <div class="creative-perf-meta">
+            <span>${escHtml(cr.propName)}</span>
+            <span>${formatEur(cr.spend)} ausgegeben</span>
+          </div>
+          ${isZeroLeads ? '<div class="creative-perf-action">0 Leads – abschalten?</div>' : ''}
+        </div>
+        <div class="creative-perf-cpl ${cr.cpl && cr.cpl > BENCHMARK_CPL * 1.5 ? 'value-bad' : ''}">${cr.cpl ? formatEur(cr.cpl) : '0 Leads'}</div>
+      </div>
+    `;
+  }).join('') : '<div style="color:var(--text-muted);font-size:13px;padding:12px;">Alle Creatives performen gut 👍</div>';
+}
+
+function getCreativeTypeIcon(type) {
+  const icons = {
+    'single_image': '🖼️',
+    'carousel': '🎠',
+    'video': '🎬',
+    'reel': '📱',
+    'scn_reel': '📱',
+    'th_reel': '📱',
+    'story': '📖',
+    'image': '🖼️'
+  };
+  return icons[type] || '🎨';
+}
+
+// --- Section 3: Live Competitor Ads ---
+async function renderLiveCompetitorAds() {
+  const container = document.getElementById('live-competitor-ads');
+  
+  try {
+    // Get 3 newest competitor ads
+    const ads = await sbGet('competitor_ads', 'select=*,competitor_watchlist(brand,page_name)&order=ad_delivery_start_time.desc.nullsfirst,created_at.desc&limit=3');
+    
+    if (!ads || ads.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);">
+          <div style="font-size:24px;margin-bottom:8px;">👀</div>
+          <div style="font-size:13px;">Noch keine Competitor-Ads</div>
+          <button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="showView('competitors','overview')">Watchlist einrichten →</button>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = ads.map(a => {
+      const brand = a.competitor_watchlist ? (a.competitor_watchlist.brand || a.competitor_watchlist.page_name) : (a.page_name || '—');
+      const body = (a.ad_creative_bodies && a.ad_creative_bodies[0]) ? a.ad_creative_bodies[0] : '';
+      const snippet = body.length > 80 ? body.substring(0, 80) + '…' : body;
+      const startDate = a.ad_delivery_start_time ? new Date(a.ad_delivery_start_time) : null;
+      const now = new Date();
+      const daysRunning = startDate ? Math.ceil((now - startDate) / 86400000) : null;
+      const isNew = startDate && (now - startDate) < 7 * 86400000; // Less than 7 days old
+      
+      return `
+        <div class="competitor-preview-card" onclick="showView('competitors','feed')">
+          <div class="competitor-preview-header">
+            <div class="competitor-preview-thumb">📢</div>
+            <div class="competitor-preview-brand">
+              <div class="competitor-preview-name">${escHtml(brand)}</div>
+              ${isNew ? '<div class="competitor-preview-new">🆕 Neu</div>' : ''}
+            </div>
+          </div>
+          <div class="competitor-preview-body">${escHtml(snippet) || '(Kein Text)'}</div>
+          <div class="competitor-preview-footer">
+            <span>${daysRunning !== null ? daysRunning + ' Tage' : '—'}</span>
+            <span>${a.is_active ? '🟢 Aktiv' : '⏹️ Gestoppt'}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+  } catch (e) {
+    console.error('Competitor ads load error:', e);
+    container.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);">
+        <div style="font-size:13px;">Competitor-Daten werden geladen...</div>
+      </div>
+    `;
   }
 }
 
