@@ -5716,7 +5716,26 @@ async function loadIntelligence() {
     // Load all creatives with their metrics AND campaign/property info
     const creatives = await sbGet('creatives', 'select=*,creative_daily_metrics(*),campaigns(id,property_id,properties(property_type))');
 
-    // Filter by property category
+    // Time filter: calculate cutoff date for 30-day filter
+    let dateCutoff = null;
+    if (intelTimeFilter === '30d') {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      dateCutoff = d.toISOString().slice(0, 10); // YYYY-MM-DD
+    }
+
+    // ALWAYS calculate globalAvgCPL from ALL creatives (not filtered)
+    // This ensures scores are comparable across category tabs
+    let globalTotalLeads = 0, globalTotalSpend = 0;
+    (creatives || []).forEach(c => {
+      let metrics = c.creative_daily_metrics || [];
+      if (dateCutoff) metrics = metrics.filter(m => m.date >= dateCutoff);
+      globalTotalLeads += metrics.reduce((s, m) => s + (m.leads || 0), 0);
+      globalTotalSpend += metrics.reduce((s, m) => s + (m.spend || 0), 0);
+    });
+    const globalAvgCPL = globalTotalLeads > 0 ? globalTotalSpend / globalTotalLeads : 0;
+
+    // Filter by property category (AFTER computing global benchmark)
     let filteredCreatives = creatives || [];
     if (intelCategoryFilter === 'neubauprojekt') {
       filteredCreatives = filteredCreatives.filter(c => {
@@ -5740,14 +5759,6 @@ async function loadIntelligence() {
       return;
     }
 
-    // Time filter: calculate cutoff date for 30-day filter
-    let dateCutoff = null;
-    if (intelTimeFilter === '30d') {
-      const d = new Date();
-      d.setDate(d.getDate() - 30);
-      dateCutoff = d.toISOString().slice(0, 10); // YYYY-MM-DD
-    }
-
     // Group by creative_type
     const typeMap = {};
     filteredCreatives.forEach(c => {
@@ -5764,11 +5775,6 @@ async function loadIntelligence() {
       typeMap[type].totalSpend += spend;
       typeMap[type].creativeCount += 1;
     });
-
-    // Calculate avgCPL across all types
-    const allLeads = Object.values(typeMap).reduce((s, t) => s + t.totalLeads, 0);
-    const allSpend = Object.values(typeMap).reduce((s, t) => s + t.totalSpend, 0);
-    const globalAvgCPL = allLeads > 0 ? allSpend / allLeads : 0;
 
     // Calc per-type metrics (average score per creative, not sum)
     const typeData = Object.values(typeMap).map(t => {
