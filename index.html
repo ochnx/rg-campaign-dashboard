@@ -1282,6 +1282,195 @@
       .data-intel-grid { grid-template-columns: 1fr; }
     }
 
+    /* Live tracking badge */
+    .badge-live {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .live-banner {
+      background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(8,145,178,0.05));
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: var(--radius);
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    /* Meta Import View */
+    .meta-campaign-search {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .meta-campaign-search .form-input {
+      flex: 1;
+    }
+
+    .meta-filter-btns {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .meta-filter-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+    .meta-filter-btn:hover { border-color: var(--text-muted); }
+    .meta-filter-btn.active {
+      background: rgba(231, 53, 46, 0.08);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .meta-campaign-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .meta-campaign-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all var(--transition);
+    }
+    .meta-campaign-row:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+    }
+    .meta-campaign-row .meta-camp-info { flex: 1; }
+    .meta-campaign-row .meta-camp-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+    .meta-campaign-row .meta-camp-details {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Link Modal */
+    .meta-link-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .meta-link-modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      max-width: 700px;
+      width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+    }
+    .meta-link-modal h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .meta-link-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-link-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .meta-link-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Sync progress */
+    .meta-sync-progress {
+      padding: 24px;
+      text-align: center;
+    }
+    .meta-sync-progress .sync-step {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+    .meta-sync-progress .sync-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-input);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .meta-sync-progress .sync-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      border-radius: 4px;
+      transition: width 300ms ease;
+    }
+    .meta-sync-progress .sync-detail {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Success card */
+    .meta-sync-success {
+      text-align: center;
+      padding: 32px 24px;
+    }
+    .meta-sync-success .success-icon { font-size: 48px; margin-bottom: 16px; }
+    .meta-sync-success .success-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+    .meta-sync-success .success-stats {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
     /* View transitions */
     .view { display: none; }
     .view.active { display: block; animation: fadeIn 200ms ease; }
@@ -2769,6 +2958,13 @@
             <div class="home-nav-desc">Competitor-Ads tracken & analysieren</div>
           </div>
         </div>
+        <div class="home-nav-card" onclick="showView('meta-import')">
+          <div class="home-nav-icon">📡</div>
+          <div>
+            <div class="home-nav-title">Live-Tracking</div>
+            <div class="home-nav-desc">Meta-Kampagnen verknüpfen & täglich automatisch synchronisieren</div>
+          </div>
+        </div>
       </div>
 
       <!-- CTA -->
@@ -2785,9 +2981,14 @@
           <h1 class="page-title">Kampagnen</h1>
           <div class="page-subtitle">Alle aktiven und abgeschlossenen Kampagnen</div>
         </div>
-        <button class="btn btn-primary" onclick="showView('new-campaign')">
-          + Neue Kampagne
-        </button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" onclick="showView('meta-import')">
+            📡 Meta-Kampagnen importieren
+          </button>
+          <button class="btn btn-primary" onclick="showView('new-campaign')">
+            + Neue Kampagne
+          </button>
+        </div>
       </div>
 
       <!-- Filters (platform removed — always Meta) -->
@@ -2834,6 +3035,10 @@
     <!-- VIEW: Campaign Detail -->
     <div id="view-detail" class="view">
       <a class="back-link" onclick="showView('campaigns')">← Zurück zu Kampagnen</a>
+
+      <div id="detail-live-banner" class="live-banner" style="display:none;">
+        🟢 Live-Tracking aktiv — Metriken werden täglich automatisch synchronisiert
+      </div>
 
       <div class="page-header">
         <div>
@@ -3699,6 +3904,73 @@
     </div>
 
     <!-- ============================================ -->
+    <!-- META IMPORT / LIVE TRACKING VIEW -->
+    <!-- ============================================ -->
+    <div id="view-meta-import" class="view">
+      <a class="view-breadcrumb" onclick="showView('home')">← Home</a>
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">📡 Meta-Kampagnen importieren</h1>
+          <div class="page-subtitle">Kampagnen aus dem Meta Ad Account verknüpfen und automatisch synchronisieren</div>
+        </div>
+      </div>
+
+      <!-- Step 1: Campaign List from Meta API -->
+      <div id="meta-import-step-list">
+        <div class="meta-campaign-search">
+          <input class="form-input" id="meta-search" placeholder="Kampagne suchen..." oninput="filterMetaCampaigns()">
+        </div>
+        <div class="meta-filter-btns">
+          <button class="meta-filter-btn active" id="meta-filter-all" onclick="setMetaStatusFilter('all')">Alle</button>
+          <button class="meta-filter-btn" id="meta-filter-active" onclick="setMetaStatusFilter('ACTIVE')">Active</button>
+          <button class="meta-filter-btn" id="meta-filter-paused" onclick="setMetaStatusFilter('PAUSED')">Paused</button>
+        </div>
+
+        <div id="meta-campaigns-loading" class="loading-spinner">
+          <div class="spinner"></div>
+        </div>
+        <div id="meta-campaigns-empty" class="empty-state" style="display:none;">
+          <div class="empty-state-icon">📡</div>
+          <div class="empty-state-title">Keine Kampagnen geladen</div>
+          <div class="empty-state-desc">Stelle sicher, dass der Meta API Token unter Competitor Watch → API Settings gespeichert ist.</div>
+        </div>
+        <div id="meta-campaigns-list" class="meta-campaign-list" style="display:none;"></div>
+      </div>
+
+      <!-- Step 2: Link Modal (dynamic, rendered in JS) -->
+      <div id="meta-link-modal-container"></div>
+
+      <!-- Step 3: Sync Progress (inline) -->
+      <div id="meta-import-step-sync" style="display:none;">
+        <div class="card">
+          <div class="card-body">
+            <div class="meta-sync-progress" id="meta-sync-progress">
+              <div class="spinner" style="margin:0 auto 16px;"></div>
+              <div class="sync-step" id="meta-sync-step">Starte Synchronisation...</div>
+              <div class="sync-bar"><div class="sync-bar-fill" id="meta-sync-bar" style="width:0%;"></div></div>
+              <div class="sync-detail" id="meta-sync-detail"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Success -->
+      <div id="meta-import-step-success" style="display:none;">
+        <div class="card">
+          <div class="card-body">
+            <div class="meta-sync-success">
+              <div class="success-icon">✅</div>
+              <div class="success-title" id="meta-success-title">Kampagne verknüpft!</div>
+              <div class="success-stats" id="meta-success-stats"></div>
+              <button class="btn btn-primary" id="meta-success-open-btn" onclick="">→ Kampagne öffnen</button>
+              <button class="btn btn-secondary" style="margin-left:8px;" onclick="resetMetaImport()">Weitere importieren</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
     <!-- COMPETITOR WATCH VIEW -->
     <!-- ============================================ -->
     <div id="view-competitor" class="view">
@@ -4090,6 +4362,7 @@ function showView(view) {
   if (view === 'data-intel') loadDataIntelligence();
   if (view === 'predictor') { /* nothing to preload */ }
   if (view === 'compare') { /* nothing to preload */ }
+  if (view === 'meta-import') loadMetaCampaigns();
   if (view === 'competitor') loadCompetitorView();
   if (view === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
@@ -4185,10 +4458,12 @@ async function loadCampaigns() {
       const cityRating = property?.location_rating || getCityRating(property?.city);
       const cityBadge = property?.city ? `<span style="margin-left:6px;font-size:11px;color:var(--text-muted);background:var(--bg-input);padding:1px 6px;border-radius:4px;">${escHtml(property.city)}${cityRating ? ' ('+cityRating+')' : ''}</span>` : '';
 
+      const liveBadge = c.is_live ? ' <span class="badge-live">🟢 Live</span>' : '';
+
       return `
         <tr onclick="openCampaign('${c.id}')">
           <td>
-            <div class="campaign-name">${escHtml(c.campaign_name)}</div>
+            <div class="campaign-name">${escHtml(c.campaign_name)}${liveBadge}</div>
             <div class="campaign-property">${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}${cityBadge}</div>
           </td>
           <td>${statusBadge(c.status)}</td>
@@ -4293,10 +4568,15 @@ async function openCampaign(id) {
     window._editPropertyData = property;
 
     // Header (no platform badge — always Meta)
-    document.getElementById('detail-title').textContent = campaign.campaign_name;
+    const liveSuffix = campaign.is_live ? ' <span class="badge-live">🟢 Live</span>' : '';
+    document.getElementById('detail-title').innerHTML = escHtml(campaign.campaign_name) + liveSuffix;
     document.getElementById('detail-subtitle').innerHTML =
       `${escHtml(client?.name || '—')} · ${escHtml(property?.name || '—')}${property?.stadtteil ? ', ' + escHtml(property.stadtteil) : ''}`;
     document.getElementById('detail-status').innerHTML = statusBadge(campaign.status);
+
+    // Live tracking banner
+    const liveBanner = document.getElementById('detail-live-banner');
+    if (liveBanner) liveBanner.style.display = campaign.is_live ? 'flex' : 'none';
 
     // Property details
     const locRating = property?.location_rating || getCityRating(property?.city) || '—';
@@ -8831,6 +9111,678 @@ async function seedCompetitorWatchlist() {
   } catch (e) {
     console.error('Seed fehlgeschlagen:', e);
   }
+}
+
+// ============================================
+// META IMPORT / LIVE TRACKING
+// ============================================
+let _metaCampaigns = []; // raw campaigns from Meta API
+let _metaStatusFilter = 'all';
+let _metaLinkedIds = {}; // { meta_campaign_id: { campaign_id, property_name } }
+let _metaLinkTarget = null; // the Meta campaign being linked
+
+async function loadMetaCampaigns() {
+  var loading = document.getElementById('meta-campaigns-loading');
+  var empty = document.getElementById('meta-campaigns-empty');
+  var list = document.getElementById('meta-campaigns-list');
+
+  // Reset to step 1
+  document.getElementById('meta-import-step-list').style.display = 'block';
+  document.getElementById('meta-import-step-sync').style.display = 'none';
+  document.getElementById('meta-import-step-success').style.display = 'none';
+  document.getElementById('meta-link-modal-container').innerHTML = '';
+
+  loading.style.display = 'flex';
+  empty.style.display = 'none';
+  list.style.display = 'none';
+
+  var token = localStorage.getItem('meta_ad_library_token');
+  if (!token) {
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    empty.querySelector('.empty-state-desc').textContent = 'Kein Meta API Token gefunden. Bitte unter Competitor Watch → API Settings speichern.';
+    return;
+  }
+
+  try {
+    // Fetch campaigns from Meta API
+    var url = 'https://graph.facebook.com/v24.0/act_850524294087986/campaigns?fields=name,status,objective,start_time,stop_time,daily_budget,lifetime_budget&limit=100&access_token=' + encodeURIComponent(token);
+    var res = await fetch(url);
+    if (!res.ok) {
+      var errData = await res.json().catch(function() { return {}; });
+      throw new Error((errData.error && errData.error.message) || 'API Fehler ' + res.status);
+    }
+    var data = await res.json();
+    _metaCampaigns = data.data || [];
+
+    // Load already-linked campaigns from our DB
+    await loadLinkedCampaignIds();
+
+    loading.style.display = 'none';
+
+    if (_metaCampaigns.length === 0) {
+      empty.style.display = 'block';
+      empty.querySelector('.empty-state-desc').textContent = 'Keine Kampagnen im Ad Account gefunden.';
+      return;
+    }
+
+    renderMetaCampaignList();
+
+  } catch (e) {
+    console.error('Meta campaigns load error:', e);
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    empty.querySelector('.empty-state-desc').textContent = 'Fehler beim Laden: ' + (e.message || String(e));
+  }
+}
+
+async function loadLinkedCampaignIds() {
+  try {
+    var linked = await sbGet('campaigns', 'select=id,meta_campaign_id,properties(name)&meta_campaign_id=not.is.null');
+    _metaLinkedIds = {};
+    (linked || []).forEach(function(c) {
+      if (c.meta_campaign_id) {
+        _metaLinkedIds[c.meta_campaign_id] = {
+          campaign_id: c.id,
+          property_name: c.properties ? c.properties.name : '—'
+        };
+      }
+    });
+  } catch (e) {
+    console.error('Could not load linked campaigns:', e);
+    _metaLinkedIds = {};
+  }
+}
+
+function filterMetaCampaigns() {
+  renderMetaCampaignList();
+}
+
+function setMetaStatusFilter(status) {
+  _metaStatusFilter = status;
+  document.querySelectorAll('.meta-filter-btn').forEach(function(btn) { btn.classList.remove('active'); });
+  document.getElementById('meta-filter-' + (status === 'all' ? 'all' : status === 'ACTIVE' ? 'active' : 'paused')).classList.add('active');
+  renderMetaCampaignList();
+}
+
+function renderMetaCampaignList() {
+  var list = document.getElementById('meta-campaigns-list');
+  var empty = document.getElementById('meta-campaigns-empty');
+  var searchTerm = (document.getElementById('meta-search').value || '').toLowerCase().trim();
+
+  var filtered = _metaCampaigns.filter(function(c) {
+    if (_metaStatusFilter !== 'all' && c.status !== _metaStatusFilter) return false;
+    if (searchTerm && (c.name || '').toLowerCase().indexOf(searchTerm) === -1) return false;
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    list.style.display = 'none';
+    empty.style.display = 'block';
+    empty.querySelector('.empty-state-desc').textContent = 'Keine Kampagnen gefunden.';
+    return;
+  }
+
+  empty.style.display = 'none';
+  list.style.display = 'flex';
+
+  list.innerHTML = filtered.map(function(c) {
+    var isLinked = _metaLinkedIds[c.id];
+    var statusCls = c.status === 'ACTIVE' ? 'badge-active' : c.status === 'PAUSED' ? 'badge-paused' : 'badge-completed';
+    var statusLabel = c.status === 'ACTIVE' ? 'Aktiv' : c.status === 'PAUSED' ? 'Pausiert' : c.status || '—';
+    var startDate = c.start_time ? new Date(c.start_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+    var budget = '';
+    if (c.daily_budget) budget = formatEur(parseInt(c.daily_budget) / 100) + '/Tag';
+    else if (c.lifetime_budget) budget = formatEur(parseInt(c.lifetime_budget) / 100) + ' gesamt';
+    else budget = '—';
+
+    var actionBtn = '';
+    if (isLinked) {
+      actionBtn = '<span class="badge-live" style="margin-right:8px;">✅ Verknüpft · ' + escHtml(isLinked.property_name) + '</span>' +
+        '<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();triggerLiveSync(\'' + escHtml(c.id) + '\',\'' + escHtml(isLinked.campaign_id) + '\')">🔄 Sync jetzt</button>';
+    } else {
+      actionBtn = '<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openLinkModal(\'' + escHtml(c.id) + '\')">📎 Verknüpfen</button>';
+    }
+
+    return '<div class="meta-campaign-row">' +
+      '<div class="meta-camp-info">' +
+        '<div class="meta-camp-name">' + escHtml(c.name) + '</div>' +
+        '<div class="meta-camp-details">' +
+          '<span class="badge ' + statusCls + '"><span class="badge-dot"></span>' + statusLabel + '</span>' +
+          '<span>' + escHtml(c.objective || '—') + '</span>' +
+          '<span>Start: ' + startDate + '</span>' +
+          '<span>Budget: ' + budget + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">' + actionBtn + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ============================================
+// LINK MODAL
+// ============================================
+async function openLinkModal(metaCampaignId) {
+  var metaCamp = _metaCampaigns.find(function(c) { return c.id === metaCampaignId; });
+  if (!metaCamp) return;
+  _metaLinkTarget = metaCamp;
+
+  // Load properties for the dropdown
+  var properties = [];
+  try {
+    properties = await sbGet('properties', 'select=id,name,clients(name)&order=name');
+  } catch (e) { /* empty list */ }
+
+  // Load clients for the inline form
+  var clientsData = [];
+  try {
+    clientsData = await sbGet('clients', 'select=*&order=name');
+  } catch (e) { /* empty list */ }
+
+  var clientOptions = clientsData.map(function(c) {
+    return '<option value="' + c.id + '">' + escHtml(c.name) + (c.brand ? ' (' + escHtml(c.brand) + ')' : '') + '</option>';
+  }).join('');
+
+  var propOptions = properties.map(function(p) {
+    var clientName = p.clients ? p.clients.name : '';
+    return '<option value="' + p.id + '">' + escHtml(p.name) + (clientName ? ' (' + escHtml(clientName) + ')' : '') + '</option>';
+  }).join('');
+
+  var container = document.getElementById('meta-link-modal-container');
+  container.innerHTML = '<div class="meta-link-modal-overlay" onclick="closeMetaLinkModal(event)">' +
+    '<div class="meta-link-modal" onclick="event.stopPropagation()">' +
+      '<h3>📎 Kampagne verknüpfen: ' + escHtml(metaCamp.name) + '</h3>' +
+
+      '<div class="meta-link-section">' +
+        '<div class="meta-link-section-title">Kampagnentyp</div>' +
+        '<select class="form-select" id="meta-link-camp-type">' +
+          '<option value="lead_gen">Lead-Gen</option>' +
+          '<option value="verkaeufer">Verkäufer</option>' +
+          '<option value="suchkunde">Suchkunde</option>' +
+          '<option value="awareness">Awareness</option>' +
+          '<option value="sonstige">Sonstige</option>' +
+        '</select>' +
+      '</div>' +
+
+      '<div class="meta-link-section">' +
+        '<div class="meta-link-section-title">A) Bestehendes Objekt wählen</div>' +
+        '<select class="form-select" id="meta-link-existing-prop" onchange="toggleMetaNewProp()">' +
+          '<option value="">— Neues Objekt erstellen (siehe unten) —</option>' +
+          propOptions +
+        '</select>' +
+      '</div>' +
+
+      '<div id="meta-link-new-prop-section">' +
+        '<div class="meta-link-section">' +
+          '<div class="meta-link-section-title">B) Neues Objekt erstellen</div>' +
+          '<div class="form-grid">' +
+            '<div class="form-group">' +
+              '<label class="form-label">Kunde</label>' +
+              '<select class="form-select" id="meta-link-client" onchange="toggleMetaNewClient()">' +
+                '<option value="">— Neuen Kunden anlegen —</option>' +
+                clientOptions +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group" id="meta-link-new-client-group">' +
+              '<label class="form-label">Kundenname</label>' +
+              '<input class="form-input" id="meta-link-client-name" placeholder="z.B. Von Poll">' +
+            '</div>' +
+            '<div class="form-group" id="meta-link-brand-group">' +
+              '<label class="form-label">Brand</label>' +
+              '<input class="form-input" id="meta-link-client-brand" placeholder="z.B. Von Poll">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Objektname *</label>' +
+              '<input class="form-input" id="meta-link-prop-name" required placeholder="z.B. Falkensteiner Ufer">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Adresse</label>' +
+              '<input class="form-input" id="meta-link-prop-address">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">PLZ</label>' +
+              '<input class="form-input" id="meta-link-prop-plz">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Stadtteil</label>' +
+              '<input class="form-input" id="meta-link-prop-stadtteil">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Stadt</label>' +
+              '<input class="form-input" id="meta-link-prop-city" oninput="autoFillCityRating(\'meta-link-prop-city\',\'meta-link-prop-rating\')">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Standort-Rating</label>' +
+              '<select class="form-select" id="meta-link-prop-rating">' +
+                '<option value="">— Automatisch —</option>' +
+                '<option value="A">A — Top-7-Stadt</option>' +
+                '<option value="B">B — Großstadt</option>' +
+                '<option value="C">C — Mittelstadt / Sonstige</option>' +
+                '<option value="D">D — Ländlich</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Mikrolage</label>' +
+              '<select class="form-select" id="meta-link-prop-micro">' +
+                '<option value="">— Keine Angabe —</option>' +
+                '<option value="premium">Premium</option>' +
+                '<option value="gut">Gut</option>' +
+                '<option value="standard">Standard</option>' +
+                '<option value="randlage">Randlage</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Objektart</label>' +
+              '<select class="form-select" id="meta-link-prop-type" onchange="toggleMetaNeubauFields()">' +
+                '<option value="wohnung">Wohnung</option>' +
+                '<option value="haus">Haus</option>' +
+                '<option value="penthouse">Penthouse</option>' +
+                '<option value="villa">Villa</option>' +
+                '<option value="reihenhaus">Reihenhaus</option>' +
+                '<option value="grundstueck">Grundstück</option>' +
+                '<option value="gewerbe">Gewerbe</option>' +
+                '<option value="neubauprojekt">Neubauprojekt</option>' +
+                '<option value="zweifamilienhaus">Zweifamilienhaus</option>' +
+                '<option value="sonstige">Sonstige</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Wohnfläche (qm)</label>' +
+              '<input class="form-input" id="meta-link-prop-size" type="number" step="0.1">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Grundstück (qm)</label>' +
+              '<input class="form-input" id="meta-link-prop-plot" type="number" step="0.1">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Zimmer</label>' +
+              '<input class="form-input" id="meta-link-prop-rooms" type="number" step="0.5">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">Preis (€)</label>' +
+              '<input class="form-input" id="meta-link-prop-price" type="number" step="1">' +
+            '</div>' +
+            '<div id="meta-link-neubau-fields" style="display:none;grid-column:1/-1;">' +
+              '<div class="form-label" style="font-weight:600;margin-bottom:8px;">🏗️ Neubauprojekt-Details</div>' +
+              '<div class="form-grid">' +
+                '<div class="form-group"><label class="form-label">Preis von (€)</label><input class="form-input" id="meta-link-prop-price-from" type="number" step="1"></div>' +
+                '<div class="form-group"><label class="form-label">Preis bis (€)</label><input class="form-input" id="meta-link-prop-price-to" type="number" step="1"></div>' +
+                '<div class="form-group"><label class="form-label">Fläche von (qm)</label><input class="form-input" id="meta-link-prop-size-from" type="number" step="0.1"></div>' +
+                '<div class="form-group"><label class="form-label">Fläche bis (qm)</label><input class="form-input" id="meta-link-prop-size-to" type="number" step="0.1"></div>' +
+                '<div class="form-group"><label class="form-label">Einheiten</label><input class="form-input" id="meta-link-prop-num-units" type="number" step="1"></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="display:flex;gap:8px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);">' +
+        '<button class="btn btn-secondary" onclick="closeMetaLinkModal()">Abbrechen</button>' +
+        '<button class="btn btn-primary" onclick="linkCampaignToProperty()">📎 Verknüpfen & Sync starten</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function closeMetaLinkModal(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('meta-link-modal-container').innerHTML = '';
+  _metaLinkTarget = null;
+}
+
+function toggleMetaNewProp() {
+  var existingProp = document.getElementById('meta-link-existing-prop').value;
+  var newSection = document.getElementById('meta-link-new-prop-section');
+  if (newSection) newSection.style.display = existingProp ? 'none' : 'block';
+}
+
+function toggleMetaNewClient() {
+  var clientId = document.getElementById('meta-link-client').value;
+  var nameGroup = document.getElementById('meta-link-new-client-group');
+  var brandGroup = document.getElementById('meta-link-brand-group');
+  if (nameGroup) nameGroup.style.display = clientId ? 'none' : 'flex';
+  if (brandGroup) brandGroup.style.display = clientId ? 'none' : 'flex';
+}
+
+function toggleMetaNeubauFields() {
+  var type = document.getElementById('meta-link-prop-type').value;
+  var fields = document.getElementById('meta-link-neubau-fields');
+  if (fields) fields.style.display = type === 'neubauprojekt' ? 'block' : 'none';
+}
+
+// ============================================
+// LINK CAMPAIGN TO PROPERTY
+// ============================================
+async function linkCampaignToProperty() {
+  if (!_metaLinkTarget) return;
+  var metaCamp = _metaLinkTarget;
+
+  try {
+    var existingPropId = document.getElementById('meta-link-existing-prop').value;
+    var propertyId = existingPropId;
+
+    // If no existing property selected, create new one
+    if (!propertyId) {
+      var propName = document.getElementById('meta-link-prop-name').value.trim();
+      if (!propName) {
+        showToast('Bitte Objektname eingeben', 'error');
+        return;
+      }
+
+      // Get or create client
+      var clientId = document.getElementById('meta-link-client').value;
+      if (!clientId) {
+        var clientName = document.getElementById('meta-link-client-name').value.trim();
+        var clientBrand = document.getElementById('meta-link-client-brand').value.trim();
+        if (clientName) {
+          var newClients = await sbInsert('clients', { name: clientName, brand: clientBrand || null });
+          clientId = newClients[0].id;
+        }
+      }
+
+      var propType = document.getElementById('meta-link-prop-type').value;
+      var isNeubau = propType === 'neubauprojekt';
+      var locationRating = document.getElementById('meta-link-prop-rating').value ||
+        getCityRating(document.getElementById('meta-link-prop-city').value) || null;
+
+      var propData = {
+        client_id: clientId || null,
+        name: propName,
+        address: document.getElementById('meta-link-prop-address').value || null,
+        plz: document.getElementById('meta-link-prop-plz').value || null,
+        stadtteil: document.getElementById('meta-link-prop-stadtteil').value || null,
+        city: document.getElementById('meta-link-prop-city').value || null,
+        property_type: propType,
+        size_sqm: parseFloat(document.getElementById('meta-link-prop-size').value) || null,
+        plot_size: parseFloat(document.getElementById('meta-link-prop-plot').value) || null,
+        rooms: parseFloat(document.getElementById('meta-link-prop-rooms').value) || null,
+        price: parseFloat(document.getElementById('meta-link-prop-price').value) || null,
+        location_rating: locationRating,
+        micro_location: document.getElementById('meta-link-prop-micro').value || null,
+        price_from: isNeubau ? (parseFloat(document.getElementById('meta-link-prop-price-from').value) || null) : null,
+        price_to: isNeubau ? (parseFloat(document.getElementById('meta-link-prop-price-to').value) || null) : null,
+        size_from: isNeubau ? (parseFloat(document.getElementById('meta-link-prop-size-from').value) || null) : null,
+        size_to: isNeubau ? (parseFloat(document.getElementById('meta-link-prop-size-to').value) || null) : null,
+        num_units: isNeubau ? (parseInt(document.getElementById('meta-link-prop-num-units').value) || null) : null
+      };
+
+      var newProps = await sbInsert('properties', propData);
+      propertyId = newProps[0].id;
+    }
+
+    // Create campaign record
+    var campType = document.getElementById('meta-link-camp-type').value;
+    var metaStatus = metaCamp.status === 'ACTIVE' ? 'active' : metaCamp.status === 'PAUSED' ? 'paused' : 'completed';
+    var startDate = metaCamp.start_time ? metaCamp.start_time.substring(0, 10) : null;
+
+    var campData = {
+      property_id: propertyId,
+      platform: 'meta',
+      campaign_name: metaCamp.name,
+      campaign_type: campType,
+      start_date: startDate,
+      status: metaStatus,
+      meta_campaign_id: metaCamp.id,
+      is_live: true
+    };
+
+    var newCamps = await sbInsert('campaigns', campData);
+    var campaignId = newCamps[0].id;
+
+    // Close modal and show sync progress
+    document.getElementById('meta-link-modal-container').innerHTML = '';
+
+    // Trigger initial sync
+    await syncCampaignInsights(metaCamp.id, campaignId, metaCamp.name);
+
+  } catch (e) {
+    console.error('Link campaign error:', e);
+    showToast('Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  }
+}
+
+// ============================================
+// SYNC CAMPAIGN INSIGHTS
+// ============================================
+async function syncCampaignInsights(metaCampaignId, campaignId, campaignName) {
+  var token = localStorage.getItem('meta_ad_library_token');
+  if (!token) {
+    showToast('Kein Meta API Token', 'error');
+    return;
+  }
+
+  // Show sync progress
+  document.getElementById('meta-import-step-list').style.display = 'none';
+  document.getElementById('meta-import-step-sync').style.display = 'block';
+  document.getElementById('meta-import-step-success').style.display = 'none';
+
+  var stepEl = document.getElementById('meta-sync-step');
+  var barEl = document.getElementById('meta-sync-bar');
+  var detailEl = document.getElementById('meta-sync-detail');
+
+  var totalDays = 0;
+  var totalLeads = 0;
+  var totalSpend = 0;
+
+  try {
+    // Step 1: Fetch campaign insights
+    stepEl.textContent = 'Syncing ' + campaignName + '...';
+    barEl.style.width = '10%';
+    detailEl.textContent = 'Lade Tagesmetriken...';
+
+    var insightsUrl = 'https://graph.facebook.com/v24.0/' + metaCampaignId + '/insights?fields=spend,impressions,reach,actions,cost_per_action_type&time_increment=1&limit=500&access_token=' + encodeURIComponent(token);
+    var allInsights = [];
+    var nextUrl = insightsUrl;
+
+    while (nextUrl) {
+      var res = await fetch(nextUrl);
+      if (!res.ok) {
+        var errData = await res.json().catch(function() { return {}; });
+        throw new Error((errData.error && errData.error.message) || 'API Fehler ' + res.status);
+      }
+      var data = await res.json();
+      if (data.data) allInsights = allInsights.concat(data.data);
+      nextUrl = (data.paging && data.paging.next) ? data.paging.next : null;
+    }
+
+    barEl.style.width = '30%';
+    detailEl.textContent = allInsights.length + ' Tage gefunden';
+
+    // Step 2: Parse and insert campaign daily metrics
+    if (allInsights.length > 0) {
+      var metricsRows = allInsights.map(function(row) {
+        var spend = parseFloat(row.spend) || 0;
+        var impressions = parseInt(row.impressions) || 0;
+        var reach = parseInt(row.reach) || 0;
+        var clicks = 0;
+        var leads = 0;
+        if (row.actions && Array.isArray(row.actions)) {
+          row.actions.forEach(function(a) {
+            if (a.action_type === 'link_click') clicks = parseInt(a.value) || 0;
+            if (a.action_type === 'lead') leads = parseInt(a.value) || 0;
+          });
+        }
+        totalLeads += leads;
+        totalSpend += spend;
+        return {
+          campaign_id: campaignId,
+          date: row.date_start,
+          spend: Math.round(spend * 100) / 100,
+          impressions: impressions,
+          reach: reach,
+          clicks: clicks || null,
+          leads: leads
+          // NO cpl, cpm, ctr — GENERATED ALWAYS
+        };
+      });
+      totalDays = metricsRows.length;
+
+      // Upsert with merge-duplicates
+      for (var i = 0; i < metricsRows.length; i += 50) {
+        var batch = metricsRows.slice(i, i + 50);
+        var pct = 30 + Math.round((i / metricsRows.length) * 20);
+        barEl.style.width = pct + '%';
+        detailEl.textContent = 'Speichere Tagesmetriken... ' + Math.min(i + 50, metricsRows.length) + '/' + metricsRows.length;
+
+        var upsertRes = await fetch(SB_URL + '/rest/v1/campaign_daily_metrics', {
+          method: 'POST',
+          headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
+          body: JSON.stringify(batch)
+        });
+        if (!upsertRes.ok) {
+          var errMsg = await upsertRes.text();
+          console.error('Upsert error:', errMsg);
+        }
+      }
+    }
+
+    barEl.style.width = '50%';
+    stepEl.textContent = 'Lade Ads & Creatives...';
+
+    // Step 3: Fetch ads
+    var adsUrl = 'https://graph.facebook.com/v24.0/' + metaCampaignId + '/ads?fields=name,status&limit=100&access_token=' + encodeURIComponent(token);
+    var adsRes = await fetch(adsUrl);
+    var adsData = adsRes.ok ? await adsRes.json() : { data: [] };
+    var ads = adsData.data || [];
+
+    barEl.style.width = '60%';
+    detailEl.textContent = ads.length + ' Ads gefunden';
+
+    // Step 4: Create creatives and fetch ad-level insights
+    for (var a = 0; a < ads.length; a++) {
+      var ad = ads[a];
+      var adName = ad.name || 'Ad ' + ad.id;
+      var creativeType = inferMetaCreativeType(adName);
+
+      detailEl.textContent = 'Synce "' + adName + '"... (' + (a + 1) + '/' + ads.length + ')';
+
+      // Upsert creative
+      var crRes = await fetch(SB_URL + '/rest/v1/creatives', {
+        method: 'POST',
+        headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
+        body: JSON.stringify([{
+          campaign_id: campaignId,
+          creative_name: adName,
+          creative_type: creativeType,
+          meta_ad_id: ad.id
+        }])
+      });
+      var crData = crRes.ok ? await crRes.json() : [];
+      if (crData.length === 0) continue;
+      var creativeId = crData[0].id;
+
+      // Fetch ad-level insights
+      try {
+        var adInsightsUrl = 'https://graph.facebook.com/v24.0/' + ad.id + '/insights?fields=spend,impressions,reach,actions&time_increment=1&limit=500&access_token=' + encodeURIComponent(token);
+        var adAllInsights = [];
+        var adNextUrl = adInsightsUrl;
+
+        while (adNextUrl) {
+          var adIRes = await fetch(adNextUrl);
+          if (!adIRes.ok) break;
+          var adIData = await adIRes.json();
+          if (adIData.data) adAllInsights = adAllInsights.concat(adIData.data);
+          adNextUrl = (adIData.paging && adIData.paging.next) ? adIData.paging.next : null;
+        }
+
+        if (adAllInsights.length > 0) {
+          var crMetrics = adAllInsights.map(function(row) {
+            var spend = parseFloat(row.spend) || 0;
+            var impressions = parseInt(row.impressions) || 0;
+            var reach = parseInt(row.reach) || 0;
+            var clicks = 0;
+            var leads = 0;
+            if (row.actions && Array.isArray(row.actions)) {
+              row.actions.forEach(function(act) {
+                if (act.action_type === 'link_click') clicks = parseInt(act.value) || 0;
+                if (act.action_type === 'lead') leads = parseInt(act.value) || 0;
+              });
+            }
+            return {
+              creative_id: creativeId,
+              date: row.date_start,
+              spend: Math.round(spend * 100) / 100,
+              impressions: impressions,
+              reach: reach,
+              clicks: clicks || null,
+              leads: leads
+              // NO cpl, cpm — GENERATED ALWAYS
+            };
+          });
+
+          // Upsert
+          for (var ci = 0; ci < crMetrics.length; ci += 50) {
+            var crBatch = crMetrics.slice(ci, ci + 50);
+            await fetch(SB_URL + '/rest/v1/creative_daily_metrics', {
+              method: 'POST',
+              headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
+              body: JSON.stringify(crBatch)
+            });
+          }
+        }
+      } catch (adErr) {
+        console.warn('Ad insights error for ' + adName + ':', adErr);
+      }
+
+      var adPct = 60 + Math.round(((a + 1) / ads.length) * 35);
+      barEl.style.width = adPct + '%';
+    }
+
+    barEl.style.width = '100%';
+    stepEl.textContent = 'Syncing ' + campaignName + '... ' + totalDays + '/' + totalDays + ' Tage ✅';
+
+    // Show success after a short delay
+    setTimeout(function() {
+      showMetaSyncSuccess(campaignId, campaignName, totalDays, totalLeads, totalSpend);
+    }, 800);
+
+  } catch (e) {
+    console.error('Sync error:', e);
+    stepEl.textContent = '❌ Fehler beim Sync';
+    detailEl.textContent = e.message || 'Unbekannter Fehler';
+    showToast('Sync-Fehler: ' + (e.message || 'Unbekannter Fehler'), 'error');
+  }
+}
+
+function inferMetaCreativeType(adName) {
+  if (!adName) return 'video';
+  var lower = adName.toLowerCase();
+  if (lower.includes('single image')) return 'single_image';
+  if (lower.includes('carousel')) return 'carousel';
+  if (lower.includes('th-reel') || lower.includes('th reel')) return 'th_reel';
+  if (lower.includes('scn-reel') || lower.includes('scn reel')) return 'scn_reel';
+  if (lower.includes('reel')) return 'video';
+  if (lower.includes('video')) return 'video';
+  if (lower.includes('story')) return 'story';
+  return 'video';
+}
+
+function showMetaSyncSuccess(campaignId, campaignName, days, leads, spend) {
+  document.getElementById('meta-import-step-sync').style.display = 'none';
+  document.getElementById('meta-import-step-success').style.display = 'block';
+
+  document.getElementById('meta-success-title').textContent = '✅ Kampagne verknüpft!';
+  document.getElementById('meta-success-stats').textContent =
+    days + ' Tage, ' + leads + ' Leads, ' + formatEur(spend) + ' Spend importiert';
+  document.getElementById('meta-success-open-btn').setAttribute('onclick',
+    "openCampaign('" + campaignId + "')");
+}
+
+function resetMetaImport() {
+  _metaLinkTarget = null;
+  document.getElementById('meta-import-step-list').style.display = 'block';
+  document.getElementById('meta-import-step-sync').style.display = 'none';
+  document.getElementById('meta-import-step-success').style.display = 'none';
+  document.getElementById('meta-link-modal-container').innerHTML = '';
+  // Refresh list
+  loadMetaCampaigns();
+}
+
+// Trigger sync for already-linked campaign
+async function triggerLiveSync(metaCampaignId, campaignId) {
+  var metaCamp = _metaCampaigns.find(function(c) { return c.id === metaCampaignId; });
+  var name = metaCamp ? metaCamp.name : 'Kampagne';
+  await syncCampaignInsights(metaCampaignId, campaignId, name);
 }
 
 // ============================================
