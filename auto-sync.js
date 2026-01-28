@@ -122,7 +122,7 @@ async function fetchAdLibraryPage(params) {
   return data;
 }
 
-async function fetchAllAdsForBrand(params, maxPages = 5) {
+async function fetchAllAdsForBrand(params, maxPages = 10) {
   const allAds = [];
   let page = 0;
   let nextUrl = null;
@@ -133,15 +133,37 @@ async function fetchAllAdsForBrand(params, maxPages = 5) {
   nextUrl = firstResult.paging && firstResult.paging.next;
   page++;
 
-  // Follow pagination
+  // Follow pagination with retry logic
   while (nextUrl && page < maxPages) {
-    const res = await fetch(nextUrl);
-    if (!res.ok) break;
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch { break; }
-    if (data.data) allAds.push(...data.data);
-    nextUrl = data.paging && data.paging.next;
+    let success = false;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const res = await fetch(nextUrl);
+        if (!res.ok) {
+          console.log(`[WARN] Pagination page ${page + 1} HTTP ${res.status} (attempt ${attempt}/3)`);
+          await sleep(2000 * attempt);
+          continue;
+        }
+        const text = await res.text();
+        if (!text || text.trim().length === 0) {
+          console.log(`[WARN] Pagination page ${page + 1} empty response (attempt ${attempt}/3)`);
+          await sleep(2000 * attempt);
+          continue;
+        }
+        const data = JSON.parse(text);
+        if (data.data) allAds.push(...data.data);
+        nextUrl = data.paging && data.paging.next;
+        success = true;
+        break;
+      } catch (err) {
+        console.log(`[WARN] Pagination page ${page + 1} error: ${err.message} (attempt ${attempt}/3)`);
+        await sleep(2000 * attempt);
+      }
+    }
+    if (!success) {
+      console.log(`[WARN] Giving up on pagination after page ${page}, got ${allAds.length} ads so far`);
+      break;
+    }
     page++;
   }
 
