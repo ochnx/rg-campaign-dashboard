@@ -5709,7 +5709,8 @@ function updateNavActiveStates(section) {
   document.getElementById('nav-home').classList.toggle('active', section === 'home');
   document.getElementById('nav-analytics').classList.toggle('active', section === 'analytics');
   document.getElementById('nav-competitors').classList.toggle('active', section === 'competitors');
-  document.getElementById('nav-exposes').classList.toggle('active', section === 'exposes');
+  const navExposes = document.getElementById('nav-exposes');
+  if (navExposes) navExposes.classList.toggle('active', section === 'exposes');
 }
 
 function updateBreadcrumbs(section, subTab, viewName) {
