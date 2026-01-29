@@ -4921,9 +4921,19 @@
         <!-- Section D: Scatter Plot -->
         <div class="data-intel-section">
           <div class="data-intel-section-title">🔍 Kampagnen-Vergleich</div>
+
+          <!-- Scatter Mode Selector -->
+          <div class="tabs" style="margin-bottom:12px;">
+            <div class="tab active" id="scatter-mode-price" onclick="switchScatterMode('price')">Preis vs. CPL</div>
+            <div class="tab" id="scatter-mode-pricePerSqm" onclick="switchScatterMode('pricePerSqm')">qm-Preis vs. CPL</div>
+            <div class="tab" id="scatter-mode-size" onclick="switchScatterMode('size')">Wohnfläche vs. CPL</div>
+            <div class="tab" id="scatter-mode-rooms" onclick="switchScatterMode('rooms')">Zimmer vs. CPL</div>
+            <div class="tab" id="scatter-mode-plot" onclick="switchScatterMode('plot')">Grundstück vs. CPL</div>
+          </div>
+
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Preis vs. CPL</div>
+              <div class="card-title" id="scatter-chart-title">Preis vs. CPL</div>
             </div>
             <div class="card-body">
               <div class="scatter-container">
@@ -8596,6 +8606,7 @@ async function renderBenchmarks(campaign, property, metrics) {
 // DATA INTELLIGENCE VIEW
 // ============================================
 let _diScatterChart = null;
+let _scatterMode = 'price';
 
 function switchDataIntelCategory(cat) {
   dataIntelCategoryFilter = cat;
@@ -8603,6 +8614,20 @@ function switchDataIntelCategory(cat) {
   document.getElementById('di-cat-neubau').classList.toggle('active', cat === 'neubauprojekt');
   document.getElementById('di-cat-einzel').classList.toggle('active', cat === 'einzel');
   loadDataIntelligence();
+}
+
+function switchScatterMode(mode) {
+  _scatterMode = mode;
+  document.getElementById('scatter-mode-price').classList.toggle('active', mode === 'price');
+  document.getElementById('scatter-mode-pricePerSqm').classList.toggle('active', mode === 'pricePerSqm');
+  document.getElementById('scatter-mode-size').classList.toggle('active', mode === 'size');
+  document.getElementById('scatter-mode-rooms').classList.toggle('active', mode === 'rooms');
+  document.getElementById('scatter-mode-plot').classList.toggle('active', mode === 'plot');
+
+  // Re-render scatter plot with existing data (stored in global after loadDataIntelligence)
+  if (window._lastScatterData) {
+    renderScatterPlot(window._lastScatterData);
+  }
 }
 
 // Helpers: effective price/size from property (Neubauprojekte use price_from/size_from)
@@ -8706,6 +8731,7 @@ async function loadDataIntelligence() {
     renderAutoInsights(filteredData, globalAvgCPL, N);
 
     // === SECTION D: Scatter Plot ===
+    window._lastScatterData = filteredData;
     renderScatterPlot(filteredData);
 
     loading.style.display = 'none';
@@ -8971,31 +8997,86 @@ function renderScatterPlot(allData) {
   var canvas = document.getElementById('chart-scatter-cpl');
   var ctx = canvas.getContext('2d');
 
-  // Use effectivePrice: includes price_from/price_to for Neubauprojekte
-  var withPrice = allData.filter(function(d) { return d.effectivePrice && d.cpl; });
-  if (withPrice.length < 2) {
-    scatterContainer.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:60px;">Mindestens 2 Kampagnen mit Preisdaten nötig.</div>';
+  // Define mode configurations
+  var modeConfig = {
+    price: {
+      title: 'Preis vs. CPL',
+      xAxisLabel: 'Objektpreis (€)',
+      xTickFormat: function(v) { return (v / 1000).toFixed(0) + 'k €'; },
+      tooltipXLabel: function(d) {
+        var priceLabel = d.prop && d.prop.price ? formatEur(d.effectivePrice) : 'ab ' + formatEur(d.effectivePrice);
+        return 'Preis ' + priceLabel;
+      },
+      filter: function(d) { return d.effectivePrice && d.cpl; },
+      getX: function(d) { return d.effectivePrice; }
+    },
+    pricePerSqm: {
+      title: 'qm-Preis vs. CPL',
+      xAxisLabel: 'qm-Preis (€/m²)',
+      xTickFormat: function(v) { return v.toFixed(0) + ' €/m²'; },
+      tooltipXLabel: function(d) {
+        var pricePerSqm = d.effectivePrice / d.effectiveSize;
+        return 'qm-Preis ' + pricePerSqm.toFixed(0) + ' €/m²';
+      },
+      filter: function(d) { return d.effectivePrice && d.effectiveSize && d.effectiveSize > 0 && d.cpl; },
+      getX: function(d) { return d.effectivePrice / d.effectiveSize; }
+    },
+    size: {
+      title: 'Wohnfläche vs. CPL',
+      xAxisLabel: 'Wohnfläche (m²)',
+      xTickFormat: function(v) { return v + ' m²'; },
+      tooltipXLabel: function(d) { return 'Wohnfläche ' + d.effectiveSize + ' m²'; },
+      filter: function(d) { return d.effectiveSize && d.cpl; },
+      getX: function(d) { return d.effectiveSize; }
+    },
+    rooms: {
+      title: 'Zimmer vs. CPL',
+      xAxisLabel: 'Zimmer',
+      xTickFormat: function(v) { return v.toString(); },
+      tooltipXLabel: function(d) { return 'Zimmer ' + d.prop.rooms; },
+      filter: function(d) { return d.prop && d.prop.rooms && d.cpl; },
+      getX: function(d) { return d.prop.rooms; }
+    },
+    plot: {
+      title: 'Grundstück vs. CPL',
+      xAxisLabel: 'Grundstück (m²)',
+      xTickFormat: function(v) { return v + ' m²'; },
+      tooltipXLabel: function(d) { return 'Grundstück ' + d.prop.plot_size + ' m²'; },
+      filter: function(d) { return d.prop && d.prop.plot_size && d.cpl; },
+      getX: function(d) { return d.prop.plot_size; }
+    }
+  };
+
+  var mode = modeConfig[_scatterMode] || modeConfig.price;
+
+  // Update card title
+  var titleEl = document.getElementById('scatter-chart-title');
+  if (titleEl) titleEl.textContent = mode.title;
+
+  // Filter data based on mode
+  var filteredData = allData.filter(mode.filter);
+  if (filteredData.length < 2) {
+    scatterContainer.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:60px;">Mindestens 2 Kampagnen mit passenden Daten nötig.</div>';
     return;
   }
 
-  var prices = withPrice.map(function(d) { return d.effectivePrice; });
-  var cpls = withPrice.map(function(d) { return d.cpl; });
+  var xValues = filteredData.map(mode.getX);
+  var yValues = filteredData.map(function(d) { return d.cpl; });
 
   // Trend line (dynamically scaled to actual data)
-  var reg = linearRegression(prices, cpls);
-  var minPrice = Math.min.apply(null, prices);
-  var maxPrice = Math.max.apply(null, prices);
+  var reg = linearRegression(xValues, yValues);
+  var minX = Math.min.apply(null, xValues);
+  var maxX = Math.max.apply(null, xValues);
 
-  var scatterData = withPrice.map(function(d) {
-    var priceLabel = d.prop && d.prop.price ? formatEur(d.effectivePrice) : 'ab ' + formatEur(d.effectivePrice);
-    return { x: d.effectivePrice, y: d.cpl, label: d.name, priceLabel: priceLabel };
+  var scatterData = filteredData.map(function(d) {
+    return { x: mode.getX(d), y: d.cpl, label: d.name, dataItem: d };
   });
 
   var trendData = [];
   if (reg) {
     trendData = [
-      { x: minPrice, y: reg.slope * minPrice + reg.intercept },
-      { x: maxPrice, y: reg.slope * maxPrice + reg.intercept }
+      { x: minX, y: reg.slope * minX + reg.intercept },
+      { x: maxX, y: reg.slope * maxX + reg.intercept }
     ];
   }
 
@@ -9032,17 +9113,19 @@ function renderScatterPlot(allData) {
           callbacks: {
             label: function(tooltipCtx) {
               var item = tooltipCtx.raw;
-              var pLabel = item.priceLabel || formatEur(item.x);
-              if (item.label) return item.label + ': Preis ' + pLabel + ', CPL ' + formatEur(item.y);
-              return 'Preis ' + pLabel + ', CPL ' + formatEur(item.y);
+              if (item.label && item.dataItem) {
+                var xLabel = mode.tooltipXLabel(item.dataItem);
+                return item.label + ': ' + xLabel + ', CPL ' + formatEur(item.y);
+              }
+              return 'CPL ' + formatEur(item.y);
             }
           }
         }
       },
       scales: {
         x: {
-          title: { display: true, text: 'Objektpreis (€)', color: '#8f8f8f' },
-          ticks: { callback: function(v) { return (v / 1000).toFixed(0) + 'k €'; } },
+          title: { display: true, text: mode.xAxisLabel, color: '#8f8f8f' },
+          ticks: { callback: mode.xTickFormat },
           grid: { color: 'rgba(38, 38, 54, 0.5)' }
         },
         y: {
