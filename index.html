@@ -5323,6 +5323,7 @@
               <label class="form-label">Eigener CPM-Referenzwert (€)</label>
               <input class="form-input" id="comp-own-cpm" type="number" step="0.01" placeholder="z.B. 8.50" value="">
               <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Wird zur genaueren Spend-Schätzung der Konkurrenz genutzt (Reach × CPM). Wird lokal gespeichert.</div>
+              <div id="auto-cpm-info" style="display:none;font-size:11px;color:#8b5cf6;margin-top:4px;font-weight:600;"></div>
             </div>
             <div style="margin-top:8px;">
               <button class="btn btn-primary btn-sm" onclick="saveOwnCpm()">💾 CPM speichern</button>
@@ -6320,8 +6321,9 @@ async function renderLiveCompetitorAds() {
   const container = document.getElementById('live-competitor-ads');
   
   try {
-    // Get 3 newest competitor ads
-    const ads = await sbGet('competitor_ads', 'select=*,competitor_watchlist(brand,page_name)&order=ad_delivery_start_time.desc.nullsfirst,created_at.desc&limit=3');
+    // Get newest competitor ads (fetch more to allow dedup, then take 3)
+    const rawAds = await sbGet('competitor_ads', 'select=*,competitor_watchlist(brand,page_name)&order=ad_delivery_start_time.desc.nullsfirst,created_at.desc&limit=30');
+    const ads = deduplicateAds(rawAds || []).slice(0, 3);
     
     if (!ads || ads.length === 0) {
       container.innerHTML = `
@@ -10156,6 +10158,74 @@ var _adsDisplayed = 50;
 var _filteredAdsCache = []; // cached filtered ads for pagination
 var _compSearchTerm = '';
 var _compSearchDebounce = null;
+var _autoCpm = null; // auto-calculated CPM from own campaign data
+var _autoCpmDatapoints = 0; // number of datapoints used for auto-CPM
+
+// --- Deduplication helper ---
+function getCreativeHash(ad) {
+  var body = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : '';
+  return body.substring(0, 200).trim().toLowerCase();
+}
+
+function deduplicateAds(ads) {
+  var groups = {};
+  ads.forEach(function(ad) {
+    var hash = getCreativeHash(ad);
+    if (!hash) hash = '__empty__' + (ad.id || Math.random());
+    if (!groups[hash]) {
+      groups[hash] = { representative: ad, variants: [ad] };
+    } else {
+      groups[hash].variants.push(ad);
+      // Keep the one with most reach as representative
+      if ((ad.eu_total_reach || 0) > (groups[hash].representative.eu_total_reach || 0)) {
+        groups[hash].representative = ad;
+      }
+    }
+  });
+  // Return representatives with _variants attached
+  return Object.keys(groups).map(function(hash) {
+    var group = groups[hash];
+    var rep = Object.assign({}, group.representative);
+    rep._variants = group.variants;
+    rep._variantCount = group.variants.length;
+    // Aggregate reach across variants
+    rep._totalReach = group.variants.reduce(function(sum, v) { return sum + (v.eu_total_reach || 0); }, 0);
+    return rep;
+  });
+}
+
+// --- Auto-CPM from own campaign data ---
+async function loadAutoCpm() {
+  try {
+    var metrics = await sbGet('campaign_daily_metrics', 'select=spend,impressions&impressions=gt.0');
+    if (metrics && metrics.length > 0) {
+      var totalSpend = 0;
+      var totalImpressions = 0;
+      metrics.forEach(function(m) {
+        totalSpend += parseFloat(m.spend) || 0;
+        totalImpressions += parseFloat(m.impressions) || 0;
+      });
+      if (totalImpressions > 0) {
+        _autoCpm = totalSpend / totalImpressions * 1000;
+        _autoCpmDatapoints = metrics.length;
+        // Auto-fill CPM input if no manual override
+        var cpmInput = document.getElementById('comp-own-cpm');
+        var savedCpm = localStorage.getItem('comp_own_cpm');
+        if (cpmInput && !savedCpm) {
+          cpmInput.value = _autoCpm.toFixed(2);
+        }
+        // Show auto-CPM info
+        var infoEl = document.getElementById('auto-cpm-info');
+        if (infoEl) {
+          infoEl.textContent = 'Ø Eigener CPM: €' + _autoCpm.toFixed(2) + ' (aus ' + _autoCpmDatapoints + ' Datenpunkten)';
+          infoEl.style.display = 'block';
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Auto-CPM laden fehlgeschlagen:', e);
+  }
+}
 
 async function loadCompetitorView() {
   // Load token from localStorage
@@ -10173,7 +10243,7 @@ async function loadCompetitorView() {
     await seedCompetitorWatchlist();
     competitorViewLoaded = true;
   }
-  await Promise.all([loadWatchlist(), loadCompetitorAds(), loadAlerts()]);
+  await Promise.all([loadWatchlist(), loadCompetitorAds(), loadAlerts(), loadAutoCpm()]);
   // Re-render watchlist grid now that competitorAds is fully loaded
   if (competitorWatchlist.length > 0) {
     renderWatchlistGrid();
@@ -10456,10 +10526,18 @@ function openAdPreview(adId) {
   window.open(url, '_blank', 'width=480,height=720,scrollbars=yes,resizable=yes');
 }
 
+function getEffectiveCpm() {
+  var manualCpm = parseFloat(localStorage.getItem('comp_own_cpm') || '');
+  if (manualCpm > 0) return manualCpm;
+  if (_autoCpm && _autoCpm > 0) return _autoCpm;
+  return 0;
+}
+
 function getAdEffectiveSpend(ad) {
-  var ownCpm = parseFloat(localStorage.getItem('comp_own_cpm') || '');
-  if (ownCpm > 0 && ad.eu_total_reach && ad.eu_total_reach > 0) {
-    return Math.round(ad.eu_total_reach * ownCpm / 1000 * 100); // in cents like estimated_spend
+  var cpm = getEffectiveCpm();
+  var reach = ad._totalReach || ad.eu_total_reach || 0;
+  if (cpm > 0 && reach > 0) {
+    return Math.round(reach * cpm / 1000 * 100); // in cents like estimated_spend
   }
   return ad.estimated_spend || 0;
 }
@@ -10496,12 +10574,15 @@ function renderAdCard(ad) {
   // Days badge (small)
   var daysBadge = days > 0 ? '<span style="font-size:10px;color:var(--text-muted);">' + days + 'd</span>' : '';
 
+  // Variant count badge (dedup)
+  var variantBadge = (ad._variantCount && ad._variantCount > 1) ? '<span style="background:rgba(139,92,246,0.15);color:#8b5cf6;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;">' + ad._variantCount + ' Varianten</span>' : '';
+
   return '<div class="comp-ad-card-compact" id="ad-card-' + cardId + '" data-ad-id="' + (ad.id || '') + '" data-snapshot-url="' + escHtml(ad.ad_snapshot_url || '') + '" onclick="openAdDetailModal(\'' + escHtml(ad.id || '') + '\')">' +
     thumbHtml +
     '<div class="compact-body">' +
       '<div class="compact-brand">' + statusDot + ' ' + escHtml(brand) + '</div>' +
       '<div class="compact-text">' + escHtml(shortBody) + '</div>' +
-      '<div class="compact-badges">' + platformsHtml + spendBadge + daysBadge + '</div>' +
+      '<div class="compact-badges">' + platformsHtml + spendBadge + variantBadge + daysBadge + '</div>' +
     '</div>' +
   '</div>';
 }
@@ -10545,7 +10626,9 @@ function applyCompetitorFilters() {
   _selectedBrandForDrilldown = filterBrand || null;
   _selectedStandort = standortFilter || null;
 
-  var filtered = renderAdFeed(competitorAds, filterBrand, '', sortBy);
+  // Deduplicate before filtering
+  var dedupedAds = deduplicateAds(competitorAds);
+  var filtered = renderAdFeed(dedupedAds, filterBrand, '', sortBy);
 
   // Apply standort sub-filter from dropdown
   if (_selectedStandort) {
@@ -10578,25 +10661,29 @@ function updateCompetitorStats() {
     adsPool = adsPool.filter(function(a) { return _brandIds.indexOf(a.watchlist_id) !== -1; });
   }
 
-  var total = adsPool.length;
-  var active = adsPool.filter(function(a) { return a.is_active; }).length;
+  var totalVariants = adsPool.length;
+  var dedupedPool = deduplicateAds(adsPool);
+  var total = dedupedPool.length;
+  var active = dedupedPool.filter(function(a) {
+    return a._variants ? a._variants.some(function(v) { return v.is_active; }) : a.is_active;
+  }).length;
   var daysArr = adsPool.map(function(a) { return a.days_running || calcDaysRunning(a); });
   var avgDays = daysArr.length > 0 ? Math.round(daysArr.reduce(function(s, d) { return s + d; }, 0) / daysArr.length) : 0;
   var longest = daysArr.length > 0 ? Math.max.apply(null, daysArr) : 0;
 
-  document.getElementById('comp-stat-total').textContent = total;
+  document.getElementById('comp-stat-total').textContent = total + (totalVariants > total ? ' (' + totalVariants + ' Var.)' : '');
   document.getElementById('comp-stat-active').textContent = active;
   document.getElementById('comp-stat-avg-days').textContent = avgDays || '–';
   document.getElementById('comp-stat-longest').textContent = longest || '–';
 
-  // AdSpend KPIs — use CPM-based spend if own CPM is set
-  var spendArr = adsPool.map(function(a) { return getAdEffectiveSpend(a); }).filter(function(s) { return s > 0; });
+  // AdSpend KPIs — use CPM-based spend with deduped pool (aggregated reach)
+  var spendArr = dedupedPool.map(function(a) { return getAdEffectiveSpend(a); }).filter(function(s) { return s > 0; });
   var totalSpend = spendArr.reduce(function(s, v) { return s + v; }, 0);
   var avgSpend = spendArr.length > 0 ? Math.round(totalSpend / spendArr.length) : 0;
-  var ownCpmVal = parseFloat(localStorage.getItem('comp_own_cpm') || '');
+  var effectiveCpm = getEffectiveCpm();
   var cpmArr = [];
-  if (ownCpmVal > 0) {
-    cpmArr = [ownCpmVal * 100]; // use own CPM as reference
+  if (effectiveCpm > 0) {
+    cpmArr = [effectiveCpm * 100]; // use effective CPM (auto or manual) as reference
   } else {
     cpmArr = adsPool.filter(function(a) { return a.estimated_cpm && a.estimated_cpm > 0; }).map(function(a) { return parseFloat(a.estimated_cpm); });
   }
@@ -10799,8 +10886,8 @@ function renderLeaderboard() {
     container.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="empty-state-desc">Keine Ads vorhanden</div></div>';
     return;
   }
-  // Get top 10
-  var sorted = competitorAds.slice().map(function(ad) {
+  // Get top 10 (deduplicated)
+  var sorted = deduplicateAds(competitorAds).map(function(ad) {
     ad._days = calcDaysRunning(ad);
     return ad;
   });
@@ -10830,8 +10917,8 @@ function renderLeaderboard() {
       var effSpend = getAdEffectiveSpend(ad);
       var spendEur = effSpend > 0 ? '€' + Math.round(effSpend / 100).toLocaleString('de-DE') : '–';
       var impressions = (ad.impressions_lower && ad.impressions_upper) ? Math.round((ad.impressions_lower + ad.impressions_upper) / 2).toLocaleString('de-DE') : '–';
-      var ownCpmLb = parseFloat(localStorage.getItem('comp_own_cpm') || '');
-      var cpm = ownCpmLb > 0 ? '€' + ownCpmLb.toFixed(2) : (ad.estimated_cpm ? '€' + (parseFloat(ad.estimated_cpm) / 100).toFixed(2) : '–');
+      var effCpmLb = getEffectiveCpm();
+      var cpm = effCpmLb > 0 ? '€' + effCpmLb.toFixed(2) : (ad.estimated_cpm ? '€' + (parseFloat(ad.estimated_cpm) / 100).toFixed(2) : '–');
       var days = ad._days;
       var daysClass = days >= 90 ? 'comp-days-red' : days >= 30 ? 'comp-days-orange' : 'comp-days-green';
       html += '<tr onclick="scrollToAdInFeed(\'' + (ad.id || '') + '\')" style="cursor:pointer;">' +
@@ -11528,7 +11615,8 @@ function renderCompInsights() {
   // ============================================
   // 💰 Spend Analyse (only if spend data exists)
   // ============================================
-  var adsWithSpend = competitorAds.filter(function(a) { return getAdEffectiveSpend(a) > 0; });
+  var dedupedForInsights = deduplicateAds(competitorAds);
+  var adsWithSpend = dedupedForInsights.filter(function(a) { return getAdEffectiveSpend(a) > 0; });
   if (adsWithSpend.length > 0) {
     html += '<div class="card" style="margin-bottom:24px;border-left:4px solid #f59e0b;">';
     html += '<div class="card-body">';
@@ -12992,7 +13080,9 @@ async function init() {
 
 // --- Ad Detail Modal ---
 function openAdDetailModal(adId) {
-  var ad = competitorAds.find(function(a) { return a.id === adId; });
+  // Search in deduped ads first (from filtered cache), then raw
+  var ad = _filteredAdsCache.find(function(a) { return a.id === adId; });
+  if (!ad) ad = competitorAds.find(function(a) { return a.id === adId; });
   if (!ad) return;
 
   var brand = ad.page_name || '–';
@@ -13016,9 +13106,10 @@ function openAdDetailModal(adId) {
 
   // CPM
   var cpmStr = '–';
-  var ownCpm = parseFloat(localStorage.getItem('comp_own_cpm') || '');
-  if (ownCpm > 0) {
-    cpmStr = '€' + ownCpm.toFixed(2) + ' (eigener)';
+  var effCpm = getEffectiveCpm();
+  if (effCpm > 0) {
+    var cpmSource = parseFloat(localStorage.getItem('comp_own_cpm') || '') > 0 ? 'manuell' : 'auto';
+    cpmStr = '€' + effCpm.toFixed(2) + ' (' + cpmSource + ')';
   } else if (ad.estimated_cpm && ad.estimated_cpm > 0) {
     cpmStr = '€' + (parseFloat(ad.estimated_cpm) / 100).toFixed(2);
   }
@@ -13052,6 +13143,27 @@ function openAdDetailModal(adId) {
 
   // Ad Text
   document.getElementById('ad-detail-text').textContent = bodyText || 'Kein Anzeigentext verfügbar';
+
+  // Variant info (dedup)
+  var variantInfoEl = document.getElementById('ad-detail-variants');
+  if (variantInfoEl) {
+    if (ad._variants && ad._variants.length > 1) {
+      var varHtml = '<div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:12px;margin-bottom:16px;">';
+      varHtml += '<div style="font-weight:600;font-size:13px;color:#8b5cf6;margin-bottom:8px;">📦 ' + ad._variants.length + ' Varianten dieser Anzeige</div>';
+      varHtml += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Meta schaltet dieselbe Anzeige unter verschiedenen IDs für unterschiedliche Platzierungen.</div>';
+      varHtml += '<div style="font-size:11px;color:var(--text-muted);max-height:100px;overflow-y:auto;">';
+      ad._variants.forEach(function(v) {
+        var platforms = (v.publisher_platforms || []).join(', ');
+        varHtml += '<div style="margin-bottom:2px;">• ' + escHtml(v.ad_library_id || v.id || '–') + (platforms ? ' (' + platforms + ')' : '') + '</div>';
+      });
+      varHtml += '</div>';
+      varHtml += '<div style="margin-top:8px;font-size:12px;font-weight:600;">🌍 Gesamtreichweite: ' + (ad._totalReach || 0).toLocaleString('de-DE') + '</div>';
+      varHtml += '</div>';
+      variantInfoEl.innerHTML = varHtml;
+    } else {
+      variantInfoEl.innerHTML = '';
+    }
+  }
 
   // Snapshot link
   var snapshotLink = document.getElementById('ad-detail-snapshot-link');
@@ -13103,13 +13215,15 @@ function clearOwnCpm() {
   renderCompInsights();
 }
 
-// Load saved CPM on init
+// Load saved CPM on init + trigger auto-CPM
 (function() {
   var savedCpm = localStorage.getItem('comp_own_cpm');
   if (savedCpm) {
     var el = document.getElementById('comp-own-cpm');
     if (el) el.value = savedCpm;
   }
+  // Pre-load auto-CPM for home page competitor preview
+  loadAutoCpm();
 })();
 
 init();
@@ -13127,6 +13241,7 @@ init();
     <div id="ad-detail-preview" style="margin-bottom:20px;border-radius:8px;overflow:hidden;"></div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;" id="ad-detail-stats"></div>
     <div id="ad-detail-text" style="margin-bottom:20px;font-size:13px;line-height:1.6;color:var(--text-muted);white-space:pre-wrap;"></div>
+    <div id="ad-detail-variants"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
       <a id="ad-detail-snapshot-link" href="#" target="_blank" class="btn btn-primary btn-sm">🔍 Ad in Meta Library ansehen</a>
     </div>
