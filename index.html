@@ -11270,8 +11270,14 @@ function renderBrandOverviewCards() {
 
 // --- Brand Detail Page (AdSpend.com style) ---
 var _brandDetailChart = null;
+var _brandDetailCurrentBrand = null;
+var _brandDetailPeriod = 0; // 0 = Gesamt, 30, 90
 
-function showBrandDetail(brandName) {
+function showBrandDetail(brandName, period) {
+  _brandDetailCurrentBrand = brandName;
+  if (typeof period === 'number') _brandDetailPeriod = period;
+  var activePeriod = _brandDetailPeriod;
+
   // Hide all competitor sub-tabs, show brand detail
   document.querySelectorAll('.comp-sub-tab').forEach(function(t) { t.style.display = 'none'; });
   document.getElementById('comp-sub-brand-detail').style.display = 'block';
@@ -11289,14 +11295,41 @@ function showBrandDetail(brandName) {
   var brandAds = competitorAds.filter(function(a) {
     return watchlistIds.indexOf(a.watchlist_id) !== -1;
   });
-  var dedupedAds = deduplicateAds(brandAds);
+
+  // --- Time period filter ---
+  var now = new Date();
+  var cutoffDate = null;
+  if (activePeriod > 0) {
+    cutoffDate = new Date(now.getTime() - activePeriod * 86400000);
+  }
+
+  function adInPeriod(ad) {
+    if (!cutoffDate) return true; // Gesamt
+    var start = ad.ad_delivery_start_time ? new Date(ad.ad_delivery_start_time) : null;
+    var stop = ad.ad_delivery_stop_time ? new Date(ad.ad_delivery_stop_time) : null;
+    // Ad falls in period if start OR stop is within the window
+    if (start && start >= cutoffDate) return true;
+    if (stop && stop >= cutoffDate) return true;
+    // Also include still-running ads (no stop date) that started before the window
+    if (start && !stop) return true;
+    return false;
+  }
+
+  var filteredAds = brandAds.filter(adInPeriod);
+  var dedupedAds = deduplicateAds(filteredAds);
 
   // Sort by reach descending
   dedupedAds.sort(function(a, b) {
     return (b._totalReach || b.eu_total_reach || 0) - (a._totalReach || a.eu_total_reach || 0);
   });
 
-  // --- Card 1: Aktive Ads (Donut) ---
+  // --- Helper: is ad still running (time-based, NOT is_active) ---
+  function isAdRunning(ad) {
+    if (!ad.ad_delivery_stop_time) return true; // no stop → still running
+    return new Date(ad.ad_delivery_stop_time) > now;
+  }
+
+  // --- Card 1: Ads (Donut) ---
   var totalUnique = dedupedAds.length;
   var imageCount = 0;
   var videoCount = 0;
@@ -11330,25 +11363,32 @@ function showBrandDetail(brandName) {
     });
   });
 
-  // --- Card 3: Laufzeit & Aktivität ---
-  var daysArr = [];
-  var activeCount = 0;
-  var inactiveCount = 0;
-  var stillActiveCount = 0;
+  // --- Card 3: Laufzeit (time-based, not is_active) ---
+  var runningCount = 0;  // still running (no stop OR stop > now)
+  var endedCount = 0;    // ended (stop < now)
+  var endedDaysArr = []; // durations of ended ads only (have start AND stop)
+  var allDaysArr = [];
   dedupedAds.forEach(function(ad) {
-    var days = calcDaysRunning(ad);
-    daysArr.push(days);
-    if (ad._variants) {
-      var anyActive = ad._variants.some(function(v) { return v.is_active; });
-      if (anyActive) activeCount++; else inactiveCount++;
+    var running = isAdRunning(ad);
+    if (running) {
+      runningCount++;
     } else {
-      if (ad.is_active) activeCount++; else inactiveCount++;
+      endedCount++;
     }
-    if (!ad.ad_delivery_stop_time) stillActiveCount++;
+    // Duration calc
+    var days = calcDaysRunning(ad);
+    allDaysArr.push(days);
+    // Ø Laufzeit only from ended ads with both dates
+    if (!running && ad.ad_delivery_start_time && ad.ad_delivery_stop_time) {
+      endedDaysArr.push(days);
+    }
   });
-  var avgDays = daysArr.length > 0 ? Math.round(daysArr.reduce(function(s, d) { return s + d; }, 0) / daysArr.length) : 0;
-  var maxDays = daysArr.length > 0 ? Math.max.apply(null, daysArr) : 0;
-  var actPct = (activeCount + inactiveCount) > 0 ? Math.round(activeCount / (activeCount + inactiveCount) * 100) : 0;
+  var avgDaysEnded = endedDaysArr.length > 0 ? Math.round(endedDaysArr.reduce(function(s, d) { return s + d; }, 0) / endedDaysArr.length) : 0;
+  var maxDays = allDaysArr.length > 0 ? Math.max.apply(null, allDaysArr) : 0;
+  var runPct = (runningCount + endedCount) > 0 ? Math.round(runningCount / (runningCount + endedCount) * 100) : 0;
+
+  // --- Period label ---
+  var periodLabel = activePeriod === 30 ? 'Letzte 30 Tage' : activePeriod === 90 ? 'Letzte 90 Tage' : 'Gesamt';
 
   // --- Build HTML ---
   var html = '';
@@ -11361,12 +11401,19 @@ function showBrandDetail(brandName) {
   html += '<span class="brand-detail-pageid">' + totalUnique + ' Unique Ads</span>';
   html += '</div>';
 
+  // Time period filter tabs
+  html += '<div style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;">';
+  html += '<button class="ranking-tab' + (activePeriod === 30 ? ' active' : '') + '" onclick="showBrandDetail(_brandDetailCurrentBrand, 30)">30 Tage</button>';
+  html += '<button class="ranking-tab' + (activePeriod === 90 ? ' active' : '') + '" onclick="showBrandDetail(_brandDetailCurrentBrand, 90)">90 Tage</button>';
+  html += '<button class="ranking-tab' + (activePeriod === 0 ? ' active' : '') + '" onclick="showBrandDetail(_brandDetailCurrentBrand, 0)">Gesamt</button>';
+  html += '</div>';
+
   // Three Insight Cards
   html += '<div class="brand-detail-insights">';
 
-  // Card 1: Aktive Ads Donut
+  // Card 1: Ads Donut
   html += '<div class="brand-insight-card">';
-  html += '<h3>Aktive Ads</h3>';
+  html += '<h3>Erfasste Ads · ' + escHtml(periodLabel) + '</h3>';
   html += '<div class="brand-insight-donut-wrap"><canvas id="brand-detail-donut" width="140" height="140"></canvas>';
   html += '<div class="brand-insight-donut-center">' + totalUnique + '<small>Ads</small></div>';
   html += '</div>';
@@ -11375,7 +11422,7 @@ function showBrandDetail(brandName) {
 
   // Card 2: AdSpend
   html += '<div class="brand-insight-card">';
-  html += '<h3>Geschätzter AdSpend</h3>';
+  html += '<h3>Geschätzter AdSpend · ' + escHtml(periodLabel) + '</h3>';
   html += '<div class="brand-insight-big">€' + totalSpendEuro.toLocaleString('de-DE') + '</div>';
   html += '<div style="width:100%;text-align:left;">';
   var platformColors = { FB: 'var(--blue)', IG: 'var(--accent)', AN: 'var(--gold)', MSG: 'var(--cyan)' };
@@ -11393,18 +11440,19 @@ function showBrandDetail(brandName) {
   html += '</div>';
   html += '</div>';
 
-  // Card 3: Laufzeit & Aktivität
+  // Card 3: Laufzeit & Status (time-based)
   html += '<div class="brand-insight-card">';
-  html += '<h3>Laufzeit & Aktivität</h3>';
+  html += '<h3>Laufzeit & Status</h3>';
   html += '<div style="width:100%;">';
-  html += '<div class="brand-insight-stat-row"><span class="brand-insight-stat-label">Ø Laufzeit</span><span class="brand-insight-stat-val">' + avgDays + ' Tage</span></div>';
+  html += '<div class="brand-insight-stat-row"><span class="brand-insight-stat-label">Ø Laufzeit <span style="font-size:10px;color:var(--text-muted);">(beendet)</span></span><span class="brand-insight-stat-val">' + (endedDaysArr.length > 0 ? avgDaysEnded + ' Tage' : '–') + '</span></div>';
   html += '<div class="brand-insight-stat-row"><span class="brand-insight-stat-label">Längste Ad</span><span class="brand-insight-stat-val" style="color:var(--orange);">' + maxDays + ' Tage</span></div>';
-  html += '<div class="brand-insight-stat-row"><span class="brand-insight-stat-label">Noch aktiv</span><span class="brand-insight-stat-val" style="color:var(--green);">' + stillActiveCount + '</span></div>';
+  html += '<div class="brand-insight-stat-row"><span class="brand-insight-stat-label">Laufend</span><span class="brand-insight-stat-val" style="color:var(--green);">' + runningCount + '</span></div>';
+  html += '<div class="brand-insight-stat-row"><span class="brand-insight-stat-label">Beendet</span><span class="brand-insight-stat-val" style="color:var(--text-muted);">' + endedCount + '</span></div>';
   html += '<div class="brand-insight-stat-row" style="border-bottom:none;flex-direction:column;gap:4px;align-items:stretch;">';
-  html += '<div style="display:flex;justify-content:space-between;"><span class="brand-insight-stat-label">Aktiv vs Inaktiv</span><span style="font-size:12px;color:var(--text-muted);">' + activeCount + ' / ' + inactiveCount + '</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;"><span class="brand-insight-stat-label">Laufend vs Beendet</span><span style="font-size:12px;color:var(--text-muted);">' + runningCount + ' / ' + endedCount + '</span></div>';
   html += '<div class="brand-insight-mini-bar">';
-  html += '<div style="width:' + actPct + '%;background:var(--green);"></div>';
-  html += '<div style="width:' + (100 - actPct) + '%;background:var(--border);"></div>';
+  html += '<div style="width:' + runPct + '%;background:var(--green);"></div>';
+  html += '<div style="width:' + (100 - runPct) + '%;background:var(--border);"></div>';
   html += '</div>';
   html += '</div>';
   html += '</div>';
@@ -11415,7 +11463,7 @@ function showBrandDetail(brandName) {
   // Ad Feed
   html += '<div class="brand-detail-feed-header">';
   html += '<h2>📰 Ads nach Reichweite</h2>';
-  html += '<span style="font-size:13px;color:var(--text-muted);">' + dedupedAds.length + ' Ads</span>';
+  html += '<span style="font-size:13px;color:var(--text-muted);">' + dedupedAds.length + ' Ads · ' + escHtml(periodLabel) + '</span>';
   html += '</div>';
 
   dedupedAds.forEach(function(ad, idx) {
@@ -11426,7 +11474,7 @@ function showBrandDetail(brandName) {
     var spend = getAdEffectiveSpend(ad);
     var spendEuro = Math.round(spend / 100);
     var days = calcDaysRunning(ad);
-    var isActive = ad._variants ? ad._variants.some(function(v) { return v.is_active; }) : ad.is_active;
+    var running = isAdRunning(ad);
 
     html += '<div class="brand-detail-ad-row" onclick="openAdDetailModal(\'' + escHtml(ad.id || '') + '\')">';
     html += '<span class="brand-detail-rank">' + rank + '</span>';
@@ -11436,8 +11484,10 @@ function showBrandDetail(brandName) {
     if (spendEuro > 0) html += '<span style="background:rgba(22,163,74,0.12);color:var(--green);">€' + spendEuro.toLocaleString('de-DE') + '</span>';
     if (reach > 0) html += '<span style="background:rgba(8,145,178,0.12);color:var(--cyan);">' + reach.toLocaleString('de-DE') + ' Reach</span>';
     html += '<span style="background:rgba(0,0,0,0.05);color:var(--text-muted);">' + days + 'd</span>';
-    if (isActive) {
-      html += '<span style="background:rgba(22,163,74,0.12);color:var(--green);">● Aktiv</span>';
+    if (running) {
+      html += '<span style="background:rgba(22,163,74,0.12);color:var(--green);">● Laufend</span>';
+    } else {
+      html += '<span style="background:rgba(0,0,0,0.05);color:var(--text-muted);">⏹ Beendet</span>';
     }
     if (ad._variantCount && ad._variantCount > 1) {
       html += '<span style="background:rgba(139,92,246,0.12);color:#8b5cf6;">' + ad._variantCount + ' Var.</span>';
@@ -11447,6 +11497,10 @@ function showBrandDetail(brandName) {
     html += '</div>';
   });
 
+  if (dedupedAds.length === 0) {
+    html += '<div class="empty-state" style="padding:40px;"><div class="empty-state-icon">📭</div><div class="empty-state-title">Keine Ads im Zeitraum</div><div class="empty-state-desc">Für ' + escHtml(periodLabel) + ' wurden keine Ads gefunden.</div></div>';
+  }
+
   container.innerHTML = html;
 
   // Render donut chart
@@ -11454,13 +11508,16 @@ function showBrandDetail(brandName) {
     var canvas = document.getElementById('brand-detail-donut');
     if (!canvas) return;
     if (_brandDetailChart) { _brandDetailChart.destroy(); _brandDetailChart = null; }
+    var donutData = totalUnique > 0 ? [imageCount, videoCount] : [1];
+    var donutColors = totalUnique > 0 ? ['#2563eb', '#e7352e'] : ['#e5e5e5'];
+    var donutLabels = totalUnique > 0 ? ['Bild', 'Video'] : ['Keine Daten'];
     _brandDetailChart = new Chart(canvas.getContext('2d'), {
       type: 'doughnut',
       data: {
-        labels: ['Bild', 'Video'],
+        labels: donutLabels,
         datasets: [{
-          data: [imageCount, videoCount],
-          backgroundColor: ['#2563eb', '#e7352e'],
+          data: donutData,
+          backgroundColor: donutColors,
           borderWidth: 0,
           hoverOffset: 4
         }]
@@ -11473,6 +11530,7 @@ function showBrandDetail(brandName) {
           tooltip: {
             callbacks: {
               label: function(ctx) {
+                if (totalUnique === 0) return 'Keine Daten';
                 return ctx.label + ': ' + ctx.parsed + ' (' + Math.round(ctx.parsed / totalUnique * 100) + '%)';
               }
             }
@@ -11486,6 +11544,8 @@ function showBrandDetail(brandName) {
 }
 
 function closeBrandDetail() {
+  _brandDetailPeriod = 0;
+  _brandDetailCurrentBrand = null;
   document.getElementById('comp-sub-brand-detail').style.display = 'none';
   document.getElementById('comp-sub-overview').style.display = 'block';
   if (_brandDetailChart) { _brandDetailChart.destroy(); _brandDetailChart = null; }
