@@ -2555,6 +2555,230 @@
       background: rgba(231, 53, 46, 0.03);
     }
 
+    /* Brand Detail Page */
+    .brand-detail-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .brand-detail-back {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      color: var(--text-secondary);
+    }
+    .brand-detail-back:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .brand-detail-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .brand-detail-pageid {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      background: var(--bg-card);
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .brand-detail-insights {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 900px) {
+      .brand-detail-insights { grid-template-columns: 1fr; }
+    }
+    .brand-insight-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .brand-insight-card h3 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .brand-insight-donut-wrap {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin-bottom: 10px;
+    }
+    .brand-insight-donut-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .brand-insight-donut-center small {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .brand-insight-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .brand-insight-big {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--orange);
+      margin: 8px 0 12px 0;
+      line-height: 1;
+    }
+    .brand-insight-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+    .brand-insight-bar-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      width: 30px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .brand-insight-bar-track {
+      flex: 1;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .brand-insight-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+    .brand-insight-bar-pct {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      width: 34px;
+      flex-shrink: 0;
+    }
+    .brand-insight-stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-insight-stat-row:last-child { border-bottom: none; }
+    .brand-insight-stat-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .brand-insight-stat-val {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .brand-insight-mini-bar {
+      display: flex;
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .brand-detail-feed-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .brand-detail-feed-header h2 {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0;
+    }
+    .brand-detail-rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      margin-right: 8px;
+    }
+    .brand-detail-ad-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .brand-detail-ad-row:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+    }
+    .brand-detail-ad-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .brand-detail-ad-text {
+      font-size: 13px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .brand-detail-ad-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .brand-detail-ad-badges span {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
     /* Breadcrumbs */
     .comp-breadcrumb {
       display: none;
@@ -5465,6 +5689,11 @@
             <div class="empty-state-desc">Lade Insights…</div>
           </div>
         </div>
+      </div>
+
+      <!-- === COMPETITOR SUB-TAB: Brand Detail === -->
+      <div id="comp-sub-brand-detail" class="comp-sub-tab" style="display:none;">
+        <div id="comp-brand-detail-content"></div>
       </div>
 
     </div>
@@ -11024,7 +11253,7 @@ function renderBrandOverviewCards() {
     var selectedClass = isSelected ? ' selected' : '';
     var encodedBrand = encodeURIComponent(brandName);
 
-    return '<div class="comp-brand-overview-card' + selectedClass + '" onclick="filterFeedByBrand(decodeURIComponent(\'' + encodedBrand + '\'))">' +
+    return '<div class="comp-brand-overview-card' + selectedClass + '" onclick="showBrandDetail(decodeURIComponent(\'' + encodedBrand + '\'))">' +
       '<div class="brand-name">' + escHtml(w.brand || w.page_name) + '</div>' +
       '<div class="brand-standort-count">📍 ' + standortCount + ' Standort' + (standortCount !== 1 ? 'e' : '') + '</div>' +
       '<div class="brand-stats-grid" style="margin-top:10px;">' +
@@ -11037,6 +11266,229 @@ function renderBrandOverviewCards() {
   }).join('');
 
   container.innerHTML = html || '<div class="empty-state" style="padding:40px;grid-column:1/-1;"><div class="empty-state-desc">Keine aktiven Brands</div></div>';
+}
+
+// --- Brand Detail Page (AdSpend.com style) ---
+var _brandDetailChart = null;
+
+function showBrandDetail(brandName) {
+  // Hide all competitor sub-tabs, show brand detail
+  document.querySelectorAll('.comp-sub-tab').forEach(function(t) { t.style.display = 'none'; });
+  document.getElementById('comp-sub-brand-detail').style.display = 'block';
+
+  var container = document.getElementById('comp-brand-detail-content');
+
+  // Find watchlist entries for this brand
+  var watchlistEntries = competitorWatchlist.filter(function(w) {
+    return (w.brand || w.page_name) === brandName;
+  });
+  var watchlistIds = watchlistEntries.map(function(w) { return w.id; });
+  var pageId = watchlistEntries.length > 0 ? (watchlistEntries[0].page_id || '') : '';
+
+  // Get all ads for this brand
+  var brandAds = competitorAds.filter(function(a) {
+    return watchlistIds.indexOf(a.watchlist_id) !== -1;
+  });
+  var dedupedAds = deduplicateAds(brandAds);
+
+  // Sort by reach descending
+  dedupedAds.sort(function(a, b) {
+    return (b._totalReach || b.eu_total_reach || 0) - (a._totalReach || a.eu_total_reach || 0);
+  });
+
+  // --- Card 1: Aktive Ads (Donut) ---
+  var totalUnique = dedupedAds.length;
+  var imageCount = 0;
+  var videoCount = 0;
+  dedupedAds.forEach(function(ad) {
+    var bodies = (ad.ad_creative_bodies || []).join(' ').toLowerCase();
+    var hasVideoHint = bodies.indexOf('video') !== -1 || bodies.indexOf('reel') !== -1 || bodies.indexOf('film') !== -1 || bodies.indexOf('clip') !== -1;
+    if (hasVideoHint) {
+      videoCount++;
+    } else {
+      imageCount++;
+    }
+  });
+  var imagePct = totalUnique > 0 ? Math.round(imageCount / totalUnique * 100) : 0;
+  var videoPct = totalUnique > 0 ? Math.round(videoCount / totalUnique * 100) : 0;
+
+  // --- Card 2: AdSpend ---
+  var totalSpendCents = 0;
+  dedupedAds.forEach(function(ad) {
+    totalSpendCents += getAdEffectiveSpend(ad);
+  });
+  var totalSpendEuro = Math.round(totalSpendCents / 100);
+
+  // Platform distribution
+  var platformCounts = { FB: 0, IG: 0, AN: 0, MSG: 0 };
+  var platformTotal = 0;
+  dedupedAds.forEach(function(ad) {
+    var pls = ad.publisher_platforms || [];
+    pls.forEach(function(p) {
+      var key = p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p === 'MESSENGER' ? 'MSG' : null;
+      if (key) { platformCounts[key]++; platformTotal++; }
+    });
+  });
+
+  // --- Card 3: Laufzeit & Aktivität ---
+  var daysArr = [];
+  var activeCount = 0;
+  var inactiveCount = 0;
+  var stillActiveCount = 0;
+  dedupedAds.forEach(function(ad) {
+    var days = calcDaysRunning(ad);
+    daysArr.push(days);
+    if (ad._variants) {
+      var anyActive = ad._variants.some(function(v) { return v.is_active; });
+      if (anyActive) activeCount++; else inactiveCount++;
+    } else {
+      if (ad.is_active) activeCount++; else inactiveCount++;
+    }
+    if (!ad.ad_delivery_stop_time) stillActiveCount++;
+  });
+  var avgDays = daysArr.length > 0 ? Math.round(daysArr.reduce(function(s, d) { return s + d; }, 0) / daysArr.length) : 0;
+  var maxDays = daysArr.length > 0 ? Math.max.apply(null, daysArr) : 0;
+  var actPct = (activeCount + inactiveCount) > 0 ? Math.round(activeCount / (activeCount + inactiveCount) * 100) : 0;
+
+  // --- Build HTML ---
+  var html = '';
+
+  // Header
+  html += '<div class="brand-detail-header">';
+  html += '<button class="brand-detail-back" onclick="closeBrandDetail()">← Zurück</button>';
+  html += '<span class="brand-detail-title">' + escHtml(brandName) + '</span>';
+  if (pageId) html += '<span class="brand-detail-pageid">ID: ' + escHtml(pageId) + '</span>';
+  html += '<span class="brand-detail-pageid">' + totalUnique + ' Unique Ads</span>';
+  html += '</div>';
+
+  // Three Insight Cards
+  html += '<div class="brand-detail-insights">';
+
+  // Card 1: Aktive Ads Donut
+  html += '<div class="brand-insight-card">';
+  html += '<h3>Aktive Ads</h3>';
+  html += '<div class="brand-insight-donut-wrap"><canvas id="brand-detail-donut" width="140" height="140"></canvas>';
+  html += '<div class="brand-insight-donut-center">' + totalUnique + '<small>Ads</small></div>';
+  html += '</div>';
+  html += '<div class="brand-insight-subtitle">Bild ' + imagePct + '% · Video ' + videoPct + '%</div>';
+  html += '</div>';
+
+  // Card 2: AdSpend
+  html += '<div class="brand-insight-card">';
+  html += '<h3>Geschätzter AdSpend</h3>';
+  html += '<div class="brand-insight-big">€' + totalSpendEuro.toLocaleString('de-DE') + '</div>';
+  html += '<div style="width:100%;text-align:left;">';
+  var platformColors = { FB: 'var(--blue)', IG: 'var(--accent)', AN: 'var(--gold)', MSG: 'var(--cyan)' };
+  var platformLabels = { FB: 'FB', IG: 'IG', AN: 'AN', MSG: 'MSG' };
+  ['FB', 'IG', 'AN', 'MSG'].forEach(function(key) {
+    var pct = platformTotal > 0 ? Math.round(platformCounts[key] / platformTotal * 100) : 0;
+    if (pct > 0 || platformCounts[key] > 0) {
+      html += '<div class="brand-insight-bar-row">';
+      html += '<span class="brand-insight-bar-label">' + platformLabels[key] + '</span>';
+      html += '<div class="brand-insight-bar-track"><div class="brand-insight-bar-fill" style="width:' + pct + '%;background:' + platformColors[key] + ';"></div></div>';
+      html += '<span class="brand-insight-bar-pct">' + pct + '%</span>';
+      html += '</div>';
+    }
+  });
+  html += '</div>';
+  html += '</div>';
+
+  // Card 3: Laufzeit & Aktivität
+  html += '<div class="brand-insight-card">';
+  html += '<h3>Laufzeit & Aktivität</h3>';
+  html += '<div style="width:100%;">';
+  html += '<div class="brand-insight-stat-row"><span class="brand-insight-stat-label">Ø Laufzeit</span><span class="brand-insight-stat-val">' + avgDays + ' Tage</span></div>';
+  html += '<div class="brand-insight-stat-row"><span class="brand-insight-stat-label">Längste Ad</span><span class="brand-insight-stat-val" style="color:var(--orange);">' + maxDays + ' Tage</span></div>';
+  html += '<div class="brand-insight-stat-row"><span class="brand-insight-stat-label">Noch aktiv</span><span class="brand-insight-stat-val" style="color:var(--green);">' + stillActiveCount + '</span></div>';
+  html += '<div class="brand-insight-stat-row" style="border-bottom:none;flex-direction:column;gap:4px;align-items:stretch;">';
+  html += '<div style="display:flex;justify-content:space-between;"><span class="brand-insight-stat-label">Aktiv vs Inaktiv</span><span style="font-size:12px;color:var(--text-muted);">' + activeCount + ' / ' + inactiveCount + '</span></div>';
+  html += '<div class="brand-insight-mini-bar">';
+  html += '<div style="width:' + actPct + '%;background:var(--green);"></div>';
+  html += '<div style="width:' + (100 - actPct) + '%;background:var(--border);"></div>';
+  html += '</div>';
+  html += '</div>';
+  html += '</div>';
+  html += '</div>';
+
+  html += '</div>'; // close insights row
+
+  // Ad Feed
+  html += '<div class="brand-detail-feed-header">';
+  html += '<h2>📰 Ads nach Reichweite</h2>';
+  html += '<span style="font-size:13px;color:var(--text-muted);">' + dedupedAds.length + ' Ads</span>';
+  html += '</div>';
+
+  dedupedAds.forEach(function(ad, idx) {
+    var rank = idx + 1;
+    var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : 'Kein Text';
+    var shortBody = bodyText.length > 100 ? bodyText.substring(0, 100) + '…' : bodyText;
+    var reach = ad._totalReach || ad.eu_total_reach || 0;
+    var spend = getAdEffectiveSpend(ad);
+    var spendEuro = Math.round(spend / 100);
+    var days = calcDaysRunning(ad);
+    var isActive = ad._variants ? ad._variants.some(function(v) { return v.is_active; }) : ad.is_active;
+
+    html += '<div class="brand-detail-ad-row" onclick="openAdDetailModal(\'' + escHtml(ad.id || '') + '\')">';
+    html += '<span class="brand-detail-rank">' + rank + '</span>';
+    html += '<div class="brand-detail-ad-body">';
+    html += '<div class="brand-detail-ad-text">' + escHtml(shortBody) + '</div>';
+    html += '<div class="brand-detail-ad-badges">';
+    if (spendEuro > 0) html += '<span style="background:rgba(22,163,74,0.12);color:var(--green);">€' + spendEuro.toLocaleString('de-DE') + '</span>';
+    if (reach > 0) html += '<span style="background:rgba(8,145,178,0.12);color:var(--cyan);">' + reach.toLocaleString('de-DE') + ' Reach</span>';
+    html += '<span style="background:rgba(0,0,0,0.05);color:var(--text-muted);">' + days + 'd</span>';
+    if (isActive) {
+      html += '<span style="background:rgba(22,163,74,0.12);color:var(--green);">● Aktiv</span>';
+    }
+    if (ad._variantCount && ad._variantCount > 1) {
+      html += '<span style="background:rgba(139,92,246,0.12);color:#8b5cf6;">' + ad._variantCount + ' Var.</span>';
+    }
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+
+  // Render donut chart
+  setTimeout(function() {
+    var canvas = document.getElementById('brand-detail-donut');
+    if (!canvas) return;
+    if (_brandDetailChart) { _brandDetailChart.destroy(); _brandDetailChart = null; }
+    _brandDetailChart = new Chart(canvas.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Bild', 'Video'],
+        datasets: [{
+          data: [imageCount, videoCount],
+          backgroundColor: ['#2563eb', '#e7352e'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: false,
+        cutout: '70%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                return ctx.label + ': ' + ctx.parsed + ' (' + Math.round(ctx.parsed / totalUnique * 100) + '%)';
+              }
+            }
+          }
+        }
+      }
+    });
+  }, 50);
+
+  window.scrollTo(0, 0);
+}
+
+function closeBrandDetail() {
+  document.getElementById('comp-sub-brand-detail').style.display = 'none';
+  document.getElementById('comp-sub-overview').style.display = 'block';
+  if (_brandDetailChart) { _brandDetailChart.destroy(); _brandDetailChart = null; }
 }
 
 // --- Standort Dropdown Population ---
