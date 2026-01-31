@@ -1,0 +1,47 @@
+[
+    {
+        "id": "18bed20d-026c-4d1c-af09-486d7c2b7702",
+        "page_name": "Dahler & Company",
+        "page_id": null,
+        "brand": "Dahler",
+        "notes": "Luxus-Immobilien",
+        "is_active": true,
+        "created_at": "2026-01-27T23:51:50.288243+00:00"
+    },
+    {
+        "id": "e2d2b5cc-9cea-43f6-9c33-e43cdbdfe779",
+        "page_name": "Grossmann & Berger",
+        "page_id": null,
+        "brand": "Grossmann & Berger",
+        "notes": "Hamburg & Norddeutschland",
+        "is_active": true,
+        "created_at": "2026-01-27T23:51:50.353816+00:00"
+    },
+    {
+        "id": "d807f9e2-5fb7-4b84-9cd6-3e868c216068",
+        "page_name": "Elbe & Spree Investment",
+        "page_id": "152263667967580",
+        "brand": "Elbe & Spree",
+        "notes": null,
+        "is_active": true,
+        "created_at": "2026-01-27T23:52:27.691751+00:00"
+    },
+    {
+        "id": "4b4f42a4-0f5d-4b98-bafa-73035c3a7b74",
+        "page_name": "Engel & V\u00f6lkers",
+        "page_id": "203870006307832",
+        "brand": "Engel & V\u00f6lkers",
+        "notes": "Internationales Maklernetzwerk",
+        "is_active": true,
+        "created_at": "2026-01-27T23:51:50.119147+00:00"
+    },
+    {
+        "id": "3785970a-eede-4506-b3fa-2787b6a7d51e",
+        "page_name": "Von Poll Immobilien",
+        "page_id": "120872687955655",
+        "brand": "Von Poll",
+        "notes": "Premium-Segment Makler",
+        "is_active": true,
+        "created_at": "2026-01-27T23:51:50.176591+00:00"
+    }
+]

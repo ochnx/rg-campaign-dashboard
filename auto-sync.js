@@ -91,7 +91,7 @@ async function sbUpsert(table, data, onConflict) {
 // ============================================
 // META AD LIBRARY API
 // ============================================
-const AD_FIELDS = 'id,ad_creative_bodies,ad_creative_link_titles,ad_creative_link_descriptions,ad_snapshot_url,page_name,page_id,ad_delivery_start_time,ad_delivery_stop_time,publisher_platforms';
+const AD_FIELDS = 'id,ad_creative_bodies,ad_creative_link_titles,ad_creative_link_descriptions,ad_snapshot_url,page_name,page_id,ad_delivery_start_time,ad_delivery_stop_time,publisher_platforms,spend,impressions,eu_total_reach';
 
 async function fetchAdLibraryPage(params) {
   const url = new URL('https://graph.facebook.com/v24.0/ads_archive');
@@ -173,6 +173,29 @@ async function fetchAllAdsForBrand(params, maxPages = 10) {
 // ============================================
 // HELPERS
 // ============================================
+// Parse Meta Ad Library spend/impressions range objects
+// spend comes as {"lower_bound": "100", "upper_bound": "499"} (in euros as strings)
+// We store in cents (integer)
+function parseSpend(spendObj) {
+  if (!spendObj) return { spend_lower: null, spend_upper: null };
+  const lower = spendObj.lower_bound ? Math.round(parseFloat(spendObj.lower_bound) * 100) : null;
+  const upper = spendObj.upper_bound ? Math.round(parseFloat(spendObj.upper_bound) * 100) : null;
+  return { spend_lower: lower, spend_upper: upper };
+}
+
+// impressions comes as {"lower_bound": "1000", "upper_bound": "5000"}
+function parseImpressions(impObj) {
+  if (!impObj) return { impressions_lower: null, impressions_upper: null };
+  const lower = impObj.lower_bound ? parseInt(impObj.lower_bound, 10) : null;
+  const upper = impObj.upper_bound ? parseInt(impObj.upper_bound, 10) : null;
+  return { impressions_lower: lower, impressions_upper: upper };
+}
+
+function parseEuTotalReach(val) {
+  if (val == null) return null;
+  return typeof val === 'number' ? val : parseInt(val, 10) || null;
+}
+
 function calcDaysRunning(ad) {
   if (!ad.ad_delivery_start_time) return 0;
   const start = new Date(ad.ad_delivery_start_time);
@@ -272,7 +295,10 @@ async function main() {
         const isTrulyNew = !allExistingAdLibraryIds.has(apiAd.id);
 
         if (isTrulyNew) {
-          // TRULY NEW AD — insert
+          // TRULY NEW AD — insert (with spend/impressions/reach)
+          const spendData = parseSpend(apiAd.spend);
+          const impressionsData = parseImpressions(apiAd.impressions);
+          const euReach = parseEuTotalReach(apiAd.eu_total_reach);
           await sbInsert('competitor_ads', {
             watchlist_id: w.id,
             ad_library_id: apiAd.id,
@@ -288,7 +314,10 @@ async function main() {
             ad_type: 'HOUSING_ADS',
             is_active: true,
             first_seen_at: now,
-            last_seen_at: now
+            last_seen_at: now,
+            ...spendData,
+            ...impressionsData,
+            eu_total_reach: euReach
           });
           allExistingAdLibraryIds.add(apiAd.id);
 
@@ -309,10 +338,16 @@ async function main() {
           // EXISTING AD for this brand — update last_seen_at
           const existing = existingAds.find(a => a.ad_library_id === apiAd.id);
           if (existing) {
+            const updSpend = parseSpend(apiAd.spend);
+            const updImpressions = parseImpressions(apiAd.impressions);
+            const updReach = parseEuTotalReach(apiAd.eu_total_reach);
             await sbPatch('competitor_ads', existing.id, {
               last_seen_at: now,
               is_active: true,
-              ad_delivery_stop_time: apiAd.ad_delivery_stop_time || null
+              ad_delivery_stop_time: apiAd.ad_delivery_stop_time || null,
+              ...(updSpend.spend_lower != null ? updSpend : {}),
+              ...(updImpressions.impressions_lower != null ? updImpressions : {}),
+              ...(updReach != null ? { eu_total_reach: updReach } : {})
             });
           }
         }

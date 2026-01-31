@@ -5198,8 +5198,8 @@
       <div id="comp-sub-overview" class="comp-sub-tab">
         <!-- Stats Bar -->
         <div class="kpi-grid" id="comp-stats">
-          <div class="kpi-card clickable" onclick="onCompStatClick('brands')" title="Beobachtete Brands">
-            <div class="kpi-label">Beobachtete Brands</div>
+          <div class="kpi-card clickable" onclick="onCompStatClick('brands')" title="Beobachtete Accounts">
+            <div class="kpi-label">Beobachtete Accounts</div>
             <div class="kpi-value" id="comp-stat-brands">0</div>
           </div>
           <div class="kpi-card clickable" onclick="onCompStatClick('total')" title="Erfasste Ads">
@@ -5220,6 +5220,21 @@
             <div class="kpi-value" id="comp-stat-longest" style="color:var(--orange);">–</div>
             <div style="font-size:11px;color:var(--text-muted);">Tage</div>
           </div>
+          <div class="kpi-card clickable" onclick="onCompStatClick('total-spend')" title="Gesamt AdSpend">
+            <div class="kpi-label">Gesamt AdSpend</div>
+            <div class="kpi-value" id="comp-stat-total-spend" style="color:var(--orange);">—</div>
+            <div style="font-size:11px;color:var(--text-muted);">€ (geschätzt)</div>
+          </div>
+          <div class="kpi-card clickable" onclick="onCompStatClick('avg-spend')" title="Ø Spend pro Ad">
+            <div class="kpi-label">Ø Spend/Ad</div>
+            <div class="kpi-value" id="comp-stat-avg-spend">—</div>
+            <div style="font-size:11px;color:var(--text-muted);">€</div>
+          </div>
+          <div class="kpi-card clickable" onclick="onCompStatClick('avg-cpm')" title="Ø CPM">
+            <div class="kpi-label">Ø CPM</div>
+            <div class="kpi-value" id="comp-stat-avg-cpm">—</div>
+            <div style="font-size:11px;color:var(--text-muted);">€</div>
+          </div>
         </div>
 
         <!-- Brand Overview -->
@@ -5232,7 +5247,7 @@
         <div style="margin-bottom:32px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
             <h2 style="font-size:18px;font-weight:800;">📋 Watchlist</h2>
-            <button class="btn btn-primary btn-sm" onclick="openWatchlistModal()">+ Brand hinzufügen</button>
+            <button class="btn btn-primary btn-sm" onclick="openWatchlistModal()">+ Account hinzufügen</button>
           </div>
 
           <div id="comp-watchlist-loading" class="loading-spinner"><div class="spinner"></div></div>
@@ -5262,6 +5277,8 @@
           <select class="form-select" id="comp-sort" onchange="applyCompetitorFilters()">
             <option value="newest">Neueste zuerst</option>
             <option value="longest">Längste Laufzeit</option>
+            <option value="spend-desc">💰 Höchster Spend</option>
+            <option value="spend-asc">💰 Niedrigster Spend</option>
           </select>
           <input type="text" class="comp-search-input" id="comp-search-input" placeholder="🔍 Standort oder Account suchen..." oninput="onCompSearchInput()">
         </div>
@@ -5281,7 +5298,11 @@
 
       <!-- === COMPETITOR SUB-TAB: Leaderboard === -->
       <div id="comp-sub-leaderboard" class="comp-sub-tab" style="display:none;">
-        <h2 style="font-size:18px;font-weight:800;margin-bottom:16px;">🏆 Longevity Leaderboard</h2>
+        <h2 style="font-size:18px;font-weight:800;margin-bottom:16px;">🏆 Leaderboard</h2>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button class="ranking-tab active" id="lb-tab-longevity" onclick="switchLeaderboard('longevity')">⏱️ Laufzeit</button>
+          <button class="ranking-tab" id="lb-tab-spend" onclick="switchLeaderboard('spend')">💰 AdSpend</button>
+        </div>
         <div class="card">
           <div class="card-body" style="padding:0;overflow-x:auto;" id="comp-leaderboard-content">
             <div class="empty-state" style="padding:40px;">
@@ -5312,15 +5333,11 @@
     <!-- Watchlist Add/Edit Modal -->
     <div id="comp-watchlist-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);backdrop-filter:blur(4px);z-index:150;display:none;align-items:center;justify-content:center;">
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;max-width:480px;width:90vw;box-shadow:var(--shadow-lg);">
-        <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;" id="comp-modal-title">Brand zur Watchlist hinzufügen</h3>
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;" id="comp-modal-title">Account zur Watchlist hinzufügen</h3>
         <input type="hidden" id="comp-modal-edit-id" value="">
         <div class="form-group" style="margin-bottom:16px;">
-          <label class="form-label">Seitenname *</label>
+          <label class="form-label">Page Name *</label>
           <input class="form-input" id="comp-modal-pagename" placeholder="z.B. Engel & Völkers Hamburg">
-        </div>
-        <div class="form-group" style="margin-bottom:16px;">
-          <label class="form-label">Brand</label>
-          <input class="form-input" id="comp-modal-brand" placeholder="z.B. Engel & Völkers">
         </div>
         <div class="form-group" style="margin-bottom:16px;">
           <label class="form-label">Facebook Page ID</label>
@@ -10092,8 +10109,7 @@ function renderWatchlistGrid() {
     return '<div class="comp-brand-card' + inactiveClass + '">' +
       '<div class="comp-brand-header">' +
         '<div>' +
-          '<div class="comp-brand-name">' + escHtml(w.brand || w.page_name) + '</div>' +
-          (w.brand && w.page_name !== w.brand ? '<div class="comp-brand-page">' + escHtml(w.page_name) + '</div>' : '') +
+          '<div class="comp-brand-name">' + escHtml(w.page_name) + '</div>' +
         '</div>' +
         '<div class="comp-brand-actions">' +
           '<button onclick="toggleWatchlistItem(\'' + w.id + '\',' + !w.is_active + ')" title="' + toggleTitle + '">' + toggleIcon + '</button>' +
@@ -10162,9 +10178,8 @@ function editWatchlistItem(id) {
   var item = competitorWatchlist.find(function(w) { return w.id === id; });
   if (!item) return;
   document.getElementById('comp-modal-edit-id').value = id;
-  document.getElementById('comp-modal-title').textContent = 'Brand bearbeiten';
+  document.getElementById('comp-modal-title').textContent = 'Account bearbeiten';
   document.getElementById('comp-modal-pagename').value = item.page_name || '';
-  document.getElementById('comp-modal-brand').value = item.brand || '';
   document.getElementById('comp-modal-pageid').value = item.page_id || '';
   document.getElementById('comp-modal-notes').value = item.notes || '';
   document.getElementById('comp-watchlist-modal').style.display = 'flex';
@@ -10172,9 +10187,8 @@ function editWatchlistItem(id) {
 
 function openWatchlistModal() {
   document.getElementById('comp-modal-edit-id').value = '';
-  document.getElementById('comp-modal-title').textContent = 'Brand zur Watchlist hinzufügen';
+  document.getElementById('comp-modal-title').textContent = 'Account zur Watchlist hinzufügen';
   document.getElementById('comp-modal-pagename').value = '';
-  document.getElementById('comp-modal-brand').value = '';
   document.getElementById('comp-modal-pageid').value = '';
   document.getElementById('comp-modal-notes').value = '';
   document.getElementById('comp-watchlist-modal').style.display = 'flex';
@@ -10186,13 +10200,12 @@ function closeWatchlistModal() {
 
 async function saveWatchlistItem() {
   var pageName = document.getElementById('comp-modal-pagename').value.trim();
-  var brand = document.getElementById('comp-modal-brand').value.trim();
   var pageId = document.getElementById('comp-modal-pageid').value.trim();
   var notes = document.getElementById('comp-modal-notes').value.trim();
   var editId = document.getElementById('comp-modal-edit-id').value;
 
   if (!pageName) {
-    showToast('Seitenname ist erforderlich', 'error');
+    showToast('Page Name ist erforderlich', 'error');
     return;
   }
 
@@ -10200,13 +10213,12 @@ async function saveWatchlistItem() {
     if (editId) {
       await sbPatch('competitor_watchlist', editId, {
         page_name: pageName,
-        brand: brand || null,
         page_id: pageId || null,
         notes: notes || null
       });
-      showToast('Brand aktualisiert', 'success');
+      showToast('Account aktualisiert', 'success');
     } else {
-      await addToWatchlist(pageName, brand, notes, pageId);
+      await addToWatchlist(pageName, null, notes, pageId);
     }
     closeWatchlistModal();
     await loadWatchlist();
@@ -10226,7 +10238,7 @@ async function loadCompetitorAds(watchlistId) {
   gridEl.style.display = 'none';
 
   try {
-    var query = 'select=*&order=ad_delivery_start_time.desc.nullslast';
+    var query = 'select=*,spend_lower,spend_upper,impressions_lower,impressions_upper,eu_total_reach,estimated_spend,estimated_cpm&order=ad_delivery_start_time.desc.nullslast';
     if (watchlistId) query += '&watchlist_id=eq.' + watchlistId;
     competitorAds = await sbGet('competitor_ads', query);
   } catch (e) {
@@ -10384,6 +10396,7 @@ function renderAdCard(ad) {
     linkMetaHtml +
     '<div class="comp-ad-meta">' +
       platformsHtml +
+      (ad.estimated_spend && ad.estimated_spend > 0 ? '<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">€' + Number((ad.estimated_spend / 100).toFixed(0)).toLocaleString('de-DE') + '</span>' : '') +
       '<span class="comp-days-badge ' + daysClass + '">' + daysDisplay + '</span>' +
       topPerformer +
     '</div>' +
@@ -10408,6 +10421,10 @@ function renderAdFeed(ads, filterBrand, filterStatus, sortBy) {
     filtered.sort(function(a, b) {
       return (b.days_running || calcDaysRunning(b)) - (a.days_running || calcDaysRunning(a));
     });
+  } else if (sortBy === 'spend-desc') {
+    filtered.sort(function(a, b) { return (b.estimated_spend || 0) - (a.estimated_spend || 0); });
+  } else if (sortBy === 'spend-asc') {
+    filtered.sort(function(a, b) { return (a.estimated_spend || 0) - (b.estimated_spend || 0); });
   } else {
     // newest
     filtered.sort(function(a, b) {
@@ -10472,6 +10489,17 @@ function updateCompetitorStats() {
   document.getElementById('comp-stat-active').textContent = active;
   document.getElementById('comp-stat-avg-days').textContent = avgDays || '–';
   document.getElementById('comp-stat-longest').textContent = longest || '–';
+
+  // AdSpend KPIs
+  var spendArr = adsPool.filter(function(a) { return a.estimated_spend && a.estimated_spend > 0; }).map(function(a) { return a.estimated_spend; });
+  var totalSpend = spendArr.reduce(function(s, v) { return s + v; }, 0);
+  var avgSpend = spendArr.length > 0 ? Math.round(totalSpend / spendArr.length) : 0;
+  var cpmArr = adsPool.filter(function(a) { return a.estimated_cpm && a.estimated_cpm > 0; }).map(function(a) { return parseFloat(a.estimated_cpm); });
+  var avgCpm = cpmArr.length > 0 ? Math.round(cpmArr.reduce(function(s, v) { return s + v; }, 0) / cpmArr.length) : 0;
+
+  document.getElementById('comp-stat-total-spend').textContent = spendArr.length > 0 ? '€' + Math.round(totalSpend / 100).toLocaleString('de-DE') : '—';
+  document.getElementById('comp-stat-avg-spend').textContent = spendArr.length > 0 ? '€' + Math.round(avgSpend / 100).toLocaleString('de-DE') : '—';
+  document.getElementById('comp-stat-avg-cpm').textContent = cpmArr.length > 0 ? '€' + (avgCpm / 100).toFixed(2) : '—';
 }
 
 function updateBrandFilter() {
@@ -10611,6 +10639,18 @@ function onCompStatClick(stat) {
       showView('competitors', 'feed');
       setTimeout(scrollToLongestAd, 100);
       break;
+    case 'total-spend':
+    case 'avg-spend':
+      showView('competitors', 'feed');
+      setTimeout(function() {
+        document.getElementById('comp-sort').value = 'spend-desc';
+        applyCompetitorFilters();
+      }, 100);
+      break;
+    case 'avg-cpm':
+      showView('competitors', 'leaderboard');
+      setTimeout(function() { switchLeaderboard('spend'); }, 100);
+      break;
     case 'brands':
     case 'total':
     default:
@@ -10638,48 +10678,93 @@ function scrollToLongestAd() {
   }, 100);
 }
 
-// --- Longevity Leaderboard ---
+// --- Leaderboard ---
+var _leaderboardMode = 'longevity';
+
+function switchLeaderboard(type) {
+  _leaderboardMode = type;
+  document.getElementById('lb-tab-longevity').className = type === 'longevity' ? 'ranking-tab active' : 'ranking-tab';
+  document.getElementById('lb-tab-spend').className = type === 'spend' ? 'ranking-tab active' : 'ranking-tab';
+  renderLeaderboard();
+}
+
 function renderLeaderboard() {
   var container = document.getElementById('comp-leaderboard-content');
   if (competitorAds.length === 0) {
     container.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="empty-state-desc">Keine Ads vorhanden</div></div>';
     return;
   }
-  // Get top 10 by days running
+  // Get top 10
   var sorted = competitorAds.slice().map(function(ad) {
     ad._days = calcDaysRunning(ad);
     return ad;
-  }).sort(function(a, b) { return b._days - a._days; }).slice(0, 10);
-
-  var html = '<table class="comp-leaderboard-table"><thead><tr>' +
-    '<th>#</th><th>Brand / Seite</th><th>Anzeigentext</th><th>Tage</th><th>Plattform</th><th>Status</th>' +
-    '</tr></thead><tbody>';
-
-  sorted.forEach(function(ad, i) {
-    var rank = i + 1;
-    var rankDisplay = rank <= 3 ? ['🥇','🥈','🥉'][i] : rank + '.';
-    var brand = ad.page_name || '–';
-    var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : '–';
-    if (bodyText.length > 60) bodyText = bodyText.substring(0, 60) + '…';
-    var days = ad._days;
-    var daysClass = days >= 90 ? 'comp-days-red' : days >= 30 ? 'comp-days-orange' : 'comp-days-green';
-    var daysEmoji = days >= 90 ? ' 🔥' : '';
-    var platforms = (ad.publisher_platforms || []).map(function(p) {
-      return p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'MESSENGER' ? 'MSG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p;
-    }).join(', ');
-    var statusBadge = ad.is_active
-      ? '<span class="badge badge-active" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Aktiv</span>'
-      : '<span class="badge badge-completed" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Gestoppt</span>';
-
-    html += '<tr onclick="scrollToAdInFeed(\'' + (ad.id || '') + '\')" style="cursor:pointer;">' +
-      '<td class="comp-leaderboard-rank">' + rankDisplay + '</td>' +
-      '<td style="font-weight:600;">' + escHtml(brand) + '</td>' +
-      '<td class="comp-leaderboard-text">' + escHtml(bodyText) + '</td>' +
-      '<td><span class="comp-days-badge ' + daysClass + '">' + days + daysEmoji + '</span></td>' +
-      '<td style="font-size:11px;">' + escHtml(platforms || '–') + '</td>' +
-      '<td>' + statusBadge + '</td>' +
-    '</tr>';
   });
+
+  if (_leaderboardMode === 'spend') {
+    sorted = sorted.filter(function(ad) { return ad.estimated_spend && ad.estimated_spend > 0; });
+    sorted.sort(function(a, b) { return (b.estimated_spend || 0) - (a.estimated_spend || 0); });
+  } else {
+    sorted.sort(function(a, b) { return b._days - a._days; });
+  }
+  sorted = sorted.slice(0, 10);
+
+  if (_leaderboardMode === 'spend' && sorted.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="empty-state-desc">Keine Spend-Daten vorhanden — Migration V6 ausführen und Sync starten.</div></div>';
+    return;
+  }
+
+  var html = '';
+  if (_leaderboardMode === 'spend') {
+    html = '<table class="comp-leaderboard-table"><thead><tr>' +
+      '<th>#</th><th>Account</th><th>Spend (€)</th><th>Impressions</th><th>CPM (€)</th><th>Laufzeit</th>' +
+      '</tr></thead><tbody>';
+    sorted.forEach(function(ad, i) {
+      var rank = i + 1;
+      var rankDisplay = rank <= 3 ? ['🥇','🥈','🥉'][i] : rank + '.';
+      var brand = ad.page_name || '–';
+      var spendEur = ad.estimated_spend ? '€' + Math.round(ad.estimated_spend / 100).toLocaleString('de-DE') : '–';
+      var impressions = (ad.impressions_lower && ad.impressions_upper) ? Math.round((ad.impressions_lower + ad.impressions_upper) / 2).toLocaleString('de-DE') : '–';
+      var cpm = ad.estimated_cpm ? '€' + (parseFloat(ad.estimated_cpm) / 100).toFixed(2) : '–';
+      var days = ad._days;
+      var daysClass = days >= 90 ? 'comp-days-red' : days >= 30 ? 'comp-days-orange' : 'comp-days-green';
+      html += '<tr onclick="scrollToAdInFeed(\'' + (ad.id || '') + '\')" style="cursor:pointer;">' +
+        '<td class="comp-leaderboard-rank">' + rankDisplay + '</td>' +
+        '<td style="font-weight:600;">' + escHtml(brand) + '</td>' +
+        '<td style="font-weight:700;color:#f59e0b;">' + spendEur + '</td>' +
+        '<td>' + impressions + '</td>' +
+        '<td>' + cpm + '</td>' +
+        '<td><span class="comp-days-badge ' + daysClass + '">' + days + '</span></td>' +
+      '</tr>';
+    });
+  } else {
+    html = '<table class="comp-leaderboard-table"><thead><tr>' +
+      '<th>#</th><th>Brand / Seite</th><th>Anzeigentext</th><th>Tage</th><th>Plattform</th><th>Status</th>' +
+      '</tr></thead><tbody>';
+    sorted.forEach(function(ad, i) {
+      var rank = i + 1;
+      var rankDisplay = rank <= 3 ? ['🥇','🥈','🥉'][i] : rank + '.';
+      var brand = ad.page_name || '–';
+      var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : '–';
+      if (bodyText.length > 60) bodyText = bodyText.substring(0, 60) + '…';
+      var days = ad._days;
+      var daysClass = days >= 90 ? 'comp-days-red' : days >= 30 ? 'comp-days-orange' : 'comp-days-green';
+      var daysEmoji = days >= 90 ? ' 🔥' : '';
+      var platforms = (ad.publisher_platforms || []).map(function(p) {
+        return p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'MESSENGER' ? 'MSG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p;
+      }).join(', ');
+      var statusBadge = ad.is_active
+        ? '<span class="badge badge-active" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Aktiv</span>'
+        : '<span class="badge badge-completed" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Gestoppt</span>';
+      html += '<tr onclick="scrollToAdInFeed(\'' + (ad.id || '') + '\')" style="cursor:pointer;">' +
+        '<td class="comp-leaderboard-rank">' + rankDisplay + '</td>' +
+        '<td style="font-weight:600;">' + escHtml(brand) + '</td>' +
+        '<td class="comp-leaderboard-text">' + escHtml(bodyText) + '</td>' +
+        '<td><span class="comp-days-badge ' + daysClass + '">' + days + daysEmoji + '</span></td>' +
+        '<td style="font-size:11px;">' + escHtml(platforms || '–') + '</td>' +
+        '<td>' + statusBadge + '</td>' +
+      '</tr>';
+    });
+  }
 
   html += '</tbody></table>';
   container.innerHTML = html;
@@ -11332,6 +11417,64 @@ function renderCompInsights() {
     html += '</tbody></table></div>';
   }
   html += '</div></div>';
+
+  // ============================================
+  // 💰 Spend Analyse (only if spend data exists)
+  // ============================================
+  var adsWithSpend = competitorAds.filter(function(a) { return a.estimated_spend && a.estimated_spend > 0; });
+  if (adsWithSpend.length > 0) {
+    html += '<div class="card" style="margin-bottom:24px;border-left:4px solid #f59e0b;">';
+    html += '<div class="card-body">';
+    html += '<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">💰 Spend Analyse</h3>';
+    html += '<p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">AdSpend-Verteilung aus ' + adsWithSpend.length + ' Ads mit Spend-Daten.</p>';
+
+    // Top spenders by account
+    var spendByAccount = {};
+    adsWithSpend.forEach(function(a) {
+      var name = a.page_name || '–';
+      if (!spendByAccount[name]) spendByAccount[name] = { spend: 0, count: 0 };
+      spendByAccount[name].spend += a.estimated_spend;
+      spendByAccount[name].count++;
+    });
+    var topAccounts = Object.keys(spendByAccount).sort(function(a, b) { return spendByAccount[b].spend - spendByAccount[a].spend; }).slice(0, 5);
+
+    html += '<h4 style="font-size:14px;font-weight:600;margin-bottom:8px;">🏢 Top Accounts nach Spend</h4>';
+    html += '<div style="overflow-x:auto;margin-bottom:16px;"><table class="comp-table" style="width:100%;">';
+    html += '<thead><tr><th>#</th><th>Account</th><th>Gesamt Spend</th><th>Ads</th><th>Ø Spend/Ad</th></tr></thead><tbody>';
+    topAccounts.forEach(function(name, i) {
+      var s = spendByAccount[name];
+      var avgPerAd = Math.round(s.spend / s.count / 100);
+      html += '<tr>';
+      html += '<td>' + (i + 1) + '.</td>';
+      html += '<td style="font-weight:600;">' + escHtml(name) + '</td>';
+      html += '<td style="color:#f59e0b;font-weight:700;">€' + Math.round(s.spend / 100).toLocaleString('de-DE') + '</td>';
+      html += '<td>' + s.count + '</td>';
+      html += '<td>€' + avgPerAd.toLocaleString('de-DE') + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+
+    // Top 5 ads by spend
+    var topAds = adsWithSpend.slice().sort(function(a, b) { return (b.estimated_spend || 0) - (a.estimated_spend || 0); }).slice(0, 5);
+    html += '<h4 style="font-size:14px;font-weight:600;margin-bottom:8px;">🔝 Top 5 Ads nach Spend</h4>';
+    html += '<div style="overflow-x:auto;"><table class="comp-table" style="width:100%;">';
+    html += '<thead><tr><th>#</th><th>Account</th><th>Spend</th><th>Anzeigentext</th><th>Laufzeit</th></tr></thead><tbody>';
+    topAds.forEach(function(ad, i) {
+      var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : '–';
+      if (bodyText.length > 50) bodyText = bodyText.substring(0, 50) + '…';
+      var days = calcDaysRunning(ad);
+      html += '<tr>';
+      html += '<td>' + (i + 1) + '.</td>';
+      html += '<td style="font-weight:600;">' + escHtml(ad.page_name || '–') + '</td>';
+      html += '<td style="color:#f59e0b;font-weight:700;">€' + Math.round(ad.estimated_spend / 100).toLocaleString('de-DE') + '</td>';
+      html += '<td>' + escHtml(bodyText) + '</td>';
+      html += '<td>' + days + ' Tage</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+
+    html += '</div></div>';
+  }
 
   container.innerHTML = html;
 }
