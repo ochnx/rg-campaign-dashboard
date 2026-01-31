@@ -6598,10 +6598,11 @@ async function renderLiveCompetitorAds() {
       const brand = a.competitor_watchlist ? (a.competitor_watchlist.brand || a.competitor_watchlist.page_name) : (a.page_name || '—');
       const body = (a.ad_creative_bodies && a.ad_creative_bodies[0]) ? a.ad_creative_bodies[0] : '';
       const snippet = body.length > 80 ? body.substring(0, 80) + '…' : body;
-      const startDate = a.ad_delivery_start_time ? new Date(a.ad_delivery_start_time) : null;
+      const startDate = a._earliestStart || (a.ad_delivery_start_time ? new Date(a.ad_delivery_start_time) : null);
       const now = new Date();
       const daysRunning = startDate ? Math.ceil((now - startDate) / 86400000) : null;
       const isNew = startDate && (now - startDate) < 7 * 86400000; // Less than 7 days old
+      const adRunning = isAdRunningByDate(a);
       
       return `
         <div class="competitor-preview-card" onclick="showView('competitors','feed')">
@@ -6615,7 +6616,7 @@ async function renderLiveCompetitorAds() {
           <div class="competitor-preview-body">${escHtml(snippet) || '(Kein Text)'}</div>
           <div class="competitor-preview-footer">
             <span>${daysRunning !== null ? daysRunning + ' Tage' : '—'}</span>
-            <span>🟢 Aktiv</span>
+            <span>${adRunning ? '🟢 Laufend' : '⏹ Beendet'}</span>
           </div>
         </div>
       `;
@@ -10441,6 +10442,7 @@ function deduplicateAds(ads) {
     }
   });
   // Return representatives with _variants attached
+  var now = new Date();
   return Object.keys(groups).map(function(hash) {
     var group = groups[hash];
     var rep = Object.assign({}, group.representative);
@@ -10448,6 +10450,31 @@ function deduplicateAds(ads) {
     rep._variantCount = group.variants.length;
     // Aggregate reach across variants
     rep._totalReach = group.variants.reduce(function(sum, v) { return sum + (v.eu_total_reach || 0); }, 0);
+    // Aggregate dates across variants for accurate status
+    var earliestStart = null;
+    var latestStop = null;
+    var anyRunning = false;
+    group.variants.forEach(function(v) {
+      if (v.ad_delivery_start_time) {
+        var s = new Date(v.ad_delivery_start_time);
+        if (!earliestStart || s < earliestStart) earliestStart = s;
+      }
+      if (!v.ad_delivery_stop_time) {
+        anyRunning = true;
+        latestStop = null; // null means still running
+      } else {
+        var e = new Date(v.ad_delivery_stop_time);
+        if (e > now) anyRunning = true;
+        if (!anyRunning && (!latestStop || e > latestStop)) latestStop = e;
+      }
+    });
+    // If any variant is running, latestStop should be null (open-ended)
+    if (anyRunning) latestStop = null;
+    rep._earliestStart = earliestStart;
+    rep._latestStop = latestStop;
+    rep._isRunning = anyRunning;
+    var endDate = anyRunning ? now : (latestStop || now);
+    rep._totalDays = earliestStart ? Math.max(1, Math.ceil((endDate - earliestStart) / 86400000)) : 0;
     return rep;
   });
 }
@@ -10725,22 +10752,41 @@ async function loadCompetitorAds(watchlistId) {
 }
 
 function calcDaysRunning(ad) {
+  if (ad._totalDays !== undefined) return ad._totalDays;
   if (!ad.ad_delivery_start_time) return 0;
   var start = new Date(ad.ad_delivery_start_time);
   var end = ad.ad_delivery_stop_time ? new Date(ad.ad_delivery_stop_time) : new Date();
   return Math.max(1, Math.ceil((end - start) / 86400000));
 }
 
+function isAdRunningByDate(ad) {
+  if (ad._isRunning !== undefined) return ad._isRunning;
+  if (!ad.ad_delivery_stop_time) return true;
+  return new Date(ad.ad_delivery_stop_time) > new Date();
+}
+
 // Unique ID for ad cards
 var _adCardIdCounter = 0;
 
 function platformBadgeColor(p) {
-  switch(p) {
-    case 'FACEBOOK': return 'background:rgba(37,99,235,0.08);color:var(--blue);border-color:rgba(37,99,235,0.2);';
-    case 'INSTAGRAM': return 'background:rgba(231,53,46,0.08);color:var(--accent);border-color:rgba(231,53,46,0.2);';
-    case 'MESSENGER': return 'background:rgba(8,145,178,0.08);color:var(--cyan);border-color:rgba(8,145,178,0.2);';
-    case 'AUDIENCE_NETWORK': return 'background:rgba(202,138,4,0.08);color:var(--gold);border-color:rgba(202,138,4,0.2);';
+  switch((p || '').toLowerCase()) {
+    case 'facebook': return 'background:rgba(37,99,235,0.08);color:var(--blue);border-color:rgba(37,99,235,0.2);';
+    case 'instagram': return 'background:rgba(231,53,46,0.08);color:var(--accent);border-color:rgba(231,53,46,0.2);';
+    case 'messenger': return 'background:rgba(8,145,178,0.08);color:var(--cyan);border-color:rgba(8,145,178,0.2);';
+    case 'audience_network': return 'background:rgba(202,138,4,0.08);color:var(--gold);border-color:rgba(202,138,4,0.2);';
+    case 'threads': return 'background:rgba(0,0,0,0.06);color:var(--text-secondary);border-color:rgba(0,0,0,0.15);';
     default: return '';
+  }
+}
+
+function platformLabel(p) {
+  switch((p || '').toLowerCase()) {
+    case 'facebook': return 'FB';
+    case 'instagram': return 'IG';
+    case 'messenger': return 'MSG';
+    case 'audience_network': return 'AN';
+    case 'threads': return 'TH';
+    default: return p;
   }
 }
 
@@ -10804,14 +10850,13 @@ function renderAdCard(ad) {
   var cardId = 'ac-' + (++_adCardIdCounter);
   var brand = ad.page_name || '–';
   var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : '';
-  var isActive = ad.is_active;
+  var running = isAdRunningByDate(ad);
   var platforms = ad.publisher_platforms || [];
   var days = calcDaysRunning(ad);
 
   // Platform badges
   var platformsHtml = platforms.slice(0, 2).map(function(p) {
-    var label = p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'MESSENGER' ? 'MSG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p;
-    return '<span class="comp-platform-badge" style="' + platformBadgeColor(p) + 'font-size:10px;padding:1px 6px;">' + escHtml(label) + '</span>';
+    return '<span class="comp-platform-badge" style="' + platformBadgeColor(p) + 'font-size:10px;padding:1px 6px;">' + escHtml(platformLabel(p)) + '</span>';
   }).join('');
 
   // Spend badge — use CPM-based calc if available
@@ -10821,7 +10866,7 @@ function renderAdCard(ad) {
     : '';
 
   // Status dot
-  var statusDot = '<span class="compact-status-dot ' + (isActive ? 'active' : 'stopped') + '"></span>';
+  var statusDot = '<span class="compact-status-dot ' + (running ? 'active' : 'stopped') + '"></span>';
 
   // Truncated body text
   var shortBody = bodyText ? (bodyText.length > 80 ? bodyText.substring(0, 80) + '…' : bodyText) : 'Kein Anzeigentext';
@@ -10923,7 +10968,7 @@ function updateCompetitorStats() {
   var dedupedPool = deduplicateAds(adsPool);
   var total = dedupedPool.length;
   var active = dedupedPool.filter(function(a) {
-    return a._variants ? a._variants.some(function(v) { return v.is_active; }) : a.is_active;
+    return isAdRunningByDate(a);
   }).length;
   var daysArr = adsPool.map(function(a) { return a.days_running || calcDaysRunning(a); });
   var avgDays = daysArr.length > 0 ? Math.round(daysArr.reduce(function(s, d) { return s + d; }, 0) / daysArr.length) : 0;
@@ -11202,11 +11247,12 @@ function renderLeaderboard() {
       var daysClass = days >= 90 ? 'comp-days-red' : days >= 30 ? 'comp-days-orange' : 'comp-days-green';
       var daysEmoji = days >= 90 ? ' 🔥' : '';
       var platforms = (ad.publisher_platforms || []).map(function(p) {
-        return p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'MESSENGER' ? 'MSG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p;
+        return platformLabel(p);
       }).join(', ');
-      var statusBadge = ad.is_active
-        ? '<span class="badge badge-active" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Aktiv</span>'
-        : '<span class="badge badge-completed" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Gestoppt</span>';
+      var adRunning = isAdRunningByDate(ad);
+      var statusBadge = adRunning
+        ? '<span class="badge badge-active" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Laufend</span>'
+        : '<span class="badge badge-completed" style="font-size:10px;padding:2px 8px;"><span class="badge-dot"></span>Beendet</span>';
       html += '<tr onclick="scrollToAdInFeed(\'' + (ad.id || '') + '\')" style="cursor:pointer;">' +
         '<td class="comp-leaderboard-rank">' + rankDisplay + '</td>' +
         '<td style="font-weight:600;">' + escHtml(brand) + '</td>' +
@@ -11267,7 +11313,7 @@ function renderBrandOverviewCards() {
 
   var html = competitorWatchlist.filter(function(w) { return w.is_active; }).map(function(w) {
     var brandAds = competitorAds.filter(function(a) { return a.watchlist_id === w.id; });
-    var activeAds = brandAds.filter(function(a) { return a.is_active; });
+    var activeAds = brandAds.filter(function(a) { return isAdRunningByDate(a); });
     var totalAds = brandAds.length;
     var daysArr = brandAds.map(function(a) { return calcDaysRunning(a); });
     var avgDays = daysArr.length > 0 ? Math.round(daysArr.reduce(function(s,d) { return s + d; }, 0) / daysArr.length) : 0;
@@ -11366,8 +11412,7 @@ function showBrandDetail(brandName, period, sortMode) {
 
   // --- Helper: is ad still running ---
   function isAdRunning(ad) {
-    if (!ad.ad_delivery_stop_time) return true;
-    return new Date(ad.ad_delivery_stop_time) > now;
+    return isAdRunningByDate(ad);
   }
 
   // --- Card 1: Ads Überblick ---
@@ -11395,13 +11440,13 @@ function showBrandDetail(brandName, period, sortMode) {
   var totalSpendEuro = Math.round(totalSpendCents / 100);
 
   // Platform distribution
-  var platformCounts = { FB: 0, IG: 0, AN: 0, MSG: 0 };
+  var platformCounts = { FB: 0, IG: 0, AN: 0, MSG: 0, TH: 0 };
   var platformTotal = 0;
   dedupedAds.forEach(function(ad) {
     var pls = ad.publisher_platforms || [];
     pls.forEach(function(p) {
-      var key = p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p === 'MESSENGER' ? 'MSG' : null;
-      if (key) { platformCounts[key]++; platformTotal++; }
+      var key = platformLabel(p);
+      if (platformCounts.hasOwnProperty(key)) { platformCounts[key]++; platformTotal++; }
     });
   });
 
@@ -11463,13 +11508,13 @@ function showBrandDetail(brandName, period, sortMode) {
   html += '</div>';
   html += '<div class="brand-insight-big">€' + totalSpendEuro.toLocaleString('de-DE') + '</div>';
   html += '<div style="width:100%;text-align:left;">';
-  var platformColors = { FB: 'var(--blue)', IG: 'var(--accent)', AN: 'var(--gold)', MSG: 'var(--cyan)' };
-  var platformLabels = { FB: 'FB', IG: 'IG', AN: 'AN', MSG: 'MSG' };
-  ['FB', 'IG', 'AN', 'MSG'].forEach(function(key) {
+  var platformColors = { FB: 'var(--blue)', IG: 'var(--accent)', AN: 'var(--gold)', MSG: 'var(--cyan)', TH: 'var(--text-secondary)' };
+  var platformLabelsMap = { FB: 'FB', IG: 'IG', AN: 'AN', MSG: 'MSG', TH: 'TH' };
+  ['FB', 'IG', 'AN', 'MSG', 'TH'].forEach(function(key) {
     var pct = platformTotal > 0 ? Math.round(platformCounts[key] / platformTotal * 100) : 0;
     if (pct > 0 || platformCounts[key] > 0) {
       html += '<div class="brand-insight-bar-row">';
-      html += '<span class="brand-insight-bar-label">' + platformLabels[key] + '</span>';
+      html += '<span class="brand-insight-bar-label">' + platformLabelsMap[key] + '</span>';
       html += '<div class="brand-insight-bar-track"><div class="brand-insight-bar-fill" style="width:' + pct + '%;background:' + platformColors[key] + ';"></div></div>';
       html += '<span class="brand-insight-bar-pct">' + pct + '%</span>';
       html += '</div>';
@@ -11577,7 +11622,7 @@ function updateStandortDropdown() {
     if (brandIds.indexOf(a.watchlist_id) === -1) return;
     if (!standortMap[a.page_name]) standortMap[a.page_name] = { name: a.page_name, active: 0, total: 0 };
     standortMap[a.page_name].total++;
-    if (a.is_active) standortMap[a.page_name].active++;
+    if (isAdRunningByDate(a)) standortMap[a.page_name].active++;
   });
 
   // Also include page_names from watchlist entries even if they have 0 ads
@@ -11780,7 +11825,7 @@ function renderTrends() {
   });
 
   // 2. Longest runner (active)
-  var activeAds = competitorAds.filter(function(a) { return a.is_active; });
+  var activeAds = competitorAds.filter(function(a) { return isAdRunningByDate(a); });
   var longestRunner = null;
   var longestDays = 0;
   activeAds.forEach(function(a) {
@@ -12092,7 +12137,7 @@ function renderCompInsights() {
   competitorAds.forEach(function(a) {
     var brand = getBrand(a);
     if (!velocityMap[brand]) velocityMap[brand] = { last7: 0, last30: 0, active: 0 };
-    if (a.is_active) velocityMap[brand].active++;
+    if (isAdRunningByDate(a)) velocityMap[brand].active++;
     if (a.ad_delivery_start_time) {
       var start = new Date(a.ad_delivery_start_time);
       if (start >= sevenDaysAgo) velocityMap[brand].last7++;
@@ -13606,9 +13651,13 @@ function openAdDetailModal(adId) {
   var bodyText = (ad.ad_creative_bodies && ad.ad_creative_bodies.length > 0) ? ad.ad_creative_bodies[0] : '';
   var days = calcDaysRunning(ad);
   var platforms = (ad.publisher_platforms || []).map(function(p) {
-    return p === 'FACEBOOK' ? 'FB' : p === 'INSTAGRAM' ? 'IG' : p === 'MESSENGER' ? 'MSG' : p === 'AUDIENCE_NETWORK' ? 'AN' : p;
+    return platformLabel(p);
   }).join(', ');
-  var startDate = ad.ad_delivery_start_time ? new Date(ad.ad_delivery_start_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+  // Use aggregated dates for deduped ads
+  var displayStart = ad._earliestStart || (ad.ad_delivery_start_time ? new Date(ad.ad_delivery_start_time) : null);
+  var displayEnd = ad._isRunning === false ? (ad._latestStop || (ad.ad_delivery_stop_time ? new Date(ad.ad_delivery_stop_time) : null)) : null;
+  var startDate = displayStart ? displayStart.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+  var endDate = displayEnd ? displayEnd.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : null;
   var effectiveSpend = getAdEffectiveSpend(ad);
   var spendStr = effectiveSpend > 0 ? '€' + Number((effectiveSpend / 100).toFixed(0)).toLocaleString('de-DE') : '–';
 
@@ -13618,8 +13667,8 @@ function openAdDetailModal(adId) {
     impressions = (ad.impressions_lower || 0).toLocaleString('de-DE') + ' – ' + (ad.impressions_upper || 0).toLocaleString('de-DE');
   }
 
-  // EU Reach
-  var euReach = ad.eu_total_reach ? Number(ad.eu_total_reach).toLocaleString('de-DE') : '–';
+  // EU Reach (use aggregated for deduped)
+  var euReach = (ad._totalReach || ad.eu_total_reach) ? Number(ad._totalReach || ad.eu_total_reach).toLocaleString('de-DE') : '–';
 
   // CPM
   var cpmStr = '–';
@@ -13631,8 +13680,10 @@ function openAdDetailModal(adId) {
     cpmStr = '€' + (parseFloat(ad.estimated_cpm) / 100).toFixed(2);
   }
 
-  // Status
-  var statusStr = ad.is_active ? '🟢 Aktiv' : '⚫ Gestoppt';
+  // Status — date-based, not is_active
+  var adIsRunning = isAdRunningByDate(ad);
+  var statusStr = adIsRunning ? '🟢 Laufend' : '⏹ Beendet';
+  var dateRange = 'Start: ' + startDate + ' — ' + (endDate ? 'Ende: ' + endDate : 'Heute');
 
   // Title
   document.getElementById('ad-detail-title').textContent = brand;
@@ -13650,7 +13701,7 @@ function openAdDetailModal(adId) {
     { icon: '📈', label: 'Geschätzter CPM', value: cpmStr },
     { icon: '⏱️', label: 'Laufzeit', value: days + ' Tage' },
     { icon: '📱', label: 'Plattform(en)', value: platforms || '–' },
-    { icon: '📅', label: 'Start-Datum', value: startDate },
+    { icon: '📅', label: 'Zeitraum', value: dateRange },
     { icon: statusStr.substring(0,2), label: 'Status', value: statusStr.substring(2).trim() }
   ];
   stats.forEach(function(s) {
