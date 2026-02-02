@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Run & Gun — Campaign Dashboard</title>
+  <title>Run & Gun — Command Center</title>
   <link rel="icon" type="image/png" href="assets/rg-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4734,7 +4734,7 @@
   <div class="topnav-brand" onclick="showView('home')">
     <img src="assets/rg-logo.png" alt="R&G" class="topnav-logo">
     <div>
-      <div class="topnav-title">Campaign Dashboard</div>
+      <div class="topnav-title">Command Center</div>
     </div>
   </div>
 
@@ -4872,8 +4872,8 @@
     <div id="view-home" class="view active">
       <div class="home-hero" style="padding-bottom:16px;">
         <img src="assets/rg-logo.png" alt="Run & Gun" class="home-logo">
-        <h1 class="home-title">Campaign Dashboard</h1>
-        <p class="home-subtitle">Live-Übersicht: Was passiert jetzt?</p>
+        <h1 class="home-title">Command Center</h1>
+        <p class="home-subtitle">Alles auf einen Blick — Kampagnen, Clients, Intel.</p>
       </div>
 
       <!-- ============================================ -->
@@ -4904,6 +4904,27 @@
           <div class="empty-state-title">Keine aktiven Kampagnen</div>
           <div class="empty-state-desc">Starte eine neue Kampagne oder importiere aus Meta.</div>
           <button class="btn btn-primary" style="margin-top:12px;" onclick="showView('new-campaign')">➕ Neue Kampagne</button>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- SECTION: 👥 CLIENTS QUICK ACCESS -->
+      <!-- ============================================ -->
+      <div class="live-section" id="clients-quick-section">
+        <div class="live-section-header">
+          <h2 class="live-section-title">👥 Clients</h2>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;">
+          <div onclick="showView('clients','ferrari-editorial')" style="background:var(--bg-card);border-radius:var(--radius);padding:16px;cursor:pointer;transition:var(--transition);border:1px solid var(--border);" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <img src="assets/ferrari-logo.png" alt="Ferrari" style="width:32px;height:auto;">
+              <div>
+                <div style="font-weight:600;font-size:14px;">Ferrari Hamburg</div>
+                <div style="font-size:12px;color:var(--text-muted);">Editorial Plan</div>
+              </div>
+            </div>
+          </div>
+          <!-- More clients will be added here -->
         </div>
       </div>
 
