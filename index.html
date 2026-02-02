@@ -6418,12 +6418,8 @@
               <input type="text" id="ep-f-location" placeholder="z.B. Showroom Neuer Wall">
             </div>
             <div class="form-group">
-              <label>Referenz-Link</label>
-              <input type="url" id="ep-f-link" placeholder="https://...">
-            </div>
-            <div class="form-group">
               <label>Notizen</label>
-              <textarea id="ep-f-notes" placeholder="Zusätzliche Notizen..."></textarea>
+              <textarea id="ep-f-notes" placeholder="Links, Notizen, Referenzen..."></textarea>
             </div>
             <div class="editorial-form-actions">
               <button class="btn btn-primary btn-sm" onclick="epSaveEntry()">Speichern</button>
@@ -14591,12 +14587,16 @@ function epRenderPreview() {
     let vehicleHtml = '';
     if (e.vehicle) {
       vehicleHtml = `<div class="editorial-a4-vehicle">${escHtml(e.vehicle)}</div>`;
-    } else {
-      vehicleHtml = `<div class="editorial-a4-vehicle unknown">?</div>`;
     }
     let refHtml = '';
-    if (e.reference_link) {
-      refHtml = `<div class="editorial-a4-ref">📎 ${escHtml(e.reference_link)}</div>`;
+    if (e.notes) {
+      const noteText = e.notes.trim();
+      const urlMatch = noteText.match(/https?:\/\/\S+/);
+      if (urlMatch) {
+        refHtml = `<div class="editorial-a4-ref"><a href="${escHtml(urlMatch[0])}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">📎 ${escHtml(noteText)}</a></div>`;
+      } else {
+        refHtml = `<div class="editorial-a4-ref">${escHtml(noteText)}</div>`;
+      }
     }
     let locationHtml = '';
     if (e.location) {
@@ -14641,7 +14641,6 @@ function epShowForm(entry) {
     document.getElementById('ep-f-series').value = entry.content_series || '';
     document.getElementById('ep-f-custom-series').value = entry.custom_series || '';
     document.getElementById('ep-f-location').value = entry.location || '';
-    document.getElementById('ep-f-link').value = entry.reference_link || '';
     document.getElementById('ep-f-notes').value = entry.notes || '';
   } else {
     document.getElementById('ep-f-date').value = `${year}-${String(month).padStart(2,'0')}-01`;
@@ -14651,7 +14650,6 @@ function epShowForm(entry) {
     document.getElementById('ep-f-series').value = '';
     document.getElementById('ep-f-custom-series').value = '';
     document.getElementById('ep-f-location').value = '';
-    document.getElementById('ep-f-link').value = '';
     document.getElementById('ep-f-notes').value = '';
   }
   epToggleCustomSeries();
@@ -14684,7 +14682,6 @@ async function epSaveEntry() {
     content_series: document.getElementById('ep-f-series').value || null,
     custom_series: document.getElementById('ep-f-custom-series').value.trim() || null,
     location: document.getElementById('ep-f-location').value.trim() || null,
-    reference_link: document.getElementById('ep-f-link').value.trim() || null,
     notes: document.getElementById('ep-f-notes').value.trim() || null
   };
   try {
