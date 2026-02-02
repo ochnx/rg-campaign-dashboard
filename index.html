@@ -6387,7 +6387,7 @@
             </div>
             <div class="form-group">
               <label>Uhrzeit</label>
-              <input type="time" id="ep-f-time" value="01:00">
+              <input type="time" id="ep-f-time" value="17:00">
             </div>
             <div class="form-group">
               <label>Fahrzeug</label>
@@ -14635,7 +14635,7 @@ function epShowForm(entry) {
   const year = parseInt(document.getElementById('ep-year').value);
   if (entry) {
     document.getElementById('ep-f-date').value = entry.publish_date;
-    document.getElementById('ep-f-time').value = entry.publish_time ? entry.publish_time.substring(0,5) : '01:00';
+    document.getElementById('ep-f-time').value = entry.publish_time ? entry.publish_time.substring(0,5) : '17:00';
     document.getElementById('ep-f-vehicle').value = entry.vehicle || '';
     document.getElementById('ep-f-title').value = entry.title || '';
     document.getElementById('ep-f-series').value = entry.content_series || '';
@@ -14644,7 +14644,7 @@ function epShowForm(entry) {
     document.getElementById('ep-f-notes').value = entry.notes || '';
   } else {
     document.getElementById('ep-f-date').value = `${year}-${String(month).padStart(2,'0')}-01`;
-    document.getElementById('ep-f-time').value = '01:00';
+    document.getElementById('ep-f-time').value = '17:00';
     document.getElementById('ep-f-vehicle').value = '';
     document.getElementById('ep-f-title').value = '';
     document.getElementById('ep-f-series').value = '';
@@ -14676,7 +14676,7 @@ async function epSaveEntry() {
     year: d.getFullYear(),
     month: d.getMonth() + 1,
     publish_date: dateVal,
-    publish_time: document.getElementById('ep-f-time').value || '01:00',
+    publish_time: document.getElementById('ep-f-time').value || '17:00',
     title: title,
     vehicle: document.getElementById('ep-f-vehicle').value.trim() || null,
     content_series: document.getElementById('ep-f-series').value || null,
