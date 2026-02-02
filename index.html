@@ -4218,6 +4218,513 @@
       }
     }
 
+    /* ======== EDITORIAL PLANNER ======== */
+    #view-editorial-planner {
+      margin: -32px;
+    }
+    .editorial-layout {
+      display: flex;
+      gap: 0;
+      min-height: calc(100vh - 64px);
+    }
+    .editorial-sidebar {
+      width: 340px;
+      min-width: 340px;
+      border-right: 1px solid var(--border);
+      padding: 28px 24px;
+      overflow-y: auto;
+      max-height: calc(100vh - 64px);
+      position: sticky;
+      top: 64px;
+      background: var(--bg-primary);
+    }
+    .editorial-sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .editorial-sidebar-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .editorial-sidebar-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .editorial-sidebar-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .editorial-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .editorial-period-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .editorial-period-row select {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      cursor: pointer;
+      appearance: auto;
+    }
+    .editorial-period-row select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .editorial-new-entry-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 14px 16px;
+      background: none;
+      border: none;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      margin-bottom: 24px;
+      transition: background var(--transition);
+    }
+    .editorial-new-entry-btn:hover {
+      background: var(--bg-card);
+    }
+    .editorial-new-entry-btn .plus-icon {
+      color: var(--accent);
+      font-size: 20px;
+      font-weight: 400;
+    }
+    .editorial-form {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .editorial-form .form-group {
+      margin-bottom: 14px;
+    }
+    .editorial-form .form-group:last-child {
+      margin-bottom: 0;
+    }
+    .editorial-form label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .editorial-form input,
+    .editorial-form select,
+    .editorial-form textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .editorial-form input:focus,
+    .editorial-form select:focus,
+    .editorial-form textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .editorial-form textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    .editorial-form-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .editorial-entry-list {
+      margin-bottom: 24px;
+    }
+    .editorial-entry-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      padding: 12px 14px;
+      border-left: 3px solid var(--accent);
+      background: var(--bg-card);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background var(--transition);
+      position: relative;
+    }
+    .editorial-entry-item:hover {
+      background: var(--bg-card-hover);
+    }
+    .editorial-entry-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .editorial-entry-item-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .editorial-entry-item-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .editorial-entry-delete {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .editorial-entry-item:hover .editorial-entry-delete {
+      opacity: 1;
+    }
+    .editorial-entry-delete:hover {
+      color: var(--red);
+      background: var(--red-muted);
+    }
+    .editorial-outlook-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      resize: vertical;
+    }
+    .editorial-outlook-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .editorial-outlook-textarea::placeholder {
+      color: var(--text-muted);
+    }
+    .editorial-print-hint {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .editorial-print-hint kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 11px;
+    }
+
+    /* A4 Preview */
+    .editorial-preview-area {
+      flex: 1;
+      padding: 32px;
+      background: var(--bg-secondary);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-y: auto;
+      max-height: calc(100vh - 64px);
+    }
+    .editorial-a4 {
+      width: 680px;
+      min-height: 900px;
+      background: #ffffff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 48px 48px 40px 48px;
+      position: relative;
+    }
+    .editorial-a4-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .editorial-a4-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .editorial-a4-horse {
+      font-size: 36px;
+      line-height: 1;
+    }
+    .editorial-a4-brand-name {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    .editorial-a4-brand-sub {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+    .editorial-a4-plan-title {
+      text-align: right;
+    }
+    .editorial-a4-plan-title .rg-label {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .editorial-a4-plan-title .rg-label span {
+      color: var(--text-primary);
+    }
+    .editorial-a4-plan-title .month-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .editorial-a4-separator {
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin-bottom: 28px;
+    }
+    .editorial-a4-entry {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .editorial-a4-entry:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    .editorial-a4-date {
+      text-align: center;
+      min-width: 48px;
+      flex-shrink: 0;
+    }
+    .editorial-a4-day {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text-primary);
+    }
+    .editorial-a4-weekday {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 2px;
+      letter-spacing: 0.04em;
+    }
+    .editorial-a4-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .editorial-a4-vehicle {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+    .editorial-a4-vehicle.unknown {
+      background: var(--red);
+      color: #fff;
+      padding: 3px 6px;
+      font-size: 10px;
+    }
+    .editorial-a4-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+    .editorial-a4-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .editorial-a4-series-tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .editorial-a4-ref {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      word-break: break-all;
+      line-height: 1.4;
+      background: var(--bg-card);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+    }
+    .editorial-a4-outlook {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 2px solid var(--border);
+    }
+    .editorial-a4-outlook-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .editorial-a4-outlook-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .editorial-a4-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Editorial Migration Banner */
+    .editorial-migration-banner {
+      background: var(--orange-muted);
+      border: 1px solid var(--orange);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 20px;
+      text-align: center;
+    }
+    .editorial-migration-banner h3 {
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+    .editorial-migration-banner pre {
+      background: var(--bg-card);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      text-align: left;
+      overflow-x: auto;
+      margin-top: 12px;
+      max-height: 200px;
+    }
+
+    /* Print Stylesheet */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body { background: #fff !important; }
+      .topnav, .sub-nav, .topnav-actions, .app-breadcrumbs,
+      .editorial-sidebar, .editorial-print-hint,
+      #mobile-menu, .toast, #comp-ad-detail-modal { display: none !important; }
+      .main { padding-top: 0 !important; }
+      .editorial-layout { display: block !important; }
+      .editorial-preview-area {
+        padding: 0 !important;
+        background: #fff !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      .editorial-a4 {
+        width: 100% !important;
+        max-width: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 15mm 15mm 15mm 15mm !important;
+        min-height: auto !important;
+      }
+      .view { display: none !important; }
+      #view-editorial-planner { display: block !important; }
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+    }
+
+    /* Responsive editorial */
+    @media (max-width: 900px) {
+      .editorial-layout {
+        flex-direction: column;
+      }
+      .editorial-sidebar {
+        width: 100%;
+        min-width: auto;
+        max-height: none;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .editorial-preview-area {
+        max-height: none;
+        padding: 16px;
+      }
+      .editorial-a4 {
+        width: 100%;
+        padding: 24px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -4259,6 +4766,14 @@
         <button class="nav-dropdown-item" onclick="showView('competitors','insights')">🧠 Insights</button>
       </div>
     </div>
+    <div style="position:relative;">
+      <button class="nav-item" id="nav-clients" onclick="handleNavClick('clients')" onmouseenter="openNavDropdown('clients')" onmouseleave="scheduleCloseDropdown('clients')">
+        👥 Clients <span class="nav-chevron">▾</span>
+      </button>
+      <div class="nav-dropdown" id="dropdown-clients" onmouseenter="cancelCloseDropdown('clients')" onmouseleave="closeNavDropdown('clients')">
+        <button class="nav-dropdown-item" onclick="showView('clients','ferrari-editorial')">🏎️ Ferrari HH — Editorial Plan</button>
+      </div>
+    </div>
     <!-- Exposés: disabled, using Google Drive workflow instead -->
     <!-- <button class="nav-item" id="nav-exposes" onclick="showView('exposes')">📝 Exposés</button> -->
   </div>
@@ -4295,6 +4810,10 @@
     <button class="mobile-nav-item" onclick="showView('competitors','leaderboard');closeMobileMenu();">🏆 Leaderboard</button>
     <button class="mobile-nav-item" onclick="showView('competitors','trends');closeMobileMenu();">📈 Trends</button>
     <button class="mobile-nav-item" onclick="showView('competitors','insights');closeMobileMenu();">🧠 Insights</button>
+  </div>
+  <div class="mobile-nav-section">
+    <div class="mobile-nav-section-title">👥 Clients</div>
+    <button class="mobile-nav-item" onclick="showView('clients','ferrari-editorial');closeMobileMenu();">🏎️ Ferrari HH — Editorial Plan</button>
   </div>
   <div class="mobile-nav-section">
     <!-- Exposés: disabled, using Google Drive workflow instead -->
@@ -5803,6 +6322,136 @@
       </div>
     </div>
 
+    <!-- ======== EDITORIAL PLANNER VIEW ======== -->
+    <div id="view-editorial-planner" class="view">
+      <div class="editorial-layout">
+        <!-- Left Sidebar -->
+        <div class="editorial-sidebar" id="editorial-sidebar">
+          <div class="editorial-sidebar-header">
+            <div class="editorial-sidebar-icon">F</div>
+            <div>
+              <div class="editorial-sidebar-title">Editorial Planner</div>
+              <div class="editorial-sidebar-subtitle">R&G × Ferrari Hamburg</div>
+            </div>
+          </div>
+
+          <div class="editorial-section-label">PLANUNGSZEITRAUM</div>
+          <div class="editorial-period-row">
+            <select id="ep-month" onchange="epLoadEntries()">
+              <option value="1">Januar</option>
+              <option value="2">Februar</option>
+              <option value="3">März</option>
+              <option value="4">April</option>
+              <option value="5">Mai</option>
+              <option value="6">Juni</option>
+              <option value="7">Juli</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">Oktober</option>
+              <option value="11">November</option>
+              <option value="12">Dezember</option>
+            </select>
+            <select id="ep-year" onchange="epLoadEntries()" style="max-width:100px;"></select>
+          </div>
+
+          <button class="editorial-new-entry-btn" id="ep-new-btn" onclick="epShowForm()">
+            Neuer Eintrag <span class="plus-icon">＋</span>
+          </button>
+
+          <!-- Entry Form (hidden by default) -->
+          <div class="editorial-form" id="ep-form" style="display:none;">
+            <div class="form-group">
+              <label>Datum</label>
+              <input type="date" id="ep-f-date">
+            </div>
+            <div class="form-group">
+              <label>Uhrzeit</label>
+              <input type="time" id="ep-f-time" value="01:00">
+            </div>
+            <div class="form-group">
+              <label>Fahrzeug</label>
+              <input type="text" id="ep-f-vehicle" placeholder="z.B. Ferrari 12 Cilindri">
+            </div>
+            <div class="form-group">
+              <label>Titel</label>
+              <input type="text" id="ep-f-title" placeholder="z.B. Ferrari History — Ozan">
+            </div>
+            <div class="form-group">
+              <label>Content-Reihe</label>
+              <select id="ep-f-series" onchange="epToggleCustomSeries()">
+                <option value="">— Bitte wählen —</option>
+                <option value="Konfiguration des Monats">Konfiguration des Monats</option>
+                <option value="Tech Thursday">Tech Thursday</option>
+                <option value="Ferrari History">Ferrari History</option>
+                <option value="Neuzugang des Monats">Neuzugang des Monats</option>
+                <option value="Event">Event</option>
+                <option value="__custom__">Andere...</option>
+              </select>
+            </div>
+            <div class="form-group" id="ep-f-custom-series-group" style="display:none;">
+              <label>Eigene Reihe</label>
+              <input type="text" id="ep-f-custom-series" placeholder="Name der Reihe">
+            </div>
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text" id="ep-f-location" placeholder="z.B. Showroom Neuer Wall">
+            </div>
+            <div class="form-group">
+              <label>Referenz-Link</label>
+              <input type="url" id="ep-f-link" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label>Notizen</label>
+              <textarea id="ep-f-notes" placeholder="Zusätzliche Notizen..."></textarea>
+            </div>
+            <div class="editorial-form-actions">
+              <button class="btn btn-primary btn-sm" onclick="epSaveEntry()">Speichern</button>
+              <button class="btn btn-secondary btn-sm" onclick="epCancelForm()">Abbrechen</button>
+            </div>
+          </div>
+
+          <div class="editorial-section-label" id="ep-entries-label">EINTRÄGE (0)</div>
+          <div class="editorial-entry-list" id="ep-entry-list"></div>
+
+          <div class="editorial-section-label">AUSBLICK FOLGEMONAT</div>
+          <textarea class="editorial-outlook-textarea" id="ep-outlook" placeholder="Ideen & Planung für den nächsten Monat..." onblur="epSaveOutlook()"></textarea>
+
+          <div class="editorial-print-hint">
+            <kbd>Cmd+P</kbd> oder <kbd>Strg+P</kbd> zum Drucken
+          </div>
+        </div>
+
+        <!-- Right: A4 Preview -->
+        <div class="editorial-preview-area">
+          <div class="editorial-a4" id="ep-a4-preview">
+            <div class="editorial-a4-header">
+              <div class="editorial-a4-brand">
+                <div class="editorial-a4-horse">🐎</div>
+                <div>
+                  <div class="editorial-a4-brand-name">FERRARI</div>
+                  <div class="editorial-a4-brand-sub">HAMBURG</div>
+                </div>
+              </div>
+              <div class="editorial-a4-plan-title">
+                <div class="rg-label"><span style="color:var(--accent)">R&G</span> Editorial Plan</div>
+                <div class="month-label" id="ep-a4-month-label"></div>
+              </div>
+            </div>
+            <div class="editorial-a4-separator"></div>
+            <div id="ep-a4-entries">
+              <div class="editorial-a4-empty">Noch keine Einträge für diesen Monat.</div>
+            </div>
+            <div id="ep-a4-outlook-section" style="display:none;">
+              <div class="editorial-a4-outlook">
+                <div class="editorial-a4-outlook-title">Ausblick Folgemonat</div>
+                <div class="editorial-a4-outlook-text" id="ep-a4-outlook-text"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -6005,6 +6654,11 @@ const COMPETITOR_TABS = {
   'insights': 'comp-sub-insights'
 };
 
+// Clients sub-tab → view ID mapping
+const CLIENTS_TABS = {
+  'ferrari-editorial': 'view-editorial-planner'
+};
+
 function showView(sectionOrView, subTab) {
   // Close dropdowns
   closeAllDropdowns();
@@ -6038,6 +6692,10 @@ function showView(sectionOrView, subTab) {
     section = 'competitors';
     activeSubTab = subTab || 'overview';
     viewId = 'view-competitor';
+  } else if (sectionOrView === 'clients') {
+    section = 'clients';
+    activeSubTab = subTab || 'ferrari-editorial';
+    viewId = CLIENTS_TABS[activeSubTab] || 'view-editorial-planner';
   } else if (sectionOrView === 'exposes') {
     section = 'exposes';
     viewId = 'view-exposes';
@@ -6084,6 +6742,11 @@ function showView(sectionOrView, subTab) {
     mainEl.classList.remove('has-sub-nav');
   }
 
+  // Editorial planner: remove container padding for full-width layout
+  if (section === 'clients') {
+    mainEl.style.paddingTop = '64px';
+  }
+
   // Scroll to top
   window.scrollTo(0, 0);
 
@@ -6104,6 +6767,7 @@ function showView(sectionOrView, subTab) {
     if (activeSubTab === 'trends') renderTrends();
     if (activeSubTab === 'insights') renderCompInsights();
   }
+  if (section === 'clients') epInit();
   if (section === 'exposes') loadExposes();
   if (sectionOrView === 'detail' && editCampaignId) openCampaign(editCampaignId);
 }
@@ -6133,6 +6797,7 @@ function updateNavActiveStates(section) {
   document.getElementById('nav-home').classList.toggle('active', section === 'home');
   document.getElementById('nav-analytics').classList.toggle('active', section === 'analytics');
   document.getElementById('nav-competitors').classList.toggle('active', section === 'competitors');
+  document.getElementById('nav-clients').classList.toggle('active', section === 'clients');
   const navExposes = document.getElementById('nav-exposes');
   if (navExposes) navExposes.classList.toggle('active', section === 'exposes');
 }
@@ -6177,6 +6842,10 @@ function updateBreadcrumbs(section, subTab, viewName) {
     parts.push('<span class="app-bc-sep">→</span>');
     const tabLabels = {overview:'Overview',feed:'Ad Feed',leaderboard:'Leaderboard',trends:'Trends',insights:'Insights'};
     parts.push('<span class="app-bc-current">Competitors → ' + (tabLabels[subTab] || subTab) + '</span>');
+  } else if (section === 'clients') {
+    parts.push('<span class="app-bc-sep">→</span>');
+    const clientLabels = {'ferrari-editorial':'Ferrari HH — Editorial Plan'};
+    parts.push('<span class="app-bc-current">Clients → ' + (clientLabels[subTab] || subTab) + '</span>');
   } else if (section === 'exposes') {
     parts.push('<span class="app-bc-sep">→</span>');
     parts.push('<span class="app-bc-current">Exposés</span>');
@@ -6219,7 +6888,7 @@ function cancelCloseDropdown(section) {
 }
 
 function closeAllDropdowns() {
-  ['analytics', 'competitors'].forEach(s => {
+  ['analytics', 'competitors', 'clients'].forEach(s => {
     closeNavDropdown(s);
     cancelCloseDropdown(s);
   });
@@ -13793,6 +14462,295 @@ function clearOwnCpm() {
   // Pre-load auto-CPM for home page competitor preview
   loadAutoCpm();
 })();
+
+// ============================================
+// EDITORIAL PLANNER (Ferrari HH)
+// ============================================
+let _epClientId = null;
+let _epEntries = [];
+let _epEditingId = null;
+let _epOutlookId = null;
+let _epOutlookTimer = null;
+let _epInitialized = false;
+const EP_WEEKDAYS = ['SO', 'MO', 'DI', 'MI', 'DO', 'FR', 'SA'];
+const EP_MONTHS_DE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+async function epInit() {
+  if (_epInitialized) { epRenderPreview(); return; }
+  // Set default month/year
+  const now = new Date();
+  document.getElementById('ep-month').value = now.getMonth() + 1;
+  // Populate year dropdown
+  const yearSel = document.getElementById('ep-year');
+  yearSel.innerHTML = '';
+  for (let y = now.getFullYear() - 1; y <= now.getFullYear() + 2; y++) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    if (y === now.getFullYear()) opt.selected = true;
+    yearSel.appendChild(opt);
+  }
+  // Find Ferrari HH client
+  try {
+    const clients = await sbGet('clients', 'select=id,name,brand&name=eq.Ferrari Hamburg');
+    if (clients.length > 0) {
+      _epClientId = clients[0].id;
+    } else {
+      // Try to insert
+      try {
+        const ins = await sbInsert('clients', { name: 'Ferrari Hamburg', brand: 'Ferrari' });
+        _epClientId = ins[0].id;
+      } catch(e2) {
+        console.error('Cannot create Ferrari HH client:', e2);
+      }
+    }
+  } catch(e) {
+    console.error('Error fetching clients:', e);
+  }
+  _epInitialized = true;
+  epLoadEntries();
+}
+
+async function epLoadEntries() {
+  const month = parseInt(document.getElementById('ep-month').value);
+  const year = parseInt(document.getElementById('ep-year').value);
+  // Update A4 header
+  document.getElementById('ep-a4-month-label').textContent = EP_MONTHS_DE[month - 1] + ' ' + year;
+  if (!_epClientId) { epRenderEntryList(); epRenderPreview(); return; }
+  try {
+    _epEntries = await sbGet('editorial_entries',
+      `client_id=eq.${_epClientId}&year=eq.${year}&month=eq.${month}&order=publish_date.asc,publish_time.asc`);
+  } catch(e) {
+    console.warn('editorial_entries nicht verfügbar:', e.message);
+    _epEntries = [];
+  }
+  epRenderEntryList();
+  epRenderPreview();
+  epLoadOutlook();
+}
+
+function epRenderEntryList() {
+  const list = document.getElementById('ep-entry-list');
+  const label = document.getElementById('ep-entries-label');
+  label.textContent = `EINTRÄGE (${_epEntries.length})`;
+  if (_epEntries.length === 0) {
+    list.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px 0;">Keine Einträge vorhanden.</div>';
+    return;
+  }
+  list.innerHTML = _epEntries.map(e => {
+    const d = new Date(e.publish_date + 'T00:00:00');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const time = e.publish_time ? e.publish_time.substring(0,5) : '';
+    const series = e.content_series === '__custom__' ? (e.custom_series || '') : (e.content_series || '');
+    return `<div class="editorial-entry-item" onclick="epEditEntry('${e.id}')">
+      <div class="editorial-entry-item-content">
+        <div class="editorial-entry-item-title">${escHtml(e.title)}</div>
+        <div class="editorial-entry-item-meta">${dd}.${mm}., ${time} · ${escHtml(series)}</div>
+      </div>
+      <button class="editorial-entry-delete" onclick="event.stopPropagation();epDeleteEntry('${e.id}')" title="Löschen">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function epRenderPreview() {
+  const month = parseInt(document.getElementById('ep-month').value);
+  const year = parseInt(document.getElementById('ep-year').value);
+  document.getElementById('ep-a4-month-label').textContent = EP_MONTHS_DE[month - 1] + ' ' + year;
+  const container = document.getElementById('ep-a4-entries');
+  if (_epEntries.length === 0) {
+    container.innerHTML = '<div class="editorial-a4-empty">Noch keine Einträge für diesen Monat.</div>';
+    return;
+  }
+  container.innerHTML = _epEntries.map(e => {
+    const d = new Date(e.publish_date + 'T00:00:00');
+    const day = d.getDate();
+    const wd = EP_WEEKDAYS[d.getDay()];
+    const time = e.publish_time ? e.publish_time.substring(0,5) + ' Uhr' : '';
+    const series = e.content_series === '__custom__' ? (e.custom_series || '') : (e.content_series || '');
+    let vehicleHtml = '';
+    if (e.vehicle) {
+      vehicleHtml = `<div class="editorial-a4-vehicle">${escHtml(e.vehicle)}</div>`;
+    } else {
+      vehicleHtml = `<div class="editorial-a4-vehicle unknown">?</div>`;
+    }
+    let refHtml = '';
+    if (e.reference_link) {
+      refHtml = `<div class="editorial-a4-ref">📎 ${escHtml(e.reference_link)}</div>`;
+    }
+    let locationHtml = '';
+    if (e.location) {
+      locationHtml = `<span>📍 ${escHtml(e.location)}</span>`;
+    }
+    let seriesTag = '';
+    if (series) {
+      seriesTag = `<span class="editorial-a4-series-tag">${escHtml(series)}</span>`;
+    }
+    return `<div class="editorial-a4-entry">
+      <div class="editorial-a4-date">
+        <div class="editorial-a4-day">${day}</div>
+        <div class="editorial-a4-weekday">${wd}</div>
+      </div>
+      <div class="editorial-a4-content">
+        ${vehicleHtml}
+        <div class="editorial-a4-title">${escHtml(e.title)}</div>
+        <div class="editorial-a4-meta">
+          <span>🕐 ${time}</span>
+          ${seriesTag}
+          ${locationHtml}
+        </div>
+        ${refHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function epShowForm(entry) {
+  _epEditingId = entry ? entry.id : null;
+  const form = document.getElementById('ep-form');
+  form.style.display = 'block';
+  document.getElementById('ep-new-btn').style.display = 'none';
+  // Set defaults or editing values
+  const month = parseInt(document.getElementById('ep-month').value);
+  const year = parseInt(document.getElementById('ep-year').value);
+  if (entry) {
+    document.getElementById('ep-f-date').value = entry.publish_date;
+    document.getElementById('ep-f-time').value = entry.publish_time ? entry.publish_time.substring(0,5) : '01:00';
+    document.getElementById('ep-f-vehicle').value = entry.vehicle || '';
+    document.getElementById('ep-f-title').value = entry.title || '';
+    document.getElementById('ep-f-series').value = entry.content_series || '';
+    document.getElementById('ep-f-custom-series').value = entry.custom_series || '';
+    document.getElementById('ep-f-location').value = entry.location || '';
+    document.getElementById('ep-f-link').value = entry.reference_link || '';
+    document.getElementById('ep-f-notes').value = entry.notes || '';
+  } else {
+    document.getElementById('ep-f-date').value = `${year}-${String(month).padStart(2,'0')}-01`;
+    document.getElementById('ep-f-time').value = '01:00';
+    document.getElementById('ep-f-vehicle').value = '';
+    document.getElementById('ep-f-title').value = '';
+    document.getElementById('ep-f-series').value = '';
+    document.getElementById('ep-f-custom-series').value = '';
+    document.getElementById('ep-f-location').value = '';
+    document.getElementById('ep-f-link').value = '';
+    document.getElementById('ep-f-notes').value = '';
+  }
+  epToggleCustomSeries();
+}
+
+function epCancelForm() {
+  document.getElementById('ep-form').style.display = 'none';
+  document.getElementById('ep-new-btn').style.display = 'flex';
+  _epEditingId = null;
+}
+
+function epToggleCustomSeries() {
+  const val = document.getElementById('ep-f-series').value;
+  document.getElementById('ep-f-custom-series-group').style.display = val === '__custom__' ? 'block' : 'none';
+}
+
+async function epSaveEntry() {
+  const title = document.getElementById('ep-f-title').value.trim();
+  const dateVal = document.getElementById('ep-f-date').value;
+  if (!title || !dateVal) { showToast('Bitte Titel und Datum ausfüllen.', 'error'); return; }
+  const d = new Date(dateVal + 'T00:00:00');
+  const data = {
+    client_id: _epClientId,
+    year: d.getFullYear(),
+    month: d.getMonth() + 1,
+    publish_date: dateVal,
+    publish_time: document.getElementById('ep-f-time').value || '01:00',
+    title: title,
+    vehicle: document.getElementById('ep-f-vehicle').value.trim() || null,
+    content_series: document.getElementById('ep-f-series').value || null,
+    custom_series: document.getElementById('ep-f-custom-series').value.trim() || null,
+    location: document.getElementById('ep-f-location').value.trim() || null,
+    reference_link: document.getElementById('ep-f-link').value.trim() || null,
+    notes: document.getElementById('ep-f-notes').value.trim() || null
+  };
+  try {
+    if (_epEditingId) {
+      await sbPatch('editorial_entries', _epEditingId, data);
+      showToast('Eintrag aktualisiert ✓');
+    } else {
+      await sbInsert('editorial_entries', data);
+      showToast('Eintrag erstellt ✓');
+    }
+    epCancelForm();
+    epLoadEntries();
+  } catch(e) {
+    showToast('Fehler beim Speichern: ' + e.message, 'error');
+  }
+}
+
+function epEditEntry(id) {
+  const entry = _epEntries.find(e => e.id === id);
+  if (entry) epShowForm(entry);
+}
+
+async function epDeleteEntry(id) {
+  if (!confirm('Eintrag wirklich löschen?')) return;
+  try {
+    await sbDelete('editorial_entries', id);
+    showToast('Eintrag gelöscht');
+    epLoadEntries();
+  } catch(e) {
+    showToast('Fehler beim Löschen: ' + e.message, 'error');
+  }
+}
+
+async function epLoadOutlook() {
+  const month = parseInt(document.getElementById('ep-month').value);
+  const year = parseInt(document.getElementById('ep-year').value);
+  if (!_epClientId) return;
+  try {
+    const data = await sbGet('editorial_outlook',
+      `client_id=eq.${_epClientId}&year=eq.${year}&month=eq.${month}`);
+    if (data.length > 0) {
+      _epOutlookId = data[0].id;
+      document.getElementById('ep-outlook').value = data[0].notes || '';
+    } else {
+      _epOutlookId = null;
+      document.getElementById('ep-outlook').value = '';
+    }
+    epUpdateOutlookPreview();
+  } catch(e) {
+    console.warn('editorial_outlook nicht verfügbar:', e.message);
+    _epOutlookId = null;
+  }
+}
+
+function epUpdateOutlookPreview() {
+  const text = document.getElementById('ep-outlook').value.trim();
+  const section = document.getElementById('ep-a4-outlook-section');
+  if (text) {
+    document.getElementById('ep-a4-outlook-text').textContent = text;
+    section.style.display = 'block';
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+async function epSaveOutlook() {
+  const month = parseInt(document.getElementById('ep-month').value);
+  const year = parseInt(document.getElementById('ep-year').value);
+  const notes = document.getElementById('ep-outlook').value.trim();
+  epUpdateOutlookPreview();
+  if (!_epClientId) return;
+  clearTimeout(_epOutlookTimer);
+  _epOutlookTimer = setTimeout(async () => {
+    try {
+      if (_epOutlookId) {
+        await sbPatch('editorial_outlook', _epOutlookId, { notes });
+      } else if (notes) {
+        const res = await sbInsert('editorial_outlook', {
+          client_id: _epClientId, year, month, notes
+        });
+        if (res.length > 0) _epOutlookId = res[0].id;
+      }
+    } catch(e) {
+      console.warn('Outlook speichern fehlgeschlagen:', e.message);
+    }
+  }, 500);
+}
 
 init();
 </script>
