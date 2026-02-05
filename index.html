@@ -11548,7 +11548,7 @@ function copyAdTextFromEl(btn) {
   copyAdText(text);
 }
 
-function openAdPreview(adId) {
+async function openAdPreview(adId) {
   var card = document.getElementById('ad-card-' + adId);
   if (!card) return;
   var url = card.dataset.snapshotUrl;
@@ -13120,7 +13120,7 @@ function clearCompetitorToken() {
   updateSyncButton();
 }
 
-function updateSyncButton() {
+async function updateSyncButton() {
   var token = await getMetaApiToken();
   var btn = document.getElementById('comp-sync-btn');
   btn.disabled = !token;
