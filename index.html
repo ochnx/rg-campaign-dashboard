@@ -6010,6 +6010,14 @@
 
       <!-- Step 1: Campaign List from Meta API -->
       <div id="meta-import-step-list">
+        <!-- Ad Account Selector -->
+        <div class="meta-ad-account-selector-container" style="margin-bottom:16px;">
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text-muted);">Ad Account</label>
+          <select id="meta-ad-account-selector" class="form-input" onchange="loadMetaCampaigns()" style="max-width:320px;">
+            <option value="act_850524294087986">R&G — Immobilien_main</option>
+            <option value="act_763575219714223">E&V — Immobilien_E&V</option>
+          </select>
+        </div>
         <div class="meta-campaign-search">
           <input class="form-input" id="meta-search" placeholder="Kampagne suchen..." oninput="filterMetaCampaigns()">
         </div>
@@ -13149,7 +13157,9 @@ async function loadMetaCampaigns() {
 
   try {
     // Fetch campaigns from Meta API
-    var url = 'https://graph.facebook.com/v24.0/act_850524294087986/campaigns?fields=name,status,objective,start_time,stop_time,daily_budget,lifetime_budget&limit=100&access_token=' + encodeURIComponent(token);
+    // Get selected ad account (default to R&G)
+    var selectedAdAccount = document.getElementById('meta-ad-account-selector')?.value || 'act_850524294087986';
+    var url = 'https://graph.facebook.com/v24.0/' + selectedAdAccount + '/campaigns?fields=name,status,objective,start_time,stop_time,daily_budget,lifetime_budget&limit=100&access_token=' + encodeURIComponent(token);
     var res = await fetch(url);
     if (!res.ok) {
       var errData = await res.json().catch(function() { return {}; });
@@ -13633,12 +13643,21 @@ async function confirmUpgradeCampaign(campaignId) {
   try {
     var metaCamp = ctx.metaCamp;
 
+    // Get selected ad account
+    var selectedAdAccount = document.getElementById('meta-ad-account-selector')?.value || 'act_850524294087986';
+    var adAccountNames = {
+      'act_850524294087986': 'R&G',
+      'act_763575219714223': 'E&V'
+    };
+
     // Update the existing campaign with meta_campaign_id and is_live
     await sbPatch('campaigns', campaignId, {
       meta_campaign_id: metaCamp.id,
       is_live: true,
       platform: 'meta',
-      status: metaCamp.status === 'ACTIVE' ? 'active' : metaCamp.status === 'PAUSED' ? 'paused' : 'completed'
+      status: metaCamp.status === 'ACTIVE' ? 'active' : metaCamp.status === 'PAUSED' ? 'paused' : 'completed',
+      ad_account_id: selectedAdAccount,
+      ad_account_name: adAccountNames[selectedAdAccount] || 'Unknown'
     });
 
     // Close modal and sync insights into the existing campaign
@@ -13689,6 +13708,13 @@ async function createAndSyncNewCampaign(metaCamp, propertyId, campType) {
   var metaStatus = metaCamp.status === 'ACTIVE' ? 'active' : metaCamp.status === 'PAUSED' ? 'paused' : 'completed';
   var startDate = metaCamp.start_time ? metaCamp.start_time.substring(0, 10) : null;
 
+  // Get selected ad account
+  var selectedAdAccount = document.getElementById('meta-ad-account-selector')?.value || 'act_850524294087986';
+  var adAccountNames = {
+    'act_850524294087986': 'R&G',
+    'act_763575219714223': 'E&V'
+  };
+
   var campData = {
     property_id: propertyId,
     platform: 'meta',
@@ -13697,7 +13723,9 @@ async function createAndSyncNewCampaign(metaCamp, propertyId, campType) {
     start_date: startDate,
     status: metaStatus,
     meta_campaign_id: metaCamp.id,
-    is_live: true
+    is_live: true,
+    ad_account_id: selectedAdAccount,
+    ad_account_name: adAccountNames[selectedAdAccount] || 'Unknown'
   };
 
   var newCamps = await sbInsert('campaigns', campData);
