@@ -6519,6 +6519,52 @@ async function sbDelete(table, id) {
 }
 
 // ============================================
+// SETTINGS TABLE HELPERS
+// ============================================
+async function sbGetSetting(key) {
+  try {
+    const rows = await sbGet('settings', `key=eq.${encodeURIComponent(key)}&select=value`);
+    return rows.length > 0 ? rows[0].value : null;
+  } catch (e) {
+    console.error('sbGetSetting error:', e);
+    return null;
+  }
+}
+
+async function sbSetSetting(key, value) {
+  try {
+    // Upsert: try update first, if no rows affected, insert
+    const patchRes = await fetch(`${SB_URL}/rest/v1/settings?key=eq.${encodeURIComponent(key)}`, {
+      method: 'PATCH',
+      headers: { ...SB_HEADERS, 'Prefer': 'return=representation' },
+      body: JSON.stringify({ value: value, updated_at: new Date().toISOString() })
+    });
+    const patchData = await patchRes.json().catch(() => []);
+    if (patchData.length === 0) {
+      // No existing row, insert new
+      await sbInsert('settings', { key: key, value: value, updated_at: new Date().toISOString() });
+    }
+    return true;
+  } catch (e) {
+    console.error('sbSetSetting error:', e);
+    return false;
+  }
+}
+
+// Load Meta API token from Supabase and cache to localStorage
+async function loadMetaApiToken() {
+  try {
+    const token = await sbGetSetting('meta_api_token');
+    if (token) {
+      localStorage.setItem('meta_ad_library_token', token);
+      console.log('Meta API token loaded from Supabase');
+    }
+  } catch (e) {
+    console.error('Failed to load Meta API token from Supabase:', e);
+  }
+}
+
+// ============================================
 // CITY RATING CLASSIFICATION
 // ============================================
 const CITY_RATINGS = {
@@ -13065,11 +13111,18 @@ function toggleCompetitorSettings() {
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 }
 
-function saveCompetitorToken() {
+async function saveCompetitorToken() {
   var token = document.getElementById('comp-api-token').value.trim();
   if (token) {
+    // Save to localStorage (session cache)
     localStorage.setItem('meta_ad_library_token', token);
-    showToast('API Token gespeichert', 'success');
+    // Save to Supabase (persistent storage)
+    const saved = await sbSetSetting('meta_api_token', token);
+    if (saved) {
+      showToast('API Token gespeichert (lokal + Cloud)', 'success');
+    } else {
+      showToast('API Token lokal gespeichert (Cloud-Sync fehlgeschlagen)', 'warning');
+    }
   } else {
     showToast('Bitte Token eingeben', 'error');
     return;
@@ -13077,9 +13130,11 @@ function saveCompetitorToken() {
   updateSyncButton();
 }
 
-function clearCompetitorToken() {
+async function clearCompetitorToken() {
   localStorage.removeItem('meta_ad_library_token');
   document.getElementById('comp-api-token').value = '';
+  // Also clear from Supabase
+  await sbSetSetting('meta_api_token', '');
   showToast('API Token gelöscht', 'success');
   updateSyncButton();
 }
@@ -14343,6 +14398,9 @@ function closeExposeDetail() {
 // ============================================
 async function init() {
   try {
+    // Load Meta API token from Supabase first (before any UI depends on it)
+    await loadMetaApiToken();
+    
     initDropZone();
     const ready = await checkDatabase();
     if (ready) {
