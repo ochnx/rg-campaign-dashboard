@@ -6491,42 +6491,6 @@ const SB_URL = 'https://lvhxabadywdqeepymwdm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2aHhhYmFkeXdkcWVlcHltd2RtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTUyMjM3NSwiZXhwIjoyMDg1MDk4Mzc1fQ.3BWQG5yeG8nshvukSi3YksxUbg273tJDiZnU9fAlzY0';
 const SB_HEADERS = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 
-// Global token cache
-let _cachedMetaToken = null;
-
-// Get Meta API token from Supabase (with localStorage fallback)
-async function getMetaApiToken() {
-  // Return cached token if available
-  if (_cachedMetaToken) return _cachedMetaToken;
-  
-  // Try Supabase first
-  try {
-    const rows = await sbGet('settings', 'key=eq.meta_api_token&select=value');
-    if (rows && rows.length > 0 && rows[0].value) {
-      _cachedMetaToken = rows[0].value;
-      // Also cache in localStorage for offline/faster access
-      localStorage.setItem('meta_ad_library_token', _cachedMetaToken);
-      return _cachedMetaToken;
-    }
-  } catch (e) {
-    console.warn('Could not fetch token from Supabase:', e);
-  }
-  
-  // Fallback to localStorage
-  _cachedMetaToken = localStorage.getItem('meta_ad_library_token') || '';
-  return _cachedMetaToken;
-}
-
-// Sync version for places that can't be async (returns cached or localStorage)
-function getMetaApiTokenSync() {
-  return _cachedMetaToken || localStorage.getItem('meta_ad_library_token') || '';
-}
-
-// Initialize token on page load
-(async function initMetaToken() {
-  await getMetaApiToken();
-})();
-
 async function sbGet(table, query = '') {
   const res = await fetch(`${SB_URL}/rest/v1/${table}?${query}`, { headers: SB_HEADERS });
   if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `HTTP ${res.status}`); }
@@ -11244,7 +11208,7 @@ async function loadAutoCpm() {
 
 async function loadCompetitorView() {
   // Load token from localStorage
-  const token = await getMetaApiToken();
+  const token = localStorage.getItem('meta_ad_library_token') || '';
   document.getElementById('comp-api-token').value = token;
   updateSyncButton();
 
@@ -11548,12 +11512,12 @@ function copyAdTextFromEl(btn) {
   copyAdText(text);
 }
 
-async function openAdPreview(adId) {
+function openAdPreview(adId) {
   var card = document.getElementById('ad-card-' + adId);
   if (!card) return;
   var url = card.dataset.snapshotUrl;
   if (!url) { showToast('Keine Preview-URL verfügbar', 'error'); return; }
-  var token = await getMetaApiToken();
+  var token = localStorage.getItem('meta_ad_library_token');
   if (token) {
     url += (url.indexOf('?') >= 0 ? '&' : '?') + 'access_token=' + encodeURIComponent(token);
   }
@@ -12968,7 +12932,7 @@ function renderCompInsights() {
 
 // --- Meta Ad Library API (prepared) ---
 async function fetchAdLibrary(searchPageIds, searchTerms, adType) {
-  var token = await getMetaApiToken();
+  var token = localStorage.getItem('meta_ad_library_token');
   if (!token) throw new Error('Kein API Token konfiguriert');
 
   var params = new URLSearchParams();
@@ -13000,7 +12964,7 @@ async function fetchAdLibrary(searchPageIds, searchTerms, adType) {
 }
 
 async function syncCompetitorAds() {
-  var token = await getMetaApiToken();
+  var token = localStorage.getItem('meta_ad_library_token');
   if (!token) {
     showToast('Kein API Token konfiguriert', 'error');
     return;
@@ -13120,8 +13084,8 @@ function clearCompetitorToken() {
   updateSyncButton();
 }
 
-async function updateSyncButton() {
-  var token = await getMetaApiToken();
+function updateSyncButton() {
+  var token = localStorage.getItem('meta_ad_library_token');
   var btn = document.getElementById('comp-sync-btn');
   btn.disabled = !token;
 
@@ -13183,11 +13147,11 @@ async function loadMetaCampaigns() {
   empty.style.display = 'none';
   list.style.display = 'none';
 
-  var token = await getMetaApiToken();
+  var token = localStorage.getItem('meta_ad_library_token');
   if (!token) {
     loading.style.display = 'none';
     empty.style.display = 'block';
-    empty.querySelector('.empty-state-desc').textContent = 'Kein Meta API Token gefunden.';
+    empty.querySelector('.empty-state-desc').textContent = 'Kein Meta API Token gefunden. Bitte unter Competitor Watch → API Settings speichern.';
     return;
   }
 
@@ -13778,7 +13742,7 @@ async function createAndSyncNewCampaign(metaCamp, propertyId, campType) {
 // SYNC CAMPAIGN INSIGHTS
 // ============================================
 async function syncCampaignInsights(metaCampaignId, campaignId, campaignName) {
-  var token = await getMetaApiToken();
+  var token = localStorage.getItem('meta_ad_library_token');
   if (!token) {
     showToast('Kein Meta API Token', 'error');
     return;
@@ -14487,7 +14451,7 @@ function openAdDetailModal(adId) {
   var snapshotLink = document.getElementById('ad-detail-snapshot-link');
   if (ad.ad_snapshot_url) {
     var url = ad.ad_snapshot_url;
-    var token = await getMetaApiToken();
+    var token = localStorage.getItem('meta_ad_library_token');
     if (token) url += (url.indexOf('?') >= 0 ? '&' : '?') + 'access_token=' + encodeURIComponent(token);
     snapshotLink.href = url;
     snapshotLink.style.display = 'inline-flex';
