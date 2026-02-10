@@ -844,12 +844,12 @@
         <div class="modal-title" id="detailTitle"></div>
         <div class="modal-subtitle" id="detailSubtitle"></div>
       </div>
-      <button class="modal-close" onclick="closeDetail()">✕</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn btn-secondary" id="campaignPdfBtn" onclick="exportCampaignPDF()" style="font-size:12px;padding:7px 14px">📄 PDF Export</button>
+        <button class="modal-close" onclick="closeDetail()">✕</button>
+      </div>
     </div>
-    <div class="modal-body">
-      <!-- Property Info -->
-      <div class="prop-grid" id="detailProps"></div>
-
+    <div class="modal-body" id="detailBody">
       <!-- Daily Chart -->
       <div class="card" style="margin-bottom:24px">
         <div class="card-header">
@@ -897,6 +897,7 @@ let trendChart = null;
 let detailChartInstance = null;
 let currentSort = { field: 'spend', dir: 'desc' };
 let currentFilter = 'all'; // 'all' or 'YYYY-MM'
+let currentDetailCampaignId = null;
 
 // ============================================
 // SUPABASE REST
@@ -1460,22 +1461,13 @@ function openDetail(campaignId) {
   const campaign = campaigns.find(c => c.id === campaignId);
   if (!campaign) return;
 
+  currentDetailCampaignId = campaignId;
   const prop = campaign.property || {};
   const campaignMetrics = getFilteredMetrics().filter(m => m.campaign_id === campaignId);
 
   // Title
   document.getElementById('detailTitle').textContent = prop.name || campaign.campaign_name || '—';
   document.getElementById('detailSubtitle').textContent = [prop.address, prop.city].filter(Boolean).join(', ') || campaign.platform || '';
-
-  // Property info grid
-  const propsEl = document.getElementById('detailProps');
-  const propItems = [];
-  if (prop.property_type) propItems.push({ label: 'Typ', value: formatPropertyType(prop.property_type) });
-  if (prop.size_sqm) propItems.push({ label: 'Wohnfläche', value: `${prop.size_sqm} m²` });
-  if (prop.rooms) propItems.push({ label: 'Zimmer', value: prop.rooms });
-  if (prop.price) propItems.push({ label: 'Preis', value: formatEUR(prop.price) });
-  if (prop.plz || prop.stadtteil) propItems.push({ label: 'Lage', value: [prop.plz, prop.stadtteil].filter(Boolean).join(' ') });
-  if (campaign.platform) propItems.push({ label: 'Plattform', value: campaign.platform });
 
   // Calculate aggregates for this campaign in filtered period
   let totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
@@ -1485,17 +1477,6 @@ function openDetail(campaignId) {
     totalImpressions += parseInt(m.impressions) || 0;
     totalClicks += parseInt(m.clicks) || 0;
   });
-
-  propItems.push({ label: 'Ausgaben', value: formatEUR(totalSpend) });
-  propItems.push({ label: 'Leads', value: totalLeads });
-  if (totalLeads > 0) propItems.push({ label: 'CPL', value: formatEUR(totalSpend / totalLeads) });
-
-  propsEl.innerHTML = propItems.map(p => `
-    <div class="prop-item">
-      <div class="prop-label">${p.label}</div>
-      <div class="prop-value">${p.value}</div>
-    </div>
-  `).join('');
 
   // Daily chart
   renderDetailChart(campaignMetrics);
@@ -1889,6 +1870,251 @@ async function exportPDF() {
 
   btn.disabled = false;
   btn.innerHTML = '📄 <span class="btn-label">Report exportieren</span>';
+}
+
+// ============================================
+// SINGLE CAMPAIGN PDF EXPORT
+// ============================================
+async function exportCampaignPDF() {
+  if (!currentDetailCampaignId) return;
+  const campaign = campaigns.find(c => c.id === currentDetailCampaignId);
+  if (!campaign) return;
+
+  const btn = document.getElementById('campaignPdfBtn');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Erstellen…';
+
+  try {
+    const prop = campaign.property || {};
+    const campaignMetrics = getFilteredMetrics().filter(m => m.campaign_id === currentDetailCampaignId);
+
+    // Aggregates
+    let totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
+    campaignMetrics.forEach(m => {
+      totalSpend += parseFloat(m.spend) || 0;
+      totalLeads += parseInt(m.leads) || 0;
+      totalImpressions += parseInt(m.impressions) || 0;
+      totalClicks += parseInt(m.clicks) || 0;
+    });
+    const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+    const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
+
+    const dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const campaignName = prop.name || campaign.campaign_name || '—';
+    const dateRange = formatDateRange(campaign.start_date, campaign.end_date);
+
+    // Build creative HTML
+    const campCreatives = allCreatives.filter(c => c.campaign_id === currentDetailCampaignId);
+    let creativeHTML = '';
+    if (campCreatives.length > 0) {
+      const typeMap = {};
+      campCreatives.forEach(c => {
+        const type = c.creative_type || 'sonstige';
+        if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0, impressions: 0, clicks: 0, count: 0 };
+        typeMap[type].spend += c.metrics.spend;
+        typeMap[type].leads += c.metrics.leads;
+        typeMap[type].impressions += c.metrics.impressions;
+        typeMap[type].clicks += c.metrics.clicks;
+        typeMap[type].count++;
+      });
+
+      creativeHTML = `
+        <div style="margin-bottom:28px">
+          <div style="font-size:15px;font-weight:700;margin-bottom:12px">Creative Performance</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
+            ${Object.entries(typeMap).map(([type, data]) => {
+              const cpl = data.leads > 0 ? formatEUR(data.spend / data.leads) : '—';
+              const ctr = data.impressions > 0 ? ((data.clicks / data.impressions) * 100).toFixed(2) + '%' : '—';
+              return `
+                <div style="background:#f8f9fb;padding:14px;border-radius:8px;border:1px solid #e8eaed">
+                  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#e7352e;margin-bottom:8px">${formatCreativeType(type)}</div>
+                  <div style="font-size:12px;display:flex;justify-content:space-between;padding:3px 0"><span style="color:#9ca3af">Leads</span><span style="font-weight:700">${data.leads}</span></div>
+                  <div style="font-size:12px;display:flex;justify-content:space-between;padding:3px 0"><span style="color:#9ca3af">Ausgaben</span><span style="font-weight:700">${formatEUR(data.spend)}</span></div>
+                  <div style="font-size:12px;display:flex;justify-content:space-between;padding:3px 0"><span style="color:#9ca3af">CPL</span><span style="font-weight:700">${cpl}</span></div>
+                  <div style="font-size:12px;display:flex;justify-content:space-between;padding:3px 0"><span style="color:#9ca3af">CTR</span><span style="font-weight:700">${ctr}</span></div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Build insights HTML
+    const insights = [];
+    if (campCreatives.length > 0) {
+      const typeMap = {};
+      campCreatives.forEach(c => {
+        const type = c.creative_type || 'sonstige';
+        if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0 };
+        typeMap[type].spend += c.metrics.spend;
+        typeMap[type].leads += c.metrics.leads;
+      });
+      let bestType = null, bestCPL = Infinity;
+      Object.entries(typeMap).forEach(([type, data]) => {
+        if (data.leads > 0) {
+          const cpl = data.spend / data.leads;
+          if (cpl < bestCPL) { bestCPL = cpl; bestType = type; }
+        }
+      });
+      if (bestType) insights.push({ icon: '🏆', text: `Beste Creative-Art: ${formatCreativeType(bestType)} (CPL ${formatEUR(bestCPL)})` });
+    }
+
+    const allCampaignCPLs = campaigns.map(c => c.agg.leads > 0 ? c.agg.spend / c.agg.leads : null).filter(v => v !== null);
+    if (allCampaignCPLs.length > 1 && totalLeads > 0) {
+      const allAvgCPL = allCampaignCPLs.reduce((a, b) => a + b, 0) / allCampaignCPLs.length;
+      const thisCPL = totalSpend / totalLeads;
+      const diff = ((allAvgCPL - thisCPL) / allAvgCPL) * 100;
+      if (Math.abs(diff) > 2) {
+        const better = diff > 0;
+        insights.push({ icon: better ? '📈' : '📉', text: `Performance vs. Durchschnitt: ${Math.abs(diff).toFixed(0)}% ${better ? 'besser' : 'schlechter'}` });
+      }
+    }
+
+    if (campaignMetrics.length >= 7) {
+      const dayMap = [0,0,0,0,0,0,0];
+      const dayNames = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+      campaignMetrics.forEach(m => { dayMap[new Date(m.date).getDay()] += parseInt(m.leads) || 0; });
+      const totalDayLeads = dayMap.reduce((a, b) => a + b, 0);
+      if (totalDayLeads > 0) {
+        let bestDay = 0;
+        dayMap.forEach((v, i) => { if (v > dayMap[bestDay]) bestDay = i; });
+        insights.push({ icon: '📅', text: `Stärkster Tag: ${dayNames[bestDay]} (${((dayMap[bestDay] / totalDayLeads) * 100).toFixed(0)}% der Leads)` });
+      }
+    }
+
+    if (totalImpressions > 0 && (totalClicks / totalImpressions) * 100 > 2) {
+      insights.push({ icon: '🖱️', text: `Überdurchschnittliche Klickrate: ${((totalClicks / totalImpressions) * 100).toFixed(2)}% CTR` });
+    }
+
+    if (campaign.start_date) {
+      const start = new Date(campaign.start_date);
+      const end = campaign.end_date ? new Date(campaign.end_date) : new Date();
+      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+      insights.push({ icon: '⏱️', text: `Laufzeit: ${days} Tage` });
+    }
+
+    let insightsHTML = '';
+    if (insights.length > 0) {
+      insightsHTML = `
+        <div style="margin-bottom:28px">
+          <div style="font-size:15px;font-weight:700;margin-bottom:12px">Insights</div>
+          ${insights.map(i => `
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#f8f9fb;border-radius:8px;font-size:13px;line-height:1.5;color:#6b7280;margin-bottom:8px">
+              <span style="flex-shrink:0">${i.icon}</span><span>${i.text}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // Build full PDF element
+    const pdfEl = document.createElement('div');
+    pdfEl.style.cssText = 'font-family:Inter,sans-serif;color:#111827;padding:40px;max-width:800px;background:white;';
+
+    pdfEl.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #e8eaed">
+        <div style="display:flex;align-items:center;gap:12px">
+          <img src="../assets/rg-logo.png" style="width:40px;height:40px;border-radius:8px" crossorigin>
+          <div>
+            <div style="font-size:18px;font-weight:800">${escHtml(campaignName)}</div>
+            <div style="font-size:13px;color:#6b7280">${escHtml(clientData.name || '')} — ${dateRange}</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#9ca3af">Erstellt am ${dateStr}</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px">
+        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Ausgaben</div>
+          <div style="font-size:22px;font-weight:800">${formatEUR(totalSpend)}</div>
+        </div>
+        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Leads</div>
+          <div style="font-size:22px;font-weight:800">${totalLeads}</div>
+        </div>
+        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">CPL</div>
+          <div style="font-size:22px;font-weight:800">${formatEUR(avgCPL)}</div>
+        </div>
+        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Impressions</div>
+          <div style="font-size:22px;font-weight:800">${formatNum(totalImpressions)}</div>
+        </div>
+        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Klicks</div>
+          <div style="font-size:22px;font-weight:800">${formatNum(totalClicks)}</div>
+        </div>
+        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">CTR</div>
+          <div style="font-size:22px;font-weight:800">${avgCTR.toFixed(2)}%</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:28px">
+        <div style="font-size:15px;font-weight:700;margin-bottom:12px">Tagesverlauf</div>
+        <div style="border:1px solid #e8eaed;border-radius:10px;overflow:hidden;padding:16px;background:white">
+          <canvas id="pdfCampaignChart" width="700" height="260"></canvas>
+        </div>
+      </div>
+
+      ${creativeHTML}
+      ${insightsHTML}
+
+      <div style="text-align:center;font-size:11px;color:#9ca3af;padding-top:24px;border-top:1px solid #e8eaed;margin-top:32px">
+        Erstellt von Run & Gun — ${dateStr}
+      </div>
+    `;
+
+    document.body.appendChild(pdfEl);
+
+    // Render daily chart for PDF
+    const sorted = [...campaignMetrics].sort((a, b) => a.date.localeCompare(b.date));
+    const pdfCtx = document.getElementById('pdfCampaignChart').getContext('2d');
+    const pdfChart = new Chart(pdfCtx, {
+      type: 'bar',
+      data: {
+        labels: sorted.map(m => formatDateShort(m.date)),
+        datasets: [
+          { label: 'Leads', data: sorted.map(m => parseInt(m.leads) || 0), backgroundColor: '#e7352e25', borderColor: '#e7352e', borderWidth: 1, borderRadius: 4, yAxisID: 'y', order: 2 },
+          { label: 'Ausgaben (€)', data: sorted.map(m => parseFloat(m.spend) || 0), type: 'line', borderColor: '#6b7280', borderWidth: 2, pointRadius: 2, tension: 0.3, yAxisID: 'y1', order: 1 }
+        ]
+      },
+      options: {
+        responsive: false,
+        animation: false,
+        plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 10 } } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 8 }, maxRotation: 45 } },
+          y: { position: 'left', grid: { color: '#f3f4f6' }, ticks: { font: { size: 9 }, stepSize: 1 }, beginAtZero: true },
+          y1: { position: 'right', grid: { display: false }, ticks: { font: { size: 9 }, callback: v => '€' + v }, beginAtZero: true }
+        }
+      }
+    });
+
+    await new Promise(r => setTimeout(r, 500));
+
+    const safeName = campaignName.replace(/[^a-zA-Z0-9äöüÄÖÜß ]/g, '_').replace(/\s+/g, '_');
+    const filename = `RG_${safeName}_${dateStr.replace(/\./g, '-')}.pdf`;
+
+    await html2pdf().set({
+      margin: [10, 10, 10, 10],
+      filename,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(pdfEl).save();
+
+    pdfChart.destroy();
+    document.body.removeChild(pdfEl);
+
+  } catch (e) {
+    console.error('Campaign PDF export error:', e);
+    alert('PDF-Export fehlgeschlagen: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '📄 PDF Export';
 }
 
 // ============================================
