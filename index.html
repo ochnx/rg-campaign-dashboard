@@ -4839,7 +4839,7 @@
       font-size: 13px;
       font-weight: 600;
     }
-    #view-map-builder .mb-poi-card-category { font-size: 14px; }
+    #view-map-builder .mb-poi-card-category { font-size: 11px; color: var(--text-muted); font-weight: 500; }
     #view-map-builder .mb-poi-card-address {
       font-size: 11px;
       color: var(--text-muted);
@@ -6840,6 +6840,15 @@
             <div id="mb-propertyVerified" style="display:none" class="mb-verified-badge">
               ✓ <span id="mb-propertyCoords"></span>
             </div>
+            <!-- Auto-POI Discovery -->
+            <div id="mb-autoPoiSection" style="display:none; margin-top:10px;">
+              <button class="mb-btn mb-btn-sm" id="mb-btnAutoPoi" onclick="mb_autoDiscoverPOIs()" style="width:100%; background:var(--blue); color:#fff;">
+                🔍 POIs automatisch finden
+              </button>
+              <div id="mb-autoPoiStatus" style="display:none; margin-top:8px; text-align:center; font-size:12px; color:var(--text-muted); padding:8px;">
+                <span class="mb-spinner" style="margin-right:6px;"></span> <span id="mb-autoPoiStatusText">Suche POIs in der Umgebung...</span>
+              </div>
+            </div>
           </div>
 
           <!-- POI LIST -->
@@ -6864,14 +6873,14 @@
                 <div class="mb-input-group">
                   <label class="mb-input-label">Kategorie</label>
                   <select class="mb-input" id="mb-poiCategory" onchange="mb_updateCategoryDefaults()">
-                    <option value="supermarket">🛒 Supermarkt</option>
-                    <option value="doctor">🏥 Arzt / Krankenhaus</option>
-                    <option value="school">🏫 Schule / Kita</option>
-                    <option value="pool">🏊 Schwimmbad / Sport</option>
-                    <option value="park">🌳 Park</option>
-                    <option value="transport">🚌 ÖPNV / Haltestelle</option>
-                    <option value="restaurant">🍽️ Restaurant</option>
-                    <option value="other">🏪 Sonstiges</option>
+                    <option value="supermarket">Supermarkt</option>
+                    <option value="doctor">Arzt / Krankenhaus</option>
+                    <option value="school">Schule / Kita</option>
+                    <option value="pool">Schwimmbad / Sport</option>
+                    <option value="park">Park</option>
+                    <option value="transport">ÖPNV / Haltestelle</option>
+                    <option value="restaurant">Restaurant</option>
+                    <option value="other">Sonstiges</option>
                   </select>
                   <input class="mb-input" id="mb-poiCustomCategory" placeholder="Eigene Kategorie (überschreibt Dropdown)" style="margin-top:6px;font-size:12px" oninput="mb_onCustomCategoryInput()">
                 </div>
@@ -15391,14 +15400,14 @@ init();
   'use strict';
 
   const MB_CATEGORIES = {
-    supermarket: { emoji: '🛒', label: 'Supermarkt', color: '#16a34a' },
-    doctor:      { emoji: '🏥', label: 'Arzt/Krankenhaus', color: '#dc2626' },
-    school:      { emoji: '🏫', label: 'Schule/Kita', color: '#2563eb' },
-    pool:        { emoji: '🏊', label: 'Schwimmbad/Sport', color: '#0891b2' },
-    park:        { emoji: '🌳', label: 'Park', color: '#16a34a' },
-    transport:   { emoji: '🚌', label: 'ÖPNV/Haltestelle', color: '#ea580c' },
-    restaurant:  { emoji: '🍽️', label: 'Restaurant', color: '#7c3aed' },
-    other:       { emoji: '🏪', label: 'Sonstiges', color: '#737373' }
+    supermarket: { emoji: '', label: 'Supermarkt', color: '#525252' },
+    doctor:      { emoji: '', label: 'Arzt/Krankenhaus', color: '#525252' },
+    school:      { emoji: '', label: 'Schule/Kita', color: '#525252' },
+    pool:        { emoji: '', label: 'Schwimmbad/Sport', color: '#525252' },
+    park:        { emoji: '', label: 'Park', color: '#525252' },
+    transport:   { emoji: '', label: 'ÖPNV/Haltestelle', color: '#525252' },
+    restaurant:  { emoji: '', label: 'Restaurant', color: '#525252' },
+    other:       { emoji: '', label: 'Sonstiges', color: '#525252' }
   };
 
   const MB_TILE_URLS = {
@@ -15521,6 +15530,9 @@ init();
       document.getElementById('mb-propertyVerified').style.display = 'flex';
       document.getElementById('mb-propertyCoords').textContent = `${result.lat.toFixed(5)}, ${result.lng.toFixed(5)}`;
 
+      // Show auto-POI discovery button
+      document.getElementById('mb-autoPoiSection').style.display = 'block';
+
       mb_recalcDistances();
       mb_updateLabels();
 
@@ -15560,7 +15572,7 @@ init();
 
   function mb_getCategoryInfo(poi) {
     if (poi.custom_category_label) {
-      return { emoji: '📍', label: poi.custom_category_label, color: '#525252' };
+      return { emoji: '', label: poi.custom_category_label, color: '#525252' };
     }
     return MB_CATEGORIES[poi.category] || MB_CATEGORIES.other;
   }
@@ -15578,7 +15590,7 @@ init();
         display:flex;align-items:center;justify-content:center;
         box-shadow:0 2px 6px rgba(0,0,0,0.2);
         font-size:${Math.round(sizeVal*0.4)}px;
-      ">${cat.emoji}</div>`,
+      "></div>`,
       className: 'custom-div-icon',
       iconSize: [sizeVal, sizeVal],
       iconAnchor: [sizeVal/2, sizeVal/2]
@@ -15714,11 +15726,11 @@ init();
     let html = '';
     sorted.forEach(poi => {
       const cat = mb_getCategoryInfo(poi);
+      const autoTag = poi._autoDiscovered ? '<span style="font-size:9px;background:var(--blue);color:#fff;padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:middle;">auto</span>' : '';
       html += `<div class="mb-poi-card" data-id="${poi.id}">
         <div class="mb-poi-card-header">
           <div class="mb-poi-card-title">
-            <span class="mb-poi-card-category">${cat.emoji}</span>
-            ${mb_escapeHtml(poi.name)}
+            ${mb_escapeHtml(poi.name)}${autoTag}
           </div>
           <div class="mb-poi-actions">
             <button class="mb-btn mb-btn-ghost mb-btn-icon mb-btn-sm mb-btn-danger" onclick="mb_removePOI('${poi.id}')" title="Löschen">✕</button>
@@ -16169,6 +16181,7 @@ init();
 
         document.getElementById('mb-propertyVerified').style.display = 'flex';
         document.getElementById('mb-propertyCoords').textContent = `${_mbMainProperty.lat.toFixed(5)}, ${_mbMainProperty.lng.toFixed(5)}`;
+        document.getElementById('mb-autoPoiSection').style.display = 'block';
       }
 
       if (poiData && poiData.length > 0) {
@@ -16228,12 +16241,332 @@ init();
     _mbCurrentMapId = null;
 
     document.getElementById('mb-propertyVerified').style.display = 'none';
+    document.getElementById('mb-autoPoiSection').style.display = 'none';
     document.getElementById('mb-propertyAddress').value = '';
     document.getElementById('mb-mapName').value = '';
 
     mb_renderPOIList();
     mb_updateLabels();
   }
+
+  // ─── AUTO-POI DISCOVERY ───
+  const MB_OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+
+  // Overpass tag definitions for each POI type
+  const MB_OVERPASS_QUERIES = [
+    { key: 'supermarket',  category: 'supermarket', label: null,         tags: '[shop=supermarket]',          maxDist: null },
+    { key: 'doctor',       category: 'doctor',      label: null,         tags: '[amenity=doctors]',           maxDist: null },
+    { key: 'clinic',       category: 'doctor',      label: null,         tags: '[amenity=clinic]',            maxDist: null },
+    { key: 'school',       category: 'school',      label: null,         tags: '[amenity=school]',            maxDist: null },
+    { key: 'kindergarten', category: 'school',      label: 'Kita',       tags: '[amenity=kindergarten]',      maxDist: null },
+    { key: 'bus_stop',     category: 'transport',   label: null,         tags: '[highway=bus_stop]',          maxDist: null },
+    { key: 'tram_stop',    category: 'transport',   label: 'Straßenbahn', tags: '[railway=tram_stop]',        maxDist: null },
+    { key: 'fitness',      category: 'pool',        label: 'Fitness',    tags: '[leisure=fitness_centre]',    maxDist: null },
+    { key: 'cinema',       category: 'other',       label: 'Kino',       tags: '[amenity=cinema]',            maxDist: null },
+    { key: 'swimming',     category: 'pool',        label: null,         tags: '[leisure=swimming_pool]',     maxDist: null },
+    { key: 'park',         category: 'park',        label: null,         tags: '[leisure=park]',              maxDist: null },
+    { key: 'hospital',     category: 'doctor',      label: 'Krankenhaus', tags: '[amenity=hospital]',         maxDist: 3000 },
+    { key: 'station',      category: 'transport',   label: 'Bahnhof',   tags: '[railway=station][train=yes]', maxDist: 5000 },
+    { key: 'airport',      category: 'transport',   label: 'Flughafen', tags: '[aeroway=aerodrome]',          maxDist: 10000 },
+  ];
+
+  // Keys that have extended distance thresholds for outlier filtering
+  const MB_EXTENDED_DISTANCE_KEYS = new Set(['hospital', 'station', 'airport']);
+
+  function mb_buildOverpassQuery(lat, lng, radius) {
+    // Build a single combined Overpass query for efficiency
+    let nwr = '';
+    MB_OVERPASS_QUERIES.forEach(q => {
+      const r = q.maxDist ? Math.max(radius, q.maxDist) : radius;
+      nwr += `nwr${q.tags}(around:${r},${lat},${lng});`;
+    });
+    // Also query for S-Bahn, U-Bahn specifically
+    const sBahnR = Math.max(radius, 2000);
+    nwr += `nwr[railway=station][station=light_rail](around:${sBahnR},${lat},${lng});`;
+    nwr += `nwr[station=subway](around:${sBahnR},${lat},${lng});`;
+
+    return `[out:json][timeout:25];(${nwr});out center;`;
+  }
+
+  function mb_classifyOverpassResult(element, propLat, propLng) {
+    const tags = element.tags || {};
+    const lat = element.lat || (element.center && element.center.lat);
+    const lng = element.lon || (element.center && element.center.lon);
+    if (!lat || !lng) return null;
+
+    const dist = mb_haversineDistance(propLat, propLng, lat, lng);
+    const name = tags.name || '';
+
+    const results = [];
+
+    // Supermarket
+    if (tags.shop === 'supermarket') {
+      results.push({ key: 'supermarket', category: 'supermarket', label: null, name: name || 'Supermarkt', lat, lng, dist });
+    }
+    // Doctor
+    if (tags.amenity === 'doctors') {
+      results.push({ key: 'doctor', category: 'doctor', label: null, name: name || 'Arztpraxis', lat, lng, dist });
+    }
+    // Clinic
+    if (tags.amenity === 'clinic') {
+      results.push({ key: 'clinic', category: 'doctor', label: null, name: name || 'Klinik', lat, lng, dist });
+    }
+    // School
+    if (tags.amenity === 'school') {
+      results.push({ key: 'school', category: 'school', label: null, name: name || 'Schule', lat, lng, dist });
+    }
+    // Kindergarten
+    if (tags.amenity === 'kindergarten') {
+      results.push({ key: 'kindergarten', category: 'school', label: 'Kita', name: name || 'Kindergarten', lat, lng, dist });
+    }
+    // Bus stop
+    if (tags.highway === 'bus_stop') {
+      results.push({ key: 'bus_stop', category: 'transport', label: null, name: name || 'Bushaltestelle', lat, lng, dist });
+    }
+    // Tram stop
+    if (tags.railway === 'tram_stop') {
+      results.push({ key: 'tram_stop', category: 'transport', label: 'Straßenbahn', name: name || 'Tramhaltestelle', lat, lng, dist });
+    }
+    // S-Bahn
+    if (tags.railway === 'station' && (tags.station === 'light_rail' || (name && /\bS[\s\-]/.test(name)))) {
+      results.push({ key: 'sbahn', category: 'transport', label: 'S-Bahn', name: name || 'S-Bahn', lat, lng, dist });
+    }
+    // U-Bahn
+    if (tags.station === 'subway' || (tags.railway === 'station' && name && /\bU[\s\-]/.test(name))) {
+      results.push({ key: 'ubahn', category: 'transport', label: 'U-Bahn', name: name || 'U-Bahn', lat, lng, dist });
+    }
+    // Hospital
+    if (tags.amenity === 'hospital') {
+      if (dist <= 3000) {
+        results.push({ key: 'hospital', category: 'doctor', label: 'Krankenhaus', name: name || 'Krankenhaus', lat, lng, dist });
+      }
+    }
+    // Train station (Bahnhof)
+    if (tags.railway === 'station' && tags.train === 'yes') {
+      if (dist <= 5000) {
+        results.push({ key: 'station', category: 'transport', label: 'Bahnhof', name: name || 'Bahnhof', lat, lng, dist });
+      }
+    }
+    // Airport
+    if (tags.aeroway === 'aerodrome') {
+      if (dist <= 10000) {
+        results.push({ key: 'airport', category: 'transport', label: 'Flughafen', name: name || 'Flughafen', lat, lng, dist });
+      }
+    }
+    // Fitness
+    if (tags.leisure === 'fitness_centre') {
+      results.push({ key: 'fitness', category: 'pool', label: 'Fitness', name: name || 'Fitnessstudio', lat, lng, dist });
+    }
+    // Cinema
+    if (tags.amenity === 'cinema') {
+      results.push({ key: 'cinema', category: 'other', label: 'Kino', name: name || 'Kino', lat, lng, dist });
+    }
+    // Swimming pool
+    if (tags.leisure === 'swimming_pool') {
+      results.push({ key: 'swimming', category: 'pool', label: null, name: name || 'Schwimmbad', lat, lng, dist });
+    }
+    // Park (only named/bigger ones)
+    if (tags.leisure === 'park' && name) {
+      results.push({ key: 'park', category: 'park', label: null, name: name, lat, lng, dist });
+    }
+
+    return results.length > 0 ? results : null;
+  }
+
+  function mb_medianValue(arr) {
+    if (arr.length === 0) return 0;
+    const sorted = [...arr].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+
+  function mb_filterAndLimitPois(classified) {
+    if (classified.length === 0) return [];
+
+    // Compute median distance for outlier filtering
+    const distances = classified.map(p => p.dist);
+    const median = mb_medianValue(distances);
+    const outlierThreshold = median * 3;
+
+    // Filter outliers (extended keys get their own maxDist thresholds instead)
+    let filtered = classified.filter(p => {
+      if (MB_EXTENDED_DISTANCE_KEYS.has(p.key)) {
+        // These already have maxDist filtering during classification
+        return true;
+      }
+      return p.dist <= outlierThreshold || p.dist <= 2000;
+    });
+
+    // Group by key, take closest 2 per key
+    const byKey = {};
+    filtered.forEach(p => {
+      if (!byKey[p.key]) byKey[p.key] = [];
+      byKey[p.key].push(p);
+    });
+
+    let result = [];
+    Object.keys(byKey).forEach(key => {
+      const sorted = byKey[key].sort((a, b) => a.dist - b.dist);
+      result.push(...sorted.slice(0, 2));
+    });
+
+    // Sort by distance, limit to ~20
+    result.sort((a, b) => a.dist - b.dist);
+    if (result.length > 20) result = result.slice(0, 20);
+
+    return result;
+  }
+
+  window.mb_autoDiscoverPOIs = async function() {
+    if (!_mbMainProperty) {
+      return mb_toast('Bitte zuerst eine Adresse eingeben', 'error');
+    }
+
+    const btn = document.getElementById('mb-btnAutoPoi');
+    const statusDiv = document.getElementById('mb-autoPoiStatus');
+    const statusText = document.getElementById('mb-autoPoiStatusText');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="mb-spinner" style="margin-right:6px;"></span> Suche läuft...';
+    statusDiv.style.display = 'flex';
+    statusDiv.style.alignItems = 'center';
+    statusDiv.style.justifyContent = 'center';
+    statusText.textContent = 'Suche POIs in der Umgebung...';
+
+    const lat = _mbMainProperty.lat;
+    const lng = _mbMainProperty.lng;
+
+    try {
+      // First try with 1000m radius
+      let radius = 1000;
+      let query = mb_buildOverpassQuery(lat, lng, radius);
+
+      statusText.textContent = 'Suche POIs im Umkreis von 1 km...';
+      let response = await fetch(MB_OVERPASS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'data=' + encodeURIComponent(query)
+      });
+
+      if (!response.ok) throw new Error('Overpass API Fehler: ' + response.status);
+      let data = await response.json();
+      let elements = data.elements || [];
+
+      // Classify all results
+      let classified = [];
+      elements.forEach(el => {
+        const results = mb_classifyOverpassResult(el, lat, lng);
+        if (results) classified.push(...results);
+      });
+
+      // Deduplicate by name+key (same POI can appear as node and way)
+      const seen = new Set();
+      classified = classified.filter(p => {
+        const uid = p.key + '|' + p.name + '|' + p.lat.toFixed(4) + '|' + p.lng.toFixed(4);
+        if (seen.has(uid)) return false;
+        seen.add(uid);
+        return true;
+      });
+
+      // If too few results, expand radius
+      if (classified.length < 8) {
+        statusText.textContent = 'Wenige Ergebnisse — erweitere Suche auf 2 km...';
+        radius = 2000;
+        query = mb_buildOverpassQuery(lat, lng, radius);
+
+        response = await fetch(MB_OVERPASS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'data=' + encodeURIComponent(query)
+        });
+
+        if (!response.ok) throw new Error('Overpass API Fehler: ' + response.status);
+        data = await response.json();
+        elements = data.elements || [];
+
+        classified = [];
+        elements.forEach(el => {
+          const results = mb_classifyOverpassResult(el, lat, lng);
+          if (results) classified.push(...results);
+        });
+
+        const seen2 = new Set();
+        classified = classified.filter(p => {
+          const uid = p.key + '|' + p.name + '|' + p.lat.toFixed(4) + '|' + p.lng.toFixed(4);
+          if (seen2.has(uid)) return false;
+          seen2.add(uid);
+          return true;
+        });
+      }
+
+      // Apply smart filtering and limits
+      const finalPois = mb_filterAndLimitPois(classified);
+
+      if (finalPois.length === 0) {
+        mb_toast('Keine POIs in der Umgebung gefunden', 'error');
+        statusDiv.style.display = 'none';
+        btn.innerHTML = '🔍 POIs automatisch finden';
+        btn.disabled = false;
+        return;
+      }
+
+      // Remove previous auto-discovered POIs (keep manual ones)
+      _mbPois = _mbPois.filter(p => {
+        if (p._autoDiscovered) {
+          if (p.marker) window._mbMap.removeLayer(p.marker);
+          return false;
+        }
+        return true;
+      });
+
+      // Add new auto-discovered POIs
+      statusText.textContent = `${finalPois.length} POIs gefunden — füge hinzu...`;
+
+      finalPois.forEach(p => {
+        const catInfo = MB_CATEGORIES[p.category] || MB_CATEGORIES.other;
+        const poi = {
+          id: 'poi-auto-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+          name: p.name,
+          address: `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`,
+          category: p.category,
+          custom_category_label: p.label,
+          lat: p.lat,
+          lng: p.lng,
+          pin_color: catInfo.color,
+          pin_size: 'medium',
+          distance_meters: Math.round(p.dist),
+          sort_order: _mbPois.length,
+          marker: null,
+          _autoDiscovered: true
+        };
+
+        poi.marker = mb_createPOIMarker(poi);
+        poi.marker.addTo(window._mbMap);
+        _mbPois.push(poi);
+      });
+
+      mb_renderPOIList();
+      mb_updateLabels();
+      mb_fitAllPins();
+
+      // Update button to show re-search option
+      btn.innerHTML = '🔄 Neu suchen';
+      btn.style.background = 'var(--bg-card)';
+      btn.style.color = 'var(--text-primary)';
+      btn.style.border = '1px solid var(--border)';
+
+      statusDiv.style.display = 'none';
+      mb_toast(`${finalPois.length} POIs automatisch gefunden!`, 'success');
+
+    } catch (e) {
+      console.error('Auto-POI Discovery failed:', e);
+      mb_toast('Fehler bei POI-Suche: ' + e.message, 'error');
+      statusDiv.style.display = 'none';
+      btn.innerHTML = '🔍 POIs automatisch finden';
+    } finally {
+      btn.disabled = false;
+    }
+  };
 
 })();
 </script>
