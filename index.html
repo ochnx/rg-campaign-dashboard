@@ -4734,6 +4734,130 @@
     #view-map-builder.view.active {
       display: block;
     }
+    /* ─── Map Finder (Overview) ─── */
+    #mb-finder {
+      padding: 32px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    #mb-finder .mb-finder-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    #mb-finder .mb-finder-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    #mb-finder .mb-finder-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    #mb-finder .mb-finder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    #mb-finder .mb-finder-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    #mb-finder .mb-finder-card:hover {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    #mb-finder .mb-finder-card-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    #mb-finder .mb-finder-card-address {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    #mb-finder .mb-finder-card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    #mb-finder .mb-finder-card-pois {
+      background: var(--bg-main);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+    }
+    #mb-finder .mb-finder-card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    #mb-finder .mb-finder-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    #mb-finder .mb-finder-empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    #mb-finder .mb-finder-empty-text {
+      font-size: 15px;
+      font-weight: 500;
+    }
+    #mb-finder .mb-finder-empty-hint {
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    /* ─── Map Editor Back Bar ─── */
+    #mb-editor-topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    #mb-editor-topbar .mb-back-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s;
+    }
+    #mb-editor-topbar .mb-back-btn:hover {
+      background: var(--bg-card-hover);
+    }
+    #mb-editor-topbar .mb-editor-mapname {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    #mb-editor-topbar .mb-editor-sep {
+      color: var(--text-muted);
+    }
     #view-map-builder .mb-layout {
       display: flex;
       height: calc(100vh - 64px);
@@ -6822,6 +6946,26 @@
 
     <!-- ======== MAP BUILDER VIEW ======== -->
     <div id="view-map-builder" class="view">
+      <!-- Map Finder (Overview) -->
+      <div id="mb-finder">
+        <div class="mb-finder-header">
+          <div>
+            <div class="mb-finder-title">🗺️ Map Builder</div>
+            <div class="mb-finder-subtitle">Erstelle und verwalte Immobilien-Umgebungskarten</div>
+          </div>
+          <button class="mb-btn mb-btn-accent" onclick="mb_newMap()" style="padding:10px 20px;font-size:14px;">➕ Neue Map erstellen</button>
+        </div>
+        <div id="mb-finder-list" class="mb-finder-grid">
+          <div style="text-align:center;padding:40px"><span class="mb-spinner"></span></div>
+        </div>
+      </div>
+      <!-- Map Editor (hidden initially) -->
+      <div id="mb-editor-wrapper" style="display:none">
+        <div id="mb-editor-topbar">
+          <button class="mb-back-btn" onclick="mb_showFinder()">← Zurück zur Übersicht</button>
+          <span class="mb-editor-sep">|</span>
+          <span class="mb-editor-mapname" id="mb-editor-title">Neue Karte</span>
+        </div>
       <div class="mb-layout">
         <!-- Map Builder Sidebar -->
         <div class="mb-sidebar" id="mb-sidebar">
@@ -6962,15 +7106,14 @@
             <div class="mb-input-group">
               <input class="mb-input" id="mb-mapName" placeholder="Kartenname…">
             </div>
-            <div style="display:flex;gap:8px;margin-bottom:12px">
+            <div style="display:flex;gap:8px;margin-bottom:8px">
               <button class="mb-btn mb-btn-accent mb-btn-sm" onclick="mb_saveMap()" style="flex:1" id="mb-btnSave">💾 Speichern</button>
-              <button class="mb-btn mb-btn-sm" onclick="mb_loadMapList()" style="flex:1">📂 Laden</button>
+              <button class="mb-btn mb-btn-sm" onclick="mb_saveMapAs()" style="flex:1" id="mb-btnSaveAs">💾 Speichern als…</button>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:12px">
               <button class="mb-btn mb-btn-sm" onclick="mb_printMap()" style="flex:1">🖨️ Drucken</button>
               <button class="mb-btn mb-btn-accent mb-btn-sm" onclick="mb_exportPNG()" style="flex:1" id="mb-btnExport">📸 PNG Export</button>
             </div>
-            <div id="mb-savedMapsList"></div>
           </div>
         </div>
 
@@ -6989,6 +7132,7 @@
       </div>
       <!-- Map Builder Toast Container -->
       <div class="mb-toast-container" id="mb-toastContainer"></div>
+      </div><!-- /mb-editor-wrapper -->
     </div>
 
   </div>
@@ -7340,9 +7484,10 @@ function showView(sectionOrView, subTab) {
   if (section === 'map-builder') {
     mainEl.style.paddingTop = '64px';
     if (!window._mbMapInitialized) {
-      setTimeout(() => { mb_initMap(); window._mbMapInitialized = true; }, 100);
+      setTimeout(() => { mb_initMap(); window._mbMapInitialized = true; mb_showFinder(); }, 100);
     } else if (window._mbMap) {
       setTimeout(() => { window._mbMap.invalidateSize(); mb_updateLabels(); }, 100);
+      mb_showFinder();
     }
   }
 
@@ -16049,9 +16194,9 @@ init();
   }
 
   // ─── SUPABASE PERSISTENCE ───
-  function mb_sbFetch(path, opts) {
+  async function mb_sbFetch(path, opts) {
     opts = opts || {};
-    return fetch(`${SB_URL}/rest/v1/${path}`, {
+    const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
       ...opts,
       headers: {
         'apikey': SB_KEY,
@@ -16061,8 +16206,118 @@ init();
         ...opts.headers
       }
     });
+    if (!res.ok && opts.method !== 'DELETE') {
+      const errBody = await res.text().catch(() => '');
+      throw new Error(`Supabase ${opts.method || 'GET'} ${path} failed (${res.status}): ${errBody}`);
+    }
+    return res;
   }
 
+  // ─── FINDER / OVERVIEW ───
+  window.mb_showFinder = function() {
+    document.getElementById('mb-finder').style.display = '';
+    document.getElementById('mb-editor-wrapper').style.display = 'none';
+    mb_loadFinderList();
+  };
+
+  window.mb_showEditor = function() {
+    document.getElementById('mb-finder').style.display = 'none';
+    document.getElementById('mb-editor-wrapper').style.display = '';
+    if (window._mbMap) {
+      setTimeout(() => { window._mbMap.invalidateSize(); mb_updateLabels(); }, 150);
+    }
+    mb_updateEditorTitle();
+  };
+
+  function mb_updateEditorTitle() {
+    const name = document.getElementById('mb-mapName').value.trim();
+    document.getElementById('mb-editor-title').textContent = name || 'Neue Karte';
+  }
+
+  // Listen for name changes
+  setTimeout(() => {
+    const nameInput = document.getElementById('mb-mapName');
+    if (nameInput) nameInput.addEventListener('input', mb_updateEditorTitle);
+  }, 200);
+
+  window.mb_newMap = function() {
+    mb_clearAll();
+    _mbCurrentMapId = null;
+    document.getElementById('mb-mapName').value = '';
+    document.getElementById('mb-propertyAddress').value = '';
+    mb_showEditor();
+  };
+
+  window.mb_loadFinderList = async function() {
+    const container = document.getElementById('mb-finder-list');
+    container.innerHTML = '<div style="text-align:center;padding:40px"><span class="mb-spinner"></span></div>';
+
+    try {
+      const res = await mb_sbFetch('property_maps?order=updated_at.desc&limit=50', { method: 'GET' });
+      const maps = await res.json();
+
+      if (!maps || maps.length === 0) {
+        container.innerHTML = `<div class="mb-finder-empty" style="grid-column:1/-1">
+          <div class="mb-finder-empty-icon">🗺️</div>
+          <div class="mb-finder-empty-text">Noch keine Karten erstellt</div>
+          <div class="mb-finder-empty-hint">Klicke oben auf "➕ Neue Map erstellen" um loszulegen.</div>
+        </div>`;
+        return;
+      }
+
+      // Fetch POI counts for all maps in one query
+      let poiCounts = {};
+      try {
+        const poiCountRes = await mb_sbFetch('map_pois?select=map_id', { method: 'GET' });
+        const allPois = await poiCountRes.json();
+        if (Array.isArray(allPois)) {
+          allPois.forEach(p => { poiCounts[p.map_id] = (poiCounts[p.map_id] || 0) + 1; });
+        }
+      } catch(e) { /* ignore count errors */ }
+
+      let html = '';
+      maps.forEach(m => {
+        const date = new Date(m.updated_at || m.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' });
+        const count = poiCounts[m.id] || 0;
+        html += `<div class="mb-finder-card" onclick="mb_loadMap('${m.id}')">
+          <div class="mb-finder-card-name">${mb_escapeHtml(m.name)}</div>
+          <div class="mb-finder-card-address">📍 ${mb_escapeHtml(m.property_address || 'Keine Adresse')}</div>
+          <div class="mb-finder-card-meta">
+            <span>${date}</span>
+            <span class="mb-finder-card-pois">${count} POI${count !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="mb-finder-card-actions">
+            <button class="mb-btn mb-btn-sm" onclick="event.stopPropagation();mb_loadMap('${m.id}')" style="flex:1">📝 Bearbeiten</button>
+            <button class="mb-btn mb-btn-sm mb-btn-danger" onclick="event.stopPropagation();mb_deleteMapFromFinder('${m.id}')" title="Löschen">✕</button>
+          </div>
+        </div>`;
+      });
+      container.innerHTML = html;
+    } catch (e) {
+      console.error('Finder load failed:', e);
+      container.innerHTML = `<div class="mb-finder-empty" style="grid-column:1/-1">
+        <div class="mb-finder-empty-text">Fehler beim Laden: ${mb_escapeHtml(e.message)}</div>
+      </div>`;
+    }
+  };
+
+  window.mb_deleteMapFromFinder = async function(id) {
+    if (!confirm('Karte wirklich löschen?')) return;
+    try {
+      await mb_sbFetch(`map_pois?map_id=eq.${id}`, { method: 'DELETE' });
+      await mb_sbFetch(`property_maps?id=eq.${id}`, { method: 'DELETE' });
+      if (_mbCurrentMapId === id) {
+        mb_clearAll();
+        _mbCurrentMapId = null;
+      }
+      mb_loadFinderList();
+      mb_toast('Karte gelöscht', 'success');
+    } catch (e) {
+      mb_toast('Löschen fehlgeschlagen', 'error');
+    }
+  };
+
+  // ─── SAVE MAP ───
   window.mb_saveMap = async function() {
     const name = document.getElementById('mb-mapName').value.trim();
     if (!name) return mb_toast('Bitte Kartennamen eingeben', 'error');
@@ -16086,27 +16341,49 @@ init();
       let mapId = _mbCurrentMapId;
 
       if (_mbCurrentMapId) {
+        // Update existing map
         await mb_sbFetch(`property_maps?id=eq.${_mbCurrentMapId}`, { method: 'PATCH', body: JSON.stringify(mapData) });
+        // Delete old POIs, re-insert all
         await mb_sbFetch(`map_pois?map_id=eq.${_mbCurrentMapId}`, { method: 'DELETE' });
       } else {
+        // Create new map
         const res = await mb_sbFetch('property_maps', { method: 'POST', body: JSON.stringify(mapData) });
         const data = await res.json();
         mapId = data[0].id;
         _mbCurrentMapId = mapId;
       }
 
+      // Save ALL POIs (including auto-discovered ones)
       if (_mbPois.length > 0) {
         const poiData = _mbPois.map((poi, i) => ({
           map_id: mapId,
-          name: poi.name, address: poi.address, category: poi.category,
+          name: poi.name,
+          address: poi.address,
+          category: poi.category,
           custom_category_label: poi.custom_category_label || null,
-          lat: poi.lat, lng: poi.lng,
-          pin_color: poi.pin_color, pin_size: poi.pin_size,
-          distance_meters: poi.distance_meters, sort_order: i
+          lat: poi.lat,
+          lng: poi.lng,
+          pin_color: poi.pin_color || '#525252',
+          pin_size: poi.pin_size || 'medium',
+          distance_meters: poi.distance_meters || null,
+          sort_order: i,
+          is_auto_discovered: poi._autoDiscovered ? true : false
         }));
-        await mb_sbFetch('map_pois', { method: 'POST', body: JSON.stringify(poiData) });
+        try {
+          await mb_sbFetch('map_pois', { method: 'POST', body: JSON.stringify(poiData) });
+        } catch (poiErr) {
+          // If is_auto_discovered column doesn't exist, retry without it
+          if (poiErr.message && poiErr.message.includes('is_auto_discovered')) {
+            console.warn('MB: is_auto_discovered column not found, saving without it');
+            const fallbackData = poiData.map(p => { const { is_auto_discovered, ...rest } = p; return rest; });
+            await mb_sbFetch('map_pois', { method: 'POST', body: JSON.stringify(fallbackData) });
+          } else {
+            throw poiErr;
+          }
+        }
       }
 
+      mb_updateEditorTitle();
       mb_toast('Karte gespeichert!', 'success');
     } catch (e) {
       console.error('MB Save failed:', e);
@@ -16117,45 +16394,28 @@ init();
     }
   };
 
-  window.mb_loadMapList = async function() {
-    const container = document.getElementById('mb-savedMapsList');
-    container.innerHTML = '<div style="text-align:center;padding:12px"><span class="mb-spinner"></span></div>';
+  // ─── SAVE AS (new copy) ───
+  window.mb_saveMapAs = async function() {
+    const currentName = document.getElementById('mb-mapName').value.trim();
+    const newName = prompt('Neuer Kartenname:', currentName ? currentName + ' (Kopie)' : '');
+    if (!newName || !newName.trim()) return;
 
-    try {
-      const res = await mb_sbFetch('property_maps?order=updated_at.desc&limit=20', { method: 'GET' });
-      const maps = await res.json();
-
-      if (!maps || maps.length === 0) {
-        container.innerHTML = '<div class="mb-empty-state"><div class="mb-empty-state-text">Keine gespeicherten Karten</div></div>';
-        return;
-      }
-
-      let html = '';
-      maps.forEach(m => {
-        const date = new Date(m.updated_at || m.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
-        html += `<div class="mb-saved-map-item" onclick="mb_loadMap('${m.id}')">
-          <div>
-            <div class="mb-saved-map-name">${mb_escapeHtml(m.name)}</div>
-            <div class="mb-saved-map-address">${mb_escapeHtml(m.property_address)}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span class="mb-saved-map-date">${date}</span>
-            <button class="mb-btn mb-btn-ghost mb-btn-icon mb-btn-sm mb-btn-danger" onclick="event.stopPropagation();mb_deleteMap('${m.id}')" title="Löschen">✕</button>
-          </div>
-        </div>`;
-      });
-      container.innerHTML = html;
-    } catch (e) {
-      container.innerHTML = '';
-      mb_toast('Laden fehlgeschlagen: ' + e.message, 'error');
-    }
+    document.getElementById('mb-mapName').value = newName.trim();
+    _mbCurrentMapId = null; // Force create new
+    await mb_saveMap();
   };
 
+  // ─── LOAD MAP LIST (legacy, kept for compat) ───
+  window.mb_loadMapList = async function() {
+    mb_showFinder();
+  };
+
+  // ─── LOAD MAP ───
   window.mb_loadMap = async function(id) {
     try {
       const mapRes = await mb_sbFetch(`property_maps?id=eq.${id}`, { method: 'GET' });
       const maps = await mapRes.json();
-      if (!maps || maps.length === 0) return mb_toast('Karte nicht gefunden', 'error');
+      if (!maps || !Array.isArray(maps) || maps.length === 0) return mb_toast('Karte nicht gefunden', 'error');
       const mapData = maps[0];
 
       const poiRes = await mb_sbFetch(`map_pois?map_id=eq.${id}&order=sort_order`, { method: 'GET' });
@@ -16169,6 +16429,7 @@ init();
       document.getElementById('mb-mapStyle').value = mapData.map_style || 'clean';
       mb_changeMapStyle();
 
+      // Restore main property marker
       if (mapData.property_lat && mapData.property_lng) {
         _mbMainProperty = {
           address: mapData.property_address,
@@ -16184,15 +16445,23 @@ init();
         document.getElementById('mb-autoPoiSection').style.display = 'block';
       }
 
-      if (poiData && poiData.length > 0) {
+      // Restore ALL POIs (including auto-discovered)
+      if (Array.isArray(poiData) && poiData.length > 0) {
+        console.log(`MB: Loading ${poiData.length} POIs for map ${id}`);
         poiData.forEach(p => {
           const poi = {
             id: p.id || ('poi-' + Date.now() + '-' + Math.random().toString(36).slice(2,6)),
-            name: p.name, address: p.address || '', category: p.category || 'other',
+            name: p.name,
+            address: p.address || '',
+            category: p.category || 'other',
             custom_category_label: p.custom_category_label || null,
-            lat: parseFloat(p.lat), lng: parseFloat(p.lng),
-            pin_color: p.pin_color || '#525252', pin_size: p.pin_size || 'medium',
-            distance_meters: p.distance_meters, sort_order: p.sort_order || 0,
+            lat: parseFloat(p.lat),
+            lng: parseFloat(p.lng),
+            pin_color: p.pin_color || '#525252',
+            pin_size: p.pin_size || 'medium',
+            distance_meters: p.distance_meters || null,
+            sort_order: p.sort_order || 0,
+            _autoDiscovered: p.is_auto_discovered || false,
             marker: null
           };
           poi.marker = mb_createPOIMarker(poi);
@@ -16203,14 +16472,17 @@ init();
 
       mb_renderPOIList();
 
+      // Set correct view
       if (mapData.zoom_level && _mbMainProperty) {
         window._mbMap.setView([_mbMainProperty.lat, _mbMainProperty.lng], mapData.zoom_level);
       } else {
         mb_fitAllPins();
       }
 
+      // Show editor, update labels
+      mb_showEditor();
       setTimeout(mb_updateLabels, 300);
-      mb_toast('Karte geladen!', 'success');
+      mb_toast(`Karte geladen — ${_mbPois.length} POI${_mbPois.length !== 1 ? 's' : ''}`, 'success');
     } catch (e) {
       console.error('MB Load failed:', e);
       mb_toast('Laden fehlgeschlagen: ' + e.message, 'error');
@@ -16220,12 +16492,13 @@ init();
   window.mb_deleteMap = async function(id) {
     if (!confirm('Karte wirklich löschen?')) return;
     try {
+      await mb_sbFetch(`map_pois?map_id=eq.${id}`, { method: 'DELETE' });
       await mb_sbFetch(`property_maps?id=eq.${id}`, { method: 'DELETE' });
       if (_mbCurrentMapId === id) {
         mb_clearAll();
         _mbCurrentMapId = null;
       }
-      mb_loadMapList();
+      mb_loadFinderList();
       mb_toast('Karte gelöscht', 'success');
     } catch (e) {
       mb_toast('Löschen fehlgeschlagen', 'error');
@@ -16252,35 +16525,34 @@ init();
   // ─── AUTO-POI DISCOVERY ───
   const MB_OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
 
-  // Overpass tag definitions for each POI type
+  // Overpass tag definitions for each POI type (only essential categories)
   const MB_OVERPASS_QUERIES = [
     { key: 'supermarket',  category: 'supermarket', label: null,         tags: '[shop=supermarket]',          maxDist: null },
     { key: 'doctor',       category: 'doctor',      label: null,         tags: '[amenity=doctors]',           maxDist: null },
-    { key: 'clinic',       category: 'doctor',      label: null,         tags: '[amenity=clinic]',            maxDist: null },
     { key: 'school',       category: 'school',      label: null,         tags: '[amenity=school]',            maxDist: null },
     { key: 'kindergarten', category: 'school',      label: 'Kita',       tags: '[amenity=kindergarten]',      maxDist: null },
     { key: 'bus_stop',     category: 'transport',   label: null,         tags: '[highway=bus_stop]',          maxDist: null },
-    { key: 'tram_stop',    category: 'transport',   label: 'Straßenbahn', tags: '[railway=tram_stop]',        maxDist: null },
     { key: 'fitness',      category: 'pool',        label: 'Fitness',    tags: '[leisure=fitness_centre]',    maxDist: null },
-    { key: 'cinema',       category: 'other',       label: 'Kino',       tags: '[amenity=cinema]',            maxDist: null },
-    { key: 'swimming',     category: 'pool',        label: null,         tags: '[leisure=swimming_pool]',     maxDist: null },
     { key: 'park',         category: 'park',        label: null,         tags: '[leisure=park]',              maxDist: null },
-    { key: 'hospital',     category: 'doctor',      label: 'Krankenhaus', tags: '[amenity=hospital]',         maxDist: 3000 },
-    { key: 'station',      category: 'transport',   label: 'Bahnhof',   tags: '[railway=station][train=yes]', maxDist: 5000 },
-    { key: 'airport',      category: 'transport',   label: 'Flughafen', tags: '[aeroway=aerodrome]',          maxDist: 10000 },
   ];
 
   // Keys that have extended distance thresholds for outlier filtering
-  const MB_EXTENDED_DISTANCE_KEYS = new Set(['hospital', 'station', 'airport']);
+  const MB_EXTENDED_DISTANCE_KEYS = new Set([]);
 
   function mb_buildOverpassQuery(lat, lng, radius) {
     // Build a single combined Overpass query for efficiency
     let nwr = '';
     MB_OVERPASS_QUERIES.forEach(q => {
-      const r = q.maxDist ? Math.max(radius, q.maxDist) : radius;
-      nwr += `nwr${q.tags}(around:${r},${lat},${lng});`;
+      if (q.key === 'doctor') {
+        // Only Hausärzte: general practitioners or no speciality tag
+        nwr += `nwr[amenity=doctors]["healthcare:speciality"="general"](around:${radius},${lat},${lng});`;
+        nwr += `nwr[amenity=doctors][!"healthcare:speciality"](around:${radius},${lat},${lng});`;
+      } else {
+        const r = q.maxDist ? Math.max(radius, q.maxDist) : radius;
+        nwr += `nwr${q.tags}(around:${r},${lat},${lng});`;
+      }
     });
-    // Also query for S-Bahn, U-Bahn specifically
+    // Also query for S-Bahn, U-Bahn specifically (preferred over bus)
     const sBahnR = Math.max(radius, 2000);
     nwr += `nwr[railway=station][station=light_rail](around:${sBahnR},${lat},${lng});`;
     nwr += `nwr[station=subway](around:${sBahnR},${lat},${lng});`;
@@ -16295,79 +16567,47 @@ init();
     if (!lat || !lng) return null;
 
     const dist = mb_haversineDistance(propLat, propLng, lat, lng);
-    const name = tags.name || '';
 
     const results = [];
 
-    // Supermarket
+    // Supermarket — always display as "Supermarkt"
     if (tags.shop === 'supermarket') {
-      results.push({ key: 'supermarket', category: 'supermarket', label: null, name: name || 'Supermarkt', lat, lng, dist });
+      results.push({ key: 'supermarket', category: 'supermarket', label: null, name: 'Supermarkt', lat, lng, dist });
     }
-    // Doctor
+    // Doctor — only Hausärzte (general or no speciality), display as "Arzt"
     if (tags.amenity === 'doctors') {
-      results.push({ key: 'doctor', category: 'doctor', label: null, name: name || 'Arztpraxis', lat, lng, dist });
+      const spec = tags['healthcare:speciality'] || '';
+      if (!spec || spec === 'general') {
+        results.push({ key: 'doctor', category: 'doctor', label: null, name: 'Arzt', lat, lng, dist });
+      }
     }
-    // Clinic
-    if (tags.amenity === 'clinic') {
-      results.push({ key: 'clinic', category: 'doctor', label: null, name: name || 'Klinik', lat, lng, dist });
-    }
-    // School
+    // School — display as "Schule"
     if (tags.amenity === 'school') {
-      results.push({ key: 'school', category: 'school', label: null, name: name || 'Schule', lat, lng, dist });
+      results.push({ key: 'school', category: 'school', label: null, name: 'Schule', lat, lng, dist });
     }
-    // Kindergarten
+    // Kindergarten — display as "Kita"
     if (tags.amenity === 'kindergarten') {
-      results.push({ key: 'kindergarten', category: 'school', label: 'Kita', name: name || 'Kindergarten', lat, lng, dist });
+      results.push({ key: 'kindergarten', category: 'school', label: 'Kita', name: 'Kita', lat, lng, dist });
     }
-    // Bus stop
+    // S-Bahn — preferred transport, display as "S-Bahn"
+    if (tags.railway === 'station' && (tags.station === 'light_rail' || (tags.name && /\bS[\s\-]/.test(tags.name)))) {
+      results.push({ key: 'sbahn', category: 'transport', label: 'S-Bahn', name: 'S-Bahn', lat, lng, dist });
+    }
+    // U-Bahn — preferred transport, display as "U-Bahn"
+    if (tags.station === 'subway' || (tags.railway === 'station' && tags.name && /\bU[\s\-]/.test(tags.name))) {
+      results.push({ key: 'ubahn', category: 'transport', label: 'U-Bahn', name: 'U-Bahn', lat, lng, dist });
+    }
+    // Bus stop — fallback transport, display as "Bus"
     if (tags.highway === 'bus_stop') {
-      results.push({ key: 'bus_stop', category: 'transport', label: null, name: name || 'Bushaltestelle', lat, lng, dist });
+      results.push({ key: 'bus_stop', category: 'transport', label: 'Bus', name: 'Bus', lat, lng, dist });
     }
-    // Tram stop
-    if (tags.railway === 'tram_stop') {
-      results.push({ key: 'tram_stop', category: 'transport', label: 'Straßenbahn', name: name || 'Tramhaltestelle', lat, lng, dist });
-    }
-    // S-Bahn
-    if (tags.railway === 'station' && (tags.station === 'light_rail' || (name && /\bS[\s\-]/.test(name)))) {
-      results.push({ key: 'sbahn', category: 'transport', label: 'S-Bahn', name: name || 'S-Bahn', lat, lng, dist });
-    }
-    // U-Bahn
-    if (tags.station === 'subway' || (tags.railway === 'station' && name && /\bU[\s\-]/.test(name))) {
-      results.push({ key: 'ubahn', category: 'transport', label: 'U-Bahn', name: name || 'U-Bahn', lat, lng, dist });
-    }
-    // Hospital
-    if (tags.amenity === 'hospital') {
-      if (dist <= 3000) {
-        results.push({ key: 'hospital', category: 'doctor', label: 'Krankenhaus', name: name || 'Krankenhaus', lat, lng, dist });
-      }
-    }
-    // Train station (Bahnhof)
-    if (tags.railway === 'station' && tags.train === 'yes') {
-      if (dist <= 5000) {
-        results.push({ key: 'station', category: 'transport', label: 'Bahnhof', name: name || 'Bahnhof', lat, lng, dist });
-      }
-    }
-    // Airport
-    if (tags.aeroway === 'aerodrome') {
-      if (dist <= 10000) {
-        results.push({ key: 'airport', category: 'transport', label: 'Flughafen', name: name || 'Flughafen', lat, lng, dist });
-      }
-    }
-    // Fitness
+    // Fitness — display as "Fitness"
     if (tags.leisure === 'fitness_centre') {
-      results.push({ key: 'fitness', category: 'pool', label: 'Fitness', name: name || 'Fitnessstudio', lat, lng, dist });
+      results.push({ key: 'fitness', category: 'pool', label: 'Fitness', name: 'Fitness', lat, lng, dist });
     }
-    // Cinema
-    if (tags.amenity === 'cinema') {
-      results.push({ key: 'cinema', category: 'other', label: 'Kino', name: name || 'Kino', lat, lng, dist });
-    }
-    // Swimming pool
-    if (tags.leisure === 'swimming_pool') {
-      results.push({ key: 'swimming', category: 'pool', label: null, name: name || 'Schwimmbad', lat, lng, dist });
-    }
-    // Park (only named/bigger ones)
-    if (tags.leisure === 'park' && name) {
-      results.push({ key: 'park', category: 'park', label: null, name: name, lat, lng, dist });
+    // Park — only named parks, display as "Park"
+    if (tags.leisure === 'park' && tags.name) {
+      results.push({ key: 'park', category: 'park', label: null, name: 'Park', lat, lng, dist });
     }
 
     return results.length > 0 ? results : null;
@@ -16383,21 +16623,30 @@ init();
   function mb_filterAndLimitPois(classified) {
     if (classified.length === 0) return [];
 
+    // Remove POIs with no meaningful name (shouldn't happen now with category names, but safety)
+    let filtered = classified.filter(p => p.name && p.name.trim().length > 0);
+
+    // Enforce minimum 50m distance between POIs of the same key
+    const kept = [];
+    filtered.forEach(p => {
+      const tooClose = kept.some(k => k.key === p.key && mb_haversineDistance(k.lat, k.lng, p.lat, p.lng) < 50);
+      if (!tooClose) kept.push(p);
+    });
+    filtered = kept;
+
     // Compute median distance for outlier filtering
-    const distances = classified.map(p => p.dist);
+    const distances = filtered.map(p => p.dist);
     const median = mb_medianValue(distances);
     const outlierThreshold = median * 3;
 
-    // Filter outliers (extended keys get their own maxDist thresholds instead)
-    let filtered = classified.filter(p => {
-      if (MB_EXTENDED_DISTANCE_KEYS.has(p.key)) {
-        // These already have maxDist filtering during classification
-        return true;
-      }
-      return p.dist <= outlierThreshold || p.dist <= 2000;
-    });
+    filtered = filtered.filter(p => p.dist <= outlierThreshold || p.dist <= 2000);
 
-    // Group by key, take closest 2 per key
+    // ÖPNV: prefer U-Bahn/S-Bahn over Bus
+    const hasUBahn = filtered.some(p => p.key === 'ubahn');
+    const hasSBahn = filtered.some(p => p.key === 'sbahn');
+    const hasRail = hasUBahn || hasSBahn;
+
+    // Group by key, take closest 1 per key
     const byKey = {};
     filtered.forEach(p => {
       if (!byKey[p.key]) byKey[p.key] = [];
@@ -16406,13 +16655,24 @@ init();
 
     let result = [];
     Object.keys(byKey).forEach(key => {
+      // Skip bus if we already have U-Bahn or S-Bahn
+      if (key === 'bus_stop' && hasRail) return;
       const sorted = byKey[key].sort((a, b) => a.dist - b.dist);
-      result.push(...sorted.slice(0, 2));
+      result.push(sorted[0]); // Only the closest 1 per key
     });
 
-    // Sort by distance, limit to ~20
+    // Deduplicate: no two POIs with same name AND same category
+    const seenNameCat = new Set();
+    result = result.filter(p => {
+      const uid = p.name + '|' + p.category;
+      if (seenNameCat.has(uid)) return false;
+      seenNameCat.add(uid);
+      return true;
+    });
+
+    // Sort by distance, limit to 7
     result.sort((a, b) => a.dist - b.dist);
-    if (result.length > 20) result = result.slice(0, 20);
+    if (result.length > 7) result = result.slice(0, 7);
 
     return result;
   }
@@ -16469,7 +16729,7 @@ init();
       });
 
       // If too few results, expand radius
-      if (classified.length < 8) {
+      if (classified.length < 4) {
         statusText.textContent = 'Wenige Ergebnisse — erweitere Suche auf 2 km...';
         radius = 2000;
         query = mb_buildOverpassQuery(lat, lng, radius);
