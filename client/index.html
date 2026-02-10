@@ -599,40 +599,124 @@
 
     .insight-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
-    /* Creative Grid */
-    .creative-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
+    /* Creative Ranking Table */
+    .creative-ranking {
       margin-top: 24px;
     }
 
-    .creative-card {
-      padding: 16px;
-      background: var(--bg-secondary);
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
+    .creative-ranking-table {
+      width: 100%;
+      border-collapse: collapse;
     }
 
-    .creative-type {
-      font-size: 11px;
+    .creative-ranking-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--accent);
-      margin-bottom: 8px;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+      background: var(--bg-secondary);
     }
 
-    .creative-stat {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .creative-ranking-table th:last-child,
+    .creative-ranking-table td:last-child { text-align: right; }
+    .creative-ranking-table th:nth-child(3),
+    .creative-ranking-table td:nth-child(3),
+    .creative-ranking-table th:nth-child(4),
+    .creative-ranking-table td:nth-child(4) { text-align: right; }
+
+    .creative-ranking-table td {
+      padding: 12px 14px;
       font-size: 13px;
-      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
     }
 
-    .creative-stat-label { color: var(--text-muted); }
-    .creative-stat-value { font-weight: 700; }
+    .creative-ranking-table tbody tr:last-child td { border-bottom: none; }
+
+    .creative-rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .creative-rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; }
+    .creative-rank-2 { background: linear-gradient(135deg, #d1d5db, #9ca3af); color: #374151; }
+    .creative-rank-3 { background: linear-gradient(135deg, #fdba74, #f97316); color: #7c2d12; }
+    .creative-rank-default { background: var(--bg-secondary); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .creative-type-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .creative-score-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .creative-score-track {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-secondary);
+      border-radius: 3px;
+      overflow: hidden;
+      min-width: 60px;
+    }
+
+    .creative-score-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+
+    .creative-score-value {
+      font-size: 13px;
+      font-weight: 800;
+      min-width: 32px;
+      text-align: right;
+    }
+
+    /* Benchmark Insights */
+    .benchmark-insights {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .benchmark-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, rgba(22, 163, 74, 0.04), rgba(22, 163, 74, 0.08));
+      border-left: 3px solid var(--green);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .benchmark-item-neutral {
+      background: var(--bg-secondary);
+      border-left-color: var(--border);
+    }
+
+    .benchmark-icon { font-size: 18px; flex-shrink: 0; margin-top: 0px; }
+
+    .benchmark-text strong {
+      color: var(--text-primary);
+    }
 
     /* Loading */
     .loading-screen {
@@ -809,6 +893,30 @@
       </div>
     </div>
 
+    <!-- Benchmark Insights (main page) -->
+    <div class="section" id="mainBenchmarkSection" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📊 Performance Insights</span>
+        </div>
+        <div class="card-body">
+          <div class="benchmark-insights" id="mainBenchmarkInsights"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Creative Performance (main page, cross-campaign) -->
+    <div class="section" id="mainCreativeSection" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🏆 Creative Performance</span>
+        </div>
+        <div class="card-body">
+          <div class="creative-ranking" id="mainCreativeRanking"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Campaigns Table -->
     <div class="section">
       <div class="card">
@@ -862,14 +970,17 @@
         </div>
       </div>
 
-      <!-- Creative Performance -->
-      <div id="creativeSection">
-        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">Creative Performance</h3>
-        <div class="creative-grid" id="creativeGrid"></div>
+      <!-- Benchmark Insights (campaign detail) -->
+      <div id="detailBenchmarkSection" style="display:none">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">📊 Performance Insights</h3>
+        <div class="benchmark-insights" id="detailBenchmarkInsights"></div>
       </div>
 
-      <!-- Insights -->
-      <div class="insights" id="detailInsights"></div>
+      <!-- Creative Performance (campaign detail) -->
+      <div id="creativeSection" style="margin-top:24px">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">🏆 Creative Performance</h3>
+        <div class="creative-ranking" id="creativeRanking"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -898,6 +1009,7 @@ let detailChartInstance = null;
 let currentSort = { field: 'spend', dir: 'desc' };
 let currentFilter = 'all'; // 'all' or 'YYYY-MM'
 let currentDetailCampaignId = null;
+let benchmarkData = null;  // { avgCPL, avgCTR, avgLeads, allCPLs: [] }
 
 // ============================================
 // SUPABASE REST
@@ -1088,7 +1200,15 @@ async function loadDashboard() {
       allCreatives = [];
     }
 
-    // 5. Aggregate metrics per campaign
+    // 5. Load benchmark data (all campaigns across all clients)
+    try {
+      benchmarkData = await loadBenchmarkData();
+    } catch (e) {
+      console.warn('Benchmark data unavailable:', e);
+      benchmarkData = null;
+    }
+
+    // 6. Aggregate metrics per campaign
     const metricsMap = {};
     allMetrics.forEach(m => {
       if (!metricsMap[m.campaign_id]) metricsMap[m.campaign_id] = { spend: 0, impressions: 0, clicks: 0, leads: 0, reach: 0 };
@@ -1168,13 +1288,335 @@ function getFilteredMetrics() {
 }
 
 // ============================================
+// BENCHMARK DATA
+// ============================================
+async function loadBenchmarkData() {
+  // Query ALL campaigns (across all clients) with their aggregated metrics
+  const allCampaignsRaw = await sbGet('campaigns', 'select=id');
+  if (!allCampaignsRaw || allCampaignsRaw.length === 0) return null;
+
+  const allCampIds = allCampaignsRaw.map(c => c.id);
+  // Fetch in batches of 200 to avoid URL length limits
+  let allDailyMetrics = [];
+  for (let i = 0; i < allCampIds.length; i += 200) {
+    const batch = allCampIds.slice(i, i + 200);
+    const batchFilter = batch.map(id => `"${id}"`).join(',');
+    const batchMetrics = await sbGet('campaign_daily_metrics', `campaign_id=in.(${batchFilter})&select=campaign_id,spend,impressions,clicks,leads`);
+    allDailyMetrics = allDailyMetrics.concat(batchMetrics);
+  }
+
+  // Aggregate per campaign
+  const campTotals = {};
+  allDailyMetrics.forEach(m => {
+    if (!campTotals[m.campaign_id]) campTotals[m.campaign_id] = { spend: 0, impressions: 0, clicks: 0, leads: 0 };
+    campTotals[m.campaign_id].spend += parseFloat(m.spend) || 0;
+    campTotals[m.campaign_id].impressions += parseInt(m.impressions) || 0;
+    campTotals[m.campaign_id].clicks += parseInt(m.clicks) || 0;
+    campTotals[m.campaign_id].leads += parseInt(m.leads) || 0;
+  });
+
+  // Only campaigns with leads > 0
+  const validCampaigns = Object.values(campTotals).filter(c => c.leads > 0);
+  if (validCampaigns.length === 0) return null;
+
+  const cpls = validCampaigns.map(c => c.spend / c.leads);
+  const ctrs = validCampaigns.filter(c => c.impressions > 0).map(c => (c.clicks / c.impressions) * 100);
+  const leadsArr = validCampaigns.map(c => c.leads);
+
+  const avgCPL = cpls.reduce((a, b) => a + b, 0) / cpls.length;
+  const avgCTR = ctrs.length > 0 ? ctrs.reduce((a, b) => a + b, 0) / ctrs.length : 0;
+  const avgLeads = leadsArr.reduce((a, b) => a + b, 0) / leadsArr.length;
+
+  // Collect per-campaign CPLs for percentile calculation (sorted ascending = best first)
+  const allCPLs = cpls.slice().sort((a, b) => a - b);
+
+  return { avgCPL, avgCTR, avgLeads, allCPLs, campaignCount: validCampaigns.length };
+}
+
+function getCPLPercentile(cpl) {
+  if (!benchmarkData || !benchmarkData.allCPLs || benchmarkData.allCPLs.length === 0) return null;
+  const sorted = benchmarkData.allCPLs; // already sorted ascending
+  // Count how many campaigns have a WORSE (higher) CPL
+  const betterThan = sorted.filter(c => c > cpl).length;
+  return Math.round((betterThan / sorted.length) * 100);
+}
+
+// ============================================
+// CREATIVE SCORE CALCULATION
+// ============================================
+function calculateCreativeScore(data) {
+  // Score based on weighted combination: CPL efficiency (60%), lead volume (30%), CTR (10%)
+  // Lower CPL = higher score, more leads = higher score, higher CTR = higher score
+  // Normalize each metric 0-100 within the dataset, then combine
+  return data; // We'll score relative to peers in the rendering function
+}
+
+function scoreCreativeTypes(typeMap) {
+  const entries = Object.entries(typeMap).map(([type, data]) => ({
+    type,
+    ...data,
+    cpl: data.leads > 0 ? data.spend / data.leads : Infinity,
+    ctr: data.impressions > 0 ? (data.clicks / data.impressions) * 100 : 0
+  }));
+
+  // Only score types with leads
+  const withLeads = entries.filter(e => e.leads > 0);
+  const withoutLeads = entries.filter(e => e.leads === 0);
+
+  if (withLeads.length === 0) return entries.map(e => ({ ...e, score: 0 }));
+
+  // Normalize CPL (inverse — lower is better)
+  const maxCPL = Math.max(...withLeads.map(e => e.cpl));
+  const minCPL = Math.min(...withLeads.map(e => e.cpl));
+  const cplRange = maxCPL - minCPL || 1;
+
+  // Normalize leads (higher is better)
+  const maxLeads = Math.max(...withLeads.map(e => e.leads));
+  const minLeads = Math.min(...withLeads.map(e => e.leads));
+  const leadsRange = maxLeads - minLeads || 1;
+
+  // Normalize CTR (higher is better)
+  const maxCTR = Math.max(...withLeads.map(e => e.ctr));
+  const minCTR = Math.min(...withLeads.map(e => e.ctr));
+  const ctrRange = maxCTR - minCTR || 1;
+
+  withLeads.forEach(e => {
+    const cplScore = withLeads.length === 1 ? 80 : ((maxCPL - e.cpl) / cplRange) * 100;
+    const leadsScore = withLeads.length === 1 ? 80 : ((e.leads - minLeads) / leadsRange) * 100;
+    const ctrScore = withLeads.length === 1 ? 80 : ((e.ctr - minCTR) / ctrRange) * 100;
+    e.score = Math.round(cplScore * 0.5 + leadsScore * 0.35 + ctrScore * 0.15);
+  });
+
+  // Types without leads get score 0
+  withoutLeads.forEach(e => { e.score = 0; });
+
+  // Sort by score descending
+  const all = [...withLeads, ...withoutLeads];
+  all.sort((a, b) => b.score - a.score);
+  return all;
+}
+
+// ============================================
+// RENDER CREATIVE RANKING TABLE (reusable)
+// ============================================
+function renderCreativeRankingHTML(scoredTypes) {
+  if (scoredTypes.length === 0) return '<div style="color:var(--text-muted);font-size:13px;padding:16px 0">Keine Creative-Daten verfügbar</div>';
+
+  const maxScore = Math.max(...scoredTypes.map(t => t.score), 1);
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e7352e';
+
+  const rows = scoredTypes.map((t, i) => {
+    const rank = i + 1;
+    const rankClass = rank === 1 ? 'creative-rank-1' : rank === 2 ? 'creative-rank-2' : rank === 3 ? 'creative-rank-3' : 'creative-rank-default';
+    const cplStr = t.leads > 0 ? formatEUR(t.cpl) : '—';
+    const pct = maxScore > 0 ? Math.round((t.score / maxScore) * 100) : 0;
+
+    // Color gradient from green (best) to orange (worst)
+    const hue = Math.round(120 * (pct / 100)); // 120=green, 0=red
+    const barColor = t.score > 0 ? `hsl(${hue}, 65%, 48%)` : '#e5e7eb';
+
+    return `
+      <tr>
+        <td><span class="creative-rank ${rankClass}">${rank}</span></td>
+        <td><span class="creative-type-name">${formatCreativeType(t.type)}</span></td>
+        <td style="font-weight:700">${t.leads}</td>
+        <td>${cplStr}</td>
+        <td>
+          <div class="creative-score-bar">
+            <div class="creative-score-track">
+              <div class="creative-score-fill" style="width:${pct}%;background:${barColor}"></div>
+            </div>
+            <span class="creative-score-value">${t.score}</span>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <table class="creative-ranking-table">
+      <thead>
+        <tr>
+          <th style="width:50px">#</th>
+          <th>Creative</th>
+          <th>Leads</th>
+          <th>CPL</th>
+          <th style="min-width:140px">Score</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// ============================================
+// RENDER BENCHMARK INSIGHTS
+// ============================================
+function renderMainBenchmarkInsights(metrics) {
+  const section = document.getElementById('mainBenchmarkSection');
+  const container = document.getElementById('mainBenchmarkInsights');
+
+  if (!benchmarkData) { section.style.display = 'none'; return; }
+
+  let totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
+  metrics.forEach(m => {
+    totalSpend += parseFloat(m.spend) || 0;
+    totalLeads += parseInt(m.leads) || 0;
+    totalImpressions += parseInt(m.impressions) || 0;
+    totalClicks += parseInt(m.clicks) || 0;
+  });
+
+  // Calculate this client's averages per campaign
+  const clientCampaignMetrics = {};
+  metrics.forEach(m => {
+    if (!clientCampaignMetrics[m.campaign_id]) clientCampaignMetrics[m.campaign_id] = { spend: 0, leads: 0, impressions: 0, clicks: 0 };
+    clientCampaignMetrics[m.campaign_id].spend += parseFloat(m.spend) || 0;
+    clientCampaignMetrics[m.campaign_id].leads += parseInt(m.leads) || 0;
+    clientCampaignMetrics[m.campaign_id].impressions += parseInt(m.impressions) || 0;
+    clientCampaignMetrics[m.campaign_id].clicks += parseInt(m.clicks) || 0;
+  });
+
+  const clientCampaignsWithLeads = Object.values(clientCampaignMetrics).filter(c => c.leads > 0);
+
+  const insights = [];
+
+  // CPL comparison
+  if (totalLeads > 0 && clientCampaignsWithLeads.length > 0) {
+    const clientAvgCPL = totalSpend / totalLeads;
+    if (clientAvgCPL < benchmarkData.avgCPL) {
+      const pctBetter = ((benchmarkData.avgCPL - clientAvgCPL) / benchmarkData.avgCPL * 100).toFixed(0);
+      insights.push({ icon: '✨', text: `Ihr Portfolio performt <strong>${pctBetter}% besser</strong> als der R&G Durchschnitt` });
+    }
+  }
+
+  // CTR comparison
+  if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
+    const clientCTR = (totalClicks / totalImpressions) * 100;
+    if (clientCTR > benchmarkData.avgCTR) {
+      const pctBetter = ((clientCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
+      insights.push({ icon: '📈', text: `Ihre durchschnittliche CTR liegt <strong>${pctBetter}% über dem Durchschnitt</strong>` });
+    }
+  }
+
+  // Leads per campaign comparison
+  if (clientCampaignsWithLeads.length > 0 && benchmarkData.avgLeads > 0) {
+    const clientAvgLeads = clientCampaignsWithLeads.reduce((sum, c) => sum + c.leads, 0) / clientCampaignsWithLeads.length;
+    if (clientAvgLeads > benchmarkData.avgLeads) {
+      const pctMore = ((clientAvgLeads - benchmarkData.avgLeads) / benchmarkData.avgLeads * 100).toFixed(0);
+      insights.push({ icon: '🏆', text: `<strong>${pctMore}% mehr Leads</strong> pro Kampagne als der Durchschnitt` });
+    }
+  }
+
+  if (insights.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  container.innerHTML = insights.map(i => `
+    <div class="benchmark-item">
+      <span class="benchmark-icon">${i.icon}</span>
+      <span class="benchmark-text">${i.text}</span>
+    </div>
+  `).join('');
+}
+
+function renderDetailBenchmarkInsights(campaignId, totalSpend, totalLeads, totalImpressions, totalClicks) {
+  const section = document.getElementById('detailBenchmarkSection');
+  const container = document.getElementById('detailBenchmarkInsights');
+
+  if (!benchmarkData) { section.style.display = 'none'; return; }
+
+  const insights = [];
+
+  // CPL comparison
+  if (totalLeads > 0) {
+    const thisCPL = totalSpend / totalLeads;
+    if (thisCPL < benchmarkData.avgCPL) {
+      const pctBelow = ((benchmarkData.avgCPL - thisCPL) / benchmarkData.avgCPL * 100).toFixed(0);
+      insights.push({ icon: '✨', text: `CPL <strong>${formatEUR(thisCPL)}</strong> — das sind <strong>${pctBelow}% unter</strong> dem R&G Durchschnitt von ${formatEUR(benchmarkData.avgCPL)}` });
+    }
+
+    // Percentile
+    const percentile = getCPLPercentile(thisCPL);
+    if (percentile !== null && percentile >= 75) {
+      insights.push({ icon: '🏆', text: `Diese Kampagne gehört zu den <strong>Top ${100 - percentile}%</strong> aller R&G Kampagnen` });
+    }
+  }
+
+  // CTR comparison
+  if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
+    const thisCTR = (totalClicks / totalImpressions) * 100;
+    if (thisCTR > benchmarkData.avgCTR) {
+      const pctAbove = ((thisCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
+      insights.push({ icon: '📈', text: `CTR von <strong>${thisCTR.toFixed(2)}%</strong> — <strong>${pctAbove}% über dem Durchschnitt</strong>` });
+    }
+  }
+
+  if (insights.length === 0) {
+    // Neutral message
+    section.style.display = 'block';
+    container.innerHTML = `
+      <div class="benchmark-item benchmark-item-neutral">
+        <span class="benchmark-icon">📊</span>
+        <span class="benchmark-text">Kampagne läuft — Daten werden gesammelt</span>
+      </div>
+    `;
+    return;
+  }
+
+  section.style.display = 'block';
+  container.innerHTML = insights.map(i => `
+    <div class="benchmark-item">
+      <span class="benchmark-icon">${i.icon}</span>
+      <span class="benchmark-text">${i.text}</span>
+    </div>
+  `).join('');
+}
+
+// ============================================
 // RENDER DASHBOARD
 // ============================================
 function renderDashboard() {
   const metrics = getFilteredMetrics();
   renderKPIs(metrics);
   renderTrendChart(metrics);
+  renderMainBenchmarkInsights(metrics);
+  renderMainCreativePerformance(metrics);
   renderCampaignTable(metrics);
+}
+
+// ============================================
+// MAIN PAGE CREATIVE PERFORMANCE (cross-campaign)
+// ============================================
+function renderMainCreativePerformance(metrics) {
+  const section = document.getElementById('mainCreativeSection');
+  const container = document.getElementById('mainCreativeRanking');
+
+  if (allCreatives.length === 0) { section.style.display = 'none'; return; }
+
+  // Group all creatives by type across all campaigns
+  const typeMap = {};
+  allCreatives.forEach(c => {
+    const type = c.creative_type || 'sonstige';
+    if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0, impressions: 0, clicks: 0, count: 0 };
+    typeMap[type].spend += c.metrics.spend;
+    typeMap[type].leads += c.metrics.leads;
+    typeMap[type].impressions += c.metrics.impressions;
+    typeMap[type].clicks += c.metrics.clicks;
+    typeMap[type].count++;
+  });
+
+  const scored = scoreCreativeTypes(typeMap);
+
+  // Only show if there's meaningful data
+  if (scored.length === 0 || scored.every(s => s.leads === 0)) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  container.innerHTML = renderCreativeRankingHTML(scored);
 }
 
 // ============================================
@@ -1574,7 +2016,7 @@ function renderDetailChart(metrics) {
 
 function renderCreativePerformance(campaignId, totalSpend, totalLeads) {
   const section = document.getElementById('creativeSection');
-  const grid = document.getElementById('creativeGrid');
+  const container = document.getElementById('creativeRanking');
 
   const campCreatives = allCreatives.filter(c => c.campaign_id === campaignId);
 
@@ -1597,102 +2039,13 @@ function renderCreativePerformance(campaignId, totalSpend, totalLeads) {
     typeMap[type].count++;
   });
 
-  grid.innerHTML = Object.entries(typeMap).map(([type, data]) => {
-    const cpl = data.leads > 0 ? formatEUR(data.spend / data.leads) : '—';
-    const ctr = data.impressions > 0 ? ((data.clicks / data.impressions) * 100).toFixed(2) + '%' : '—';
-    return `
-      <div class="creative-card">
-        <div class="creative-type">${formatCreativeType(type)}</div>
-        <div class="creative-stat"><span class="creative-stat-label">Leads</span><span class="creative-stat-value">${data.leads}</span></div>
-        <div class="creative-stat"><span class="creative-stat-label">Ausgaben</span><span class="creative-stat-value">${formatEUR(data.spend)}</span></div>
-        <div class="creative-stat"><span class="creative-stat-label">CPL</span><span class="creative-stat-value">${cpl}</span></div>
-        <div class="creative-stat"><span class="creative-stat-label">CTR</span><span class="creative-stat-value">${ctr}</span></div>
-        <div class="creative-stat"><span class="creative-stat-label">Anzahl</span><span class="creative-stat-value">${data.count}</span></div>
-      </div>
-    `;
-  }).join('');
+  const scored = scoreCreativeTypes(typeMap);
+  container.innerHTML = renderCreativeRankingHTML(scored);
 }
 
 function renderInsights(campaign, totalSpend, totalLeads, totalImpressions, totalClicks, metrics) {
-  const insightsEl = document.getElementById('detailInsights');
-  const insights = [];
-
-  // Best creative type
-  const campCreatives = allCreatives.filter(c => c.campaign_id === campaign.id);
-  if (campCreatives.length > 0) {
-    const typeMap = {};
-    campCreatives.forEach(c => {
-      const type = c.creative_type || 'sonstige';
-      if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0 };
-      typeMap[type].spend += c.metrics.spend;
-      typeMap[type].leads += c.metrics.leads;
-    });
-
-    let bestType = null, bestCPL = Infinity;
-    Object.entries(typeMap).forEach(([type, data]) => {
-      if (data.leads > 0) {
-        const cpl = data.spend / data.leads;
-        if (cpl < bestCPL) { bestCPL = cpl; bestType = type; }
-      }
-    });
-
-    if (bestType) {
-      insights.push({ icon: '🏆', text: `Beste Creative-Art: <strong>${formatCreativeType(bestType)}</strong> (CPL ${formatEUR(bestCPL)})` });
-    }
-  }
-
-  // Performance vs average
-  const allCampaignCPLs = campaigns.map(c => c.agg.leads > 0 ? c.agg.spend / c.agg.leads : null).filter(v => v !== null);
-  if (allCampaignCPLs.length > 1 && totalLeads > 0) {
-    const avgCPL = allCampaignCPLs.reduce((a, b) => a + b, 0) / allCampaignCPLs.length;
-    const thisCPL = totalSpend / totalLeads;
-    const diff = ((avgCPL - thisCPL) / avgCPL) * 100;
-    if (Math.abs(diff) > 2) {
-      const better = diff > 0;
-      insights.push({
-        icon: better ? '📈' : '📉',
-        text: `Performance vs. Durchschnitt: <strong>${Math.abs(diff).toFixed(0)}% ${better ? 'besser' : 'schlechter'}</strong>`
-      });
-    }
-  }
-
-  // Best day of week
-  if (metrics.length >= 7) {
-    const dayMap = [0,0,0,0,0,0,0];
-    const dayNames = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-    metrics.forEach(m => {
-      const day = new Date(m.date).getDay();
-      dayMap[day] += parseInt(m.leads) || 0;
-    });
-    const totalDayLeads = dayMap.reduce((a, b) => a + b, 0);
-    if (totalDayLeads > 0) {
-      let bestDay = 0;
-      dayMap.forEach((v, i) => { if (v > dayMap[bestDay]) bestDay = i; });
-      const pct = ((dayMap[bestDay] / totalDayLeads) * 100).toFixed(0);
-      insights.push({ icon: '📅', text: `Stärkster Tag: <strong>${dayNames[bestDay]}</strong> (${pct}% der Leads)` });
-    }
-  }
-
-  // CTR insight
-  if (totalImpressions > 0) {
-    const ctr = (totalClicks / totalImpressions) * 100;
-    if (ctr > 2) {
-      insights.push({ icon: '🖱️', text: `Überdurchschnittliche Klickrate: <strong>${ctr.toFixed(2)}% CTR</strong>` });
-    }
-  }
-
-  // Campaign duration
-  if (campaign.start_date) {
-    const start = new Date(campaign.start_date);
-    const end = campaign.end_date ? new Date(campaign.end_date) : new Date();
-    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-    insights.push({ icon: '⏱️', text: `Laufzeit: <strong>${days} Tage</strong>` });
-  }
-
-  insightsEl.innerHTML = insights.length > 0
-    ? '<h3 style="font-size:15px;font-weight:700;margin-bottom:12px;margin-top:24px">Insights</h3>' +
-      insights.map(i => `<div class="insight-item"><span class="insight-icon">${i.icon}</span><span>${i.text}</span></div>`).join('')
-    : '';
+  // Now handled by benchmark insights
+  renderDetailBenchmarkInsights(campaign.id, totalSpend, totalLeads, totalImpressions, totalClicks);
 }
 
 // ============================================
@@ -1720,7 +2073,7 @@ async function exportPDF() {
     const dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
     const pdfEl = document.createElement('div');
-    pdfEl.style.cssText = 'font-family:Inter,sans-serif;color:#111827;padding:40px;max-width:800px;background:white;';
+    pdfEl.style.cssText = 'font-family:Inter,sans-serif;color:#111827;padding:40px;width:800px;background:white;position:absolute;left:-9999px;top:0;';
 
     pdfEl.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #e8eaed">
@@ -1856,7 +2209,7 @@ async function exportPDF() {
       margin: [10, 10, 10, 10],
       filename,
       image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
+      html2canvas: { scale: 2, useCORS: true, logging: false, width: 800, windowWidth: 800 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     }).from(pdfEl).save();
 
@@ -1903,9 +2256,11 @@ async function exportCampaignPDF() {
     const campaignName = prop.name || campaign.campaign_name || '—';
     const dateRange = formatDateRange(campaign.start_date, campaign.end_date);
 
-    // Build creative HTML
     const campCreatives = allCreatives.filter(c => c.campaign_id === currentDetailCampaignId);
-    let creativeHTML = '';
+
+    // Build full PDF element
+    // Build creative ranking HTML for PDF
+    let pdfCreativeHTML = '';
     if (campCreatives.length > 0) {
       const typeMap = {};
       campCreatives.forEach(c => {
@@ -1917,100 +2272,78 @@ async function exportCampaignPDF() {
         typeMap[type].clicks += c.metrics.clicks;
         typeMap[type].count++;
       });
-
-      creativeHTML = `
+      const scored = scoreCreativeTypes(typeMap);
+      const maxScore = Math.max(...scored.map(t => t.score), 1);
+      const pdfCreativeRows = scored.map((t, i) => {
+        const cplStr = t.leads > 0 ? formatEUR(t.cpl) : '—';
+        const pct = maxScore > 0 ? Math.round((t.score / maxScore) * 100) : 0;
+        const hue = Math.round(120 * (pct / 100));
+        const barColor = t.score > 0 ? `hsl(${hue}, 65%, 48%)` : '#e5e7eb';
+        return `
+          <tr>
+            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-weight:800;width:40px">${i+1}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-weight:600">${formatCreativeType(t.type)}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:700">${t.leads}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:right">${cplStr}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:800">${t.score}</td>
+          </tr>
+        `;
+      }).join('');
+      pdfCreativeHTML = `
         <div style="margin-bottom:28px">
-          <div style="font-size:15px;font-weight:700;margin-bottom:12px">Creative Performance</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
-            ${Object.entries(typeMap).map(([type, data]) => {
-              const cpl = data.leads > 0 ? formatEUR(data.spend / data.leads) : '—';
-              const ctr = data.impressions > 0 ? ((data.clicks / data.impressions) * 100).toFixed(2) + '%' : '—';
-              return `
-                <div style="background:#f8f9fb;padding:14px;border-radius:8px;border:1px solid #e8eaed">
-                  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#e7352e;margin-bottom:8px">${formatCreativeType(type)}</div>
-                  <div style="font-size:12px;display:flex;justify-content:space-between;padding:3px 0"><span style="color:#9ca3af">Leads</span><span style="font-weight:700">${data.leads}</span></div>
-                  <div style="font-size:12px;display:flex;justify-content:space-between;padding:3px 0"><span style="color:#9ca3af">Ausgaben</span><span style="font-weight:700">${formatEUR(data.spend)}</span></div>
-                  <div style="font-size:12px;display:flex;justify-content:space-between;padding:3px 0"><span style="color:#9ca3af">CPL</span><span style="font-weight:700">${cpl}</span></div>
-                  <div style="font-size:12px;display:flex;justify-content:space-between;padding:3px 0"><span style="color:#9ca3af">CTR</span><span style="font-weight:700">${ctr}</span></div>
-                </div>
-              `;
-            }).join('')}
-          </div>
+          <div style="font-size:15px;font-weight:700;margin-bottom:12px">🏆 Creative Performance</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="background:#f8f9fb">
+                <th style="text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">#</th>
+                <th style="text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Creative</th>
+                <th style="text-align:right;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Leads</th>
+                <th style="text-align:right;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">CPL</th>
+                <th style="text-align:right;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Score</th>
+              </tr>
+            </thead>
+            <tbody>${pdfCreativeRows}</tbody>
+          </table>
         </div>
       `;
     }
 
-    // Build insights HTML
-    const insights = [];
-    if (campCreatives.length > 0) {
-      const typeMap = {};
-      campCreatives.forEach(c => {
-        const type = c.creative_type || 'sonstige';
-        if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0 };
-        typeMap[type].spend += c.metrics.spend;
-        typeMap[type].leads += c.metrics.leads;
-      });
-      let bestType = null, bestCPL = Infinity;
-      Object.entries(typeMap).forEach(([type, data]) => {
-        if (data.leads > 0) {
-          const cpl = data.spend / data.leads;
-          if (cpl < bestCPL) { bestCPL = cpl; bestType = type; }
-        }
-      });
-      if (bestType) insights.push({ icon: '🏆', text: `Beste Creative-Art: ${formatCreativeType(bestType)} (CPL ${formatEUR(bestCPL)})` });
-    }
-
-    const allCampaignCPLs = campaigns.map(c => c.agg.leads > 0 ? c.agg.spend / c.agg.leads : null).filter(v => v !== null);
-    if (allCampaignCPLs.length > 1 && totalLeads > 0) {
-      const allAvgCPL = allCampaignCPLs.reduce((a, b) => a + b, 0) / allCampaignCPLs.length;
+    // Build benchmark insights HTML for PDF
+    let pdfInsightsHTML = '';
+    if (benchmarkData && totalLeads > 0) {
+      const pdfBenchmarkItems = [];
       const thisCPL = totalSpend / totalLeads;
-      const diff = ((allAvgCPL - thisCPL) / allAvgCPL) * 100;
-      if (Math.abs(diff) > 2) {
-        const better = diff > 0;
-        insights.push({ icon: better ? '📈' : '📉', text: `Performance vs. Durchschnitt: ${Math.abs(diff).toFixed(0)}% ${better ? 'besser' : 'schlechter'}` });
+      if (thisCPL < benchmarkData.avgCPL) {
+        const pctBelow = ((benchmarkData.avgCPL - thisCPL) / benchmarkData.avgCPL * 100).toFixed(0);
+        pdfBenchmarkItems.push(`✨ CPL ${formatEUR(thisCPL)} — ${pctBelow}% unter dem R&G Durchschnitt von ${formatEUR(benchmarkData.avgCPL)}`);
+      }
+      const percentile = getCPLPercentile(thisCPL);
+      if (percentile !== null && percentile >= 75) {
+        pdfBenchmarkItems.push(`🏆 Diese Kampagne gehört zu den Top ${100 - percentile}% aller R&G Kampagnen`);
+      }
+      if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
+        const thisCTR = (totalClicks / totalImpressions) * 100;
+        if (thisCTR > benchmarkData.avgCTR) {
+          const pctAbove = ((thisCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
+          pdfBenchmarkItems.push(`📈 CTR von ${thisCTR.toFixed(2)}% — ${pctAbove}% über dem Durchschnitt`);
+        }
+      }
+      if (pdfBenchmarkItems.length > 0) {
+        pdfInsightsHTML = `
+          <div style="margin-bottom:28px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:12px">📊 Performance Insights</div>
+            ${pdfBenchmarkItems.map(text => `
+              <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:linear-gradient(135deg,rgba(22,163,74,0.04),rgba(22,163,74,0.08));border-left:3px solid #16a34a;border-radius:8px;font-size:13px;line-height:1.5;color:#6b7280;margin-bottom:8px">
+                <span>${text}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
       }
     }
 
-    if (campaignMetrics.length >= 7) {
-      const dayMap = [0,0,0,0,0,0,0];
-      const dayNames = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-      campaignMetrics.forEach(m => { dayMap[new Date(m.date).getDay()] += parseInt(m.leads) || 0; });
-      const totalDayLeads = dayMap.reduce((a, b) => a + b, 0);
-      if (totalDayLeads > 0) {
-        let bestDay = 0;
-        dayMap.forEach((v, i) => { if (v > dayMap[bestDay]) bestDay = i; });
-        insights.push({ icon: '📅', text: `Stärkster Tag: ${dayNames[bestDay]} (${((dayMap[bestDay] / totalDayLeads) * 100).toFixed(0)}% der Leads)` });
-      }
-    }
-
-    if (totalImpressions > 0 && (totalClicks / totalImpressions) * 100 > 2) {
-      insights.push({ icon: '🖱️', text: `Überdurchschnittliche Klickrate: ${((totalClicks / totalImpressions) * 100).toFixed(2)}% CTR` });
-    }
-
-    if (campaign.start_date) {
-      const start = new Date(campaign.start_date);
-      const end = campaign.end_date ? new Date(campaign.end_date) : new Date();
-      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-      insights.push({ icon: '⏱️', text: `Laufzeit: ${days} Tage` });
-    }
-
-    let insightsHTML = '';
-    if (insights.length > 0) {
-      insightsHTML = `
-        <div style="margin-bottom:28px">
-          <div style="font-size:15px;font-weight:700;margin-bottom:12px">Insights</div>
-          ${insights.map(i => `
-            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#f8f9fb;border-radius:8px;font-size:13px;line-height:1.5;color:#6b7280;margin-bottom:8px">
-              <span style="flex-shrink:0">${i.icon}</span><span>${i.text}</span>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    // Build full PDF element
     const pdfEl = document.createElement('div');
-    pdfEl.style.cssText = 'font-family:Inter,sans-serif;color:#111827;padding:40px;max-width:800px;background:white;';
+    pdfEl.style.cssText = 'font-family:Inter,sans-serif;color:#111827;padding:40px;width:800px;background:white;position:absolute;left:-9999px;top:0;';
 
     pdfEl.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #e8eaed">
@@ -2058,8 +2391,8 @@ async function exportCampaignPDF() {
         </div>
       </div>
 
-      ${creativeHTML}
-      ${insightsHTML}
+      ${pdfInsightsHTML}
+      ${pdfCreativeHTML}
 
       <div style="text-align:center;font-size:11px;color:#9ca3af;padding-top:24px;border-top:1px solid #e8eaed;margin-top:32px">
         Erstellt von Run & Gun — ${dateStr}
@@ -2101,7 +2434,7 @@ async function exportCampaignPDF() {
       margin: [10, 10, 10, 10],
       filename,
       image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
+      html2canvas: { scale: 2, useCORS: true, logging: false, width: 800, windowWidth: 800 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     }).from(pdfEl).save();
 
