@@ -4674,22 +4674,25 @@
       max-height: 200px;
     }
 
-    /* Print Stylesheet */
+    /* Print Stylesheet — View-aware (controlled by body.print-editorial / body.print-map) */
     @media print {
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       body { background: #fff !important; }
       .topnav, .sub-nav, .topnav-actions, .app-breadcrumbs,
-      .editorial-sidebar, .editorial-print-hint,
       #mobile-menu, .toast, #comp-ad-detail-modal { display: none !important; }
       .main { padding-top: 0 !important; }
-      .editorial-layout { display: block !important; }
-      .editorial-preview-area {
+
+      /* ── Editorial Planner Print ── */
+      body.print-editorial .editorial-sidebar,
+      body.print-editorial .editorial-print-hint { display: none !important; }
+      body.print-editorial .editorial-layout { display: block !important; }
+      body.print-editorial .editorial-preview-area {
         padding: 0 !important;
         background: #fff !important;
         max-height: none !important;
         overflow: visible !important;
       }
-      .editorial-a4 {
+      body.print-editorial .editorial-a4 {
         width: 100% !important;
         max-width: none !important;
         box-shadow: none !important;
@@ -4697,12 +4700,31 @@
         padding: 15mm 15mm 15mm 15mm !important;
         min-height: auto !important;
       }
-      .view { display: none !important; }
-      #view-editorial-planner { display: block !important; }
-      @page {
-        size: A4 portrait;
-        margin: 0;
+      body.print-editorial .view { display: none !important; }
+      body.print-editorial #view-editorial-planner { display: block !important; }
+      @page { size: A4 portrait; margin: 0; }
+
+      /* ── Map Builder Print ── */
+      body.print-map .view { display: none !important; }
+      body.print-map #view-map-builder { display: block !important; }
+      body.print-map #mb-finder { display: none !important; }
+      body.print-map #mb-editor-wrapper { display: block !important; }
+      body.print-map #mb-editor-topbar { display: none !important; }
+      body.print-map .mb-sidebar { display: none !important; }
+      body.print-map .mb-layout {
+        display: block !important;
       }
+      body.print-map .mb-map-area {
+        width: 100% !important;
+        height: 100vh !important;
+        position: relative !important;
+      }
+      body.print-map #mb-map {
+        width: 100% !important;
+        height: 100% !important;
+      }
+      body.print-map .mb-map-controls { display: none !important; }
+      body.print-map .mb-export-bar { display: none !important; }
     }
 
     /* Responsive editorial */
@@ -16828,6 +16850,48 @@ init();
     }
   };
 
+})();
+
+// ============================================
+// VIEW-AWARE PRINT (beforeprint / afterprint)
+// ============================================
+(function() {
+  function getPrintClass() {
+    // currentView is the global state variable set by showView()
+    if (typeof currentView !== 'undefined') {
+      if (currentView === 'clients') {
+        // Check if editorial planner sub-view is active
+        var epView = document.getElementById('view-editorial-planner');
+        if (epView && (epView.classList.contains('active') || getComputedStyle(epView).display !== 'none')) {
+          return 'print-editorial';
+        }
+      }
+      if (currentView === 'map-builder') {
+        return 'print-map';
+      }
+    }
+    // Fallback: check which view is actually visible
+    var epEl = document.getElementById('view-editorial-planner');
+    if (epEl && epEl.classList.contains('active')) return 'print-editorial';
+    var mapEl = document.getElementById('view-map-builder');
+    if (mapEl && mapEl.classList.contains('active')) return 'print-map';
+    // Default: editorial (preserves legacy behavior)
+    return 'print-editorial';
+  }
+
+  window.addEventListener('beforeprint', function() {
+    var cls = getPrintClass();
+    document.body.classList.add(cls);
+    document.body.dataset.printMode = cls;
+  });
+
+  window.addEventListener('afterprint', function() {
+    var cls = document.body.dataset.printMode;
+    if (cls) {
+      document.body.classList.remove(cls);
+      delete document.body.dataset.printMode;
+    }
+  });
 })();
 </script>
 
