@@ -9,6 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --bg-primary: #ffffff;
@@ -4725,6 +4728,341 @@
       }
     }
 
+    /* ═══════════════════════════════════════════
+       MAP BUILDER VIEW
+       ═══════════════════════════════════════════ */
+    #view-map-builder.view.active {
+      display: block;
+    }
+    #view-map-builder .mb-layout {
+      display: flex;
+      height: calc(100vh - 64px);
+      margin: -32px;
+    }
+    #view-map-builder .mb-sidebar {
+      width: 360px;
+      min-width: 360px;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      background: var(--bg-primary);
+    }
+    #view-map-builder .mb-sidebar-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    #view-map-builder .mb-sidebar-section:last-child { border-bottom: none; }
+    #view-map-builder .mb-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    #view-map-builder .mb-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    #view-map-builder .mb-section-icon { font-size: 15px; }
+    #view-map-builder .mb-input-group { margin-bottom: 10px; }
+    #view-map-builder .mb-input-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    #view-map-builder .mb-input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      transition: border-color var(--transition);
+    }
+    #view-map-builder .mb-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--bg-primary);
+    }
+    #view-map-builder .mb-input::placeholder { color: var(--text-muted); }
+    #view-map-builder .mb-input-row { display: flex; gap: 8px; }
+    #view-map-builder .mb-input-row .mb-input-group { flex: 1; }
+    #view-map-builder select.mb-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238f8f8f' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+    #view-map-builder .mb-verified-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--green-muted);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 500;
+      margin-top: 6px;
+    }
+    #view-map-builder .mb-poi-list { display: flex; flex-direction: column; gap: 8px; }
+    #view-map-builder .mb-poi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      position: relative;
+      transition: all var(--transition);
+    }
+    #view-map-builder .mb-poi-card:hover { border-color: var(--text-muted); }
+    #view-map-builder .mb-poi-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    #view-map-builder .mb-poi-card-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    #view-map-builder .mb-poi-card-category { font-size: 14px; }
+    #view-map-builder .mb-poi-card-address {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #view-map-builder .mb-poi-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #view-map-builder .mb-poi-distance {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cyan);
+    }
+    #view-map-builder .mb-poi-color-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: var(--shadow);
+    }
+    #view-map-builder .mb-poi-actions { display: flex; gap: 2px; }
+    #view-map-builder .mb-add-form {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-top: 8px;
+    }
+    #view-map-builder .mb-add-form .mb-input-group { margin-bottom: 8px; }
+    #view-map-builder .mb-add-form-actions { display: flex; gap: 8px; margin-top: 10px; }
+    #view-map-builder .mb-color-picker-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    #view-map-builder input[type="color"] {
+      -webkit-appearance: none;
+      width: 28px; height: 28px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 0;
+    }
+    #view-map-builder input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+    #view-map-builder input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
+    #view-map-builder .mb-saved-map-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    #view-map-builder .mb-saved-map-item:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+    #view-map-builder .mb-saved-map-name { font-size: 13px; font-weight: 500; }
+    #view-map-builder .mb-saved-map-date { font-size: 11px; color: var(--text-muted); }
+    #view-map-builder .mb-saved-map-address { font-size: 11px; color: var(--text-secondary); }
+    #view-map-builder .mb-map-area {
+      flex: 1;
+      position: relative;
+      background: var(--bg-secondary);
+    }
+    #view-map-builder #mb-map {
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    #view-map-builder .mb-map-label {
+      position: absolute;
+      z-index: 800;
+      pointer-events: none;
+      white-space: nowrap;
+      transition: opacity 0.2s ease;
+    }
+    #view-map-builder .mb-map-label-inner {
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(8px);
+      padding: 6px 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    #view-map-builder .mb-map-label-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+    #view-map-builder .mb-map-label-distance {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--cyan);
+      line-height: 1.3;
+    }
+    #view-map-builder .mb-map-controls {
+      position: absolute;
+      top: 12px; left: 12px;
+      z-index: 1000;
+      display: flex; gap: 6px;
+    }
+    #view-map-builder .mb-map-controls .btn {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow-lg);
+      font-size: 12px;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+    }
+    #view-map-builder .mb-empty-state {
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--text-muted);
+    }
+    #view-map-builder .mb-empty-state-icon { font-size: 32px; margin-bottom: 8px; }
+    #view-map-builder .mb-empty-state-text { font-size: 13px; }
+    #view-map-builder .mb-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    #view-map-builder .mb-btn:hover { background: var(--bg-card); }
+    #view-map-builder .mb-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    #view-map-builder .mb-btn-accent {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    #view-map-builder .mb-btn-accent:hover { background: var(--accent-dark); }
+    #view-map-builder .mb-btn-sm { padding: 5px 10px; font-size: 12px; }
+    #view-map-builder .mb-btn-ghost { border: none; background: transparent; }
+    #view-map-builder .mb-btn-ghost:hover { background: var(--bg-card); }
+    #view-map-builder .mb-btn-icon { padding: 6px; width: 32px; height: 32px; justify-content: center; }
+    #view-map-builder .mb-btn-danger { color: var(--red); }
+    #view-map-builder .mb-btn-danger:hover { background: var(--red-muted); }
+    #view-map-builder .mb-export-overlay {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    #view-map-builder .mb-export-overlay .mb-spinner { width: 32px; height: 32px; border-width: 3px; }
+    #view-map-builder .mb-export-text { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    #view-map-builder .mb-spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    #view-map-builder .mb-toast-container {
+      position: fixed;
+      top: 68px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #view-map-builder .mb-toast {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      box-shadow: var(--shadow-lg);
+      font-size: 13px;
+      max-width: 320px;
+      animation: slideIn 0.2s ease;
+    }
+    #view-map-builder .mb-toast.error { border-color: var(--red); color: var(--red); }
+    #view-map-builder .mb-toast.success { border-color: var(--green); color: var(--green); }
+    @keyframes mb-slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* Leaflet overrides scoped to map builder */
+    #view-map-builder .leaflet-control-attribution { font-size: 9px !important; opacity: 0.6; }
+    #view-map-builder .leaflet-control-zoom { border: 1px solid var(--border) !important; border-radius: var(--radius-sm) !important; overflow: hidden; }
+    #view-map-builder .leaflet-control-zoom a {
+      width: 32px !important; height: 32px !important;
+      line-height: 32px !important;
+      font-size: 16px !important;
+      color: var(--text-primary) !important;
+      background: rgba(255,255,255,0.95) !important;
+      border-color: var(--border) !important;
+    }
+    #view-map-builder .leaflet-control-zoom a:hover { background: var(--bg-card) !important; }
+    #view-map-builder .custom-div-icon { background: none !important; border: none !important; }
+
+    @media (max-width: 900px) {
+      #view-map-builder .mb-sidebar { width: 300px; min-width: 300px; }
+    }
+    @media (max-width: 700px) {
+      #view-map-builder .mb-layout { flex-direction: column; }
+      #view-map-builder .mb-sidebar { width: 100%; min-width: 100%; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
+      #view-map-builder .mb-map-area { min-height: 50vh; }
+    }
+    @media print {
+      #view-map-builder .mb-sidebar, #view-map-builder .mb-map-controls, .mb-toast-container { display: none !important; }
+      #view-map-builder .mb-layout { height: 100vh; }
+      #view-map-builder .mb-map-area { position: absolute; inset: 0; }
+      #view-map-builder #mb-map { width: 100%; height: 100%; }
+    }
+
   </style>
 </head>
 <body>
@@ -4774,6 +5112,7 @@
         <button class="nav-dropdown-item" onclick="showView('clients','ferrari-editorial')">🏎️ Ferrari HH — Editorial Plan</button>
       </div>
     </div>
+    <button class="nav-item" id="nav-map-builder" onclick="showView('map-builder')">🗺️ Map Builder</button>
     <!-- Exposés: disabled, using Google Drive workflow instead -->
     <!-- <button class="nav-item" id="nav-exposes" onclick="showView('exposes')">📝 Exposés</button> -->
   </div>
@@ -4814,6 +5153,10 @@
   <div class="mobile-nav-section">
     <div class="mobile-nav-section-title">👥 Clients</div>
     <button class="mobile-nav-item" onclick="showView('clients','ferrari-editorial');closeMobileMenu();">🏎️ Ferrari HH — Editorial Plan</button>
+  </div>
+  <div class="mobile-nav-section">
+    <div class="mobile-nav-section-title">🗺️ Map Builder</div>
+    <button class="mobile-nav-item" onclick="showView('map-builder');closeMobileMenu();">🗺️ Map Builder</button>
   </div>
   <div class="mobile-nav-section">
     <!-- Exposés: disabled, using Google Drive workflow instead -->
@@ -6477,6 +6820,167 @@
       </div>
     </div>
 
+    <!-- ======== MAP BUILDER VIEW ======== -->
+    <div id="view-map-builder" class="view">
+      <div class="mb-layout">
+        <!-- Map Builder Sidebar -->
+        <div class="mb-sidebar" id="mb-sidebar">
+          <!-- PROPERTY ADDRESS -->
+          <div class="mb-sidebar-section">
+            <div class="mb-section-header">
+              <div class="mb-section-title"><span class="mb-section-icon">🏠</span> Objekt-Adresse</div>
+            </div>
+            <div class="mb-input-group">
+              <input class="mb-input" id="mb-propertyAddress" type="text" placeholder="Adresse eingeben…"
+                     onkeydown="if(event.key==='Enter') mb_geocodeProperty()">
+            </div>
+            <button class="mb-btn mb-btn-sm" onclick="mb_geocodeProperty()" id="mb-btnGeocode" style="width:100%">
+              🔍 Adresse suchen
+            </button>
+            <div id="mb-propertyVerified" style="display:none" class="mb-verified-badge">
+              ✓ <span id="mb-propertyCoords"></span>
+            </div>
+          </div>
+
+          <!-- POI LIST -->
+          <div class="mb-sidebar-section">
+            <div class="mb-section-header">
+              <div class="mb-section-title"><span class="mb-section-icon">📍</span> Umgebung (POIs)</div>
+              <button class="mb-btn mb-btn-sm" onclick="mb_showAddPOIForm()">+ Hinzufügen</button>
+            </div>
+
+            <!-- Add POI Form -->
+            <div class="mb-add-form" id="mb-addPOIForm" style="display:none">
+              <div class="mb-input-group">
+                <label class="mb-input-label">Name</label>
+                <input class="mb-input" id="mb-poiName" placeholder="z.B. Edeka, Grundschule…">
+              </div>
+              <div class="mb-input-group">
+                <label class="mb-input-label">Adresse</label>
+                <input class="mb-input" id="mb-poiAddress" placeholder="Straße, Stadt"
+                       onkeydown="if(event.key==='Enter') mb_addPOI()">
+              </div>
+              <div class="mb-input-row">
+                <div class="mb-input-group">
+                  <label class="mb-input-label">Kategorie</label>
+                  <select class="mb-input" id="mb-poiCategory" onchange="mb_updateCategoryDefaults()">
+                    <option value="supermarket">🛒 Supermarkt</option>
+                    <option value="doctor">🏥 Arzt / Krankenhaus</option>
+                    <option value="school">🏫 Schule / Kita</option>
+                    <option value="pool">🏊 Schwimmbad / Sport</option>
+                    <option value="park">🌳 Park</option>
+                    <option value="transport">🚌 ÖPNV / Haltestelle</option>
+                    <option value="restaurant">🍽️ Restaurant</option>
+                    <option value="other">🏪 Sonstiges</option>
+                  </select>
+                </div>
+                <div class="mb-input-group">
+                  <label class="mb-input-label">Pin-Größe</label>
+                  <select class="mb-input" id="mb-poiSize">
+                    <option value="small">Klein</option>
+                    <option value="medium" selected>Mittel</option>
+                    <option value="large">Groß</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-input-group">
+                <label class="mb-input-label">Pin-Farbe</label>
+                <div class="mb-color-picker-row">
+                  <input type="color" id="mb-poiColor" value="#16a34a">
+                  <span id="mb-poiColorHex" style="font-size:11px;color:var(--text-muted)">#16a34a</span>
+                </div>
+              </div>
+              <div class="mb-add-form-actions">
+                <button class="mb-btn mb-btn-accent mb-btn-sm" onclick="mb_addPOI()" style="flex:1" id="mb-btnAddPOI">Hinzufügen</button>
+                <button class="mb-btn mb-btn-sm" onclick="mb_hideAddPOIForm()">Abbrechen</button>
+              </div>
+            </div>
+
+            <div class="mb-poi-list" id="mb-poiList">
+              <div class="mb-empty-state" id="mb-poiEmpty">
+                <div class="mb-empty-state-icon">📍</div>
+                <div class="mb-empty-state-text">Noch keine POIs hinzugefügt.<br>Klicke „+ Hinzufügen".</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MAP STYLE -->
+          <div class="mb-sidebar-section">
+            <div class="mb-section-header">
+              <div class="mb-section-title"><span class="mb-section-icon">🎨</span> Karten-Stil</div>
+            </div>
+            <div class="mb-input-group">
+              <select class="mb-input" id="mb-mapStyle" onchange="mb_changeMapStyle()">
+                <option value="clean">Sauber (Voyager, ohne Labels)</option>
+                <option value="light">Hell (CartoDB Light)</option>
+                <option value="detailed">Detailliert (Voyager)</option>
+                <option value="grayscale">Graustufen (Stadia Smooth)</option>
+                <option value="satellite">Satellit (Esri)</option>
+                <option value="dark">Dunkel (CartoDB Dark)</option>
+              </select>
+            </div>
+            <div class="mb-input-group">
+              <label class="mb-input-label">Objekt-Pin Farbe</label>
+              <div class="mb-color-picker-row">
+                <input type="color" id="mb-mainPinColor" value="#070F59" onchange="mb_updateMainPin()">
+                <span style="font-size:11px;color:var(--text-muted)" id="mb-mainPinColorHex">#070F59</span>
+              </div>
+            </div>
+            <div class="mb-input-group">
+              <label class="mb-input-label">Objekt-Pin Größe</label>
+              <select class="mb-input" id="mb-mainPinSize" onchange="mb_updateMainPin()">
+                <option value="small">Klein (32px)</option>
+                <option value="medium">Mittel (44px)</option>
+                <option value="large" selected>Groß (56px)</option>
+              </select>
+            </div>
+            <div class="mb-input-group" style="display:flex;align-items:center;gap:8px;margin-top:8px">
+              <input type="checkbox" id="mb-showLabels" checked onchange="mb_updateLabels()">
+              <label for="mb-showLabels" style="font-size:12px;cursor:pointer">Smart Labels anzeigen</label>
+            </div>
+            <div class="mb-input-group" style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="mb-showConnectors" checked onchange="mb_updateLabels()">
+              <label for="mb-showConnectors" style="font-size:12px;cursor:pointer">Verbindungslinien</label>
+            </div>
+          </div>
+
+          <!-- SAVE / LOAD -->
+          <div class="mb-sidebar-section">
+            <div class="mb-section-header">
+              <div class="mb-section-title"><span class="mb-section-icon">💾</span> Speichern & Laden</div>
+            </div>
+            <div class="mb-input-group">
+              <input class="mb-input" id="mb-mapName" placeholder="Kartenname…">
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button class="mb-btn mb-btn-accent mb-btn-sm" onclick="mb_saveMap()" style="flex:1" id="mb-btnSave">💾 Speichern</button>
+              <button class="mb-btn mb-btn-sm" onclick="mb_loadMapList()" style="flex:1">📂 Laden</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button class="mb-btn mb-btn-sm" onclick="mb_printMap()" style="flex:1">🖨️ Drucken</button>
+              <button class="mb-btn mb-btn-accent mb-btn-sm" onclick="mb_exportPNG()" style="flex:1" id="mb-btnExport">📸 PNG Export</button>
+            </div>
+            <div id="mb-savedMapsList"></div>
+          </div>
+        </div>
+
+        <!-- Map Area -->
+        <div class="mb-map-area" id="mb-mapArea">
+          <div id="mb-map"></div>
+          <div class="mb-map-controls">
+            <button class="btn btn-sm" onclick="mb_fitAllPins()" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);box-shadow:var(--shadow-lg);font-size:12px;border:1px solid var(--border);">⛶ Alle Pins zeigen</button>
+            <button class="btn btn-sm" onclick="mb_resetView()" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);box-shadow:var(--shadow-lg);font-size:12px;border:1px solid var(--border);">↺ Reset</button>
+          </div>
+          <!-- Labels rendered as DOM overlays -->
+          <div id="mb-labelLayer" style="position:absolute;inset:0;z-index:800;pointer-events:none;overflow:hidden"></div>
+          <!-- SVG for connector lines -->
+          <svg id="mb-connectorLayer" style="position:absolute;inset:0;z-index:799;pointer-events:none;overflow:hidden"></svg>
+        </div>
+      </div>
+      <!-- Map Builder Toast Container -->
+      <div class="mb-toast-container" id="mb-toastContainer"></div>
+    </div>
+
   </div>
 </div>
 
@@ -6771,6 +7275,10 @@ function showView(sectionOrView, subTab) {
     section = 'exposes';
     viewId = 'view-exposes';
     activeSubTab = null;
+  } else if (sectionOrView === 'map-builder') {
+    section = 'map-builder';
+    viewId = 'view-map-builder';
+    activeSubTab = null;
   } else {
     // Fallback
     section = 'home';
@@ -6816,6 +7324,16 @@ function showView(sectionOrView, subTab) {
   // Editorial planner: remove container padding for full-width layout
   if (section === 'clients') {
     mainEl.style.paddingTop = '64px';
+  }
+
+  // Map Builder: full-width layout, init map on first visit
+  if (section === 'map-builder') {
+    mainEl.style.paddingTop = '64px';
+    if (!window._mbMapInitialized) {
+      setTimeout(() => { mb_initMap(); window._mbMapInitialized = true; }, 100);
+    } else if (window._mbMap) {
+      setTimeout(() => { window._mbMap.invalidateSize(); mb_updateLabels(); }, 100);
+    }
   }
 
   // Scroll to top
@@ -6871,6 +7389,8 @@ function updateNavActiveStates(section) {
   document.getElementById('nav-clients').classList.toggle('active', section === 'clients');
   const navExposes = document.getElementById('nav-exposes');
   if (navExposes) navExposes.classList.toggle('active', section === 'exposes');
+  const navMapBuilder = document.getElementById('nav-map-builder');
+  if (navMapBuilder) navMapBuilder.classList.toggle('active', section === 'map-builder');
 }
 
 function updateBreadcrumbs(section, subTab, viewName) {
@@ -6920,6 +7440,9 @@ function updateBreadcrumbs(section, subTab, viewName) {
   } else if (section === 'exposes') {
     parts.push('<span class="app-bc-sep">→</span>');
     parts.push('<span class="app-bc-current">Exposés</span>');
+  } else if (section === 'map-builder') {
+    parts.push('<span class="app-bc-sep">→</span>');
+    parts.push('<span class="app-bc-current">🗺️ Map Builder</span>');
   }
 
   bc.innerHTML = parts.join(' ');
@@ -14857,6 +15380,837 @@ async function epSaveOutlook() {
 }
 
 init();
+
+// ============================================
+// MAP BUILDER — Integrated from map/index.html
+// All functions prefixed with mb_ to avoid conflicts
+// Uses existing SB_URL and SB_KEY constants
+// ============================================
+(function() {
+  'use strict';
+
+  const MB_CATEGORIES = {
+    supermarket: { emoji: '🛒', label: 'Supermarkt', color: '#16a34a' },
+    doctor:      { emoji: '🏥', label: 'Arzt/Krankenhaus', color: '#dc2626' },
+    school:      { emoji: '🏫', label: 'Schule/Kita', color: '#2563eb' },
+    pool:        { emoji: '🏊', label: 'Schwimmbad/Sport', color: '#0891b2' },
+    park:        { emoji: '🌳', label: 'Park', color: '#16a34a' },
+    transport:   { emoji: '🚌', label: 'ÖPNV/Haltestelle', color: '#ea580c' },
+    restaurant:  { emoji: '🍽️', label: 'Restaurant', color: '#7c3aed' },
+    other:       { emoji: '🏪', label: 'Sonstiges', color: '#737373' }
+  };
+
+  const MB_TILE_URLS = {
+    clean:     'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',
+    light:     'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+    detailed:  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    grayscale: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    dark:      'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png'
+  };
+
+  const MB_PIN_SIZES = { small: 32, medium: 44, large: 56 };
+
+  // State
+  window._mbMap = null;
+  let _mbTileLayer = null;
+  let _mbMainProperty = null;
+  let _mbPois = [];
+  let _mbCurrentMapId = null;
+  let _mbLabelsEnabled = true;
+  let _mbConnectorsEnabled = true;
+
+  // ─── INIT ───
+  window.mb_initMap = function() {
+    if (window._mbMap) return;
+    window._mbMap = L.map('mb-map', {
+      center: [53.5511, 9.9937],
+      zoom: 13,
+      zoomControl: true
+    });
+
+    _mbTileLayer = L.tileLayer(MB_TILE_URLS.clean, {
+      attribution: '© OpenStreetMap © CARTO',
+      maxZoom: 19
+    }).addTo(window._mbMap);
+
+    window._mbMap.on('moveend zoomend', () => requestAnimationFrame(mb_updateLabels));
+    window._mbMap.on('move', () => requestAnimationFrame(mb_updateLabels));
+
+    // Color picker event
+    const poiColorEl = document.getElementById('mb-poiColor');
+    if (poiColorEl) {
+      poiColorEl.addEventListener('input', function() {
+        document.getElementById('mb-poiColorHex').textContent = this.value;
+      });
+    }
+  };
+
+  // ─── GEOCODING ───
+  async function mb_geocodeAddress(address) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=de,at,ch`;
+    const res = await fetch(url, { headers: { 'Accept-Language': 'de' } });
+    const data = await res.json();
+    if (!data || data.length === 0) throw new Error('Adresse nicht gefunden');
+    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), display: data[0].display_name };
+  }
+
+  function mb_haversineDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function mb_formatDistance(meters) {
+    if (meters >= 1000) return (meters / 1000).toFixed(1) + ' km';
+    return Math.round(meters) + ' m';
+  }
+
+  function mb_escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+  }
+
+  function mb_hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    return `${r},${g},${b}`;
+  }
+
+  function mb_toast(msg, type) {
+    type = type || 'info';
+    const container = document.getElementById('mb-toastContainer');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = 'mb-toast ' + type;
+    el.textContent = msg;
+    container.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; }, 2500);
+    setTimeout(() => el.remove(), 2800);
+  }
+
+  function mb_sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  // ─── PROPERTY ADDRESS ───
+  window.mb_geocodeProperty = async function() {
+    const address = document.getElementById('mb-propertyAddress').value.trim();
+    if (!address) return;
+
+    const btn = document.getElementById('mb-btnGeocode');
+    btn.innerHTML = '<span class="mb-spinner"></span> Suche…';
+    btn.disabled = true;
+
+    try {
+      const result = await mb_geocodeAddress(address);
+
+      if (_mbMainProperty && _mbMainProperty.marker) {
+        window._mbMap.removeLayer(_mbMainProperty.marker);
+      }
+
+      _mbMainProperty = { address, lat: result.lat, lng: result.lng, marker: null };
+      _mbMainProperty.marker = mb_createMainMarker(result.lat, result.lng);
+      _mbMainProperty.marker.addTo(window._mbMap);
+
+      window._mbMap.setView([result.lat, result.lng], 15);
+
+      document.getElementById('mb-propertyVerified').style.display = 'flex';
+      document.getElementById('mb-propertyCoords').textContent = `${result.lat.toFixed(5)}, ${result.lng.toFixed(5)}`;
+
+      mb_recalcDistances();
+      mb_updateLabels();
+
+      mb_toast('Adresse gefunden', 'success');
+    } catch (e) {
+      mb_toast('Adresse nicht gefunden: ' + e.message, 'error');
+    } finally {
+      btn.innerHTML = '🔍 Adresse suchen';
+      btn.disabled = false;
+    }
+  };
+
+  // ─── MARKERS ───
+  function mb_getMainPinSize() {
+    return MB_PIN_SIZES[document.getElementById('mb-mainPinSize').value] || 56;
+  }
+
+  function mb_createMainMarker(lat, lng) {
+    const size = mb_getMainPinSize();
+    const color = document.getElementById('mb-mainPinColor').value;
+    const icon = L.divIcon({
+      html: `<div style="
+        width:${size}px;height:${size}px;
+        background:${color};
+        border:3px solid #fff;
+        border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        box-shadow:0 2px 8px rgba(0,0,0,0.25), 0 0 0 4px rgba(${mb_hexToRgb(color)},0.2);
+        font-size:${Math.round(size*0.45)}px;
+      ">🏠</div>`,
+      className: 'custom-div-icon',
+      iconSize: [size, size],
+      iconAnchor: [size/2, size/2]
+    });
+    return L.marker([lat, lng], { icon, zIndexOffset: 10000 });
+  }
+
+  function mb_createPOIMarker(poi) {
+    const sizeVal = MB_PIN_SIZES[poi.pin_size] || 44;
+    const cat = MB_CATEGORIES[poi.category] || MB_CATEGORIES.other;
+    const color = poi.pin_color || cat.color;
+    const icon = L.divIcon({
+      html: `<div style="
+        width:${sizeVal}px;height:${sizeVal}px;
+        background:${color};
+        border:3px solid #fff;
+        border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        box-shadow:0 2px 6px rgba(0,0,0,0.2);
+        font-size:${Math.round(sizeVal*0.4)}px;
+      ">${cat.emoji}</div>`,
+      className: 'custom-div-icon',
+      iconSize: [sizeVal, sizeVal],
+      iconAnchor: [sizeVal/2, sizeVal/2]
+    });
+    return L.marker([poi.lat, poi.lng], { icon });
+  }
+
+  window.mb_updateMainPin = function() {
+    document.getElementById('mb-mainPinColorHex').textContent = document.getElementById('mb-mainPinColor').value;
+    if (_mbMainProperty && _mbMainProperty.marker) {
+      window._mbMap.removeLayer(_mbMainProperty.marker);
+      _mbMainProperty.marker = mb_createMainMarker(_mbMainProperty.lat, _mbMainProperty.lng);
+      _mbMainProperty.marker.addTo(window._mbMap);
+      mb_updateLabels();
+    }
+  };
+
+  // ─── POI MANAGEMENT ───
+  window.mb_showAddPOIForm = function() {
+    document.getElementById('mb-addPOIForm').style.display = 'block';
+    document.getElementById('mb-poiName').focus();
+    mb_updateCategoryDefaults();
+  };
+
+  window.mb_hideAddPOIForm = function() {
+    document.getElementById('mb-addPOIForm').style.display = 'none';
+    document.getElementById('mb-poiName').value = '';
+    document.getElementById('mb-poiAddress').value = '';
+  };
+
+  window.mb_updateCategoryDefaults = function() {
+    const cat = document.getElementById('mb-poiCategory').value;
+    const info = MB_CATEGORIES[cat] || MB_CATEGORIES.other;
+    document.getElementById('mb-poiColor').value = info.color;
+    document.getElementById('mb-poiColorHex').textContent = info.color;
+  };
+
+  window.mb_addPOI = async function() {
+    const name = document.getElementById('mb-poiName').value.trim();
+    const address = document.getElementById('mb-poiAddress').value.trim();
+    const category = document.getElementById('mb-poiCategory').value;
+    const pin_color = document.getElementById('mb-poiColor').value;
+    const pin_size = document.getElementById('mb-poiSize').value;
+
+    if (!name) return mb_toast('Name eingeben', 'error');
+    if (!address) return mb_toast('Adresse eingeben', 'error');
+
+    const btn = document.getElementById('mb-btnAddPOI');
+    btn.innerHTML = '<span class="mb-spinner"></span>';
+    btn.disabled = true;
+
+    try {
+      const result = await mb_geocodeAddress(address);
+
+      let distance_meters = null;
+      if (_mbMainProperty) {
+        distance_meters = Math.round(mb_haversineDistance(_mbMainProperty.lat, _mbMainProperty.lng, result.lat, result.lng));
+      }
+
+      const poi = {
+        id: 'poi-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
+        name, address, category,
+        lat: result.lat, lng: result.lng,
+        pin_color, pin_size,
+        distance_meters,
+        sort_order: _mbPois.length,
+        marker: null
+      };
+
+      poi.marker = mb_createPOIMarker(poi);
+      poi.marker.addTo(window._mbMap);
+
+      _mbPois.push(poi);
+      mb_renderPOIList();
+      mb_updateLabels();
+      mb_hideAddPOIForm();
+
+      mb_toast(`${name} hinzugefügt`, 'success');
+    } catch (e) {
+      mb_toast('Fehler: ' + e.message, 'error');
+    } finally {
+      btn.innerHTML = 'Hinzufügen';
+      btn.disabled = false;
+    }
+  };
+
+  window.mb_removePOI = function(id) {
+    const idx = _mbPois.findIndex(p => p.id === id);
+    if (idx === -1) return;
+    if (_mbPois[idx].marker) window._mbMap.removeLayer(_mbPois[idx].marker);
+    _mbPois.splice(idx, 1);
+    mb_renderPOIList();
+    mb_updateLabels();
+  };
+
+  function mb_recalcDistances() {
+    if (!_mbMainProperty) return;
+    _mbPois.forEach(poi => {
+      poi.distance_meters = Math.round(mb_haversineDistance(_mbMainProperty.lat, _mbMainProperty.lng, poi.lat, poi.lng));
+    });
+    mb_renderPOIList();
+  }
+
+  function mb_renderPOIList() {
+    const container = document.getElementById('mb-poiList');
+    const empty = document.getElementById('mb-poiEmpty');
+
+    if (_mbPois.length === 0) {
+      empty.style.display = 'block';
+      container.querySelectorAll('.mb-poi-card').forEach(el => el.remove());
+      return;
+    }
+
+    empty.style.display = 'none';
+
+    const sorted = [..._mbPois].sort((a, b) => (a.distance_meters || 9999999) - (b.distance_meters || 9999999));
+
+    let html = '';
+    sorted.forEach(poi => {
+      const cat = MB_CATEGORIES[poi.category] || MB_CATEGORIES.other;
+      html += `<div class="mb-poi-card" data-id="${poi.id}">
+        <div class="mb-poi-card-header">
+          <div class="mb-poi-card-title">
+            <span class="mb-poi-card-category">${cat.emoji}</span>
+            ${mb_escapeHtml(poi.name)}
+          </div>
+          <div class="mb-poi-actions">
+            <button class="mb-btn mb-btn-ghost mb-btn-icon mb-btn-sm mb-btn-danger" onclick="mb_removePOI('${poi.id}')" title="Löschen">✕</button>
+          </div>
+        </div>
+        <div class="mb-poi-card-address">${mb_escapeHtml(poi.address)}</div>
+        <div class="mb-poi-card-meta">
+          <div class="mb-poi-distance">${poi.distance_meters ? mb_formatDistance(poi.distance_meters) : '—'}</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="mb-poi-color-dot" style="background:${poi.pin_color}"></div>
+            <span style="font-size:11px;color:var(--text-muted)">${cat.label}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+
+    container.querySelectorAll('.mb-poi-card').forEach(el => el.remove());
+    container.insertAdjacentHTML('beforeend', html);
+  }
+
+  // ─── SMART LABELS ───
+  window.mb_updateLabels = function() {
+    _mbLabelsEnabled = document.getElementById('mb-showLabels').checked;
+    _mbConnectorsEnabled = document.getElementById('mb-showConnectors').checked;
+
+    const labelLayer = document.getElementById('mb-labelLayer');
+    const connectorLayer = document.getElementById('mb-connectorLayer');
+    labelLayer.innerHTML = '';
+    connectorLayer.innerHTML = '';
+
+    if (!_mbLabelsEnabled || !window._mbMap) return;
+
+    const mapContainer = window._mbMap.getContainer();
+    const mapRect = mapContainer.getBoundingClientRect();
+    const mapAreaEl = document.getElementById('mb-mapArea');
+    const areaRect = mapAreaEl.getBoundingClientRect();
+
+    const offsetX = mapRect.left - areaRect.left;
+    const offsetY = mapRect.top - areaRect.top;
+    const mapW = mapRect.width;
+    const mapH = mapRect.height;
+
+    const allPins = [];
+
+    if (_mbMainProperty) {
+      const pt = window._mbMap.latLngToContainerPoint([_mbMainProperty.lat, _mbMainProperty.lng]);
+      allPins.push({ x: pt.x + offsetX, y: pt.y + offsetY, size: mb_getMainPinSize(), isMain: true });
+    }
+
+    const poiLabels = [];
+    _mbPois.forEach(poi => {
+      const pt = window._mbMap.latLngToContainerPoint([poi.lat, poi.lng]);
+      const px = pt.x + offsetX;
+      const py = pt.y + offsetY;
+      const sz = MB_PIN_SIZES[poi.pin_size] || 44;
+
+      if (px < -100 || px > mapW + 100 || py < -100 || py > mapH + 100) return;
+
+      allPins.push({ x: px, y: py, size: sz, isMain: false });
+
+      const cat = MB_CATEGORIES[poi.category] || MB_CATEGORIES.other;
+      const distText = poi.distance_meters ? mb_formatDistance(poi.distance_meters) : '';
+
+      const textLen = poi.name.length;
+      const labelW = Math.max(100, textLen * 7.5 + 24);
+      const labelH = distText ? 38 : 26;
+
+      poiLabels.push({
+        poi, pinX: px, pinY: py, pinSize: sz,
+        labelW, labelH, name: poi.name, distText,
+        color: poi.pin_color || cat.color,
+        labelX: 0, labelY: 0, anchor: 'right'
+      });
+    });
+
+    if (poiLabels.length === 0) return;
+
+    const placed = [];
+    const obstacles = allPins.map(p => ({
+      left: p.x - p.size/2 - 4, top: p.y - p.size/2 - 4,
+      right: p.x + p.size/2 + 4, bottom: p.y + p.size/2 + 4
+    }));
+
+    poiLabels.forEach(label => {
+      const candidates = mb_generateCandidates(label);
+
+      let bestCandidate = candidates[0];
+      let bestScore = Infinity;
+
+      candidates.forEach(c => {
+        let score = 0;
+        const rect = { left: c.x, top: c.y, right: c.x + label.labelW, bottom: c.y + label.labelH };
+
+        placed.forEach(p => {
+          const overlap = mb_rectOverlapArea(rect, p);
+          if (overlap > 0) score += overlap * 10;
+        });
+
+        obstacles.forEach(o => {
+          const overlap = mb_rectOverlapArea(rect, o);
+          if (overlap > 0) score += overlap * 20;
+        });
+
+        score += c.dist * 0.1;
+
+        if (rect.left < 0) score += (-rect.left) * 5;
+        if (rect.top < 0) score += (-rect.top) * 5;
+        if (rect.right > mapW) score += (rect.right - mapW) * 5;
+        if (rect.bottom > mapH) score += (rect.bottom - mapH) * 5;
+
+        if (score < bestScore) { bestScore = score; bestCandidate = c; }
+      });
+
+      label.labelX = bestCandidate.x;
+      label.labelY = bestCandidate.y;
+      label.anchor = bestCandidate.anchor;
+
+      placed.push({
+        left: bestCandidate.x, top: bestCandidate.y,
+        right: bestCandidate.x + label.labelW, bottom: bestCandidate.y + label.labelH
+      });
+    });
+
+    let labelsHtml = '';
+    let svgHtml = '';
+
+    poiLabels.forEach(label => {
+      labelsHtml += `<div class="mb-map-label" style="left:${label.labelX}px;top:${label.labelY}px;">
+        <div class="mb-map-label-inner">
+          <div class="mb-map-label-name">${mb_escapeHtml(label.name)}</div>
+          ${label.distText ? `<div class="mb-map-label-distance">${label.distText}</div>` : ''}
+        </div>
+      </div>`;
+
+      if (_mbConnectorsEnabled) {
+        const connStart = mb_closestPointOnRect(
+          { left: label.labelX, top: label.labelY, right: label.labelX + label.labelW, bottom: label.labelY + label.labelH },
+          label.pinX, label.pinY
+        );
+        svgHtml += `<line x1="${connStart.x}" y1="${connStart.y}" x2="${label.pinX}" y2="${label.pinY}"
+          stroke="${label.color}" stroke-width="1.5" stroke-opacity="0.35" stroke-dasharray="4,3"/>`;
+      }
+    });
+
+    labelLayer.innerHTML = labelsHtml;
+    connectorLayer.innerHTML = svgHtml;
+  };
+
+  function mb_generateCandidates(label) {
+    const { pinX, pinY, pinSize, labelW, labelH } = label;
+    const gap = 8;
+    const r = pinSize / 2 + gap;
+
+    const candidates = [];
+    candidates.push({ x: pinX + r, y: pinY - labelH/2, anchor: 'right', dist: r });
+    candidates.push({ x: pinX - r - labelW, y: pinY - labelH/2, anchor: 'left', dist: r });
+    candidates.push({ x: pinX - labelW/2, y: pinY + r, anchor: 'bottom', dist: r });
+    candidates.push({ x: pinX - labelW/2, y: pinY - r - labelH, anchor: 'top', dist: r });
+    candidates.push({ x: pinX + r * 0.7, y: pinY + r * 0.7, anchor: 'bottom-right', dist: r * 1.2 });
+    candidates.push({ x: pinX - r * 0.7 - labelW, y: pinY + r * 0.7, anchor: 'bottom-left', dist: r * 1.2 });
+    candidates.push({ x: pinX + r * 0.7, y: pinY - r * 0.7 - labelH, anchor: 'top-right', dist: r * 1.2 });
+    candidates.push({ x: pinX - r * 0.7 - labelW, y: pinY - r * 0.7 - labelH, anchor: 'top-left', dist: r * 1.2 });
+
+    const extDist = [r * 2, r * 3, r * 4];
+    extDist.forEach(d => {
+      candidates.push({ x: pinX + d, y: pinY - labelH/2, anchor: 'right', dist: d });
+      candidates.push({ x: pinX - d - labelW, y: pinY - labelH/2, anchor: 'left', dist: d });
+      candidates.push({ x: pinX - labelW/2, y: pinY + d, anchor: 'bottom', dist: d });
+      candidates.push({ x: pinX - labelW/2, y: pinY - d - labelH, anchor: 'top', dist: d });
+    });
+
+    return candidates;
+  }
+
+  function mb_rectOverlapArea(r1, r2) {
+    const xOverlap = Math.max(0, Math.min(r1.right, r2.right) - Math.max(r1.left, r2.left));
+    const yOverlap = Math.max(0, Math.min(r1.bottom, r2.bottom) - Math.max(r1.top, r2.top));
+    return xOverlap * yOverlap;
+  }
+
+  function mb_closestPointOnRect(rect, px, py) {
+    const x = Math.max(rect.left, Math.min(px, rect.right));
+    const y = Math.max(rect.top, Math.min(py, rect.bottom));
+    return { x, y };
+  }
+
+  // ─── MAP STYLE ───
+  window.mb_changeMapStyle = function() {
+    const style = document.getElementById('mb-mapStyle').value;
+    if (_mbTileLayer) window._mbMap.removeLayer(_mbTileLayer);
+    _mbTileLayer = L.tileLayer(MB_TILE_URLS[style] || MB_TILE_URLS.clean, {
+      attribution: '© OpenStreetMap © CARTO',
+      maxZoom: 19
+    }).addTo(window._mbMap);
+  };
+
+  // ─── MAP CONTROLS ───
+  window.mb_fitAllPins = function() {
+    const points = [];
+    if (_mbMainProperty) points.push([_mbMainProperty.lat, _mbMainProperty.lng]);
+    _mbPois.forEach(p => points.push([p.lat, p.lng]));
+    if (points.length === 0) return;
+    if (points.length === 1) {
+      window._mbMap.setView(points[0], 15);
+    } else {
+      window._mbMap.fitBounds(L.latLngBounds(points), { padding: [60, 60] });
+    }
+  };
+
+  window.mb_resetView = function() {
+    if (_mbMainProperty) {
+      window._mbMap.setView([_mbMainProperty.lat, _mbMainProperty.lng], 15);
+    }
+  };
+
+  // ─── EXPORT ───
+  window.mb_exportPNG = async function() {
+    if (!_mbMainProperty && _mbPois.length === 0) {
+      return mb_toast('Keine Daten zum Exportieren', 'error');
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'mb-export-overlay';
+    overlay.innerHTML = '<div class="mb-spinner"></div><div class="mb-export-text">Exportiere Karte…</div>';
+    document.getElementById('view-map-builder').appendChild(overlay);
+
+    try {
+      await mb_waitForTiles();
+      await mb_sleep(300);
+
+      const sidebar = document.getElementById('mb-sidebar');
+      const controls = document.querySelector('#view-map-builder .mb-map-controls');
+      const zoomCtrl = document.querySelector('#view-map-builder .leaflet-control-zoom');
+      const attrCtrl = document.querySelector('#view-map-builder .leaflet-control-attribution');
+
+      sidebar.style.display = 'none';
+      if (controls) controls.style.display = 'none';
+      if (zoomCtrl) zoomCtrl.style.display = 'none';
+      if (attrCtrl) attrCtrl.style.display = 'none';
+
+      const mapArea = document.getElementById('mb-mapArea');
+      const layout = document.querySelector('#view-map-builder .mb-layout');
+      layout.style.height = '100vh';
+      mapArea.style.position = 'fixed';
+      mapArea.style.inset = '0';
+      mapArea.style.zIndex = '5000';
+
+      window._mbMap.invalidateSize();
+      await mb_sleep(400);
+      mb_updateLabels();
+      await mb_sleep(200);
+
+      const canvas = await html2canvas(mapArea, {
+        useCORS: true, allowTaint: true, scale: 2,
+        backgroundColor: '#ffffff', logging: false,
+        imageTimeout: 15000,
+        width: mapArea.offsetWidth, height: mapArea.offsetHeight,
+      });
+
+      sidebar.style.display = '';
+      if (controls) controls.style.display = '';
+      if (zoomCtrl) zoomCtrl.style.display = '';
+      if (attrCtrl) attrCtrl.style.display = '';
+      layout.style.height = '';
+      mapArea.style.position = '';
+      mapArea.style.inset = '';
+      mapArea.style.zIndex = '';
+
+      window._mbMap.invalidateSize();
+      await mb_sleep(100);
+      mb_updateLabels();
+
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `immobilien-karte-${Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        mb_toast('PNG exportiert!', 'success');
+      }, 'image/png', 1.0);
+
+    } catch (e) {
+      console.error('MB Export failed:', e);
+      mb_toast('Export fehlgeschlagen: ' + e.message, 'error');
+
+      document.getElementById('mb-sidebar').style.display = '';
+      const c = document.querySelector('#view-map-builder .mb-map-controls');
+      if (c) c.style.display = '';
+      const l = document.querySelector('#view-map-builder .mb-layout');
+      l.style.height = '';
+      const ma = document.getElementById('mb-mapArea');
+      ma.style.position = ''; ma.style.inset = ''; ma.style.zIndex = '';
+      window._mbMap.invalidateSize();
+      mb_updateLabels();
+    } finally {
+      overlay.remove();
+    }
+  };
+
+  window.mb_printMap = function() { window.print(); };
+
+  function mb_waitForTiles() {
+    return new Promise(resolve => {
+      let checks = 0;
+      const check = () => {
+        const tiles = document.querySelectorAll('#view-map-builder .leaflet-tile');
+        const loading = Array.from(tiles).some(t => !t.complete || t.naturalHeight === 0);
+        if (!loading || checks > 30) resolve();
+        else { checks++; setTimeout(check, 100); }
+      };
+      setTimeout(check, 100);
+    });
+  }
+
+  // ─── SUPABASE PERSISTENCE ───
+  function mb_sbFetch(path, opts) {
+    opts = opts || {};
+    return fetch(`${SB_URL}/rest/v1/${path}`, {
+      ...opts,
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': `Bearer ${SB_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': opts.prefer || 'return=representation',
+        ...opts.headers
+      }
+    });
+  }
+
+  window.mb_saveMap = async function() {
+    const name = document.getElementById('mb-mapName').value.trim();
+    if (!name) return mb_toast('Bitte Kartennamen eingeben', 'error');
+    if (!_mbMainProperty) return mb_toast('Bitte zuerst eine Objekt-Adresse eingeben', 'error');
+
+    const btn = document.getElementById('mb-btnSave');
+    btn.innerHTML = '<span class="mb-spinner"></span>';
+    btn.disabled = true;
+
+    try {
+      const mapData = {
+        name,
+        property_address: _mbMainProperty.address,
+        property_lat: _mbMainProperty.lat,
+        property_lng: _mbMainProperty.lng,
+        zoom_level: window._mbMap.getZoom(),
+        map_style: document.getElementById('mb-mapStyle').value,
+        updated_at: new Date().toISOString()
+      };
+
+      let mapId = _mbCurrentMapId;
+
+      if (_mbCurrentMapId) {
+        await mb_sbFetch(`property_maps?id=eq.${_mbCurrentMapId}`, { method: 'PATCH', body: JSON.stringify(mapData) });
+        await mb_sbFetch(`map_pois?map_id=eq.${_mbCurrentMapId}`, { method: 'DELETE' });
+      } else {
+        const res = await mb_sbFetch('property_maps', { method: 'POST', body: JSON.stringify(mapData) });
+        const data = await res.json();
+        mapId = data[0].id;
+        _mbCurrentMapId = mapId;
+      }
+
+      if (_mbPois.length > 0) {
+        const poiData = _mbPois.map((poi, i) => ({
+          map_id: mapId,
+          name: poi.name, address: poi.address, category: poi.category,
+          lat: poi.lat, lng: poi.lng,
+          pin_color: poi.pin_color, pin_size: poi.pin_size,
+          distance_meters: poi.distance_meters, sort_order: i
+        }));
+        await mb_sbFetch('map_pois', { method: 'POST', body: JSON.stringify(poiData) });
+      }
+
+      mb_toast('Karte gespeichert!', 'success');
+    } catch (e) {
+      console.error('MB Save failed:', e);
+      mb_toast('Speichern fehlgeschlagen: ' + e.message, 'error');
+    } finally {
+      btn.innerHTML = '💾 Speichern';
+      btn.disabled = false;
+    }
+  };
+
+  window.mb_loadMapList = async function() {
+    const container = document.getElementById('mb-savedMapsList');
+    container.innerHTML = '<div style="text-align:center;padding:12px"><span class="mb-spinner"></span></div>';
+
+    try {
+      const res = await mb_sbFetch('property_maps?order=updated_at.desc&limit=20', { method: 'GET' });
+      const maps = await res.json();
+
+      if (!maps || maps.length === 0) {
+        container.innerHTML = '<div class="mb-empty-state"><div class="mb-empty-state-text">Keine gespeicherten Karten</div></div>';
+        return;
+      }
+
+      let html = '';
+      maps.forEach(m => {
+        const date = new Date(m.updated_at || m.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+        html += `<div class="mb-saved-map-item" onclick="mb_loadMap('${m.id}')">
+          <div>
+            <div class="mb-saved-map-name">${mb_escapeHtml(m.name)}</div>
+            <div class="mb-saved-map-address">${mb_escapeHtml(m.property_address)}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="mb-saved-map-date">${date}</span>
+            <button class="mb-btn mb-btn-ghost mb-btn-icon mb-btn-sm mb-btn-danger" onclick="event.stopPropagation();mb_deleteMap('${m.id}')" title="Löschen">✕</button>
+          </div>
+        </div>`;
+      });
+      container.innerHTML = html;
+    } catch (e) {
+      container.innerHTML = '';
+      mb_toast('Laden fehlgeschlagen: ' + e.message, 'error');
+    }
+  };
+
+  window.mb_loadMap = async function(id) {
+    try {
+      const mapRes = await mb_sbFetch(`property_maps?id=eq.${id}`, { method: 'GET' });
+      const maps = await mapRes.json();
+      if (!maps || maps.length === 0) return mb_toast('Karte nicht gefunden', 'error');
+      const mapData = maps[0];
+
+      const poiRes = await mb_sbFetch(`map_pois?map_id=eq.${id}&order=sort_order`, { method: 'GET' });
+      const poiData = await poiRes.json();
+
+      mb_clearAll();
+
+      _mbCurrentMapId = id;
+      document.getElementById('mb-mapName').value = mapData.name;
+      document.getElementById('mb-propertyAddress').value = mapData.property_address;
+      document.getElementById('mb-mapStyle').value = mapData.map_style || 'clean';
+      mb_changeMapStyle();
+
+      if (mapData.property_lat && mapData.property_lng) {
+        _mbMainProperty = {
+          address: mapData.property_address,
+          lat: parseFloat(mapData.property_lat),
+          lng: parseFloat(mapData.property_lng),
+          marker: null
+        };
+        _mbMainProperty.marker = mb_createMainMarker(_mbMainProperty.lat, _mbMainProperty.lng);
+        _mbMainProperty.marker.addTo(window._mbMap);
+
+        document.getElementById('mb-propertyVerified').style.display = 'flex';
+        document.getElementById('mb-propertyCoords').textContent = `${_mbMainProperty.lat.toFixed(5)}, ${_mbMainProperty.lng.toFixed(5)}`;
+      }
+
+      if (poiData && poiData.length > 0) {
+        poiData.forEach(p => {
+          const poi = {
+            id: p.id || ('poi-' + Date.now() + '-' + Math.random().toString(36).slice(2,6)),
+            name: p.name, address: p.address || '', category: p.category || 'other',
+            lat: parseFloat(p.lat), lng: parseFloat(p.lng),
+            pin_color: p.pin_color || '#16a34a', pin_size: p.pin_size || 'medium',
+            distance_meters: p.distance_meters, sort_order: p.sort_order || 0,
+            marker: null
+          };
+          poi.marker = mb_createPOIMarker(poi);
+          poi.marker.addTo(window._mbMap);
+          _mbPois.push(poi);
+        });
+      }
+
+      mb_renderPOIList();
+
+      if (mapData.zoom_level && _mbMainProperty) {
+        window._mbMap.setView([_mbMainProperty.lat, _mbMainProperty.lng], mapData.zoom_level);
+      } else {
+        mb_fitAllPins();
+      }
+
+      setTimeout(mb_updateLabels, 300);
+      mb_toast('Karte geladen!', 'success');
+    } catch (e) {
+      console.error('MB Load failed:', e);
+      mb_toast('Laden fehlgeschlagen: ' + e.message, 'error');
+    }
+  };
+
+  window.mb_deleteMap = async function(id) {
+    if (!confirm('Karte wirklich löschen?')) return;
+    try {
+      await mb_sbFetch(`property_maps?id=eq.${id}`, { method: 'DELETE' });
+      if (_mbCurrentMapId === id) {
+        mb_clearAll();
+        _mbCurrentMapId = null;
+      }
+      mb_loadMapList();
+      mb_toast('Karte gelöscht', 'success');
+    } catch (e) {
+      mb_toast('Löschen fehlgeschlagen', 'error');
+    }
+  };
+
+  function mb_clearAll() {
+    if (_mbMainProperty && _mbMainProperty.marker) window._mbMap.removeLayer(_mbMainProperty.marker);
+    _mbPois.forEach(p => { if (p.marker) window._mbMap.removeLayer(p.marker); });
+
+    _mbMainProperty = null;
+    _mbPois = [];
+    _mbCurrentMapId = null;
+
+    document.getElementById('mb-propertyVerified').style.display = 'none';
+    document.getElementById('mb-propertyAddress').value = '';
+    document.getElementById('mb-mapName').value = '';
+
+    mb_renderPOIList();
+    mb_updateLabels();
+  }
+
+})();
 </script>
 
 <!-- Creative preview modal removed - thumbnails too low-res, click goes to campaign instead -->
