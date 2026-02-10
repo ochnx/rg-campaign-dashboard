@@ -6873,6 +6873,7 @@
                     <option value="restaurant">🍽️ Restaurant</option>
                     <option value="other">🏪 Sonstiges</option>
                   </select>
+                  <input class="mb-input" id="mb-poiCustomCategory" placeholder="Eigene Kategorie (überschreibt Dropdown)" style="margin-top:6px;font-size:12px" oninput="mb_onCustomCategoryInput()">
                 </div>
                 <div class="mb-input-group">
                   <label class="mb-input-label">Pin-Größe</label>
@@ -6886,8 +6887,8 @@
               <div class="mb-input-group">
                 <label class="mb-input-label">Pin-Farbe</label>
                 <div class="mb-color-picker-row">
-                  <input type="color" id="mb-poiColor" value="#16a34a">
-                  <span id="mb-poiColorHex" style="font-size:11px;color:var(--text-muted)">#16a34a</span>
+                  <input type="color" id="mb-poiColor" value="#525252">
+                  <span id="mb-poiColorHex" style="font-size:11px;color:var(--text-muted)">#525252</span>
                 </div>
               </div>
               <div class="mb-add-form-actions">
@@ -15557,9 +15558,16 @@ init();
     return L.marker([lat, lng], { icon, zIndexOffset: 10000 });
   }
 
+  function mb_getCategoryInfo(poi) {
+    if (poi.custom_category_label) {
+      return { emoji: '📍', label: poi.custom_category_label, color: '#525252' };
+    }
+    return MB_CATEGORIES[poi.category] || MB_CATEGORIES.other;
+  }
+
   function mb_createPOIMarker(poi) {
     const sizeVal = MB_PIN_SIZES[poi.pin_size] || 44;
-    const cat = MB_CATEGORIES[poi.category] || MB_CATEGORIES.other;
+    const cat = mb_getCategoryInfo(poi);
     const color = poi.pin_color || cat.color;
     const icon = L.divIcon({
       html: `<div style="
@@ -15599,19 +15607,33 @@ init();
     document.getElementById('mb-addPOIForm').style.display = 'none';
     document.getElementById('mb-poiName').value = '';
     document.getElementById('mb-poiAddress').value = '';
+    document.getElementById('mb-poiCustomCategory').value = '';
   };
 
   window.mb_updateCategoryDefaults = function() {
-    const cat = document.getElementById('mb-poiCategory').value;
-    const info = MB_CATEGORIES[cat] || MB_CATEGORIES.other;
-    document.getElementById('mb-poiColor').value = info.color;
-    document.getElementById('mb-poiColorHex').textContent = info.color;
+    const customCat = document.getElementById('mb-poiCustomCategory').value.trim();
+    if (customCat) {
+      // Custom category: use default gray
+      document.getElementById('mb-poiColor').value = '#525252';
+      document.getElementById('mb-poiColorHex').textContent = '#525252';
+    } else {
+      const cat = document.getElementById('mb-poiCategory').value;
+      const info = MB_CATEGORIES[cat] || MB_CATEGORIES.other;
+      document.getElementById('mb-poiColor').value = info.color;
+      document.getElementById('mb-poiColorHex').textContent = info.color;
+    }
+  };
+
+  window.mb_onCustomCategoryInput = function() {
+    mb_updateCategoryDefaults();
   };
 
   window.mb_addPOI = async function() {
     const name = document.getElementById('mb-poiName').value.trim();
     const address = document.getElementById('mb-poiAddress').value.trim();
-    const category = document.getElementById('mb-poiCategory').value;
+    const customCategoryName = document.getElementById('mb-poiCustomCategory').value.trim();
+    const category = customCategoryName ? '_custom' : document.getElementById('mb-poiCategory').value;
+    const custom_category_label = customCategoryName || null;
     const pin_color = document.getElementById('mb-poiColor').value;
     const pin_size = document.getElementById('mb-poiSize').value;
 
@@ -15633,6 +15655,7 @@ init();
       const poi = {
         id: 'poi-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
         name, address, category,
+        custom_category_label,
         lat: result.lat, lng: result.lng,
         pin_color, pin_size,
         distance_meters,
@@ -15690,7 +15713,7 @@ init();
 
     let html = '';
     sorted.forEach(poi => {
-      const cat = MB_CATEGORIES[poi.category] || MB_CATEGORIES.other;
+      const cat = mb_getCategoryInfo(poi);
       html += `<div class="mb-poi-card" data-id="${poi.id}">
         <div class="mb-poi-card-header">
           <div class="mb-poi-card-title">
@@ -15756,7 +15779,7 @@ init();
 
       allPins.push({ x: px, y: py, size: sz, isMain: false });
 
-      const cat = MB_CATEGORIES[poi.category] || MB_CATEGORIES.other;
+      const cat = mb_getCategoryInfo(poi);
       const distText = poi.distance_meters ? mb_formatDistance(poi.distance_meters) : '';
 
       const textLen = poi.name.length;
@@ -16064,6 +16087,7 @@ init();
         const poiData = _mbPois.map((poi, i) => ({
           map_id: mapId,
           name: poi.name, address: poi.address, category: poi.category,
+          custom_category_label: poi.custom_category_label || null,
           lat: poi.lat, lng: poi.lng,
           pin_color: poi.pin_color, pin_size: poi.pin_size,
           distance_meters: poi.distance_meters, sort_order: i
@@ -16152,8 +16176,9 @@ init();
           const poi = {
             id: p.id || ('poi-' + Date.now() + '-' + Math.random().toString(36).slice(2,6)),
             name: p.name, address: p.address || '', category: p.category || 'other',
+            custom_category_label: p.custom_category_label || null,
             lat: parseFloat(p.lat), lng: parseFloat(p.lng),
-            pin_color: p.pin_color || '#16a34a', pin_size: p.pin_size || 'medium',
+            pin_color: p.pin_color || '#525252', pin_size: p.pin_size || 'medium',
             distance_meters: p.distance_meters, sort_order: p.sort_order || 0,
             marker: null
           };
