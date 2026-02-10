@@ -4719,6 +4719,12 @@
         height: 100vh !important;
         position: relative !important;
       }
+      body.print-map .mb-map-inner {
+        width: 100% !important;
+        height: 100% !important;
+        max-height: none !important;
+        aspect-ratio: auto !important;
+      }
       body.print-map #mb-map {
         width: 100% !important;
         height: 100% !important;
@@ -5053,6 +5059,16 @@
       flex: 1;
       position: relative;
       background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #view-map-builder .mb-map-inner {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      max-height: 100%;
     }
     #view-map-builder #mb-map {
       width: 100%;
@@ -5201,11 +5217,13 @@
       #view-map-builder .mb-layout { flex-direction: column; }
       #view-map-builder .mb-sidebar { width: 100%; min-width: 100%; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
       #view-map-builder .mb-map-area { min-height: 50vh; }
+      #view-map-builder .mb-map-inner { max-height: none; }
     }
     @media print {
       #view-map-builder .mb-sidebar, #view-map-builder .mb-map-controls, .mb-toast-container { display: none !important; }
       #view-map-builder .mb-layout { height: 100vh; }
       #view-map-builder .mb-map-area { position: absolute; inset: 0; }
+      #view-map-builder .mb-map-inner { width: 100%; max-height: none; aspect-ratio: auto; }
       #view-map-builder #mb-map { width: 100%; height: 100%; }
     }
 
@@ -7141,15 +7159,17 @@
 
         <!-- Map Area -->
         <div class="mb-map-area" id="mb-mapArea">
-          <div id="mb-map"></div>
-          <div class="mb-map-controls">
-            <button class="btn btn-sm" onclick="mb_fitAllPins()" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);box-shadow:var(--shadow-lg);font-size:12px;border:1px solid var(--border);">⛶ Alle Pins zeigen</button>
-            <button class="btn btn-sm" onclick="mb_resetView()" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);box-shadow:var(--shadow-lg);font-size:12px;border:1px solid var(--border);">↺ Reset</button>
+          <div class="mb-map-inner" id="mb-mapInner">
+            <div id="mb-map"></div>
+            <div class="mb-map-controls">
+              <button class="btn btn-sm" onclick="mb_fitAllPins()" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);box-shadow:var(--shadow-lg);font-size:12px;border:1px solid var(--border);">⛶ Alle Pins zeigen</button>
+              <button class="btn btn-sm" onclick="mb_resetView()" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);box-shadow:var(--shadow-lg);font-size:12px;border:1px solid var(--border);">↺ Reset</button>
+            </div>
+            <!-- Labels rendered as DOM overlays -->
+            <div id="mb-labelLayer" style="position:absolute;inset:0;z-index:800;pointer-events:none;overflow:hidden"></div>
+            <!-- SVG for connector lines -->
+            <svg id="mb-connectorLayer" style="position:absolute;inset:0;z-index:799;pointer-events:none;overflow:hidden"></svg>
           </div>
-          <!-- Labels rendered as DOM overlays -->
-          <div id="mb-labelLayer" style="position:absolute;inset:0;z-index:800;pointer-events:none;overflow:hidden"></div>
-          <!-- SVG for connector lines -->
-          <svg id="mb-connectorLayer" style="position:absolute;inset:0;z-index:799;pointer-events:none;overflow:hidden"></svg>
         </div>
       </div>
       <!-- Map Builder Toast Container -->
@@ -15614,6 +15634,17 @@ init();
     window._mbMap.on('moveend zoomend', () => requestAnimationFrame(mb_updateLabels));
     window._mbMap.on('move', () => requestAnimationFrame(mb_updateLabels));
 
+    // Resize observer for 4:3 container — invalidate map when it resizes
+    const mapInner = document.getElementById('mb-mapInner');
+    if (mapInner && typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(() => {
+        if (window._mbMap) {
+          window._mbMap.invalidateSize();
+          requestAnimationFrame(mb_updateLabels);
+        }
+      }).observe(mapInner);
+    }
+
     // Color picker event
     const poiColorEl = document.getElementById('mb-poiColor');
     if (poiColorEl) {
@@ -15932,7 +15963,7 @@ init();
 
     const mapContainer = window._mbMap.getContainer();
     const mapRect = mapContainer.getBoundingClientRect();
-    const mapAreaEl = document.getElementById('mb-mapArea');
+    const mapAreaEl = document.getElementById('mb-mapInner') || document.getElementById('mb-mapArea');
     const areaRect = mapAreaEl.getBoundingClientRect();
 
     const offsetX = mapRect.left - areaRect.left;
@@ -16139,11 +16170,13 @@ init();
       if (attrCtrl) attrCtrl.style.display = 'none';
 
       const mapArea = document.getElementById('mb-mapArea');
+      const mapInner = document.getElementById('mb-mapInner');
       const layout = document.querySelector('#view-map-builder .mb-layout');
       layout.style.height = '100vh';
       mapArea.style.position = 'fixed';
       mapArea.style.inset = '0';
       mapArea.style.zIndex = '5000';
+      if (mapInner) { mapInner.style.width = '100%'; mapInner.style.height = '100%'; mapInner.style.maxHeight = 'none'; mapInner.style.aspectRatio = 'auto'; }
 
       window._mbMap.invalidateSize();
       await mb_sleep(400);
@@ -16165,6 +16198,7 @@ init();
       mapArea.style.position = '';
       mapArea.style.inset = '';
       mapArea.style.zIndex = '';
+      if (mapInner) { mapInner.style.width = ''; mapInner.style.height = ''; mapInner.style.maxHeight = ''; mapInner.style.aspectRatio = ''; }
 
       window._mbMap.invalidateSize();
       await mb_sleep(100);
@@ -16193,6 +16227,8 @@ init();
       l.style.height = '';
       const ma = document.getElementById('mb-mapArea');
       ma.style.position = ''; ma.style.inset = ''; ma.style.zIndex = '';
+      const mi = document.getElementById('mb-mapInner');
+      if (mi) { mi.style.width = ''; mi.style.height = ''; mi.style.maxHeight = ''; mi.style.aspectRatio = ''; }
       window._mbMap.invalidateSize();
       mb_updateLabels();
     } finally {
@@ -16364,18 +16400,26 @@ init();
 
       if (_mbCurrentMapId) {
         // Update existing map
+        console.log('MB SAVE: Updating existing map', _mbCurrentMapId, mapData);
         await mb_sbFetch(`property_maps?id=eq.${_mbCurrentMapId}`, { method: 'PATCH', body: JSON.stringify(mapData) });
         // Delete old POIs, re-insert all
         await mb_sbFetch(`map_pois?map_id=eq.${_mbCurrentMapId}`, { method: 'DELETE' });
       } else {
         // Create new map
+        console.log('MB SAVE: Creating new map', mapData);
         const res = await mb_sbFetch('property_maps', { method: 'POST', body: JSON.stringify(mapData) });
         const data = await res.json();
+        console.log('MB SAVE: Create response:', data);
+        if (!data || !Array.isArray(data) || data.length === 0 || !data[0].id) {
+          throw new Error('Karte erstellt, aber keine ID zurückerhalten. Response: ' + JSON.stringify(data));
+        }
         mapId = data[0].id;
         _mbCurrentMapId = mapId;
+        console.log('MB SAVE: New map ID:', mapId);
       }
 
       // Save ALL POIs (including auto-discovered ones)
+      console.log(`MB SAVE: Saving ${_mbPois.length} POIs for map ${mapId}`);
       if (_mbPois.length > 0) {
         const poiData = _mbPois.map((poi, i) => ({
           map_id: mapId,
@@ -16391,18 +16435,32 @@ init();
           sort_order: i,
           is_auto_discovered: poi._autoDiscovered ? true : false
         }));
+        console.log('MB SAVE: POI data to save:', JSON.stringify(poiData, null, 2));
         try {
-          await mb_sbFetch('map_pois', { method: 'POST', body: JSON.stringify(poiData) });
+          const poiRes = await mb_sbFetch('map_pois', { method: 'POST', body: JSON.stringify(poiData) });
+          const savedPois = await poiRes.json();
+          console.log(`MB SAVE: Successfully saved ${Array.isArray(savedPois) ? savedPois.length : '?'} POIs`, savedPois);
         } catch (poiErr) {
-          // If is_auto_discovered column doesn't exist, retry without it
-          if (poiErr.message && poiErr.message.includes('is_auto_discovered')) {
-            console.warn('MB: is_auto_discovered column not found, saving without it');
-            const fallbackData = poiData.map(p => { const { is_auto_discovered, ...rest } = p; return rest; });
-            await mb_sbFetch('map_pois', { method: 'POST', body: JSON.stringify(fallbackData) });
+          console.error('MB SAVE: POI save failed:', poiErr);
+          // If is_auto_discovered or custom_category_label column doesn't exist, retry without them
+          if (poiErr.message && (poiErr.message.includes('is_auto_discovered') || poiErr.message.includes('custom_category_label'))) {
+            console.warn('MB SAVE: Retrying without is_auto_discovered/custom_category_label columns');
+            const fallbackData = poiData.map(p => { const { is_auto_discovered, custom_category_label, ...rest } = p; return rest; });
+            try {
+              await mb_sbFetch('map_pois', { method: 'POST', body: JSON.stringify(fallbackData) });
+              console.log('MB SAVE: Fallback POI save succeeded');
+            } catch (fallbackErr) {
+              console.error('MB SAVE: Fallback POI save also failed:', fallbackErr);
+              mb_toast('POIs konnten nicht gespeichert werden: ' + fallbackErr.message, 'error');
+              throw fallbackErr;
+            }
           } else {
+            mb_toast('POIs konnten nicht gespeichert werden: ' + poiErr.message, 'error');
             throw poiErr;
           }
         }
+      } else {
+        console.log('MB SAVE: No POIs to save');
       }
 
       mb_updateEditorTitle();
@@ -16435,13 +16493,16 @@ init();
   // ─── LOAD MAP ───
   window.mb_loadMap = async function(id) {
     try {
+      console.log(`MB LOAD: Loading map ${id}`);
       const mapRes = await mb_sbFetch(`property_maps?id=eq.${id}`, { method: 'GET' });
       const maps = await mapRes.json();
+      console.log('MB LOAD: Map data:', maps);
       if (!maps || !Array.isArray(maps) || maps.length === 0) return mb_toast('Karte nicht gefunden', 'error');
       const mapData = maps[0];
 
       const poiRes = await mb_sbFetch(`map_pois?map_id=eq.${id}&order=sort_order`, { method: 'GET' });
       const poiData = await poiRes.json();
+      console.log(`MB LOAD: Loaded ${Array.isArray(poiData) ? poiData.length : 0} POIs from DB`, poiData);
 
       mb_clearAll();
 
