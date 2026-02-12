@@ -2127,184 +2127,345 @@ function renderInsights(campaign, totalSpend, totalLeads, totalImpressions, tota
 }
 
 // ============================================
-// PDF EXPORT
+// PDF HELPERS
+// ============================================
+
+// Render a Chart.js chart to a data URL image (renders on a visible offscreen canvas)
+function renderChartToImage(chartConfig, width, height) {
+  return new Promise((resolve) => {
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `position:fixed;top:0;left:0;width:${width}px;height:${height}px;z-index:-1;opacity:0;pointer-events:none;`;
+    const canvas = document.createElement('canvas');
+    canvas.width = width * 2;
+    canvas.height = height * 2;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    wrapper.appendChild(canvas);
+    document.body.appendChild(wrapper);
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+    const cfg = JSON.parse(JSON.stringify(chartConfig));
+    cfg.options = cfg.options || {};
+    cfg.options.responsive = false;
+    cfg.options.animation = false;
+    cfg.options.devicePixelRatio = 2;
+    const chart = new Chart(ctx, cfg);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const dataUrl = canvas.toDataURL('image/png');
+        chart.destroy();
+        document.body.removeChild(wrapper);
+        resolve(dataUrl);
+      });
+    });
+  });
+}
+
+// Load an image as base64 data URL (avoids CORS issues with html2canvas)
+async function loadLogoBase64() {
+  try {
+    const resp = await fetch('../assets/rg-logo.png');
+    const blob = await resp.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    console.warn('Could not load logo as base64:', e);
+    return '';
+  }
+}
+
+// Build a standard PDF filename
+function buildPdfFilename(type, campaignName) {
+  const now = new Date();
+  const datePrefix = now.toISOString().slice(0, 10);
+  const client = (clientData.name || 'Report').replace(/\s+/g, '_');
+  const periodLabel = currentFilter === 'all'
+    ? 'Gesamt'
+    : document.getElementById('periodFilter').selectedOptions[0].text.replace(/\s+/g, '');
+
+  if (type === 'overview') {
+    return `${datePrefix}_R&G_Report_${client}_${periodLabel}.pdf`;
+  } else {
+    const campSafe = (campaignName || 'Kampagne').replace(/\s+/g, '_');
+    return `${datePrefix}_R&G_Report_${client}_${campSafe}_${periodLabel}.pdf`;
+  }
+}
+
+// Shared KPI card HTML builder for PDF
+function pdfKpiCard(label, value) {
+  return '<div style="background:#f8f9fb;padding:18px;border-radius:10px;border:1px solid #eef0f3">'
+    + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:8px">' + label + '</div>'
+    + '<div style="font-size:24px;font-weight:800;letter-spacing:-0.03em;color:#111827">' + value + '</div>'
+    + '</div>';
+}
+
+// Shared chart config for PDF
+function pdfChartConfig(labels, leadsData, spendData) {
+  return {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Leads', data: leadsData, backgroundColor: 'rgba(231,53,46,0.15)', borderColor: '#e7352e', borderWidth: 1.5, borderRadius: 5, borderSkipped: false, yAxisID: 'y', order: 2 },
+        { label: 'Ausgaben (€)', data: spendData, type: 'line', borderColor: '#9ca3af', backgroundColor: 'rgba(156,163,175,0.06)', borderWidth: 2, pointRadius: 2, pointBackgroundColor: '#6b7280', fill: true, tension: 0.4, yAxisID: 'y1', order: 1 }
+      ]
+    },
+    options: {
+      responsive: false,
+      animation: false,
+      plugins: {
+        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 20, font: { family: 'Inter', size: 11, weight: '500' }, color: '#6b7280' } },
+        tooltip: { enabled: false }
+      },
+      scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', padding: 6, maxRotation: 45 } },
+        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
+        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', padding: 6, callback: function(v) { return '\u20AC' + Math.round(v); } }, beginAtZero: true }
+      }
+    }
+  };
+}
+
+// Build benchmark insights HTML for PDF
+function pdfBenchmarkInsightsHTML(totalSpend, totalLeads, totalImpressions, totalClicks) {
+  if (!benchmarkData || totalLeads === 0) return '';
+  var items = [];
+  var thisCPL = totalSpend / totalLeads;
+  if (thisCPL < benchmarkData.avgCPL) {
+    var pct = ((benchmarkData.avgCPL - thisCPL) / benchmarkData.avgCPL * 100).toFixed(0);
+    items.push('\u2728 CPL ' + formatEUR(thisCPL) + ' \u2014 ' + pct + '% unter dem R&G Durchschnitt von ' + formatEUR(benchmarkData.avgCPL));
+  }
+  var percentile = getCPLPercentile(thisCPL);
+  if (percentile !== null && percentile >= 75) {
+    items.push('\uD83C\uDFC6 Diese Kampagne geh\u00f6rt zu den Top ' + (100 - percentile) + '% aller R&G Kampagnen');
+  }
+  if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
+    var thisCTR = (totalClicks / totalImpressions) * 100;
+    if (thisCTR > benchmarkData.avgCTR) {
+      var pctA = ((thisCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
+      items.push('\uD83D\uDCC8 CTR von ' + thisCTR.toFixed(2) + '% \u2014 ' + pctA + '% \u00fcber dem Durchschnitt');
+    }
+  }
+  if (items.length === 0) return '';
+  var html = '<div style="margin-bottom:28px">';
+  html += '<div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#111827">\uD83D\uDCCA Performance Insights</div>';
+  items.forEach(function(text) {
+    html += '<div style="padding:12px 16px;background:linear-gradient(135deg,rgba(22,163,74,0.03),rgba(22,163,74,0.07));border-left:3px solid #16a34a;border-radius:8px;font-size:12px;line-height:1.6;color:#4b5563;margin-bottom:8px">' + text + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+// Build creative ranking HTML for PDF
+function pdfCreativeRankingHTML(creativesArr) {
+  if (creativesArr.length === 0) return '';
+  var typeMap = {};
+  creativesArr.forEach(function(c) {
+    var type = c.creative_type || 'sonstige';
+    if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0, impressions: 0, clicks: 0, count: 0 };
+    typeMap[type].spend += c.metrics.spend;
+    typeMap[type].leads += c.metrics.leads;
+    typeMap[type].impressions += c.metrics.impressions;
+    typeMap[type].clicks += c.metrics.clicks;
+    typeMap[type].count++;
+  });
+  var scored = scoreCreativeTypes(typeMap);
+  if (scored.length === 0 || scored.every(function(s) { return s.leads === 0; })) return '';
+  var maxScore = Math.max.apply(null, scored.map(function(t) { return t.score; }).concat([1]));
+
+  var rows = '';
+  scored.forEach(function(t, i) {
+    var cplStr = t.leads > 0 ? formatEUR(t.cpl) : '\u2014';
+    var pct = maxScore > 0 ? Math.round((t.score / maxScore) * 100) : 0;
+    var hue = Math.round(120 * (pct / 100));
+    var barColor = t.score > 0 ? 'hsl(' + hue + ', 65%, 48%)' : '#e5e7eb';
+    rows += '<tr>'
+      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;font-weight:800;width:36px;color:#6b7280">' + (i + 1) + '</td>'
+      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;font-weight:600">' + formatCreativeType(t.type) + '</td>'
+      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:700">' + t.leads + '</td>'
+      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;text-align:right">' + cplStr + '</td>'
+      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:800">' + t.score + '</td>'
+      + '</tr>';
+  });
+
+  var thStyle = 'text-align:left;padding:10px 14px;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;border-bottom:2px solid #e8eaed';
+  return '<div style="margin-bottom:28px">'
+    + '<div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#111827">\uD83C\uDFC6 Creative Performance</div>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:12px">'
+    + '<thead><tr style="background:#f8f9fb">'
+    + '<th style="' + thStyle + '">#</th>'
+    + '<th style="' + thStyle + '">Creative</th>'
+    + '<th style="' + thStyle + ';text-align:right">Leads</th>'
+    + '<th style="' + thStyle + ';text-align:right">CPL</th>'
+    + '<th style="' + thStyle + ';text-align:right">Score</th>'
+    + '</tr></thead>'
+    + '<tbody>' + rows + '</tbody>'
+    + '</table></div>';
+}
+
+// ============================================
+// PDF EXPORT — OVERVIEW (Gesamt-Report)
 // ============================================
 async function exportPDF() {
-  const btn = document.querySelector('.btn-secondary');
+  var btn = document.querySelector('.topnav-right .btn-secondary');
   btn.disabled = true;
-  btn.innerHTML = '⏳ <span class="btn-label">Wird erstellt…</span>';
+  btn.innerHTML = '\u23F3 <span class="btn-label">Wird erstellt\u2026</span>';
 
   try {
-    // Build a clean PDF-optimized element
-    const metrics = getFilteredMetrics();
-    let totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
-    metrics.forEach(m => {
+    var metrics = getFilteredMetrics();
+    var totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
+    metrics.forEach(function(m) {
       totalSpend += parseFloat(m.spend) || 0;
       totalLeads += parseInt(m.leads) || 0;
       totalImpressions += parseInt(m.impressions) || 0;
       totalClicks += parseInt(m.clicks) || 0;
     });
-    const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
-    const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
+    var avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+    var avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
 
-    const periodLabel = currentFilter === 'all' ? 'Gesamt' : document.getElementById('periodFilter').selectedOptions[0].text;
-    const dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    var periodLabel = currentFilter === 'all' ? 'Gesamt' : document.getElementById('periodFilter').selectedOptions[0].text;
+    var dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
 
-    const pdfEl = document.createElement('div');
-    pdfEl.style.cssText = 'font-family:Inter,sans-serif;color:#111827;padding:40px;width:800px;background:white;position:absolute;left:-9999px;top:0;';
-
-    pdfEl.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #e8eaed">
-        <div style="display:flex;align-items:center;gap:12px">
-          <img src="../assets/rg-logo.png" style="width:40px;height:40px;border-radius:8px" crossorigin>
-          <div>
-            <div style="font-size:18px;font-weight:800">Kampagnen-Report</div>
-            <div style="font-size:13px;color:#6b7280">${escHtml(clientData.name || '')} — ${periodLabel}</div>
-          </div>
-        </div>
-        <div style="font-size:12px;color:#9ca3af">Erstellt am ${dateStr}</div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px">
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Gesamtausgaben</div>
-          <div style="font-size:22px;font-weight:800">${formatEUR(totalSpend)}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Leads</div>
-          <div style="font-size:22px;font-weight:800">${totalLeads}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Ø CPL</div>
-          <div style="font-size:22px;font-weight:800">${formatEUR(avgCPL)}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Impressions</div>
-          <div style="font-size:22px;font-weight:800">${formatNum(totalImpressions)}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Klicks</div>
-          <div style="font-size:22px;font-weight:800">${formatNum(totalClicks)}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Ø CTR</div>
-          <div style="font-size:22px;font-weight:800">${avgCTR.toFixed(2)}%</div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:32px">
-        <div style="font-size:15px;font-weight:700;margin-bottom:12px">Wöchentlicher Verlauf</div>
-        <div style="border:1px solid #e8eaed;border-radius:10px;overflow:hidden;padding:16px;background:white">
-          <canvas id="pdfTrendChart" width="700" height="280"></canvas>
-        </div>
-      </div>
-
-      <div style="margin-bottom:32px">
-        <div style="font-size:15px;font-weight:700;margin-bottom:12px">Kampagnen-Übersicht</div>
-        <table style="width:100%;border-collapse:collapse;font-size:12px">
-          <thead>
-            <tr style="background:#f8f9fb">
-              <th style="text-align:left;padding:10px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Objekt</th>
-              <th style="text-align:left;padding:10px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Status</th>
-              <th style="text-align:right;padding:10px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Ausgaben</th>
-              <th style="text-align:right;padding:10px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Leads</th>
-              <th style="text-align:right;padding:10px 12px;font-weight:700;border-bottom:2px solid #e8eaed">CPL</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${campaigns.map(c => {
-              const fm = {};
-              metrics.filter(m => m.campaign_id === c.id).forEach(m => {
-                fm.spend = (fm.spend || 0) + (parseFloat(m.spend) || 0);
-                fm.leads = (fm.leads || 0) + (parseInt(m.leads) || 0);
-              });
-              const spend = fm.spend || 0;
-              const leads = fm.leads || 0;
-              const cpl = leads > 0 ? formatEUR(spend / leads) : '—';
-              const statusLabel = c.status === 'active' ? '🟢 Aktiv' : c.status === 'paused' ? '🟡 Pausiert' : '🔵 Abgeschlossen';
-              return `
-                <tr>
-                  <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;font-weight:600">${escHtml(c.property?.name || c.campaign_name || '—')}</td>
-                  <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6">${statusLabel}</td>
-                  <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;text-align:right">${formatEUR(spend)}</td>
-                  <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:700">${leads}</td>
-                  <td style="padding:10px 12px;border-bottom:1px solid #f3f4f6;text-align:right">${cpl}</td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-
-      <div style="text-align:center;font-size:11px;color:#9ca3af;padding-top:24px;border-top:1px solid #e8eaed;margin-top:32px">
-        Erstellt von Run & Gun — ${dateStr}
-      </div>
-    `;
-
-    document.body.appendChild(pdfEl);
-
-    // Render PDF chart
-    const pdfCtx = document.getElementById('pdfTrendChart').getContext('2d');
-    const weekMap = {};
-    metrics.forEach(m => {
-      const d = new Date(m.date);
-      const week = getISOWeek(d);
-      const year = d.getFullYear();
-      const key = `${year}-W${String(week).padStart(2, '0')}`;
+    // Pre-render chart as image
+    var weekMap = {};
+    metrics.forEach(function(m) {
+      var d = new Date(m.date);
+      var week = getISOWeek(d);
+      var year = d.getFullYear();
+      var key = year + '-W' + String(week).padStart(2, '0');
       if (!weekMap[key]) weekMap[key] = { spend: 0, leads: 0, label: key };
       weekMap[key].spend += parseFloat(m.spend) || 0;
       weekMap[key].leads += parseInt(m.leads) || 0;
     });
-    const weeks = Object.values(weekMap).sort((a, b) => a.label.localeCompare(b.label));
+    var weeks = Object.values(weekMap).sort(function(a, b) { return a.label.localeCompare(b.label); });
+    var chartImg = await renderChartToImage(
+      pdfChartConfig(weeks.map(function(w) { return w.label; }), weeks.map(function(w) { return w.leads; }), weeks.map(function(w) { return w.spend; })),
+      700, 280
+    );
 
-    const pdfChart = new Chart(pdfCtx, {
-      type: 'bar',
-      data: {
-        labels: weeks.map(w => w.label),
-        datasets: [
-          { label: 'Leads', data: weeks.map(w => w.leads), backgroundColor: '#e7352e30', borderColor: '#e7352e', borderWidth: 1, borderRadius: 4, yAxisID: 'y' },
-          { label: 'Ausgaben (€)', data: weeks.map(w => w.spend), type: 'line', borderColor: '#6b7280', borderWidth: 2, pointRadius: 2, tension: 0.3, yAxisID: 'y1' }
-        ]
-      },
-      options: {
-        responsive: false,
-        animation: false,
-        plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 10 } } } },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 9 } } },
-          y: { position: 'left', grid: { color: '#f3f4f6' }, ticks: { font: { size: 9 }, stepSize: 1 }, beginAtZero: true },
-          y1: { position: 'right', grid: { display: false }, ticks: { font: { size: 9 }, callback: v => '€' + v }, beginAtZero: true }
-        }
-      }
+    // Pre-load logo as base64
+    var logoB64 = await loadLogoBase64();
+    var logoHTML = logoB64 ? '<img src="' + logoB64 + '" style="width:44px;height:44px;border-radius:10px">' : '';
+
+    // Campaign table rows
+    var campaignRows = '';
+    campaigns.forEach(function(c) {
+      var fm = { spend: 0, leads: 0 };
+      metrics.filter(function(m) { return m.campaign_id === c.id; }).forEach(function(m) {
+        fm.spend += parseFloat(m.spend) || 0;
+        fm.leads += parseInt(m.leads) || 0;
+      });
+      var cpl = fm.leads > 0 ? formatEUR(fm.spend / fm.leads) : '\u2014';
+      var statusDot = c.status === 'active' ? '#16a34a' : c.status === 'paused' ? '#ea580c' : '#2563eb';
+      var statusLabel = c.status === 'active' ? 'Aktiv' : c.status === 'paused' ? 'Pausiert' : 'Abgeschlossen';
+      campaignRows += '<tr>'
+        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3;font-weight:600">' + escHtml(c.property && c.property.name || c.campaign_name || '\u2014') + '</td>'
+        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3"><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:600;background:' + statusDot + '10;color:' + statusDot + '"><span style="width:5px;height:5px;border-radius:50%;background:' + statusDot + '"></span>' + statusLabel + '</span></td>'
+        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3;text-align:right;font-variant-numeric:tabular-nums">' + formatEUR(fm.spend) + '</td>'
+        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3;text-align:right;font-weight:700">' + fm.leads + '</td>'
+        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3;text-align:right;font-variant-numeric:tabular-nums">' + cpl + '</td>'
+        + '</tr>';
     });
 
-    await new Promise(r => setTimeout(r, 600)); // Let chart fully render
+    // Insights + Creative
+    var insightsHTML = pdfBenchmarkInsightsHTML(totalSpend, totalLeads, totalImpressions, totalClicks);
+    var creativeHTML = pdfCreativeRankingHTML(allCreatives);
 
-    // Build filename: yyyy-mm-dd_R&G_Report_[Kunde]_[Zeitraum].pdf
-    const now = new Date();
-    const isoDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    const sanitize = s => (s || '').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/Ä/g,'Ae').replace(/Ö/g,'Oe').replace(/Ü/g,'Ue').replace(/ß/g,'ss').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_&-]/g,'');
-    const clientName = sanitize(clientData.name || 'Report');
-    const zeitraum = sanitize(periodLabel);
-    const filename = `${isoDate}_R&G_Report_${clientName}_${zeitraum}.pdf`;
+    var thStyle = 'text-align:left;padding:12px 14px;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;border-bottom:2px solid #e8eaed';
 
-    // Move element on-screen so html2canvas can capture it
-    pdfEl.style.position = 'fixed';
-    pdfEl.style.left = '0';
-    pdfEl.style.top = '0';
-    pdfEl.style.zIndex = '-9999';
-    pdfEl.style.opacity = '0.01';
-    await new Promise(r => setTimeout(r, 100));
+    // Build PDF element — VISIBLE overlay so html2canvas can capture it
+    var pdfEl = document.createElement('div');
+    pdfEl.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:auto;background:#ffffff;z-index:99999;overflow:auto;pointer-events:none;';
+
+    pdfEl.innerHTML = '<div style="font-family:Inter,-apple-system,system-ui,sans-serif;color:#111827;padding:44px 44px 36px;line-height:1.4">'
+      // Header
+      + '<div style="display:table;width:100%;margin-bottom:36px;padding-bottom:20px;border-bottom:2px solid #e8eaed">'
+      + '<div style="display:table-cell;vertical-align:middle">'
+      + '<div style="display:inline-block;vertical-align:middle">' + logoHTML + '</div>'
+      + '<div style="display:inline-block;vertical-align:middle;margin-left:14px">'
+      + '<div style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Kampagnen-Report</div>'
+      + '<div style="font-size:13px;color:#6b7280;margin-top:2px">' + escHtml(clientData.name || '') + ' \u2014 ' + periodLabel + '</div>'
+      + '</div></div>'
+      + '<div style="display:table-cell;vertical-align:middle;text-align:right">'
+      + '<div style="font-size:11px;color:#9ca3af">Erstellt am</div>'
+      + '<div style="font-size:13px;font-weight:600;color:#6b7280">' + dateStr + '</div>'
+      + '</div></div>'
+      // KPIs
+      + '<div style="display:table;width:100%;margin-bottom:36px;table-layout:fixed">'
+      + '<div style="display:table-row">'
+      + '<div style="display:table-cell;padding-right:7px">' + pdfKpiCard('Gesamtausgaben', formatEUR(totalSpend)) + '</div>'
+      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Leads', String(totalLeads)) + '</div>'
+      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('\u00D8 CPL', formatEUR(avgCPL)) + '</div>'
+      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Impressions', formatNum(totalImpressions)) + '</div>'
+      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Klicks', formatNum(totalClicks)) + '</div>'
+      + '<div style="display:table-cell;padding-left:7px">' + pdfKpiCard('\u00D8 CTR', avgCTR.toFixed(2) + '%') + '</div>'
+      + '</div></div>'
+      // Chart
+      + '<div style="margin-bottom:36px">'
+      + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:#111827">W\u00f6chentlicher Verlauf</div>'
+      + '<div style="border:1px solid #eef0f3;border-radius:12px;padding:20px;background:white">'
+      + '<img src="' + chartImg + '" style="width:100%;height:auto;display:block">'
+      + '</div></div>'
+      // Insights
+      + insightsHTML
+      // Creative
+      + creativeHTML
+      // Campaign Table
+      + '<div style="margin-bottom:36px">'
+      + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:#111827">Kampagnen-\u00dcbersicht</div>'
+      + '<table style="width:100%;border-collapse:collapse;font-size:12px">'
+      + '<thead><tr style="background:#f8f9fb">'
+      + '<th style="' + thStyle + '">Objekt</th>'
+      + '<th style="' + thStyle + '">Status</th>'
+      + '<th style="' + thStyle + ';text-align:right">Ausgaben</th>'
+      + '<th style="' + thStyle + ';text-align:right">Leads</th>'
+      + '<th style="' + thStyle + ';text-align:right">CPL</th>'
+      + '</tr></thead>'
+      + '<tbody>' + campaignRows + '</tbody>'
+      + '</table></div>'
+      // Footer
+      + '<div style="text-align:center;font-size:11px;color:#9ca3af;padding-top:24px;border-top:1.5px solid #e8eaed">'
+      + 'Erstellt von Run & Gun \u2014 ' + dateStr
+      + '</div></div>';
+
+    document.body.appendChild(pdfEl);
+
+    // Wait for all images inside pdfEl to fully load before capture
+    var pdfImages = pdfEl.querySelectorAll('img');
+    await Promise.all(Array.from(pdfImages).map(function(img) {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise(function(resolve) {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
+
+    // Force layout reflow + wait for rendering
+    void pdfEl.offsetHeight;
+    await new Promise(function(r) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          setTimeout(r, 500);
+        });
+      });
+    });
+
+    var filename = buildPdfFilename('overview');
 
     await html2pdf().set({
-      margin: [10, 10, 10, 10],
-      filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, width: 800, windowWidth: 800, scrollX: 0, scrollY: 0, backgroundColor: '#ffffff' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      margin: [8, 6, 8, 6],
+      filename: filename,
+      image: { type: 'png', quality: 1 },
+      html2canvas: { scale: 2, useCORS: true, logging: false, width: 800, windowWidth: 800, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     }).from(pdfEl).save();
 
-    pdfChart.destroy();
     document.body.removeChild(pdfEl);
 
   } catch (e) {
@@ -2313,237 +2474,156 @@ async function exportPDF() {
   }
 
   btn.disabled = false;
-  btn.innerHTML = '📄 <span class="btn-label">Report exportieren</span>';
+  btn.innerHTML = '\uD83D\uDCC4 <span class="btn-label">Report exportieren</span>';
 }
 
 // ============================================
-// SINGLE CAMPAIGN PDF EXPORT
+// PDF EXPORT — SINGLE CAMPAIGN
 // ============================================
 async function exportCampaignPDF() {
   if (!currentDetailCampaignId) return;
-  const campaign = campaigns.find(c => c.id === currentDetailCampaignId);
+  var campaign = campaigns.find(function(c) { return c.id === currentDetailCampaignId; });
   if (!campaign) return;
 
-  const btn = document.getElementById('campaignPdfBtn');
+  var btn = document.getElementById('campaignPdfBtn');
   btn.disabled = true;
-  btn.innerHTML = '⏳ Erstellen…';
+  btn.innerHTML = '\u23F3 Erstellen\u2026';
 
   try {
-    const prop = campaign.property || {};
-    const campaignMetrics = getFilteredMetrics().filter(m => m.campaign_id === currentDetailCampaignId);
+    var prop = campaign.property || {};
+    var campaignMetrics = getFilteredMetrics().filter(function(m) { return m.campaign_id === currentDetailCampaignId; });
 
-    // Aggregates
-    let totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
-    campaignMetrics.forEach(m => {
+    var totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
+    campaignMetrics.forEach(function(m) {
       totalSpend += parseFloat(m.spend) || 0;
       totalLeads += parseInt(m.leads) || 0;
       totalImpressions += parseInt(m.impressions) || 0;
       totalClicks += parseInt(m.clicks) || 0;
     });
-    const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
-    const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
+    var avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+    var avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
 
-    const dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const campaignName = prop.name || campaign.campaign_name || '—';
-    const dateRange = formatDateRange(campaign.start_date, campaign.end_date);
+    var dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+    var campaignName = prop.name || campaign.campaign_name || '\u2014';
+    var dateRange = formatDateRange(campaign.start_date, campaign.end_date);
 
-    const campCreatives = allCreatives.filter(c => c.campaign_id === currentDetailCampaignId);
+    // Pre-render daily chart as image
+    var sorted = campaignMetrics.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
+    var chartImg = await renderChartToImage(
+      pdfChartConfig(
+        sorted.map(function(m) { return formatDateShort(m.date); }),
+        sorted.map(function(m) { return parseInt(m.leads) || 0; }),
+        sorted.map(function(m) { return parseFloat(m.spend) || 0; })
+      ),
+      700, 260
+    );
 
-    // Build full PDF element
-    // Build creative ranking HTML for PDF
-    let pdfCreativeHTML = '';
-    if (campCreatives.length > 0) {
-      const typeMap = {};
-      campCreatives.forEach(c => {
-        const type = c.creative_type || 'sonstige';
-        if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0, impressions: 0, clicks: 0, count: 0 };
-        typeMap[type].spend += c.metrics.spend;
-        typeMap[type].leads += c.metrics.leads;
-        typeMap[type].impressions += c.metrics.impressions;
-        typeMap[type].clicks += c.metrics.clicks;
-        typeMap[type].count++;
+    var logoB64 = await loadLogoBase64();
+    var logoHTML = logoB64 ? '<img src="' + logoB64 + '" style="width:44px;height:44px;border-radius:10px">' : '';
+
+    // Creative + insights
+    var campCreatives = allCreatives.filter(function(c) { return c.campaign_id === currentDetailCampaignId; });
+    var insightsHTML = pdfBenchmarkInsightsHTML(totalSpend, totalLeads, totalImpressions, totalClicks);
+    var creativeHTML = pdfCreativeRankingHTML(campCreatives);
+
+    // Property details
+    var propDetailsHTML = '';
+    var propFields = [];
+    if (prop.property_type) propFields.push(['Objekttyp', formatPropertyType(prop.property_type)]);
+    if (prop.rooms) propFields.push(['Zimmer', prop.rooms]);
+    if (prop.area_sqm) propFields.push(['Fl\u00e4che', prop.area_sqm + ' m\u00b2']);
+    if (prop.price) propFields.push(['Preis', formatEUR(prop.price)]);
+    if (prop.city) propFields.push(['Stadt', prop.city]);
+    if (campaign.platform) propFields.push(['Plattform', campaign.platform]);
+    if (propFields.length > 0) {
+      propDetailsHTML = '<div style="display:table;width:100%;margin-bottom:28px;padding:18px 20px;background:#f8f9fb;border-radius:10px;border:1px solid #eef0f3;table-layout:fixed">';
+      propDetailsHTML += '<div style="display:table-row">';
+      propFields.forEach(function(f) {
+        propDetailsHTML += '<div style="display:table-cell;padding:0 6px;vertical-align:top">'
+          + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:4px">' + f[0] + '</div>'
+          + '<div style="font-size:14px;font-weight:600">' + escHtml(String(f[1])) + '</div>'
+          + '</div>';
       });
-      const scored = scoreCreativeTypes(typeMap);
-      const maxScore = Math.max(...scored.map(t => t.score), 1);
-      const pdfCreativeRows = scored.map((t, i) => {
-        const cplStr = t.leads > 0 ? formatEUR(t.cpl) : '—';
-        const pct = maxScore > 0 ? Math.round((t.score / maxScore) * 100) : 0;
-        const hue = Math.round(120 * (pct / 100));
-        const barColor = t.score > 0 ? `hsl(${hue}, 65%, 48%)` : '#e5e7eb';
-        return `
-          <tr>
-            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-weight:800;width:40px">${i+1}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-weight:600">${formatCreativeType(t.type)}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:700">${t.leads}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:right">${cplStr}</td>
-            <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:800">${t.score}</td>
-          </tr>
-        `;
-      }).join('');
-      pdfCreativeHTML = `
-        <div style="margin-bottom:28px">
-          <div style="font-size:15px;font-weight:700;margin-bottom:12px">🏆 Creative Performance</div>
-          <table style="width:100%;border-collapse:collapse;font-size:12px">
-            <thead>
-              <tr style="background:#f8f9fb">
-                <th style="text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">#</th>
-                <th style="text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Creative</th>
-                <th style="text-align:right;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Leads</th>
-                <th style="text-align:right;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">CPL</th>
-                <th style="text-align:right;padding:8px 12px;font-weight:700;border-bottom:2px solid #e8eaed">Score</th>
-              </tr>
-            </thead>
-            <tbody>${pdfCreativeRows}</tbody>
-          </table>
-        </div>
-      `;
+      propDetailsHTML += '</div></div>';
     }
 
-    // Build benchmark insights HTML for PDF
-    let pdfInsightsHTML = '';
-    if (benchmarkData && totalLeads > 0) {
-      const pdfBenchmarkItems = [];
-      const thisCPL = totalSpend / totalLeads;
-      if (thisCPL < benchmarkData.avgCPL) {
-        const pctBelow = ((benchmarkData.avgCPL - thisCPL) / benchmarkData.avgCPL * 100).toFixed(0);
-        pdfBenchmarkItems.push(`✨ CPL ${formatEUR(thisCPL)} — ${pctBelow}% unter dem R&G Durchschnitt von ${formatEUR(benchmarkData.avgCPL)}`);
-      }
-      const percentile = getCPLPercentile(thisCPL);
-      if (percentile !== null && percentile >= 75) {
-        pdfBenchmarkItems.push(`🏆 Diese Kampagne gehört zu den Top ${100 - percentile}% aller R&G Kampagnen`);
-      }
-      if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
-        const thisCTR = (totalClicks / totalImpressions) * 100;
-        if (thisCTR > benchmarkData.avgCTR) {
-          const pctAbove = ((thisCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
-          pdfBenchmarkItems.push(`📈 CTR von ${thisCTR.toFixed(2)}% — ${pctAbove}% über dem Durchschnitt`);
-        }
-      }
-      if (pdfBenchmarkItems.length > 0) {
-        pdfInsightsHTML = `
-          <div style="margin-bottom:28px">
-            <div style="font-size:15px;font-weight:700;margin-bottom:12px">📊 Performance Insights</div>
-            ${pdfBenchmarkItems.map(text => `
-              <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:linear-gradient(135deg,rgba(22,163,74,0.04),rgba(22,163,74,0.08));border-left:3px solid #16a34a;border-radius:8px;font-size:13px;line-height:1.5;color:#6b7280;margin-bottom:8px">
-                <span>${text}</span>
-              </div>
-            `).join('')}
-          </div>
-        `;
-      }
-    }
+    // Build PDF element — VISIBLE overlay so html2canvas can capture it
+    var pdfEl = document.createElement('div');
+    pdfEl.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:auto;background:#ffffff;z-index:99999;overflow:auto;pointer-events:none;';
 
-    const pdfEl = document.createElement('div');
-    pdfEl.style.cssText = 'font-family:Inter,sans-serif;color:#111827;padding:40px;width:800px;background:white;position:absolute;left:-9999px;top:0;';
-
-    pdfEl.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #e8eaed">
-        <div style="display:flex;align-items:center;gap:12px">
-          <img src="../assets/rg-logo.png" style="width:40px;height:40px;border-radius:8px" crossorigin>
-          <div>
-            <div style="font-size:18px;font-weight:800">${escHtml(campaignName)}</div>
-            <div style="font-size:13px;color:#6b7280">${escHtml(clientData.name || '')} — ${dateRange}</div>
-          </div>
-        </div>
-        <div style="font-size:12px;color:#9ca3af">Erstellt am ${dateStr}</div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px">
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Ausgaben</div>
-          <div style="font-size:22px;font-weight:800">${formatEUR(totalSpend)}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Leads</div>
-          <div style="font-size:22px;font-weight:800">${totalLeads}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">CPL</div>
-          <div style="font-size:22px;font-weight:800">${formatEUR(avgCPL)}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Impressions</div>
-          <div style="font-size:22px;font-weight:800">${formatNum(totalImpressions)}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">Klicks</div>
-          <div style="font-size:22px;font-weight:800">${formatNum(totalClicks)}</div>
-        </div>
-        <div style="background:#f8f9fb;padding:16px;border-radius:10px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:6px">CTR</div>
-          <div style="font-size:22px;font-weight:800">${avgCTR.toFixed(2)}%</div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:28px">
-        <div style="font-size:15px;font-weight:700;margin-bottom:12px">Tagesverlauf</div>
-        <div style="border:1px solid #e8eaed;border-radius:10px;overflow:hidden;padding:16px;background:white">
-          <canvas id="pdfCampaignChart" width="700" height="260"></canvas>
-        </div>
-      </div>
-
-      ${pdfInsightsHTML}
-      ${pdfCreativeHTML}
-
-      <div style="text-align:center;font-size:11px;color:#9ca3af;padding-top:24px;border-top:1px solid #e8eaed;margin-top:32px">
-        Erstellt von Run & Gun — ${dateStr}
-      </div>
-    `;
+    pdfEl.innerHTML = '<div style="font-family:Inter,-apple-system,system-ui,sans-serif;color:#111827;padding:44px 44px 36px;line-height:1.4">'
+      // Header
+      + '<div style="display:table;width:100%;margin-bottom:36px;padding-bottom:20px;border-bottom:2px solid #e8eaed">'
+      + '<div style="display:table-cell;vertical-align:middle">'
+      + '<div style="display:inline-block;vertical-align:middle">' + logoHTML + '</div>'
+      + '<div style="display:inline-block;vertical-align:middle;margin-left:14px">'
+      + '<div style="font-size:20px;font-weight:800;letter-spacing:-0.03em">' + escHtml(campaignName) + '</div>'
+      + '<div style="font-size:13px;color:#6b7280;margin-top:2px">' + escHtml(clientData.name || '') + ' \u2014 ' + dateRange + '</div>'
+      + '</div></div>'
+      + '<div style="display:table-cell;vertical-align:middle;text-align:right">'
+      + '<div style="font-size:11px;color:#9ca3af">Erstellt am</div>'
+      + '<div style="font-size:13px;font-weight:600;color:#6b7280">' + dateStr + '</div>'
+      + '</div></div>'
+      // KPIs
+      + '<div style="display:table;width:100%;margin-bottom:36px;table-layout:fixed">'
+      + '<div style="display:table-row">'
+      + '<div style="display:table-cell;padding-right:7px">' + pdfKpiCard('Ausgaben', formatEUR(totalSpend)) + '</div>'
+      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Leads', String(totalLeads)) + '</div>'
+      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('CPL', formatEUR(avgCPL)) + '</div>'
+      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Impressions', formatNum(totalImpressions)) + '</div>'
+      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Klicks', formatNum(totalClicks)) + '</div>'
+      + '<div style="display:table-cell;padding-left:7px">' + pdfKpiCard('CTR', avgCTR.toFixed(2) + '%') + '</div>'
+      + '</div></div>'
+      // Property details
+      + propDetailsHTML
+      // Chart
+      + '<div style="margin-bottom:36px">'
+      + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:#111827">Tagesverlauf</div>'
+      + '<div style="border:1px solid #eef0f3;border-radius:12px;padding:20px;background:white">'
+      + '<img src="' + chartImg + '" style="width:100%;height:auto;display:block">'
+      + '</div></div>'
+      // Insights
+      + insightsHTML
+      // Creative
+      + creativeHTML
+      // Footer
+      + '<div style="text-align:center;font-size:11px;color:#9ca3af;padding-top:24px;border-top:1.5px solid #e8eaed">'
+      + 'Erstellt von Run & Gun \u2014 ' + dateStr
+      + '</div></div>';
 
     document.body.appendChild(pdfEl);
 
-    // Render daily chart for PDF
-    const sorted = [...campaignMetrics].sort((a, b) => a.date.localeCompare(b.date));
-    const pdfCtx = document.getElementById('pdfCampaignChart').getContext('2d');
-    const pdfChart = new Chart(pdfCtx, {
-      type: 'bar',
-      data: {
-        labels: sorted.map(m => formatDateShort(m.date)),
-        datasets: [
-          { label: 'Leads', data: sorted.map(m => parseInt(m.leads) || 0), backgroundColor: '#e7352e25', borderColor: '#e7352e', borderWidth: 1, borderRadius: 4, yAxisID: 'y', order: 2 },
-          { label: 'Ausgaben (€)', data: sorted.map(m => parseFloat(m.spend) || 0), type: 'line', borderColor: '#6b7280', borderWidth: 2, pointRadius: 2, tension: 0.3, yAxisID: 'y1', order: 1 }
-        ]
-      },
-      options: {
-        responsive: false,
-        animation: false,
-        plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 10 } } } },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 8 }, maxRotation: 45 } },
-          y: { position: 'left', grid: { color: '#f3f4f6' }, ticks: { font: { size: 9 }, stepSize: 1 }, beginAtZero: true },
-          y1: { position: 'right', grid: { display: false }, ticks: { font: { size: 9 }, callback: v => '€' + v }, beginAtZero: true }
-        }
-      }
+    // Wait for all images inside pdfEl to fully load before capture
+    var pdfImages = pdfEl.querySelectorAll('img');
+    await Promise.all(Array.from(pdfImages).map(function(img) {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise(function(resolve) {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
+
+    // Force layout reflow + wait for rendering
+    void pdfEl.offsetHeight;
+    await new Promise(function(r) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          setTimeout(r, 500);
+        });
+      });
     });
 
-    await new Promise(r => setTimeout(r, 600)); // Let chart fully render
-
-    // Build filename: yyyy-mm-dd_R&G_Report_[Kunde]_[Kampagne]_[Zeitraum].pdf
-    const now = new Date();
-    const isoDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    const sanitize = s => (s || '').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/Ä/g,'Ae').replace(/Ö/g,'Oe').replace(/Ü/g,'Ue').replace(/ß/g,'ss').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_&-]/g,'');
-    const safeClient = sanitize(clientData.name || 'Report');
-    const safeCampaign = sanitize(campaignName);
-    const zeitraum = sanitize(dateRange);
-    const filename = `${isoDate}_R&G_Report_${safeClient}_${safeCampaign}_${zeitraum}.pdf`;
-
-    // Move element on-screen so html2canvas can capture it
-    pdfEl.style.position = 'fixed';
-    pdfEl.style.left = '0';
-    pdfEl.style.top = '0';
-    pdfEl.style.zIndex = '-9999';
-    pdfEl.style.opacity = '0.01';
-    await new Promise(r => setTimeout(r, 100));
+    var filename = buildPdfFilename('campaign', campaignName);
 
     await html2pdf().set({
-      margin: [10, 10, 10, 10],
-      filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, width: 800, windowWidth: 800, scrollX: 0, scrollY: 0, backgroundColor: '#ffffff' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      margin: [8, 6, 8, 6],
+      filename: filename,
+      image: { type: 'png', quality: 1 },
+      html2canvas: { scale: 2, useCORS: true, logging: false, width: 800, windowWidth: 800, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     }).from(pdfEl).save();
 
-    pdfChart.destroy();
     document.body.removeChild(pdfEl);
 
   } catch (e) {
@@ -2552,7 +2632,7 @@ async function exportCampaignPDF() {
   }
 
   btn.disabled = false;
-  btn.innerHTML = '📄 PDF Export';
+  btn.innerHTML = '\uD83D\uDCC4 PDF Export';
 }
 
 // ============================================
