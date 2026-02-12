@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
   <style>
     :root {
       --bg-primary: #ffffff;
@@ -2309,6 +2309,121 @@ function pdfCreativeRankingHTML(creativesArr) {
 }
 
 // ============================================
+// PDF EXPORT — jsPDF DIRECT DRAWING (no html2canvas)
+// ============================================
+
+// Shared jsPDF helpers
+function pdfDrawRoundedRect(doc, x, y, w, h, r, fillColor) {
+  doc.setFillColor(fillColor[0], fillColor[1], fillColor[2]);
+  doc.roundedRect(x, y, w, h, r, r, 'F');
+}
+
+function pdfDrawKpiCard(doc, x, y, w, h, label, value) {
+  pdfDrawRoundedRect(doc, x, y, w, h, 3, [248, 249, 251]);
+  // Border
+  doc.setDrawColor(238, 240, 243);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(x, y, w, h, 3, 3, 'S');
+  // Label
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(156, 163, 175);
+  doc.text(label.toUpperCase(), x + 6, y + 10);
+  // Value
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.setTextColor(17, 24, 39);
+  doc.text(value, x + 6, y + 22);
+}
+
+function pdfDrawSectionTitle(doc, x, y, text) {
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(17, 24, 39);
+  doc.text(text, x, y);
+}
+
+function pdfDrawTableRow(doc, x, y, cols, colWidths, opts) {
+  var rowH = opts.rowH || 8;
+  if (opts.bg) {
+    doc.setFillColor(opts.bg[0], opts.bg[1], opts.bg[2]);
+    doc.rect(x, y - rowH + 2.5, colWidths.reduce(function(a, b) { return a + b; }, 0), rowH, 'F');
+  }
+  doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
+  doc.setFontSize(opts.fontSize || 8.5);
+  doc.setTextColor(opts.color ? opts.color[0] : 17, opts.color ? opts.color[1] : 24, opts.color ? opts.color[2] : 39);
+  var cx = x;
+  for (var i = 0; i < cols.length; i++) {
+    var align = (opts.align && opts.align[i]) || 'left';
+    var tx = align === 'right' ? cx + colWidths[i] - 2 : cx + 2;
+    var truncated = String(cols[i] || '');
+    // Truncate long text to fit column
+    if (truncated.length > Math.floor(colWidths[i] / 2)) {
+      truncated = truncated.substring(0, Math.floor(colWidths[i] / 2) - 1) + '\u2026';
+    }
+    doc.text(truncated, tx, y, { align: align });
+    cx += colWidths[i];
+  }
+}
+
+function pdfDrawFooter(doc, margin, dateStr) {
+  var pageCount = doc.internal.getNumberOfPages();
+  for (var p = 1; p <= pageCount; p++) {
+    doc.setPage(p);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(156, 163, 175);
+    doc.text('Erstellt von Run & Gun \u2014 ' + dateStr, margin, 288);
+    doc.text('Seite ' + p + ' / ' + pageCount, 210 - margin, 288, { align: 'right' });
+    // Separator line
+    doc.setDrawColor(232, 234, 237);
+    doc.setLineWidth(0.3);
+    doc.line(margin, 284, 210 - margin, 284);
+  }
+}
+
+// Collect benchmark insight strings (reused for both PDF types)
+function collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks) {
+  if (!benchmarkData || totalLeads === 0) return [];
+  var items = [];
+  var thisCPL = totalSpend / totalLeads;
+  if (thisCPL < benchmarkData.avgCPL) {
+    var pct = ((benchmarkData.avgCPL - thisCPL) / benchmarkData.avgCPL * 100).toFixed(0);
+    items.push('CPL ' + formatEUR(thisCPL) + ' \u2014 ' + pct + '% unter dem R&G Durchschnitt von ' + formatEUR(benchmarkData.avgCPL));
+  }
+  var percentile = getCPLPercentile(thisCPL);
+  if (percentile !== null && percentile >= 75) {
+    items.push('Diese Kampagne gehoert zu den Top ' + (100 - percentile) + '% aller R&G Kampagnen');
+  }
+  if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
+    var thisCTR = (totalClicks / totalImpressions) * 100;
+    if (thisCTR > benchmarkData.avgCTR) {
+      var pctA = ((thisCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
+      items.push('CTR von ' + thisCTR.toFixed(2) + '% \u2014 ' + pctA + '% ueber dem Durchschnitt');
+    }
+  }
+  return items;
+}
+
+// Collect scored creative types for PDF
+function collectScoredCreatives(creativesArr) {
+  if (creativesArr.length === 0) return [];
+  var typeMap = {};
+  creativesArr.forEach(function(c) {
+    var type = c.creative_type || 'sonstige';
+    if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0, impressions: 0, clicks: 0, count: 0 };
+    typeMap[type].spend += c.metrics.spend;
+    typeMap[type].leads += c.metrics.leads;
+    typeMap[type].impressions += c.metrics.impressions;
+    typeMap[type].clicks += c.metrics.clicks;
+    typeMap[type].count++;
+  });
+  var scored = scoreCreativeTypes(typeMap);
+  if (scored.length === 0 || scored.every(function(s) { return s.leads === 0; })) return [];
+  return scored;
+}
+
+// ============================================
 // PDF EXPORT — OVERVIEW (Gesamt-Report)
 // ============================================
 async function exportPDF() {
@@ -2317,6 +2432,18 @@ async function exportPDF() {
   btn.innerHTML = '\u23F3 <span class="btn-label">Wird erstellt\u2026</span>';
 
   try {
+    var { jsPDF } = window.jspdf;
+    var doc = new jsPDF('p', 'mm', 'a4');
+    var pageWidth = 210;
+    var margin = 18;
+    var contentWidth = pageWidth - margin * 2;
+    var y = margin;
+
+    function checkPage(needed) {
+      if (y + needed > 278) { doc.addPage(); y = margin; }
+    }
+
+    // Gather data
     var metrics = getFilteredMetrics();
     var totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
     metrics.forEach(function(m) {
@@ -2331,142 +2458,205 @@ async function exportPDF() {
     var periodLabel = currentFilter === 'all' ? 'Gesamt' : document.getElementById('periodFilter').selectedOptions[0].text;
     var dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
 
-    // Pre-render chart as image
+    // ---- 1. LOGO ----
+    var logoB64 = await loadLogoBase64();
+    if (logoB64) {
+      try { doc.addImage(logoB64, 'PNG', margin, y, 12, 12); } catch(e) { /* skip logo */ }
+    }
+
+    // ---- 2. HEADER ----
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(17, 24, 39);
+    doc.text('Kampagnen-Report', margin + (logoB64 ? 16 : 0), y + 5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(107, 114, 128);
+    doc.text((clientData.name || '') + ' \u2014 ' + periodLabel, margin + (logoB64 ? 16 : 0), y + 11);
+
+    // Date on right
+    doc.setFontSize(8);
+    doc.setTextColor(156, 163, 175);
+    doc.text('Erstellt am', pageWidth - margin, y + 3, { align: 'right' });
+    doc.setFontSize(9);
+    doc.setTextColor(107, 114, 128);
+    doc.setFont('helvetica', 'bold');
+    doc.text(dateStr, pageWidth - margin, y + 8, { align: 'right' });
+
+    y += 16;
+
+    // Header separator
+    doc.setDrawColor(232, 234, 237);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 8;
+
+    // ---- 3. KPI CARDS (3x2 grid) ----
+    var kpiData = [
+      ['Gesamtausgaben', formatEUR(totalSpend)],
+      ['Leads', String(totalLeads)],
+      ['\u00D8 CPL', formatEUR(avgCPL)],
+      ['Impressions', formatNum(totalImpressions)],
+      ['Klicks', formatNum(totalClicks)],
+      ['\u00D8 CTR', avgCTR.toFixed(2) + '%']
+    ];
+    var cardW = (contentWidth - 8) / 3; // 3 columns, 4mm gap each
+    var cardH = 28;
+    for (var ki = 0; ki < kpiData.length; ki++) {
+      var col = ki % 3;
+      var row = Math.floor(ki / 3);
+      var cx = margin + col * (cardW + 4);
+      var cy = y + row * (cardH + 4);
+      pdfDrawKpiCard(doc, cx, cy, cardW, cardH, kpiData[ki][0], kpiData[ki][1]);
+    }
+    y += cardH * 2 + 4 + 10;
+
+    // ---- 4. TREND CHART ----
+    checkPage(75);
+    pdfDrawSectionTitle(doc, margin, y, 'Woechentlicher Verlauf');
+    y += 5;
+
     var weekMap = {};
     metrics.forEach(function(m) {
       var d = new Date(m.date);
       var week = getISOWeek(d);
-      var year = d.getFullYear();
-      var key = year + '-W' + String(week).padStart(2, '0');
+      var yr = d.getFullYear();
+      var key = yr + '-W' + String(week).padStart(2, '0');
       if (!weekMap[key]) weekMap[key] = { spend: 0, leads: 0, label: key };
       weekMap[key].spend += parseFloat(m.spend) || 0;
       weekMap[key].leads += parseInt(m.leads) || 0;
     });
     var weeks = Object.values(weekMap).sort(function(a, b) { return a.label.localeCompare(b.label); });
+
     var chartImg = await renderChartToImage(
-      pdfChartConfig(weeks.map(function(w) { return w.label; }), weeks.map(function(w) { return w.leads; }), weeks.map(function(w) { return w.spend; })),
+      pdfChartConfig(
+        weeks.map(function(w) { return w.label; }),
+        weeks.map(function(w) { return w.leads; }),
+        weeks.map(function(w) { return w.spend; })
+      ),
       700, 280
     );
 
-    // Pre-load logo as base64
-    var logoB64 = await loadLogoBase64();
-    var logoHTML = logoB64 ? '<img src="' + logoB64 + '" style="width:44px;height:44px;border-radius:10px">' : '';
+    // Draw chart border
+    doc.setDrawColor(238, 240, 243);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(margin, y, contentWidth, 62, 3, 3, 'S');
+    doc.addImage(chartImg, 'PNG', margin + 2, y + 2, contentWidth - 4, 58);
+    y += 68;
 
-    // Campaign table rows
-    var campaignRows = '';
-    campaigns.forEach(function(c) {
-      var fm = { spend: 0, leads: 0 };
-      metrics.filter(function(m) { return m.campaign_id === c.id; }).forEach(function(m) {
-        fm.spend += parseFloat(m.spend) || 0;
-        fm.leads += parseInt(m.leads) || 0;
+    // ---- 5. BENCHMARK INSIGHTS ----
+    var insights = collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks);
+    if (insights.length > 0) {
+      checkPage(10 + insights.length * 9);
+      pdfDrawSectionTitle(doc, margin, y, 'Performance Insights');
+      y += 5;
+      insights.forEach(function(text) {
+        checkPage(10);
+        // Green left border bar
+        doc.setFillColor(22, 163, 74);
+        doc.rect(margin, y, 1.2, 7, 'F');
+        // Light green background
+        pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(75, 85, 99);
+        doc.text(text, margin + 4, y + 4.5);
+        y += 9;
       });
-      var cpl = fm.leads > 0 ? formatEUR(fm.spend / fm.leads) : '\u2014';
-      var statusDot = c.status === 'active' ? '#16a34a' : c.status === 'paused' ? '#ea580c' : '#2563eb';
-      var statusLabel = c.status === 'active' ? 'Aktiv' : c.status === 'paused' ? 'Pausiert' : 'Abgeschlossen';
-      campaignRows += '<tr>'
-        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3;font-weight:600">' + escHtml(c.property && c.property.name || c.campaign_name || '\u2014') + '</td>'
-        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3"><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:600;background:' + statusDot + '10;color:' + statusDot + '"><span style="width:5px;height:5px;border-radius:50%;background:' + statusDot + '"></span>' + statusLabel + '</span></td>'
-        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3;text-align:right;font-variant-numeric:tabular-nums">' + formatEUR(fm.spend) + '</td>'
-        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3;text-align:right;font-weight:700">' + fm.leads + '</td>'
-        + '<td style="padding:12px 14px;border-bottom:1px solid #f0f1f3;text-align:right;font-variant-numeric:tabular-nums">' + cpl + '</td>'
-        + '</tr>';
-    });
+      y += 4;
+    }
 
-    // Insights + Creative
-    var insightsHTML = pdfBenchmarkInsightsHTML(totalSpend, totalLeads, totalImpressions, totalClicks);
-    var creativeHTML = pdfCreativeRankingHTML(allCreatives);
-
-    var thStyle = 'text-align:left;padding:12px 14px;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;border-bottom:2px solid #e8eaed';
-
-    // Build PDF element — VISIBLE overlay so html2canvas can capture it
-    var pdfEl = document.createElement('div');
-    pdfEl.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:auto;background:#ffffff;z-index:99999;overflow:auto;pointer-events:none;';
-
-    pdfEl.innerHTML = '<div style="font-family:Inter,-apple-system,system-ui,sans-serif;color:#111827;padding:44px 44px 36px;line-height:1.4">'
-      // Header
-      + '<div style="display:table;width:100%;margin-bottom:36px;padding-bottom:20px;border-bottom:2px solid #e8eaed">'
-      + '<div style="display:table-cell;vertical-align:middle">'
-      + '<div style="display:inline-block;vertical-align:middle">' + logoHTML + '</div>'
-      + '<div style="display:inline-block;vertical-align:middle;margin-left:14px">'
-      + '<div style="font-size:20px;font-weight:800;letter-spacing:-0.03em">Kampagnen-Report</div>'
-      + '<div style="font-size:13px;color:#6b7280;margin-top:2px">' + escHtml(clientData.name || '') + ' \u2014 ' + periodLabel + '</div>'
-      + '</div></div>'
-      + '<div style="display:table-cell;vertical-align:middle;text-align:right">'
-      + '<div style="font-size:11px;color:#9ca3af">Erstellt am</div>'
-      + '<div style="font-size:13px;font-weight:600;color:#6b7280">' + dateStr + '</div>'
-      + '</div></div>'
-      // KPIs
-      + '<div style="display:table;width:100%;margin-bottom:36px;table-layout:fixed">'
-      + '<div style="display:table-row">'
-      + '<div style="display:table-cell;padding-right:7px">' + pdfKpiCard('Gesamtausgaben', formatEUR(totalSpend)) + '</div>'
-      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Leads', String(totalLeads)) + '</div>'
-      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('\u00D8 CPL', formatEUR(avgCPL)) + '</div>'
-      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Impressions', formatNum(totalImpressions)) + '</div>'
-      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Klicks', formatNum(totalClicks)) + '</div>'
-      + '<div style="display:table-cell;padding-left:7px">' + pdfKpiCard('\u00D8 CTR', avgCTR.toFixed(2) + '%') + '</div>'
-      + '</div></div>'
-      // Chart
-      + '<div style="margin-bottom:36px">'
-      + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:#111827">W\u00f6chentlicher Verlauf</div>'
-      + '<div style="border:1px solid #eef0f3;border-radius:12px;padding:20px;background:white">'
-      + '<img src="' + chartImg + '" style="width:100%;height:auto;display:block">'
-      + '</div></div>'
-      // Insights
-      + insightsHTML
-      // Creative
-      + creativeHTML
-      // Campaign Table
-      + '<div style="margin-bottom:36px">'
-      + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:#111827">Kampagnen-\u00dcbersicht</div>'
-      + '<table style="width:100%;border-collapse:collapse;font-size:12px">'
-      + '<thead><tr style="background:#f8f9fb">'
-      + '<th style="' + thStyle + '">Objekt</th>'
-      + '<th style="' + thStyle + '">Status</th>'
-      + '<th style="' + thStyle + ';text-align:right">Ausgaben</th>'
-      + '<th style="' + thStyle + ';text-align:right">Leads</th>'
-      + '<th style="' + thStyle + ';text-align:right">CPL</th>'
-      + '</tr></thead>'
-      + '<tbody>' + campaignRows + '</tbody>'
-      + '</table></div>'
-      // Footer
-      + '<div style="text-align:center;font-size:11px;color:#9ca3af;padding-top:24px;border-top:1.5px solid #e8eaed">'
-      + 'Erstellt von Run & Gun \u2014 ' + dateStr
-      + '</div></div>';
-
-    document.body.appendChild(pdfEl);
-
-    // Wait for all images inside pdfEl to fully load before capture
-    var pdfImages = pdfEl.querySelectorAll('img');
-    await Promise.all(Array.from(pdfImages).map(function(img) {
-      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-      return new Promise(function(resolve) {
-        img.onload = resolve;
-        img.onerror = resolve;
+    // ---- 6. CREATIVE PERFORMANCE ----
+    var scoredCreatives = collectScoredCreatives(allCreatives);
+    if (scoredCreatives.length > 0) {
+      checkPage(14 + scoredCreatives.length * 8);
+      pdfDrawSectionTitle(doc, margin, y, 'Creative Performance');
+      y += 5;
+      var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
+      var crAlign = ['left', 'left', 'right', 'right', 'right'];
+      // Header row
+      pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
+        bold: true, fontSize: 7, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
       });
-    }));
-
-    // Force layout reflow + wait for rendering
-    void pdfEl.offsetHeight;
-    await new Promise(function(r) {
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          setTimeout(r, 500);
+      y += 1;
+      // Separator
+      doc.setDrawColor(232, 234, 237);
+      doc.setLineWidth(0.4);
+      doc.line(margin, y, margin + contentWidth, y);
+      y += 4;
+      scoredCreatives.forEach(function(t, i) {
+        checkPage(9);
+        var cplStr = t.leads > 0 ? formatEUR(t.cpl) : '\u2014';
+        if (i % 2 === 1) {
+          doc.setFillColor(248, 249, 251);
+          doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
+        }
+        pdfDrawTableRow(doc, margin, y, [String(i + 1), formatCreativeType(t.type), String(t.leads), cplStr, String(t.score)], crColWidths, {
+          bold: false, fontSize: 8, align: crAlign
         });
+        y += 7;
       });
+      y += 6;
+    }
+
+    // ---- 7. CAMPAIGN TABLE ----
+    checkPage(20);
+    pdfDrawSectionTitle(doc, margin, y, 'Kampagnen-Uebersicht');
+    y += 5;
+
+    // Compute per-campaign metrics in current filter
+    var campMetricsMap = {};
+    metrics.forEach(function(m) {
+      if (!campMetricsMap[m.campaign_id]) campMetricsMap[m.campaign_id] = { spend: 0, leads: 0, impressions: 0, clicks: 0 };
+      campMetricsMap[m.campaign_id].spend += parseFloat(m.spend) || 0;
+      campMetricsMap[m.campaign_id].leads += parseInt(m.leads) || 0;
+      campMetricsMap[m.campaign_id].impressions += parseInt(m.impressions) || 0;
+      campMetricsMap[m.campaign_id].clicks += parseInt(m.clicks) || 0;
     });
 
-    var filename = buildPdfFilename('overview');
+    var tblColWidths = [contentWidth * 0.32, contentWidth * 0.14, contentWidth * 0.18, contentWidth * 0.12, contentWidth * 0.12, contentWidth * 0.12];
+    var tblAlign = ['left', 'left', 'right', 'right', 'right', 'right'];
 
-    await html2pdf().set({
-      margin: [8, 6, 8, 6],
-      filename: filename,
-      image: { type: 'png', quality: 1 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, width: 800, windowWidth: 800, backgroundColor: '#ffffff' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    }).from(pdfEl).save();
+    // Table header
+    pdfDrawTableRow(doc, margin, y, ['Objekt', 'Status', 'Ausgaben', 'Leads', 'CPL', 'Impressions'], tblColWidths, {
+      bold: true, fontSize: 7, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: tblAlign
+    });
+    y += 1;
+    doc.setDrawColor(232, 234, 237);
+    doc.setLineWidth(0.4);
+    doc.line(margin, y, margin + contentWidth, y);
+    y += 4;
 
-    document.body.removeChild(pdfEl);
+    // Sort campaigns by spend descending
+    var sortedCampaigns = campaigns.slice().sort(function(a, b) {
+      var sa = campMetricsMap[a.id] ? campMetricsMap[a.id].spend : 0;
+      var sb = campMetricsMap[b.id] ? campMetricsMap[b.id].spend : 0;
+      return sb - sa;
+    });
+
+    sortedCampaigns.forEach(function(c, idx) {
+      checkPage(9);
+      var fm = campMetricsMap[c.id] || { spend: 0, leads: 0, impressions: 0, clicks: 0 };
+      var cpl = fm.leads > 0 ? formatEUR(fm.spend / fm.leads) : '\u2014';
+      var statusLabel = c.status === 'active' ? 'Aktiv' : c.status === 'paused' ? 'Pausiert' : 'Abgeschl.';
+      var name = (c.property && c.property.name) || c.campaign_name || '\u2014';
+
+      if (idx % 2 === 1) {
+        doc.setFillColor(248, 249, 251);
+        doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
+      }
+      pdfDrawTableRow(doc, margin, y, [name, statusLabel, formatEUR(fm.spend), String(fm.leads), cpl, formatNum(fm.impressions)], tblColWidths, {
+        bold: false, fontSize: 8, align: tblAlign
+      });
+      y += 7;
+    });
+
+    // ---- 8. FOOTER (all pages) ----
+    pdfDrawFooter(doc, margin, dateStr);
+
+    // Save
+    doc.save(buildPdfFilename('overview'));
 
   } catch (e) {
     console.error('PDF export error:', e);
@@ -2490,11 +2680,23 @@ async function exportCampaignPDF() {
   btn.innerHTML = '\u23F3 Erstellen\u2026';
 
   try {
+    var { jsPDF } = window.jspdf;
+    var doc = new jsPDF('p', 'mm', 'a4');
+    var pageWidth = 210;
+    var margin = 18;
+    var contentWidth = pageWidth - margin * 2;
+    var y = margin;
+
+    function checkPage(needed) {
+      if (y + needed > 278) { doc.addPage(); y = margin; }
+    }
+
+    // Gather data
     var prop = campaign.property || {};
-    var campaignMetrics = getFilteredMetrics().filter(function(m) { return m.campaign_id === currentDetailCampaignId; });
+    var campMetrics = getFilteredMetrics().filter(function(m) { return m.campaign_id === currentDetailCampaignId; });
 
     var totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
-    campaignMetrics.forEach(function(m) {
+    campMetrics.forEach(function(m) {
       totalSpend += parseFloat(m.spend) || 0;
       totalLeads += parseInt(m.leads) || 0;
       totalImpressions += parseInt(m.impressions) || 0;
@@ -2507,8 +2709,97 @@ async function exportCampaignPDF() {
     var campaignName = prop.name || campaign.campaign_name || '\u2014';
     var dateRange = formatDateRange(campaign.start_date, campaign.end_date);
 
-    // Pre-render daily chart as image
-    var sorted = campaignMetrics.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
+    // ---- 1. LOGO ----
+    var logoB64 = await loadLogoBase64();
+    if (logoB64) {
+      try { doc.addImage(logoB64, 'PNG', margin, y, 12, 12); } catch(e) { /* skip */ }
+    }
+
+    // ---- 2. HEADER ----
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(17, 24, 39);
+    doc.text(campaignName, margin + (logoB64 ? 16 : 0), y + 5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(107, 114, 128);
+    doc.text((clientData.name || '') + ' \u2014 ' + dateRange, margin + (logoB64 ? 16 : 0), y + 11);
+
+    // Date on right
+    doc.setFontSize(8);
+    doc.setTextColor(156, 163, 175);
+    doc.text('Erstellt am', pageWidth - margin, y + 3, { align: 'right' });
+    doc.setFontSize(9);
+    doc.setTextColor(107, 114, 128);
+    doc.setFont('helvetica', 'bold');
+    doc.text(dateStr, pageWidth - margin, y + 8, { align: 'right' });
+
+    y += 16;
+
+    // Header separator
+    doc.setDrawColor(232, 234, 237);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 8;
+
+    // ---- 3. PROPERTY DETAILS (if available) ----
+    var propFields = [];
+    if (prop.property_type) propFields.push(['Objekttyp', formatPropertyType(prop.property_type)]);
+    if (prop.rooms) propFields.push(['Zimmer', String(prop.rooms)]);
+    if (prop.area_sqm) propFields.push(['Flaeche', prop.area_sqm + ' m\u00b2']);
+    if (prop.price) propFields.push(['Preis', formatEUR(prop.price)]);
+    if (prop.city) propFields.push(['Stadt', prop.city]);
+    if (campaign.platform) propFields.push(['Plattform', campaign.platform]);
+
+    if (propFields.length > 0) {
+      checkPage(20);
+      pdfDrawRoundedRect(doc, margin, y, contentWidth, 18, 3, [248, 249, 251]);
+      doc.setDrawColor(238, 240, 243);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'S');
+
+      var pfW = contentWidth / propFields.length;
+      propFields.forEach(function(pf, pi) {
+        var px = margin + pi * pfW + 6;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(156, 163, 175);
+        doc.text(pf[0].toUpperCase(), px, y + 7);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(17, 24, 39);
+        doc.text(String(pf[1]), px, y + 13);
+      });
+      y += 24;
+    }
+
+    // ---- 4. KPI CARDS (3x2 grid) ----
+    var kpiData = [
+      ['Ausgaben', formatEUR(totalSpend)],
+      ['Leads', String(totalLeads)],
+      ['CPL', formatEUR(avgCPL)],
+      ['Impressions', formatNum(totalImpressions)],
+      ['Klicks', formatNum(totalClicks)],
+      ['CTR', avgCTR.toFixed(2) + '%']
+    ];
+    var cardW = (contentWidth - 8) / 3;
+    var cardH = 28;
+    for (var ki = 0; ki < kpiData.length; ki++) {
+      var col = ki % 3;
+      var row = Math.floor(ki / 3);
+      var cx = margin + col * (cardW + 4);
+      var cy = y + row * (cardH + 4);
+      pdfDrawKpiCard(doc, cx, cy, cardW, cardH, kpiData[ki][0], kpiData[ki][1]);
+    }
+    y += cardH * 2 + 4 + 10;
+
+    // ---- 5. DAILY CHART ----
+    checkPage(75);
+    pdfDrawSectionTitle(doc, margin, y, 'Tagesverlauf');
+    y += 5;
+
+    var sorted = campMetrics.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
     var chartImg = await renderChartToImage(
       pdfChartConfig(
         sorted.map(function(m) { return formatDateShort(m.date); }),
@@ -2518,113 +2809,69 @@ async function exportCampaignPDF() {
       700, 260
     );
 
-    var logoB64 = await loadLogoBase64();
-    var logoHTML = logoB64 ? '<img src="' + logoB64 + '" style="width:44px;height:44px;border-radius:10px">' : '';
+    doc.setDrawColor(238, 240, 243);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(margin, y, contentWidth, 58, 3, 3, 'S');
+    doc.addImage(chartImg, 'PNG', margin + 2, y + 2, contentWidth - 4, 54);
+    y += 64;
 
-    // Creative + insights
-    var campCreatives = allCreatives.filter(function(c) { return c.campaign_id === currentDetailCampaignId; });
-    var insightsHTML = pdfBenchmarkInsightsHTML(totalSpend, totalLeads, totalImpressions, totalClicks);
-    var creativeHTML = pdfCreativeRankingHTML(campCreatives);
-
-    // Property details
-    var propDetailsHTML = '';
-    var propFields = [];
-    if (prop.property_type) propFields.push(['Objekttyp', formatPropertyType(prop.property_type)]);
-    if (prop.rooms) propFields.push(['Zimmer', prop.rooms]);
-    if (prop.area_sqm) propFields.push(['Fl\u00e4che', prop.area_sqm + ' m\u00b2']);
-    if (prop.price) propFields.push(['Preis', formatEUR(prop.price)]);
-    if (prop.city) propFields.push(['Stadt', prop.city]);
-    if (campaign.platform) propFields.push(['Plattform', campaign.platform]);
-    if (propFields.length > 0) {
-      propDetailsHTML = '<div style="display:table;width:100%;margin-bottom:28px;padding:18px 20px;background:#f8f9fb;border-radius:10px;border:1px solid #eef0f3;table-layout:fixed">';
-      propDetailsHTML += '<div style="display:table-row">';
-      propFields.forEach(function(f) {
-        propDetailsHTML += '<div style="display:table-cell;padding:0 6px;vertical-align:top">'
-          + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:4px">' + f[0] + '</div>'
-          + '<div style="font-size:14px;font-weight:600">' + escHtml(String(f[1])) + '</div>'
-          + '</div>';
+    // ---- 6. BENCHMARK INSIGHTS ----
+    var insights = collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks);
+    if (insights.length > 0) {
+      checkPage(10 + insights.length * 9);
+      pdfDrawSectionTitle(doc, margin, y, 'Performance Insights');
+      y += 5;
+      insights.forEach(function(text) {
+        checkPage(10);
+        doc.setFillColor(22, 163, 74);
+        doc.rect(margin, y, 1.2, 7, 'F');
+        pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(75, 85, 99);
+        doc.text(text, margin + 4, y + 4.5);
+        y += 9;
       });
-      propDetailsHTML += '</div></div>';
+      y += 4;
     }
 
-    // Build PDF element — VISIBLE overlay so html2canvas can capture it
-    var pdfEl = document.createElement('div');
-    pdfEl.style.cssText = 'position:fixed;top:0;left:0;width:800px;height:auto;background:#ffffff;z-index:99999;overflow:auto;pointer-events:none;';
-
-    pdfEl.innerHTML = '<div style="font-family:Inter,-apple-system,system-ui,sans-serif;color:#111827;padding:44px 44px 36px;line-height:1.4">'
-      // Header
-      + '<div style="display:table;width:100%;margin-bottom:36px;padding-bottom:20px;border-bottom:2px solid #e8eaed">'
-      + '<div style="display:table-cell;vertical-align:middle">'
-      + '<div style="display:inline-block;vertical-align:middle">' + logoHTML + '</div>'
-      + '<div style="display:inline-block;vertical-align:middle;margin-left:14px">'
-      + '<div style="font-size:20px;font-weight:800;letter-spacing:-0.03em">' + escHtml(campaignName) + '</div>'
-      + '<div style="font-size:13px;color:#6b7280;margin-top:2px">' + escHtml(clientData.name || '') + ' \u2014 ' + dateRange + '</div>'
-      + '</div></div>'
-      + '<div style="display:table-cell;vertical-align:middle;text-align:right">'
-      + '<div style="font-size:11px;color:#9ca3af">Erstellt am</div>'
-      + '<div style="font-size:13px;font-weight:600;color:#6b7280">' + dateStr + '</div>'
-      + '</div></div>'
-      // KPIs
-      + '<div style="display:table;width:100%;margin-bottom:36px;table-layout:fixed">'
-      + '<div style="display:table-row">'
-      + '<div style="display:table-cell;padding-right:7px">' + pdfKpiCard('Ausgaben', formatEUR(totalSpend)) + '</div>'
-      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Leads', String(totalLeads)) + '</div>'
-      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('CPL', formatEUR(avgCPL)) + '</div>'
-      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Impressions', formatNum(totalImpressions)) + '</div>'
-      + '<div style="display:table-cell;padding:0 7px">' + pdfKpiCard('Klicks', formatNum(totalClicks)) + '</div>'
-      + '<div style="display:table-cell;padding-left:7px">' + pdfKpiCard('CTR', avgCTR.toFixed(2) + '%') + '</div>'
-      + '</div></div>'
-      // Property details
-      + propDetailsHTML
-      // Chart
-      + '<div style="margin-bottom:36px">'
-      + '<div style="font-size:14px;font-weight:700;margin-bottom:14px;color:#111827">Tagesverlauf</div>'
-      + '<div style="border:1px solid #eef0f3;border-radius:12px;padding:20px;background:white">'
-      + '<img src="' + chartImg + '" style="width:100%;height:auto;display:block">'
-      + '</div></div>'
-      // Insights
-      + insightsHTML
-      // Creative
-      + creativeHTML
-      // Footer
-      + '<div style="text-align:center;font-size:11px;color:#9ca3af;padding-top:24px;border-top:1.5px solid #e8eaed">'
-      + 'Erstellt von Run & Gun \u2014 ' + dateStr
-      + '</div></div>';
-
-    document.body.appendChild(pdfEl);
-
-    // Wait for all images inside pdfEl to fully load before capture
-    var pdfImages = pdfEl.querySelectorAll('img');
-    await Promise.all(Array.from(pdfImages).map(function(img) {
-      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-      return new Promise(function(resolve) {
-        img.onload = resolve;
-        img.onerror = resolve;
+    // ---- 7. CREATIVE PERFORMANCE TABLE ----
+    var campCreatives = allCreatives.filter(function(c) { return c.campaign_id === currentDetailCampaignId; });
+    var scoredCreatives = collectScoredCreatives(campCreatives);
+    if (scoredCreatives.length > 0) {
+      checkPage(14 + scoredCreatives.length * 8);
+      pdfDrawSectionTitle(doc, margin, y, 'Creative Performance');
+      y += 5;
+      var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
+      var crAlign = ['left', 'left', 'right', 'right', 'right'];
+      pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
+        bold: true, fontSize: 7, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
       });
-    }));
-
-    // Force layout reflow + wait for rendering
-    void pdfEl.offsetHeight;
-    await new Promise(function(r) {
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          setTimeout(r, 500);
+      y += 1;
+      doc.setDrawColor(232, 234, 237);
+      doc.setLineWidth(0.4);
+      doc.line(margin, y, margin + contentWidth, y);
+      y += 4;
+      scoredCreatives.forEach(function(t, i) {
+        checkPage(9);
+        var cplStr = t.leads > 0 ? formatEUR(t.cpl) : '\u2014';
+        if (i % 2 === 1) {
+          doc.setFillColor(248, 249, 251);
+          doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
+        }
+        pdfDrawTableRow(doc, margin, y, [String(i + 1), formatCreativeType(t.type), String(t.leads), cplStr, String(t.score)], crColWidths, {
+          bold: false, fontSize: 8, align: crAlign
         });
+        y += 7;
       });
-    });
+      y += 6;
+    }
 
-    var filename = buildPdfFilename('campaign', campaignName);
+    // ---- 8. FOOTER ----
+    pdfDrawFooter(doc, margin, dateStr);
 
-    await html2pdf().set({
-      margin: [8, 6, 8, 6],
-      filename: filename,
-      image: { type: 'png', quality: 1 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, width: 800, windowWidth: 800, backgroundColor: '#ffffff' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    }).from(pdfEl).save();
-
-    document.body.removeChild(pdfEl);
+    // Save
+    doc.save(buildPdfFilename('campaign', campaignName));
 
   } catch (e) {
     console.error('Campaign PDF export error:', e);
