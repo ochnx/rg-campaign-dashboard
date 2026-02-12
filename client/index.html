@@ -1141,10 +1141,15 @@ function logout() {
   document.getElementById('tokenInput').value = '';
 }
 
-// Check token on load
+// Check token on load (session storage only — URL tokens are ignored for security)
 async function checkAutoLogin() {
+  // Strip any ?t= token from the URL without using it (prevent link-based auto-login)
   const urlParams = new URLSearchParams(window.location.search);
-  let token = urlParams.get('t') || sessionStorage.getItem('rg_client_token');
+  if (urlParams.has('t')) {
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  const token = sessionStorage.getItem('rg_client_token');
   
   if (token) {
     document.getElementById('loginScreen').style.display = 'none';
@@ -1160,11 +1165,6 @@ async function checkAutoLogin() {
 
       if (rows && rows.length > 0) {
         clientData = rows[0];
-        sessionStorage.setItem('rg_client_token', token);
-        // Clean URL
-        if (urlParams.has('t')) {
-          window.history.replaceState({}, '', window.location.pathname);
-        }
         await loadDashboard();
         return;
       }
@@ -1172,6 +1172,8 @@ async function checkAutoLogin() {
       console.error('Auto-login error:', e);
     }
 
+    // Token in session was invalid — clear it and show login
+    sessionStorage.removeItem('rg_client_token');
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
   }
