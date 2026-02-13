@@ -2230,13 +2230,13 @@ function pdfChartConfig(labels, leadsData, spendData) {
       responsive: false,
       animation: false,
       plugins: {
-        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 20, font: { family: 'Inter', size: 16, weight: '500' }, color: '#6b7280' } },
+        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 20, font: { family: 'Inter', size: 28, weight: '500' }, color: '#6b7280' } },
         tooltip: { enabled: false }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', padding: 6, maxRotation: 45, autoSkip: false } },
-        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
-        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', padding: 6, callback: function(v) { return '\u20AC' + Math.round(v); } }, beginAtZero: true }
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 28 }, color: '#b0b5be', padding: 6, maxRotation: 45, autoSkip: false } },
+        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 28 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
+        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 28 }, color: '#b0b5be', padding: 6, callback: function(v) { return '\u20AC' + Math.round(v); } }, beginAtZero: true }
       }
     }
   };
@@ -2540,7 +2540,7 @@ async function exportPDF() {
     // ---- 4. TREND CHART ----
     checkPage(75);
     pdfDrawSectionTitle(doc, margin, y, 'Wöchentlicher Verlauf');
-    y += 5;
+    y += 8;
 
     var weekMap = {};
     metrics.forEach(function(m) {
@@ -2570,65 +2570,10 @@ async function exportPDF() {
     doc.addImage(chartImg, 'PNG', margin + 2, y + 2, contentWidth - 4, 58);
     y += 68;
 
-    // ---- 5. BENCHMARK INSIGHTS ----
-    var insights = collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks);
-    if (insights.length > 0) {
-      checkPage(10 + insights.length * 9);
-      pdfDrawSectionTitle(doc, margin, y, 'Performance Insights');
-      y += 5;
-      insights.forEach(function(text) {
-        checkPage(10);
-        // Green left border bar
-        doc.setFillColor(22, 163, 74);
-        doc.rect(margin, y, 1.2, 7, 'F');
-        // Light green background
-        pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(9);
-        doc.setTextColor(75, 85, 99);
-        doc.text(text, margin + 4, y + 4.5);
-        y += 9;
-      });
-      y += 4;
-    }
-
-    // ---- 6. CREATIVE PERFORMANCE ----
-    var scoredCreatives = collectScoredCreatives(allCreatives);
-    if (scoredCreatives.length > 0) {
-      checkPage(14 + scoredCreatives.length * 8);
-      pdfDrawSectionTitle(doc, margin, y, 'Creative Performance');
-      y += 5;
-      var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
-      var crAlign = ['left', 'left', 'right', 'right', 'right'];
-      // Header row
-      pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
-        bold: true, fontSize: 9, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
-      });
-      y += 1;
-      // Separator
-      doc.setDrawColor(232, 234, 237);
-      doc.setLineWidth(0.4);
-      doc.line(margin, y, margin + contentWidth, y);
-      y += 4;
-      scoredCreatives.forEach(function(t, i) {
-        checkPage(9);
-        var cplStr = t.leads > 0 ? formatEUR(t.cpl) : '\u2014';
-        if (i % 2 === 1) {
-          doc.setFillColor(248, 249, 251);
-          doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
-        }
-        pdfDrawTableRow(doc, margin, y, [String(i + 1), formatCreativeType(t.type), String(t.leads), cplStr, String(t.score)], crColWidths, {
-          bold: false, fontSize: 9, align: crAlign
-        });
-        y += 7;
-      });
-      y += 6;
-    }
-
-    // ---- 7. CAMPAIGN TABLE ----
+    // ---- 5. CAMPAIGN TABLE ----
     checkPage(20);
     pdfDrawSectionTitle(doc, margin, y, 'Kampagnen-Übersicht');
-    y += 5;
+    y += 8;
 
     // Compute per-campaign metrics in current filter
     var campMetricsMap = {};
@@ -2676,6 +2621,61 @@ async function exportPDF() {
       });
       y += 7;
     });
+
+    // ---- 6. BENCHMARK INSIGHTS ----
+    var insights = collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks);
+    if (insights.length > 0) {
+      checkPage(10 + insights.length * 9);
+      pdfDrawSectionTitle(doc, margin, y, 'Performance Insights');
+      y += 8;
+      insights.forEach(function(text) {
+        checkPage(10);
+        // Green left border bar
+        doc.setFillColor(22, 163, 74);
+        doc.rect(margin, y, 1.2, 7, 'F');
+        // Light green background
+        pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(75, 85, 99);
+        doc.text(text, margin + 4, y + 4.5);
+        y += 9;
+      });
+      y += 4;
+    }
+
+    // ---- 7. CREATIVE PERFORMANCE ----
+    var scoredCreatives = collectScoredCreatives(allCreatives);
+    if (scoredCreatives.length > 0) {
+      checkPage(14 + scoredCreatives.length * 8);
+      pdfDrawSectionTitle(doc, margin, y, 'Creative Performance');
+      y += 8;
+      var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
+      var crAlign = ['left', 'left', 'right', 'right', 'right'];
+      // Header row
+      pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
+        bold: true, fontSize: 9, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
+      });
+      y += 1;
+      // Separator
+      doc.setDrawColor(232, 234, 237);
+      doc.setLineWidth(0.4);
+      doc.line(margin, y, margin + contentWidth, y);
+      y += 4;
+      scoredCreatives.forEach(function(t, i) {
+        checkPage(9);
+        var cplStr = t.leads > 0 ? formatEUR(t.cpl) : '\u2014';
+        if (i % 2 === 1) {
+          doc.setFillColor(248, 249, 251);
+          doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
+        }
+        pdfDrawTableRow(doc, margin, y, [String(i + 1), formatCreativeType(t.type), String(t.leads), cplStr, String(t.score)], crColWidths, {
+          bold: false, fontSize: 9, align: crAlign
+        });
+        y += 7;
+      });
+      y += 6;
+    }
 
     // ---- 8. FOOTER (all pages) ----
     pdfDrawFooter(doc, margin, dateStr);
@@ -2826,7 +2826,7 @@ async function exportCampaignPDF() {
     // ---- 5. DAILY CHART ----
     checkPage(75);
     pdfDrawSectionTitle(doc, margin, y, 'Tagesverlauf');
-    y += 5;
+    y += 8;
 
     var sorted = campMetrics.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
     var chartImg = await renderChartToImage(
@@ -2849,7 +2849,7 @@ async function exportCampaignPDF() {
     if (insights.length > 0) {
       checkPage(10 + insights.length * 9);
       pdfDrawSectionTitle(doc, margin, y, 'Performance Insights');
-      y += 5;
+      y += 8;
       insights.forEach(function(text) {
         checkPage(10);
         doc.setFillColor(22, 163, 74);
@@ -2870,7 +2870,7 @@ async function exportCampaignPDF() {
     if (scoredCreatives.length > 0) {
       checkPage(14 + scoredCreatives.length * 8);
       pdfDrawSectionTitle(doc, margin, y, 'Creative Performance');
-      y += 5;
+      y += 8;
       var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
       var crAlign = ['left', 'left', 'right', 'right', 'right'];
       pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
