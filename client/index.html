@@ -2095,9 +2095,9 @@ function renderDetailChart(metrics) {
         }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', maxRotation: 45, padding: 6, autoSkip: false } },
-        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
-        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', padding: 6, callback: v => formatEUR(v) }, beginAtZero: true }
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', maxRotation: 45, padding: 6, autoSkip: false } },
+        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
+        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', padding: 6, callback: v => formatEUR(v) }, beginAtZero: true }
       }
     }
   });
@@ -2230,13 +2230,13 @@ function pdfChartConfig(labels, leadsData, spendData) {
       responsive: false,
       animation: false,
       plugins: {
-        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 20, font: { family: 'Inter', size: 11, weight: '500' }, color: '#6b7280' } },
+        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 20, font: { family: 'Inter', size: 16, weight: '500' }, color: '#6b7280' } },
         tooltip: { enabled: false }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', padding: 6, maxRotation: 45, autoSkip: false } },
-        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
-        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', padding: 6, callback: function(v) { return '\u20AC' + Math.round(v); } }, beginAtZero: true }
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', padding: 6, maxRotation: 45, autoSkip: false } },
+        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
+        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', padding: 6, callback: function(v) { return '\u20AC' + Math.round(v); } }, beginAtZero: true }
       }
     }
   };
@@ -2336,19 +2336,19 @@ function pdfDrawKpiCard(doc, x, y, w, h, label, value) {
   doc.setLineWidth(0.3);
   doc.roundedRect(x, y, w, h, 3, 3, 'S');
   // Label
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
+  doc.setFont('Inter', 'bold');
+  doc.setFontSize(8.5);
   doc.setTextColor(156, 163, 175);
   doc.text(label.toUpperCase(), x + 6, y + 10);
   // Value
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('Inter', 'bold');
   doc.setFontSize(16);
   doc.setTextColor(17, 24, 39);
   doc.text(value, x + 6, y + 22);
 }
 
 function pdfDrawSectionTitle(doc, x, y, text) {
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('Inter', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(17, 24, 39);
   doc.text(text, x, y);
@@ -2360,7 +2360,7 @@ function pdfDrawTableRow(doc, x, y, cols, colWidths, opts) {
     doc.setFillColor(opts.bg[0], opts.bg[1], opts.bg[2]);
     doc.rect(x, y - rowH + 2.5, colWidths.reduce(function(a, b) { return a + b; }, 0), rowH, 'F');
   }
-  doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
+  doc.setFont('Inter', opts.bold ? 'bold' : 'normal');
   doc.setFontSize(opts.fontSize || 8.5);
   doc.setTextColor(opts.color ? opts.color[0] : 17, opts.color ? opts.color[1] : 24, opts.color ? opts.color[2] : 39);
   var cx = x;
@@ -2381,7 +2381,7 @@ function pdfDrawFooter(doc, margin, dateStr) {
   var pageCount = doc.internal.getNumberOfPages();
   for (var p = 1; p <= pageCount; p++) {
     doc.setPage(p);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Inter', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(156, 163, 175);
     doc.text('Erstellt von Run & Gun \u2014 ' + dateStr, margin, 288);
@@ -2404,13 +2404,13 @@ function collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, tota
   }
   var percentile = getCPLPercentile(thisCPL);
   if (percentile !== null && percentile >= 75) {
-    items.push('Diese Kampagne gehoert zu den Top ' + (100 - percentile) + '% aller R&G Kampagnen');
+    items.push('Diese Kampagne gehört zu den Top ' + (100 - percentile) + '% aller R&G Kampagnen');
   }
   if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
     var thisCTR = (totalClicks / totalImpressions) * 100;
     if (thisCTR > benchmarkData.avgCTR) {
       var pctA = ((thisCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
-      items.push('CTR von ' + thisCTR.toFixed(2) + '% \u2014 ' + pctA + '% ueber dem Durchschnitt');
+      items.push('CTR von ' + thisCTR.toFixed(2) + '% \u2014 ' + pctA + '% über dem Durchschnitt');
     }
   }
   return items;
@@ -2435,6 +2435,40 @@ function collectScoredCreatives(creativesArr) {
 }
 
 // ============================================
+// PDF EXPORT — FONT LOADING
+// ============================================
+async function loadFontBase64(url) {
+  const res = await fetch(url);
+  const buf = await res.arrayBuffer();
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+
+async function setupPDFFont(doc) {
+  try {
+    // Load Inter Regular and Bold fonts from Google Fonts CDN
+    const interRegularUrl = 'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2';
+    const interBoldUrl = 'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuBWwAZ9hiJ-Ek-_EeA.woff2';
+
+    const interRegularBase64 = await loadFontBase64(interRegularUrl);
+    const interBoldBase64 = await loadFontBase64(interBoldUrl);
+
+    // Register fonts with jsPDF
+    doc.addFileToVFS('Inter-Regular.woff2', interRegularBase64);
+    doc.addFont('Inter-Regular.woff2', 'Inter', 'normal');
+    doc.addFileToVFS('Inter-Bold.woff2', interBoldBase64);
+    doc.addFont('Inter-Bold.woff2', 'Inter', 'bold');
+
+    // Set default font to Inter
+    doc.setFont('Inter', 'normal');
+    return true;
+  } catch (error) {
+    console.warn('Failed to load Inter font, falling back to Helvetica:', error);
+    doc.setFont('Inter', 'normal');
+    return false;
+  }
+}
+
+// ============================================
 // PDF EXPORT — OVERVIEW (Gesamt-Report)
 // ============================================
 async function exportPDF() {
@@ -2445,6 +2479,10 @@ async function exportPDF() {
   try {
     var { jsPDF } = window.jspdf;
     var doc = new jsPDF('p', 'mm', 'a4');
+
+    // Setup font for umlaut support
+    await setupPDFFont(doc);
+
     var pageWidth = 210;
     var margin = 18;
     var contentWidth = pageWidth - margin * 2;
@@ -2476,12 +2514,12 @@ async function exportPDF() {
     }
 
     // ---- 2. HEADER ----
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Inter', 'bold');
     doc.setFontSize(18);
     doc.setTextColor(17, 24, 39);
     doc.text('Kampagnen-Report', margin + (logoB64 ? 16 : 0), y + 5);
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Inter', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(107, 114, 128);
     doc.text((clientData.name || '') + ' \u2014 ' + periodLabel, margin + (logoB64 ? 16 : 0), y + 11);
@@ -2492,7 +2530,7 @@ async function exportPDF() {
     doc.text('Erstellt am', pageWidth - margin, y + 3, { align: 'right' });
     doc.setFontSize(9);
     doc.setTextColor(107, 114, 128);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Inter', 'bold');
     doc.text(dateStr, pageWidth - margin, y + 8, { align: 'right' });
 
     y += 16;
@@ -2525,7 +2563,7 @@ async function exportPDF() {
 
     // ---- 4. TREND CHART ----
     checkPage(75);
-    pdfDrawSectionTitle(doc, margin, y, 'Woechentlicher Verlauf');
+    pdfDrawSectionTitle(doc, margin, y, 'Wöchentlicher Verlauf');
     y += 5;
 
     var weekMap = {};
@@ -2546,7 +2584,7 @@ async function exportPDF() {
         weeks.map(function(w) { return w.leads; }),
         weeks.map(function(w) { return w.spend; })
       ),
-      700, 280
+      1400, 560
     );
 
     // Draw chart border
@@ -2569,8 +2607,8 @@ async function exportPDF() {
         doc.rect(margin, y, 1.2, 7, 'F');
         // Light green background
         pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8);
+        doc.setFont('Inter', 'normal');
+        doc.setFontSize(9);
         doc.setTextColor(75, 85, 99);
         doc.text(text, margin + 4, y + 4.5);
         y += 9;
@@ -2588,7 +2626,7 @@ async function exportPDF() {
       var crAlign = ['left', 'left', 'right', 'right', 'right'];
       // Header row
       pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
-        bold: true, fontSize: 7, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
+        bold: true, fontSize: 9, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
       });
       y += 1;
       // Separator
@@ -2604,7 +2642,7 @@ async function exportPDF() {
           doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
         }
         pdfDrawTableRow(doc, margin, y, [String(i + 1), formatCreativeType(t.type), String(t.leads), cplStr, String(t.score)], crColWidths, {
-          bold: false, fontSize: 8, align: crAlign
+          bold: false, fontSize: 9, align: crAlign
         });
         y += 7;
       });
@@ -2613,7 +2651,7 @@ async function exportPDF() {
 
     // ---- 7. CAMPAIGN TABLE ----
     checkPage(20);
-    pdfDrawSectionTitle(doc, margin, y, 'Kampagnen-Uebersicht');
+    pdfDrawSectionTitle(doc, margin, y, 'Kampagnen-Übersicht');
     y += 5;
 
     // Compute per-campaign metrics in current filter
@@ -2631,7 +2669,7 @@ async function exportPDF() {
 
     // Table header
     pdfDrawTableRow(doc, margin, y, ['Objekt', 'Status', 'Ausgaben', 'Leads', 'CPL', 'Impressions'], tblColWidths, {
-      bold: true, fontSize: 7, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: tblAlign
+      bold: true, fontSize: 9, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: tblAlign
     });
     y += 1;
     doc.setDrawColor(232, 234, 237);
@@ -2658,7 +2696,7 @@ async function exportPDF() {
         doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
       }
       pdfDrawTableRow(doc, margin, y, [name, statusLabel, formatEUR(fm.spend), String(fm.leads), cpl, formatNum(fm.impressions)], tblColWidths, {
-        bold: false, fontSize: 8, align: tblAlign
+        bold: false, fontSize: 9, align: tblAlign
       });
       y += 7;
     });
@@ -2693,6 +2731,10 @@ async function exportCampaignPDF() {
   try {
     var { jsPDF } = window.jspdf;
     var doc = new jsPDF('p', 'mm', 'a4');
+
+    // Setup font for umlaut support
+    await setupPDFFont(doc);
+
     var pageWidth = 210;
     var margin = 18;
     var contentWidth = pageWidth - margin * 2;
@@ -2727,12 +2769,12 @@ async function exportCampaignPDF() {
     }
 
     // ---- 2. HEADER ----
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Inter', 'bold');
     doc.setFontSize(18);
     doc.setTextColor(17, 24, 39);
     doc.text(campaignName, margin + (logoB64 ? 16 : 0), y + 5);
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Inter', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(107, 114, 128);
     doc.text((clientData.name || '') + ' \u2014 ' + dateRange, margin + (logoB64 ? 16 : 0), y + 11);
@@ -2743,7 +2785,7 @@ async function exportCampaignPDF() {
     doc.text('Erstellt am', pageWidth - margin, y + 3, { align: 'right' });
     doc.setFontSize(9);
     doc.setTextColor(107, 114, 128);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Inter', 'bold');
     doc.text(dateStr, pageWidth - margin, y + 8, { align: 'right' });
 
     y += 16;
@@ -2773,11 +2815,11 @@ async function exportCampaignPDF() {
       var pfW = contentWidth / propFields.length;
       propFields.forEach(function(pf, pi) {
         var px = margin + pi * pfW + 6;
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(7);
+        doc.setFont('Inter', 'bold');
+        doc.setFontSize(8);
         doc.setTextColor(156, 163, 175);
         doc.text(pf[0].toUpperCase(), px, y + 7);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont('Inter', 'bold');
         doc.setFontSize(10);
         doc.setTextColor(17, 24, 39);
         doc.text(String(pf[1]), px, y + 13);
@@ -2817,7 +2859,7 @@ async function exportCampaignPDF() {
         sorted.map(function(m) { return parseInt(m.leads) || 0; }),
         sorted.map(function(m) { return parseFloat(m.spend) || 0; })
       ),
-      700, 260
+      1400, 520
     );
 
     doc.setDrawColor(238, 240, 243);
@@ -2837,8 +2879,8 @@ async function exportCampaignPDF() {
         doc.setFillColor(22, 163, 74);
         doc.rect(margin, y, 1.2, 7, 'F');
         pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8);
+        doc.setFont('Inter', 'normal');
+        doc.setFontSize(9);
         doc.setTextColor(75, 85, 99);
         doc.text(text, margin + 4, y + 4.5);
         y += 9;
@@ -2856,7 +2898,7 @@ async function exportCampaignPDF() {
       var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
       var crAlign = ['left', 'left', 'right', 'right', 'right'];
       pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
-        bold: true, fontSize: 7, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
+        bold: true, fontSize: 9, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
       });
       y += 1;
       doc.setDrawColor(232, 234, 237);
@@ -2871,7 +2913,7 @@ async function exportCampaignPDF() {
           doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
         }
         pdfDrawTableRow(doc, margin, y, [String(i + 1), formatCreativeType(t.type), String(t.leads), cplStr, String(t.score)], crColWidths, {
-          bold: false, fontSize: 8, align: crAlign
+          bold: false, fontSize: 9, align: crAlign
         });
         y += 7;
       });
@@ -2935,7 +2977,7 @@ const CREATIVE_LABELS = {
   'th_reel': 'Talking Head Reel',
   'scn_reel': 'Szenisches Reel',
   'single_image': 'Einzelbild',
-  'carousel': 'Karussell',
+  'carousel': 'Carousel',
   'reel': 'Video Reel',
   'video': 'Video',
   'story': 'Story',
