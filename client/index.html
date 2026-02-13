@@ -190,8 +190,10 @@
 
     /* Top Nav */
     .topnav {
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       background: rgba(255,255,255,0.88);
       backdrop-filter: blur(16px) saturate(180%);
       -webkit-backdrop-filter: blur(16px) saturate(180%);
@@ -201,7 +203,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      z-index: 100;
+      z-index: 1000;
     }
 
     .topnav-left {
@@ -279,6 +281,7 @@
       align-items: center;
       gap: 12px;
       padding: 14px 32px;
+      padding-top: 78px;
       border-bottom: 1px solid rgba(0,0,0,0.05);
       background: var(--bg-card);
     }
@@ -971,30 +974,6 @@
         </div>
         <div class="card-body">
           <div class="creative-ranking" id="mainCreativeRanking"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Campaigns Table -->
-    <div class="section">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title" id="campaignsTitle">Kampagnen</span>
-        </div>
-        <div style="overflow-x:auto">
-          <table class="campaign-table" id="campaignTable">
-            <thead>
-              <tr>
-                <th class="sortable" data-sort="name" onclick="sortTable('name')">Objekt <span class="sort-icon">↕</span></th>
-                <th>Status</th>
-                <th class="sortable" data-sort="period" onclick="sortTable('period')">Zeitraum <span class="sort-icon">↕</span></th>
-                <th class="sortable" data-sort="spend" onclick="sortTable('spend')">Ausgaben <span class="sort-icon">↕</span></th>
-                <th class="sortable" data-sort="leads" onclick="sortTable('leads')">Leads <span class="sort-icon">↕</span></th>
-                <th class="sortable" data-sort="cpl" onclick="sortTable('cpl')">CPL <span class="sort-icon">↕</span></th>
-              </tr>
-            </thead>
-            <tbody id="campaignTableBody"></tbody>
-          </table>
         </div>
       </div>
     </div>
@@ -1736,12 +1715,12 @@ function renderTrendChart(metrics) {
     const week = getISOWeek(d);
     const year = d.getFullYear();
     const key = `${year}-W${String(week).padStart(2, '0')}`;
-    if (!weekMap[key]) weekMap[key] = { spend: 0, leads: 0, label: key };
+    if (!weekMap[key]) weekMap[key] = { spend: 0, leads: 0, label: `KW ${week}`, key: key };
     weekMap[key].spend += parseFloat(m.spend) || 0;
     weekMap[key].leads += parseInt(m.leads) || 0;
   });
 
-  const weeks = Object.values(weekMap).sort((a, b) => a.label.localeCompare(b.label));
+  const weeks = Object.values(weekMap).sort((a, b) => a.key.localeCompare(b.key));
   const labels = weeks.map(w => w.label);
   const spendData = weeks.map(w => w.spend);
   const leadsData = weeks.map(w => w.leads);
@@ -2523,11 +2502,11 @@ async function exportPDF() {
       var week = getISOWeek(d);
       var yr = d.getFullYear();
       var key = yr + '-W' + String(week).padStart(2, '0');
-      if (!weekMap[key]) weekMap[key] = { spend: 0, leads: 0, label: key };
+      if (!weekMap[key]) weekMap[key] = { spend: 0, leads: 0, label: 'KW ' + week, key: key };
       weekMap[key].spend += parseFloat(m.spend) || 0;
       weekMap[key].leads += parseInt(m.leads) || 0;
     });
-    var weeks = Object.values(weekMap).sort(function(a, b) { return a.label.localeCompare(b.label); });
+    var weeks = Object.values(weekMap).sort(function(a, b) { return a.key.localeCompare(b.key); });
 
     var chartImg = await renderChartToImage(
       pdfChartConfig(
@@ -2920,16 +2899,19 @@ function formatPropertyType(type) {
   return map[type] || type || '—';
 }
 
+const CREATIVE_LABELS = {
+  'th_reel': 'Talking Head Reel',
+  'scn_reel': 'Szenisches Reel',
+  'single_image': 'Einzelbild',
+  'carousel': 'Karussell',
+  'reel': 'Video Reel',
+  'video': 'Video',
+  'story': 'Story',
+  'sonstige': 'Sonstige'
+};
+
 function formatCreativeType(type) {
-  const map = {
-    'single_image': 'Single Image',
-    'carousel': 'Carousel',
-    'reel': 'Video Reel',
-    'video': 'Video',
-    'story': 'Story',
-    'sonstige': 'Sonstige'
-  };
-  return map[type] || type || '—';
+  return CREATIVE_LABELS[type] || type || '—';
 }
 
 function escHtml(str) {
