@@ -398,19 +398,20 @@
     }
 
     /* Section */
-    .section { margin-bottom: 36px; }
+    .section { margin-bottom: 48px; }
 
     .section-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .section-title {
       font-size: 17px;
       font-weight: 700;
       letter-spacing: -0.02em;
+      color: var(--text-primary);
     }
 
     /* Card */
@@ -1144,16 +1145,20 @@ function logout() {
   document.getElementById('tokenInput').value = '';
 }
 
-// Check token on load (session storage only — URL tokens are ignored for security)
+// Check token on load — supports URL ?token=XXX auto-login and session storage
 async function checkAutoLogin() {
-  // Strip any ?t= token from the URL without using it (prevent link-based auto-login)
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('t')) {
+
+  // Support ?token=XXX for auto-login from URL
+  let token = urlParams.get('token') || urlParams.get('t');
+  if (token) {
+    // Strip token from URL for cleanliness (don't leak in browser history)
     window.history.replaceState({}, '', window.location.pathname);
+    sessionStorage.setItem('rg_client_token', token);
+  } else {
+    token = sessionStorage.getItem('rg_client_token');
   }
 
-  const token = sessionStorage.getItem('rg_client_token');
-  
   if (token) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('loadingScreen').style.display = 'flex';
@@ -1824,7 +1829,7 @@ function renderTrendChart(metrics) {
         x: {
           grid: { display: false },
           border: { display: false },
-          ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', padding: 8 }
+          ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', padding: 8, autoSkip: false, maxRotation: 0 }
         },
         y: {
           position: 'left',
@@ -2087,7 +2092,7 @@ function renderDetailChart(metrics) {
         }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', maxRotation: 45, padding: 6 } },
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', maxRotation: 45, padding: 6, autoSkip: false } },
         y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
         y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', padding: 6, callback: v => formatEUR(v) }, beginAtZero: true }
       }
@@ -2226,7 +2231,7 @@ function pdfChartConfig(labels, leadsData, spendData) {
         tooltip: { enabled: false }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', padding: 6, maxRotation: 45 } },
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', padding: 6, maxRotation: 45, autoSkip: false } },
         y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
         y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 10 }, color: '#b0b5be', padding: 6, callback: function(v) { return '\u20AC' + Math.round(v); } }, beginAtZero: true }
       }
