@@ -2095,9 +2095,9 @@ function renderDetailChart(metrics) {
         }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', maxRotation: 45, padding: 6, autoSkip: false } },
-        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
-        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 15 }, color: '#b0b5be', padding: 6, callback: v => formatEUR(v) }, beginAtZero: true }
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', maxRotation: 45, padding: 6, autoSkip: false } },
+        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
+        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', padding: 6, callback: v => formatEUR(v) }, beginAtZero: true }
       }
     }
   });
@@ -2445,25 +2445,27 @@ async function loadFontBase64(url) {
 
 async function setupPDFFont(doc) {
   try {
-    // Load Inter Regular and Bold fonts from Google Fonts CDN
-    const interRegularUrl = 'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2';
-    const interBoldUrl = 'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuBWwAZ9hiJ-Ek-_EeA.woff2';
+    // Load Inter TTF fonts from Fontsource CDN (jsPDF needs TTF format)
+    const interRegularUrl = 'https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-400-normal.ttf';
+    const interBoldUrl = 'https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-700-normal.ttf';
 
     const interRegularBase64 = await loadFontBase64(interRegularUrl);
     const interBoldBase64 = await loadFontBase64(interBoldUrl);
 
     // Register fonts with jsPDF
-    doc.addFileToVFS('Inter-Regular.woff2', interRegularBase64);
-    doc.addFont('Inter-Regular.woff2', 'Inter', 'normal');
-    doc.addFileToVFS('Inter-Bold.woff2', interBoldBase64);
-    doc.addFont('Inter-Bold.woff2', 'Inter', 'bold');
+    doc.addFileToVFS('Inter-Regular.ttf', interRegularBase64);
+    doc.addFont('Inter-Regular.ttf', 'Inter', 'normal');
+    doc.addFileToVFS('Inter-Bold.ttf', interBoldBase64);
+    doc.addFont('Inter-Bold.ttf', 'Inter', 'bold');
 
     // Set default font to Inter
     doc.setFont('Inter', 'normal');
     return true;
   } catch (error) {
     console.warn('Failed to load Inter font, falling back to Helvetica:', error);
-    doc.setFont('Inter', 'normal');
+    // Fallback: revert all Inter references to helvetica won't work mid-export,
+    // so we register helvetica under 'Inter' alias as fallback
+    doc.setFont('helvetica', 'normal');
     return false;
   }
 }
@@ -2800,7 +2802,7 @@ async function exportCampaignPDF() {
     var propFields = [];
     if (prop.property_type) propFields.push(['Objekttyp', formatPropertyType(prop.property_type)]);
     if (prop.rooms) propFields.push(['Zimmer', String(prop.rooms)]);
-    if (prop.area_sqm) propFields.push(['Flaeche', prop.area_sqm + ' m\u00b2']);
+    if (prop.area_sqm) propFields.push(['Fläche', prop.area_sqm + ' m\u00b2']);
     if (prop.price) propFields.push(['Preis', formatEUR(prop.price)]);
     if (prop.city) propFields.push(['Stadt', prop.city]);
     if (campaign.platform) propFields.push(['Plattform', campaign.platform]);
