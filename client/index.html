@@ -2336,19 +2336,19 @@ function pdfDrawKpiCard(doc, x, y, w, h, label, value) {
   doc.setLineWidth(0.3);
   doc.roundedRect(x, y, w, h, 3, 3, 'S');
   // Label
-  doc.setFont('Inter', 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.5);
   doc.setTextColor(156, 163, 175);
   doc.text(label.toUpperCase(), x + 6, y + 10);
   // Value
-  doc.setFont('Inter', 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   doc.setTextColor(17, 24, 39);
   doc.text(value, x + 6, y + 22);
 }
 
 function pdfDrawSectionTitle(doc, x, y, text) {
-  doc.setFont('Inter', 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(17, 24, 39);
   doc.text(text, x, y);
@@ -2360,7 +2360,7 @@ function pdfDrawTableRow(doc, x, y, cols, colWidths, opts) {
     doc.setFillColor(opts.bg[0], opts.bg[1], opts.bg[2]);
     doc.rect(x, y - rowH + 2.5, colWidths.reduce(function(a, b) { return a + b; }, 0), rowH, 'F');
   }
-  doc.setFont('Inter', opts.bold ? 'bold' : 'normal');
+  doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
   doc.setFontSize(opts.fontSize || 8.5);
   doc.setTextColor(opts.color ? opts.color[0] : 17, opts.color ? opts.color[1] : 24, opts.color ? opts.color[2] : 39);
   var cx = x;
@@ -2381,7 +2381,7 @@ function pdfDrawFooter(doc, margin, dateStr) {
   var pageCount = doc.internal.getNumberOfPages();
   for (var p = 1; p <= pageCount; p++) {
     doc.setPage(p);
-    doc.setFont('Inter', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(156, 163, 175);
     doc.text('Erstellt von Run & Gun \u2014 ' + dateStr, margin, 288);
@@ -2437,37 +2437,11 @@ function collectScoredCreatives(creativesArr) {
 // ============================================
 // PDF EXPORT — FONT LOADING
 // ============================================
-async function loadFontBase64(url) {
-  const res = await fetch(url);
-  const buf = await res.arrayBuffer();
-  return btoa(String.fromCharCode(...new Uint8Array(buf)));
-}
-
 async function setupPDFFont(doc) {
-  try {
-    // Load Inter TTF fonts from Fontsource CDN (jsPDF needs TTF format)
-    const interRegularUrl = 'https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-400-normal.ttf';
-    const interBoldUrl = 'https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-700-normal.ttf';
-
-    const interRegularBase64 = await loadFontBase64(interRegularUrl);
-    const interBoldBase64 = await loadFontBase64(interBoldUrl);
-
-    // Register fonts with jsPDF
-    doc.addFileToVFS('Inter-Regular.ttf', interRegularBase64);
-    doc.addFont('Inter-Regular.ttf', 'Inter', 'normal');
-    doc.addFileToVFS('Inter-Bold.ttf', interBoldBase64);
-    doc.addFont('Inter-Bold.ttf', 'Inter', 'bold');
-
-    // Set default font to Inter
-    doc.setFont('Inter', 'normal');
-    return true;
-  } catch (error) {
-    console.warn('Failed to load Inter font, falling back to Helvetica:', error);
-    // Fallback: revert all Inter references to helvetica won't work mid-export,
-    // so we register helvetica under 'Inter' alias as fallback
-    doc.setFont('helvetica', 'normal');
-    return false;
-  }
+  // jsPDF's built-in Helvetica supports WinAnsiEncoding which includes
+  // German umlauts (ö, ä, ü, ß, Ö, Ä, Ü). No custom font embedding needed.
+  doc.setFont('helvetica', 'normal');
+  return true;
 }
 
 // ============================================
@@ -2516,12 +2490,12 @@ async function exportPDF() {
     }
 
     // ---- 2. HEADER ----
-    doc.setFont('Inter', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
     doc.setTextColor(17, 24, 39);
     doc.text('Kampagnen-Report', margin + (logoB64 ? 16 : 0), y + 5);
 
-    doc.setFont('Inter', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(107, 114, 128);
     doc.text((clientData.name || '') + ' \u2014 ' + periodLabel, margin + (logoB64 ? 16 : 0), y + 11);
@@ -2532,7 +2506,7 @@ async function exportPDF() {
     doc.text('Erstellt am', pageWidth - margin, y + 3, { align: 'right' });
     doc.setFontSize(9);
     doc.setTextColor(107, 114, 128);
-    doc.setFont('Inter', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text(dateStr, pageWidth - margin, y + 8, { align: 'right' });
 
     y += 16;
@@ -2609,7 +2583,7 @@ async function exportPDF() {
         doc.rect(margin, y, 1.2, 7, 'F');
         // Light green background
         pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
-        doc.setFont('Inter', 'normal');
+        doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         doc.setTextColor(75, 85, 99);
         doc.text(text, margin + 4, y + 4.5);
@@ -2771,12 +2745,12 @@ async function exportCampaignPDF() {
     }
 
     // ---- 2. HEADER ----
-    doc.setFont('Inter', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
     doc.setTextColor(17, 24, 39);
     doc.text(campaignName, margin + (logoB64 ? 16 : 0), y + 5);
 
-    doc.setFont('Inter', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(107, 114, 128);
     doc.text((clientData.name || '') + ' \u2014 ' + dateRange, margin + (logoB64 ? 16 : 0), y + 11);
@@ -2787,7 +2761,7 @@ async function exportCampaignPDF() {
     doc.text('Erstellt am', pageWidth - margin, y + 3, { align: 'right' });
     doc.setFontSize(9);
     doc.setTextColor(107, 114, 128);
-    doc.setFont('Inter', 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text(dateStr, pageWidth - margin, y + 8, { align: 'right' });
 
     y += 16;
@@ -2817,11 +2791,11 @@ async function exportCampaignPDF() {
       var pfW = contentWidth / propFields.length;
       propFields.forEach(function(pf, pi) {
         var px = margin + pi * pfW + 6;
-        doc.setFont('Inter', 'bold');
+        doc.setFont('helvetica', 'bold');
         doc.setFontSize(8);
         doc.setTextColor(156, 163, 175);
         doc.text(pf[0].toUpperCase(), px, y + 7);
-        doc.setFont('Inter', 'bold');
+        doc.setFont('helvetica', 'bold');
         doc.setFontSize(10);
         doc.setTextColor(17, 24, 39);
         doc.text(String(pf[1]), px, y + 13);
@@ -2881,7 +2855,7 @@ async function exportCampaignPDF() {
         doc.setFillColor(22, 163, 74);
         doc.rect(margin, y, 1.2, 7, 'F');
         pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
-        doc.setFont('Inter', 'normal');
+        doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         doc.setTextColor(75, 85, 99);
         doc.text(text, margin + 4, y + 4.5);
