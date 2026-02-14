@@ -1,81 +1,43 @@
-# Client Dashboard Fix Task
+# PDF Export Fixes — URGENT
 
-## File
-Only edit: `index.html` (single-file app, ~2970 lines)
+Edit ONLY `index.html`. Do NOT change Supabase URLs/keys. Keep all existing functionality.
 
-## Fixes Required
+## Fix 1: Section Order in PDF
+In `exportPDF()` function, the current order is:
+1. KPI Cards
+2. Trend Chart ("Wöchentlicher Verlauf")
+3. Performance Insights
+4. Creative Performance
+5. Campaign Table ("Kampagnen-Übersicht")
 
-### 1. Change "Karussell" → "Carousel"
-In the `CREATIVE_LABELS` object (around line 2938), change `'carousel': 'Karussell'` to `'carousel': 'Carousel'`.
-"Carousel" is the official Instagram term — keep it English.
+**CORRECT order must be (matching the website):**
+1. KPI Cards
+2. Trend Chart ("Wöchentlicher Verlauf")
+3. Campaign Table ("Kampagnen-Übersicht") — MOVE THIS UP
+4. Performance Insights — MOVE THIS DOWN
+5. Creative Performance — KEEP LAST
 
-### 2. Fix PDF Export — German Umlauts
-jsPDF's built-in Helvetica font CANNOT render German umlauts (ö, ä, ü, ß). They show as "oe", "ae", "ue", "ss".
+Just reorder the sections (cut/paste the code blocks).
 
-**Fix all hardcoded strings in the PDF export functions:**
-- `'Woechentlicher Verlauf'` → `'Wöchentlicher Verlauf'` (around line 2549)
-- `'Kampagnen-Uebersicht'` → `'Kampagnen-Übersicht'` (around line 2637)
-- In `collectBenchmarkInsights()` function (around line 2415-2430):
-  - `'gehoert'` → `'gehört'`
-  - `'ueber'` → `'über'`
+## Fix 2: Section Title Spacing
+The section titles ("Creative Performance", "Kampagnen-Übersicht") overlap with the table below them.
+After each `pdfDrawSectionTitle()` call, there needs to be MORE vertical space before the table starts.
+Currently `y += 5` after section titles — change to `y += 8` for ALL section titles in both PDF functions.
 
-**CRITICAL**: Since jsPDF's built-in Helvetica doesn't support umlauts, you MUST embed a custom font that does. The best approach:
-1. Use a Base64-encoded font (e.g., Inter or Roboto) that supports full Latin charset including umlauts
-2. OR: Use the `html2canvas` approach instead of jsPDF direct drawing for text sections
-3. OR: At minimum, register a standard14 font with encoding that supports umlauts
+## Fix 3: Chart Labels MUCH Bigger
+In `pdfChartConfig()` function, the chart is rendered at 1400x560 but the font sizes are still too small.
+Change ALL font sizes in pdfChartConfig:
+- X-axis ticks: size 15 → **size 28**
+- Y-axis ticks: size 15 → **size 28**  
+- Y1-axis ticks: size 15 → **size 28**
+- Legend labels: size 16 → **size 28**
 
-**Simplest working approach**: After creating the jsPDF doc, add a font that supports umlauts. You can use:
-```js
-// Add the font before any text drawing
-doc.addFont('helvetica', 'helvetica', 'normal'); // won't fix it
+Also in the detail chart (`renderDetailChart`), keep sizes at 11 (those are for screen display, not PDF).
+
+## After fixing:
+```bash
+git add client/index.html
+git commit -m "fix(client): PDF section order, title spacing, chart label sizes"
+git push origin main
+openclaw gateway wake --text "PDF fixes done: section order, spacing, chart labels" --mode now
 ```
-
-Actually, the simplest fix: **Use Unicode escape sequences** that jsPDF CAN render. BUT jsPDF built-in fonts genuinely cannot render ö/ü/ä. So the real fix is to embed a web font.
-
-**Recommended approach**: Download Inter font as Base64 and register it:
-```js
-// At the top of exportPDF():
-doc.addFileToVFS('Inter-Regular.ttf', INTER_REGULAR_BASE64);
-doc.addFont('Inter-Regular.ttf', 'Inter', 'normal');
-doc.addFileToVFS('Inter-Bold.ttf', INTER_BOLD_BASE64);
-doc.addFont('Inter-Bold.ttf', 'Inter', 'bold');
-doc.setFont('Inter');
-```
-
-Fetch the Inter font files from Google Fonts CDN, convert to Base64, and embed them. The font files are ~90KB each which is fine for a PDF export.
-
-You can fetch the font at runtime:
-```js
-async function loadFontBase64(url) {
-  const res = await fetch(url);
-  const buf = await res.arrayBuffer();
-  return btoa(String.fromCharCode(...new Uint8Array(buf)));
-}
-```
-
-Then replace ALL `doc.setFont('helvetica', ...)` calls with `doc.setFont('Inter', ...)`.
-
-### 3. Fix PDF Chart Quality
-- The chart image is rendered at 700x280 pixels — too small for print
-- Increase to at least **1400x560** (2x) for crisp PDF rendering
-- Also increase font sizes in `pdfChartConfig()` for chart labels, axis ticks, and legend
-- Find the `pdfChartConfig` function and increase all font sizes by ~50%
-
-### 4. Fix PDF text sizes
-- KPI card label font size is 7.5 — increase to at least 8.5
-- KPI card value font size is 16 — this is fine
-- Table font sizes (7 for headers, 8 for rows) — increase to 8 and 9
-- Insight text is 8 — increase to 9
-- Section titles are 11 — this is fine
-- Footer text is 8 — this is fine
-
-## Rules
-- ONLY edit `index.html`
-- Do NOT change any Supabase URLs/keys
-- Do NOT change any business logic or data fetching
-- Keep all existing functionality intact
-- Test the PDF export mentally — make sure umlauts render correctly
-- After finishing, commit with message 'fix(client): PDF export quality - umlauts, chart resolution, font sizes' and push to origin main
-
-When completely finished, run this command to notify me:
-openclaw gateway wake --text "Done: PDF export fixes - umlauts, chart quality, font sizes, Carousel label" --mode now
