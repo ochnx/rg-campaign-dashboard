@@ -2235,8 +2235,8 @@ function pdfChartConfig(labels, leadsData, spendData) {
       },
       scales: {
         x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 44 }, color: '#b0b5be', padding: 8, maxRotation: 45, autoSkip: false } },
-        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 44 }, color: '#b0b5be', stepSize: 1, padding: 8 }, beginAtZero: true },
-        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 44 }, color: '#b0b5be', padding: 8, callback: function(v) { return '\u20AC' + Math.round(v); } }, beginAtZero: true }
+        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, title: { display: true, text: 'Leads', font: { family: 'Inter', size: 36, weight: '600' }, color: '#6b7280', padding: 12 }, ticks: { font: { family: 'Inter', size: 44 }, color: '#b0b5be', stepSize: 1, padding: 8 }, beginAtZero: true },
+        y1: { position: 'right', grid: { display: false }, border: { display: false }, title: { display: true, text: 'Ausgaben (\u20AC)', font: { family: 'Inter', size: 36, weight: '600' }, color: '#6b7280', padding: 12 }, ticks: { font: { family: 'Inter', size: 44 }, color: '#b0b5be', padding: 8, callback: function(v) { return '\u20AC' + Math.round(v); } }, beginAtZero: true }
       }
     }
   };
@@ -2349,7 +2349,7 @@ function pdfDrawKpiCard(doc, x, y, w, h, label, value) {
 
 function pdfDrawSectionTitle(doc, x, y, text) {
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
+  doc.setFontSize(13);
   doc.setTextColor(17, 24, 39);
   doc.text(text, x, y);
 }
@@ -2540,7 +2540,7 @@ async function exportPDF() {
     // ---- 4. TREND CHART ----
     checkPage(75);
     pdfDrawSectionTitle(doc, margin, y, 'Wöchentlicher Verlauf');
-    y += 10;
+    y += 14;
 
     var weekMap = {};
     metrics.forEach(function(m) {
@@ -2571,10 +2571,10 @@ async function exportPDF() {
     y += 68;
 
     // ---- 5. CAMPAIGN TABLE ----
-    y += 10;
+    y += 14;
     checkPage(20);
     pdfDrawSectionTitle(doc, margin, y, 'Kampagnen-Übersicht');
-    y += 10;
+    y += 14;
 
     // Compute per-campaign metrics in current filter
     var campMetricsMap = {};
@@ -2624,12 +2624,12 @@ async function exportPDF() {
     });
 
     // ---- 6. BENCHMARK INSIGHTS ----
-    y += 12;
+    y += 16;
     var insights = collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks);
     if (insights.length > 0) {
       checkPage(10 + insights.length * 9);
       pdfDrawSectionTitle(doc, margin, y, 'Performance Insights');
-      y += 10;
+      y += 14;
       insights.forEach(function(text) {
         checkPage(10);
         // Green left border bar
@@ -2647,12 +2647,12 @@ async function exportPDF() {
     }
 
     // ---- 7. CREATIVE PERFORMANCE ----
-    y += 10;
+    y += 14;
     var scoredCreatives = collectScoredCreatives(allCreatives);
     if (scoredCreatives.length > 0) {
       checkPage(14 + scoredCreatives.length * 8);
       pdfDrawSectionTitle(doc, margin, y, 'Creative Performance');
-      y += 10;
+      y += 14;
       var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
       var crAlign = ['left', 'left', 'right', 'right', 'right'];
       // Header row
@@ -2829,7 +2829,7 @@ async function exportCampaignPDF() {
     // ---- 5. DAILY CHART ----
     checkPage(75);
     pdfDrawSectionTitle(doc, margin, y, 'Tagesverlauf');
-    y += 10;
+    y += 14;
 
     var sorted = campMetrics.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
     var chartImg = await renderChartToImage(
@@ -2848,12 +2848,12 @@ async function exportCampaignPDF() {
     y += 64;
 
     // ---- 6. BENCHMARK INSIGHTS ----
-    y += 12;
+    y += 16;
     var insights = collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks);
     if (insights.length > 0) {
       checkPage(10 + insights.length * 9);
       pdfDrawSectionTitle(doc, margin, y, 'Performance Insights');
-      y += 10;
+      y += 14;
       insights.forEach(function(text) {
         checkPage(10);
         doc.setFillColor(22, 163, 74);
@@ -2869,13 +2869,13 @@ async function exportCampaignPDF() {
     }
 
     // ---- 7. CREATIVE PERFORMANCE TABLE ----
-    y += 10;
+    y += 14;
     var campCreatives = allCreatives.filter(function(c) { return c.campaign_id === currentDetailCampaignId; });
     var scoredCreatives = collectScoredCreatives(campCreatives);
     if (scoredCreatives.length > 0) {
       checkPage(14 + scoredCreatives.length * 8);
       pdfDrawSectionTitle(doc, margin, y, 'Creative Performance');
-      y += 10;
+      y += 14;
       var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
       var crAlign = ['left', 'left', 'right', 'right', 'right'];
       pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
