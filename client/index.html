@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
       --bg-primary: #ffffff;
@@ -70,7 +69,7 @@
       min-height: 100vh;
       padding: 24px;
       background: #f8f9fb;
-      background-image: 
+      background-image:
         radial-gradient(ellipse 80% 50% at 50% -20%, rgba(231, 53, 46, 0.04), transparent),
         radial-gradient(circle at 20% 80%, rgba(0,0,0,0.015), transparent 50%),
         radial-gradient(circle at 80% 20%, rgba(0,0,0,0.01), transparent 50%);
@@ -742,47 +741,6 @@
       text-align: right;
     }
 
-    /* Benchmark Insights */
-    .benchmark-insights {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 24px;
-    }
-
-    .benchmark-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 16px 18px;
-      background: linear-gradient(135deg, rgba(22, 163, 74, 0.03), rgba(22, 163, 74, 0.06));
-      border-left: 3px solid var(--green);
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--text-secondary);
-      transition: all var(--transition-fast);
-    }
-
-    .benchmark-item:hover {
-      background: linear-gradient(135deg, rgba(22, 163, 74, 0.05), rgba(22, 163, 74, 0.09));
-    }
-
-    .benchmark-item-neutral {
-      background: var(--bg-secondary);
-      border-left-color: var(--border);
-    }
-    
-    .benchmark-item-neutral:hover {
-      background: rgba(0,0,0,0.03);
-    }
-
-    .benchmark-icon { font-size: 18px; flex-shrink: 0; margin-top: 0px; }
-
-    .benchmark-text strong {
-      color: var(--text-primary);
-    }
-
     /* Loading */
     .loading-screen {
       display: flex;
@@ -819,9 +777,6 @@
     .empty-state-title { font-size: 16px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
     .empty-state-text { font-size: 13px; }
 
-    /* PDF */
-    .pdf-only { display: none; }
-
     /* Animations */
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -853,6 +808,497 @@
       .kpi-grid { grid-template-columns: 1fr; }
       .kpi-value { font-size: 24px; }
       .login-card { padding: 36px 28px; }
+    }
+
+    /* Tab Navigation */
+    .tab-nav {
+      display: flex;
+      gap: 0;
+      padding: 0 32px;
+      background: var(--bg-card);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .tab-btn {
+      padding: 14px 24px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(0,0,0,0.02);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Data Intelligence */
+    .data-intel-section { margin-bottom: 40px; }
+    .data-intel-section-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .data-intel-warning {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 12px;
+      color: var(--orange);
+      margin-bottom: 20px;
+    }
+    .data-intel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .di-insight-item {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 6px 0;
+      line-height: 1.5;
+    }
+    .di-insight-item::before {
+      content: '\2022';
+      color: var(--accent);
+      margin-right: 8px;
+      font-weight: 700;
+    }
+
+    /* Correlation bar */
+    .correlation-bar-container { margin-bottom: 14px; }
+    .correlation-bar-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .correlation-bar-track {
+      height: 24px;
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      position: relative;
+      overflow: hidden;
+    }
+    .correlation-bar-center {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--text-muted);
+      opacity: 0.4;
+    }
+    .correlation-bar-fill {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      border-radius: 4px;
+      transition: all 600ms ease;
+    }
+    .correlation-bar-fill.positive {
+      background: linear-gradient(90deg, rgba(239,68,68,0.3), var(--red));
+    }
+    .correlation-bar-fill.negative {
+      background: linear-gradient(270deg, rgba(34,197,94,0.3), var(--green));
+    }
+    .correlation-bar-sublabel {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Segment table */
+    .segment-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .segment-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-input);
+    }
+    .segment-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .segment-table tbody tr:last-child td { border-bottom: none; }
+    .segment-table tbody tr:hover { background: var(--bg-card-hover); }
+    .segment-cell-good { color: var(--green); font-weight: 600; }
+    .segment-cell-bad { color: var(--red); font-weight: 600; }
+
+    /* Scatter plot */
+    .scatter-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+    }
+
+    /* DI tabs (category filter within data intel) */
+    .di-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 24px;
+    }
+    .di-tab {
+      padding: 10px 18px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .di-tab:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    .di-tab:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    .di-tab:not(:first-child) { border-left: none; }
+    .di-tab.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .di-tab:hover:not(.active) {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 900px) {
+      .data-intel-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Prediction Engine */
+    .predictor-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg-input);
+      border: 1.5px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      transition: all var(--transition);
+    }
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--bg-card);
+      box-shadow: 0 0 0 3px rgba(231, 53, 46, 0.08);
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+    .form-select {
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    .confidence-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-input);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .confidence-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 600ms ease;
+      background: linear-gradient(90deg, var(--red), var(--orange), var(--green));
+    }
+
+    .similarity-inline-bar {
+      display: inline-block;
+      width: 60px;
+      height: 6px;
+      background: var(--bg-input);
+      border-radius: 3px;
+      overflow: hidden;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+    .similarity-inline-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--accent-light);
+      transition: width 400ms ease;
+    }
+
+    .feature-importance-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .feature-importance-bar .fi-label {
+      min-width: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .feature-importance-bar .fi-track {
+      flex: 1;
+      height: 18px;
+      background: var(--bg-input);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .feature-importance-bar .fi-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      transition: width 500ms ease;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      min-width: fit-content;
+    }
+    .feature-importance-bar .fi-pct {
+      min-width: 36px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .creative-rec-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .creative-rec-item:last-of-type { border-bottom: none; }
+    .creative-rec-badge { font-size: 20px; min-width: 28px; text-align: center; flex-shrink: 0; }
+    .creative-rec-info { flex: 1; min-width: 0; }
+    .creative-rec-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+    .creative-rec-stats {
+      display: flex;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+    .creative-rec-stats span { white-space: nowrap; }
+    .creative-rec-bar-wrap { width: 100%; margin-top: 4px; }
+    .creative-rec-bar { height: 6px; background: var(--bg-input); border-radius: 3px; overflow: hidden; }
+    .creative-rec-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); transition: width 600ms ease; }
+    .creative-rec-tip {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: rgba(231, 53, 46, 0.04);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .creative-rec-tip strong { color: var(--text-primary); }
+    .creative-rec-empty { font-size: 13px; color: var(--text-muted); padding: 10px 0; }
+
+    .prediction-main { text-align: center; padding: 20px 0; }
+    .prediction-main .pred-cpl-big { font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+    .prediction-main .pred-cpl-big.cpl-green { color: var(--green); }
+    .prediction-main .pred-cpl-big.cpl-yellow { color: var(--orange); }
+    .prediction-main .pred-cpl-big.cpl-red { color: var(--red); }
+    .prediction-main .pred-range-text { font-size: 14px; color: var(--text-secondary); margin-top: 6px; }
+
+    .prediction-breakdown {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .prediction-breakdown .pb-item { background: var(--bg-input); border-radius: var(--radius-sm); padding: 10px 14px; }
+    .prediction-breakdown .pb-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 4px; }
+    .prediction-breakdown .pb-value { font-size: 16px; font-weight: 700; }
+
+    .prediction-section { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .prediction-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .prediction-section-header {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pred-method-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .pred-method-badge.early { background: rgba(245, 158, 11, 0.1); color: var(--orange); border: 1px solid rgba(245, 158, 11, 0.2); }
+    .pred-method-badge.limited { background: rgba(37, 99, 235, 0.08); color: var(--blue); border: 1px solid rgba(37, 99, 235, 0.2); }
+    .pred-method-badge.full { background: rgba(34, 197, 94, 0.1); color: var(--green); border: 1px solid rgba(34, 197, 94, 0.2); }
+
+    .pred-result-card {
+      background: var(--bg-card);
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+    }
+    .pred-result-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      padding: 1px;
+      background: linear-gradient(135deg, var(--accent), #06b6d4, #eab308);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .pred-result-card .card-body { padding: 24px; }
+
+    .pred-stars { font-size: 24px; letter-spacing: 2px; }
+    .pred-stars .star-active { color: #eab308; }
+    .pred-stars .star-inactive { color: var(--text-muted); opacity: 0.3; }
+    .pred-score-label { font-size: 13px; font-weight: 600; margin-top: 4px; }
+    .pred-score-green { color: var(--green); }
+    .pred-score-yellow-green { color: #a3e635; }
+    .pred-score-yellow { color: var(--orange); }
+    .pred-score-orange { color: #f97316; }
+    .pred-score-red { color: var(--red); }
+
+    .pred-similar-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--bg-input);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .pred-similar-name { font-weight: 600; }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      z-index: 9999;
+      animation: fadeInUp 0.3s ease;
+      box-shadow: var(--shadow-lg);
+    }
+    .toast.error { background: var(--red); }
+    .toast.success { background: var(--green); }
+    .toast.info { background: var(--blue); }
+
+    /* Loading spinner for tabs */
+    .loading-spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+    }
+
+    /* Page header for new tabs */
+    .page-header { margin-bottom: 32px; }
+    .page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .page-subtitle { font-size: 14px; color: var(--text-secondary); }
+
+    /* Scatter mode tabs */
+    .scatter-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .scatter-tab {
+      padding: 8px 14px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .scatter-tab:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    .scatter-tab:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    .scatter-tab:not(:first-child) { border-left: none; }
+    .scatter-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .predictor-layout { grid-template-columns: 1fr; }
+      .tab-nav { padding: 0 16px; overflow-x: auto; }
+      .tab-btn { padding: 12px 16px; font-size: 13px; }
     }
   </style>
 </head>
@@ -890,9 +1336,6 @@
       <span id="navClientName" class="topnav-client"></span>
     </div>
     <div class="topnav-right">
-      <button class="btn btn-secondary" onclick="exportPDF()">
-        📄 <span class="btn-label">Report exportieren</span>
-      </button>
       <button class="btn btn-ghost" onclick="logout()" title="Abmelden">
         ↩ <span class="btn-label">Abmelden</span>
       </button>
@@ -907,101 +1350,249 @@
     </select>
   </div>
 
+  <!-- Tab Navigation -->
+  <div class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="reporting" onclick="switchTab('reporting')">Reporting</button>
+    <button class="tab-btn" data-tab="data-intel" onclick="switchTab('data-intel')">Data Intelligence</button>
+    <button class="tab-btn" data-tab="predictor" onclick="switchTab('predictor')">Prediction Engine</button>
+  </div>
+
   <!-- Main Content -->
   <div class="container" id="dashboardContent">
 
-    <!-- KPI Row -->
-    <div class="kpi-grid" id="kpiGrid">
-      <div class="kpi-card">
-        <div class="kpi-icon">💰</div>
-        <div class="kpi-label">Gesamtausgaben</div>
-        <div class="kpi-value" id="kpiSpend">—</div>
+    <!-- Tab: Reporting -->
+    <div class="tab-content active" id="tab-reporting">
+
+      <!-- KPI Row -->
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi-card">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-label">Gesamtausgaben</div>
+          <div class="kpi-value" id="kpiSpend">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-label">Leads generiert</div>
+          <div class="kpi-value" id="kpiLeads">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">📊</div>
+          <div class="kpi-label">Ø CPL</div>
+          <div class="kpi-value" id="kpiCPL">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">👁️</div>
+          <div class="kpi-label">Impressions</div>
+          <div class="kpi-value" id="kpiImpressions">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">🖱️</div>
+          <div class="kpi-label">Klicks</div>
+          <div class="kpi-value" id="kpiClicks">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-label">Ø CTR</div>
+          <div class="kpi-value" id="kpiCTR">—</div>
+        </div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">👥</div>
-        <div class="kpi-label">Leads generiert</div>
-        <div class="kpi-value" id="kpiLeads">—</div>
+
+      <!-- Trend Chart -->
+      <div class="section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Wöchentlicher Verlauf</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="trendChart"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">📊</div>
-        <div class="kpi-label">Ø CPL</div>
-        <div class="kpi-value" id="kpiCPL">—</div>
+
+      <!-- Campaigns Table -->
+      <div class="section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title" id="campaignsTitle">Kampagnen</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="campaign-table" id="campaignTable">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="name" onclick="sortTable('name')">Objekt <span class="sort-icon">↕</span></th>
+                  <th>Status</th>
+                  <th class="sortable" data-sort="period" onclick="sortTable('period')">Zeitraum <span class="sort-icon">↕</span></th>
+                  <th class="sortable" data-sort="spend" onclick="sortTable('spend')">Ausgaben <span class="sort-icon">↕</span></th>
+                  <th class="sortable" data-sort="leads" onclick="sortTable('leads')">Leads <span class="sort-icon">↕</span></th>
+                  <th class="sortable" data-sort="cpl" onclick="sortTable('cpl')">CPL <span class="sort-icon">↕</span></th>
+                </tr>
+              </thead>
+              <tbody id="campaignTableBody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">👁️</div>
-        <div class="kpi-label">Impressions</div>
-        <div class="kpi-value" id="kpiImpressions">—</div>
+
+      <!-- Creative Performance (main page, cross-campaign) -->
+      <div class="section" id="mainCreativeSection" style="display:none">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🏆 Creative Performance</span>
+          </div>
+          <div class="card-body">
+            <div class="creative-ranking" id="mainCreativeRanking"></div>
+          </div>
+        </div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">🖱️</div>
-        <div class="kpi-label">Klicks</div>
-        <div class="kpi-value" id="kpiClicks">—</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">📈</div>
-        <div class="kpi-label">Ø CTR</div>
-        <div class="kpi-value" id="kpiCTR">—</div>
-      </div>
+
     </div>
 
-    <!-- Trend Chart -->
-    <div class="section">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Wöchentlicher Verlauf</span>
+    <!-- Tab: Data Intelligence -->
+    <div class="tab-content" id="tab-data-intel">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Data Intelligence</h1>
+          <div class="page-subtitle">Statistische Analyse aller E&V Kampagnen — Segmente, Korrelationen & Insights</div>
         </div>
-        <div class="card-body">
-          <div class="chart-container">
-            <canvas id="trendChart"></canvas>
+      </div>
+
+      <div class="di-tabs">
+        <button class="di-tab active" id="di-cat-all" onclick="switchDataIntelCategory('all')">Gesamt</button>
+        <button class="di-tab" id="di-cat-neubau" onclick="switchDataIntelCategory('neubauprojekt')">Neubauprojekt</button>
+        <button class="di-tab" id="di-cat-einzel" onclick="switchDataIntelCategory('einzel')">Einzelobjekte</button>
+      </div>
+
+      <div id="data-intel-loading" class="loading-spinner" style="display:none">
+        <div class="spinner"></div>
+      </div>
+
+      <div id="data-intel-content" style="display:none;">
+        <div class="data-intel-section">
+          <div class="data-intel-section-title">Segment-Performance-Matrix</div>
+          <div id="data-intel-warning"></div>
+          <div class="data-intel-grid" id="data-intel-segments"></div>
+        </div>
+
+        <div class="data-intel-section">
+          <div class="data-intel-section-title">Korrelations-Analyse</div>
+          <div class="card">
+            <div class="card-body" id="data-intel-correlations"></div>
+          </div>
+        </div>
+
+        <div class="data-intel-section">
+          <div class="data-intel-section-title">Auto-Insights</div>
+          <div class="card">
+            <div class="card-body" id="data-intel-insights"></div>
+          </div>
+        </div>
+
+        <div class="data-intel-section">
+          <div class="data-intel-section-title">Kampagnen-Vergleich</div>
+          <div class="scatter-tabs">
+            <button class="scatter-tab active" id="scatter-mode-price" onclick="switchScatterMode('price')">Preis vs. CPL</button>
+            <button class="scatter-tab" id="scatter-mode-pricePerSqm" onclick="switchScatterMode('pricePerSqm')">qm-Preis vs. CPL</button>
+            <button class="scatter-tab" id="scatter-mode-size" onclick="switchScatterMode('size')">Wohnfläche vs. CPL</button>
+            <button class="scatter-tab" id="scatter-mode-rooms" onclick="switchScatterMode('rooms')">Zimmer vs. CPL</button>
+            <button class="scatter-tab" id="scatter-mode-plot" onclick="switchScatterMode('plot')">Grundstück vs. CPL</button>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title" id="scatter-chart-title">Preis vs. CPL</div>
+            </div>
+            <div class="card-body">
+              <div class="scatter-container">
+                <canvas id="chart-scatter-cpl"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Campaigns Table -->
-    <div class="section">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title" id="campaignsTitle">Kampagnen</span>
-        </div>
-        <div style="overflow-x:auto">
-          <table class="campaign-table" id="campaignTable">
-            <thead>
-              <tr>
-                <th class="sortable" data-sort="name" onclick="sortTable('name')">Objekt <span class="sort-icon">↕</span></th>
-                <th>Status</th>
-                <th class="sortable" data-sort="period" onclick="sortTable('period')">Zeitraum <span class="sort-icon">↕</span></th>
-                <th class="sortable" data-sort="spend" onclick="sortTable('spend')">Ausgaben <span class="sort-icon">↕</span></th>
-                <th class="sortable" data-sort="leads" onclick="sortTable('leads')">Leads <span class="sort-icon">↕</span></th>
-                <th class="sortable" data-sort="cpl" onclick="sortTable('cpl')">CPL <span class="sort-icon">↕</span></th>
-              </tr>
-            </thead>
-            <tbody id="campaignTableBody"></tbody>
-          </table>
+    <!-- Tab: Prediction Engine -->
+    <div class="tab-content" id="tab-predictor">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Performance-Prognose</h1>
+          <div class="page-subtitle">Voraussichtliche Kampagnen-Performance für ein Objekt vorhersagen</div>
         </div>
       </div>
-    </div>
 
-    <!-- Benchmark Insights (main page) -->
-    <div class="section" id="mainBenchmarkSection" style="display:none">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">📊 Performance Insights</span>
+      <div class="predictor-layout">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Objekt-Daten</div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Objektart *</label>
+              <select class="form-select" id="pred-type">
+                <option value="wohnung">Wohnung</option>
+                <option value="haus">Haus</option>
+                <option value="penthouse">Penthouse</option>
+                <option value="villa">Villa</option>
+                <option value="reihenhaus">Reihenhaus</option>
+                <option value="grundstueck">Grundstück</option>
+                <option value="gewerbe">Gewerbe</option>
+                <option value="neubauprojekt">Neubauprojekt</option>
+                <option value="zweifamilienhaus">Zweifamilienhaus</option>
+                <option value="doppelhaushaelfte">Doppelhaushälfte</option>
+                <option value="sonstige">Sonstige</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Wohnfläche (m²)</label>
+              <input class="form-input" id="pred-size" type="number" step="0.1" placeholder="120">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Grundstück (m², optional)</label>
+              <input class="form-input" id="pred-plot" type="number" step="0.1" placeholder="">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Zimmer (optional)</label>
+              <input class="form-input" id="pred-rooms" type="number" step="0.5" placeholder="4">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Preis (€) *</label>
+              <input class="form-input" id="pred-price" type="number" step="1" placeholder="850000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Stadt</label>
+              <input class="form-input" id="pred-city" placeholder="Berlin" oninput="autoFillCityRating('pred-city','pred-rating')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Standort-Rating</label>
+              <select class="form-select" id="pred-rating">
+                <option value="">— Automatisch —</option>
+                <option value="A">A — Top-7-Stadt</option>
+                <option value="B">B — Großstadt</option>
+                <option value="C">C — Mittelstadt / Sonstige</option>
+                <option value="D">D — Ländlich</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:18px;">
+              <label class="form-label">Mikrolage (optional)</label>
+              <select class="form-select" id="pred-micro">
+                <option value="">— Keine Angabe —</option>
+                <option value="premium">Premium</option>
+                <option value="gut">Gut</option>
+                <option value="standard">Standard</option>
+                <option value="randlage">Randlage</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="predictPerformance()" style="width:100%;">Performance vorhersagen</button>
+          </div>
         </div>
-        <div class="card-body">
-          <div class="benchmark-insights" id="mainBenchmarkInsights"></div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Creative Performance (main page, cross-campaign) -->
-    <div class="section" id="mainCreativeSection" style="display:none">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">🏆 Creative Performance</span>
-        </div>
-        <div class="card-body">
-          <div class="creative-ranking" id="mainCreativeRanking"></div>
+        <div id="pred-results">
+          <div class="empty-state" style="padding:60px 30px;">
+            <div class="empty-state-icon">🔮</div>
+            <div class="empty-state-title">Prognose starten</div>
+            <div class="empty-state-desc">Objekt-Daten links eingeben und auf „Performance vorhersagen“ klicken.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1018,12 +1609,10 @@
         <div class="modal-subtitle" id="detailSubtitle"></div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <button class="btn btn-secondary" id="campaignPdfBtn" onclick="exportCampaignPDF()" style="font-size:12px;padding:7px 14px">📄 PDF Export</button>
         <button class="modal-close" onclick="closeDetail()">✕</button>
       </div>
     </div>
     <div class="modal-body" id="detailBody">
-      <!-- Daily Chart -->
       <div class="card" style="margin-bottom:24px">
         <div class="card-header">
           <span class="card-title">Tagesverlauf</span>
@@ -1035,13 +1624,6 @@
         </div>
       </div>
 
-      <!-- Benchmark Insights (campaign detail) -->
-      <div id="detailBenchmarkSection" style="display:none">
-        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">📊 Performance Insights</h3>
-        <div class="benchmark-insights" id="detailBenchmarkInsights"></div>
-      </div>
-
-      <!-- Creative Performance (campaign detail) -->
       <div id="creativeSection" style="margin-top:24px">
         <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">🏆 Creative Performance</h3>
         <div class="creative-ranking" id="creativeRanking"></div>
@@ -1074,7 +1656,6 @@ let detailChartInstance = null;
 let currentSort = { field: 'spend', dir: 'desc' };
 let currentFilter = 'all'; // 'all' or 'YYYY-MM'
 let currentDetailCampaignId = null;
-let benchmarkData = null;  // { avgCPL, avgCTR, avgLeads, allCPLs: [] }
 
 // ============================================
 // SUPABASE REST
@@ -1271,15 +1852,7 @@ async function loadDashboard() {
       allCreatives = [];
     }
 
-    // 5. Load benchmark data (all campaigns across all clients)
-    try {
-      benchmarkData = await loadBenchmarkData();
-    } catch (e) {
-      console.warn('Benchmark data unavailable:', e);
-      benchmarkData = null;
-    }
-
-    // 6. Aggregate metrics per campaign
+    // 5. Aggregate metrics per campaign
     const metricsMap = {};
     allMetrics.forEach(m => {
       if (!metricsMap[m.campaign_id]) metricsMap[m.campaign_id] = { spend: 0, impressions: 0, clicks: 0, leads: 0, reach: 0 };
@@ -1356,60 +1929,6 @@ function applyFilter() {
 function getFilteredMetrics() {
   if (currentFilter === 'all') return allMetrics;
   return allMetrics.filter(m => m.date && m.date.startsWith(currentFilter));
-}
-
-// ============================================
-// BENCHMARK DATA
-// ============================================
-async function loadBenchmarkData() {
-  // Query ALL campaigns (across all clients) with their aggregated metrics
-  const allCampaignsRaw = await sbGet('campaigns', 'select=id');
-  if (!allCampaignsRaw || allCampaignsRaw.length === 0) return null;
-
-  const allCampIds = allCampaignsRaw.map(c => c.id);
-  // Fetch in batches of 200 to avoid URL length limits
-  let allDailyMetrics = [];
-  for (let i = 0; i < allCampIds.length; i += 200) {
-    const batch = allCampIds.slice(i, i + 200);
-    const batchFilter = batch.map(id => `"${id}"`).join(',');
-    const batchMetrics = await sbGet('campaign_daily_metrics', `campaign_id=in.(${batchFilter})&select=campaign_id,spend,impressions,clicks,leads`);
-    allDailyMetrics = allDailyMetrics.concat(batchMetrics);
-  }
-
-  // Aggregate per campaign
-  const campTotals = {};
-  allDailyMetrics.forEach(m => {
-    if (!campTotals[m.campaign_id]) campTotals[m.campaign_id] = { spend: 0, impressions: 0, clicks: 0, leads: 0 };
-    campTotals[m.campaign_id].spend += parseFloat(m.spend) || 0;
-    campTotals[m.campaign_id].impressions += parseInt(m.impressions) || 0;
-    campTotals[m.campaign_id].clicks += parseInt(m.clicks) || 0;
-    campTotals[m.campaign_id].leads += parseInt(m.leads) || 0;
-  });
-
-  // Only campaigns with leads > 0
-  const validCampaigns = Object.values(campTotals).filter(c => c.leads > 0);
-  if (validCampaigns.length === 0) return null;
-
-  const cpls = validCampaigns.map(c => c.spend / c.leads);
-  const ctrs = validCampaigns.filter(c => c.impressions > 0).map(c => (c.clicks / c.impressions) * 100);
-  const leadsArr = validCampaigns.map(c => c.leads);
-
-  const avgCPL = cpls.reduce((a, b) => a + b, 0) / cpls.length;
-  const avgCTR = ctrs.length > 0 ? ctrs.reduce((a, b) => a + b, 0) / ctrs.length : 0;
-  const avgLeads = leadsArr.reduce((a, b) => a + b, 0) / leadsArr.length;
-
-  // Collect per-campaign CPLs for percentile calculation (sorted ascending = best first)
-  const allCPLs = cpls.slice().sort((a, b) => a - b);
-
-  return { avgCPL, avgCTR, avgLeads, allCPLs, campaignCount: validCampaigns.length };
-}
-
-function getCPLPercentile(cpl) {
-  if (!benchmarkData || !benchmarkData.allCPLs || benchmarkData.allCPLs.length === 0) return null;
-  const sorted = benchmarkData.allCPLs; // already sorted ascending
-  // Count how many campaigns have a WORSE (higher) CPL
-  const betterThan = sorted.filter(c => c > cpl).length;
-  return Math.round((betterThan / sorted.length) * 100);
 }
 
 // ============================================
@@ -1521,131 +2040,6 @@ function renderCreativeRankingHTML(scoredTypes) {
 }
 
 // ============================================
-// RENDER BENCHMARK INSIGHTS
-// ============================================
-function renderMainBenchmarkInsights(metrics) {
-  const section = document.getElementById('mainBenchmarkSection');
-  const container = document.getElementById('mainBenchmarkInsights');
-
-  if (!benchmarkData) { section.style.display = 'none'; return; }
-
-  let totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
-  metrics.forEach(m => {
-    totalSpend += parseFloat(m.spend) || 0;
-    totalLeads += parseInt(m.leads) || 0;
-    totalImpressions += parseInt(m.impressions) || 0;
-    totalClicks += parseInt(m.clicks) || 0;
-  });
-
-  // Calculate this client's averages per campaign
-  const clientCampaignMetrics = {};
-  metrics.forEach(m => {
-    if (!clientCampaignMetrics[m.campaign_id]) clientCampaignMetrics[m.campaign_id] = { spend: 0, leads: 0, impressions: 0, clicks: 0 };
-    clientCampaignMetrics[m.campaign_id].spend += parseFloat(m.spend) || 0;
-    clientCampaignMetrics[m.campaign_id].leads += parseInt(m.leads) || 0;
-    clientCampaignMetrics[m.campaign_id].impressions += parseInt(m.impressions) || 0;
-    clientCampaignMetrics[m.campaign_id].clicks += parseInt(m.clicks) || 0;
-  });
-
-  const clientCampaignsWithLeads = Object.values(clientCampaignMetrics).filter(c => c.leads > 0);
-
-  const insights = [];
-
-  // CPL comparison
-  if (totalLeads > 0 && clientCampaignsWithLeads.length > 0) {
-    const clientAvgCPL = totalSpend / totalLeads;
-    if (clientAvgCPL < benchmarkData.avgCPL) {
-      const pctBetter = ((benchmarkData.avgCPL - clientAvgCPL) / benchmarkData.avgCPL * 100).toFixed(0);
-      insights.push({ icon: '✨', text: `Ihr Portfolio performt <strong>${pctBetter}% besser</strong> als der R&G Durchschnitt` });
-    }
-  }
-
-  // CTR comparison
-  if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
-    const clientCTR = (totalClicks / totalImpressions) * 100;
-    if (clientCTR > benchmarkData.avgCTR) {
-      const pctBetter = ((clientCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
-      insights.push({ icon: '📈', text: `Ihre durchschnittliche CTR liegt <strong>${pctBetter}% über dem Durchschnitt</strong>` });
-    }
-  }
-
-  // Leads per campaign comparison
-  if (clientCampaignsWithLeads.length > 0 && benchmarkData.avgLeads > 0) {
-    const clientAvgLeads = clientCampaignsWithLeads.reduce((sum, c) => sum + c.leads, 0) / clientCampaignsWithLeads.length;
-    if (clientAvgLeads > benchmarkData.avgLeads) {
-      const pctMore = ((clientAvgLeads - benchmarkData.avgLeads) / benchmarkData.avgLeads * 100).toFixed(0);
-      insights.push({ icon: '🏆', text: `<strong>${pctMore}% mehr Leads</strong> pro Kampagne als der Durchschnitt` });
-    }
-  }
-
-  if (insights.length === 0) {
-    section.style.display = 'none';
-    return;
-  }
-
-  section.style.display = 'block';
-  container.innerHTML = insights.map(i => `
-    <div class="benchmark-item">
-      <span class="benchmark-icon">${i.icon}</span>
-      <span class="benchmark-text">${i.text}</span>
-    </div>
-  `).join('');
-}
-
-function renderDetailBenchmarkInsights(campaignId, totalSpend, totalLeads, totalImpressions, totalClicks) {
-  const section = document.getElementById('detailBenchmarkSection');
-  const container = document.getElementById('detailBenchmarkInsights');
-
-  if (!benchmarkData) { section.style.display = 'none'; return; }
-
-  const insights = [];
-
-  // CPL comparison
-  if (totalLeads > 0) {
-    const thisCPL = totalSpend / totalLeads;
-    if (thisCPL < benchmarkData.avgCPL) {
-      const pctBelow = ((benchmarkData.avgCPL - thisCPL) / benchmarkData.avgCPL * 100).toFixed(0);
-      insights.push({ icon: '✨', text: `CPL <strong>${formatEUR(thisCPL)}</strong> — das sind <strong>${pctBelow}% unter</strong> dem R&G Durchschnitt von ${formatEUR(benchmarkData.avgCPL)}` });
-    }
-
-    // Percentile
-    const percentile = getCPLPercentile(thisCPL);
-    if (percentile !== null && percentile >= 75) {
-      insights.push({ icon: '🏆', text: `Diese Kampagne gehört zu den <strong>Top ${100 - percentile}%</strong> aller R&G Kampagnen` });
-    }
-  }
-
-  // CTR comparison
-  if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
-    const thisCTR = (totalClicks / totalImpressions) * 100;
-    if (thisCTR > benchmarkData.avgCTR) {
-      const pctAbove = ((thisCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
-      insights.push({ icon: '📈', text: `CTR von <strong>${thisCTR.toFixed(2)}%</strong> — <strong>${pctAbove}% über dem Durchschnitt</strong>` });
-    }
-  }
-
-  if (insights.length === 0) {
-    // Neutral message
-    section.style.display = 'block';
-    container.innerHTML = `
-      <div class="benchmark-item benchmark-item-neutral">
-        <span class="benchmark-icon">📊</span>
-        <span class="benchmark-text">Kampagne läuft — Daten werden gesammelt</span>
-      </div>
-    `;
-    return;
-  }
-
-  section.style.display = 'block';
-  container.innerHTML = insights.map(i => `
-    <div class="benchmark-item">
-      <span class="benchmark-icon">${i.icon}</span>
-      <span class="benchmark-text">${i.text}</span>
-    </div>
-  `).join('');
-}
-
-// ============================================
 // RENDER DASHBOARD
 // ============================================
 function renderDashboard() {
@@ -1653,7 +2047,6 @@ function renderDashboard() {
   renderKPIs(metrics);
   renderTrendChart(metrics);
   renderCampaignTable(metrics);
-  renderMainBenchmarkInsights(metrics);
   renderMainCreativePerformance(metrics);
 }
 
@@ -2008,9 +2401,6 @@ function openDetail(campaignId) {
   // Creative performance
   renderCreativePerformance(campaignId, totalSpend, totalLeads);
 
-  // Insights
-  renderInsights(campaign, totalSpend, totalLeads, totalImpressions, totalClicks, campaignMetrics);
-
   // Show modal
   document.getElementById('detailModal').classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -2132,831 +2522,6 @@ function renderCreativePerformance(campaignId, totalSpend, totalLeads) {
   container.innerHTML = renderCreativeRankingHTML(scored);
 }
 
-function renderInsights(campaign, totalSpend, totalLeads, totalImpressions, totalClicks, metrics) {
-  // Now handled by benchmark insights
-  renderDetailBenchmarkInsights(campaign.id, totalSpend, totalLeads, totalImpressions, totalClicks);
-}
-
-// ============================================
-// PDF HELPERS
-// ============================================
-
-// Render a Chart.js chart to a data URL image (renders on a visible offscreen canvas)
-function deepCloneWithFunctions(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (typeof obj === 'function') return obj;
-  if (Array.isArray(obj)) return obj.map(function(item) { return deepCloneWithFunctions(item); });
-  var clone = {};
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) clone[key] = deepCloneWithFunctions(obj[key]);
-  }
-  return clone;
-}
-
-function renderChartToImage(chartConfig, width, height) {
-  return new Promise((resolve) => {
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = `position:fixed;top:0;left:0;width:${width}px;height:${height}px;z-index:-1;opacity:0;pointer-events:none;`;
-    const canvas = document.createElement('canvas');
-    canvas.width = width * 2;
-    canvas.height = height * 2;
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
-    wrapper.appendChild(canvas);
-    document.body.appendChild(wrapper);
-
-    const ctx = canvas.getContext('2d');
-    ctx.scale(2, 2);
-    const cfg = deepCloneWithFunctions(chartConfig);
-    cfg.options = cfg.options || {};
-    cfg.options.responsive = false;
-    cfg.options.animation = false;
-    cfg.options.devicePixelRatio = 2;
-    const chart = new Chart(ctx, cfg);
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const dataUrl = canvas.toDataURL('image/png');
-        chart.destroy();
-        document.body.removeChild(wrapper);
-        resolve(dataUrl);
-      });
-    });
-  });
-}
-
-// Load an image as base64 data URL (avoids CORS issues with html2canvas)
-async function loadLogoBase64() {
-  try {
-    const resp = await fetch('../assets/rg-logo.png');
-    const blob = await resp.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-  } catch (e) {
-    console.warn('Could not load logo as base64:', e);
-    return '';
-  }
-}
-
-// Build a standard PDF filename
-function buildPdfFilename(type, campaignName) {
-  const now = new Date();
-  const datePrefix = now.toISOString().slice(0, 10);
-  const client = (clientData.name || 'Report').replace(/\s+/g, '_');
-  const periodLabel = currentFilter === 'all'
-    ? 'Gesamt'
-    : document.getElementById('periodFilter').selectedOptions[0].text.replace(/\s+/g, '');
-
-  if (type === 'overview') {
-    return `${datePrefix}_R&G_Report_${client}_${periodLabel}.pdf`;
-  } else {
-    const campSafe = (campaignName || 'Kampagne').replace(/\s+/g, '_');
-    return `${datePrefix}_R&G_Report_${client}_${campSafe}_${periodLabel}.pdf`;
-  }
-}
-
-// Shared KPI card HTML builder for PDF
-function pdfKpiCard(label, value) {
-  return '<div style="background:#f8f9fb;padding:18px;border-radius:10px;border:1px solid #eef0f3">'
-    + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:8px">' + label + '</div>'
-    + '<div style="font-size:24px;font-weight:800;letter-spacing:-0.03em;color:#111827">' + value + '</div>'
-    + '</div>';
-}
-
-// Shared chart config for PDF
-function pdfChartConfig(labels, leadsData, spendData) {
-  return {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'Leads', data: leadsData, backgroundColor: 'rgba(231,53,46,0.15)', borderColor: '#e7352e', borderWidth: 1.5, borderRadius: 5, borderSkipped: false, yAxisID: 'y', order: 2 },
-        { label: 'Ausgaben (€)', data: spendData, type: 'line', borderColor: '#9ca3af', backgroundColor: 'rgba(156,163,175,0.06)', borderWidth: 2, pointRadius: 2, pointBackgroundColor: '#6b7280', fill: true, tension: 0.4, yAxisID: 'y1', order: 1 }
-      ]
-    },
-    options: {
-      responsive: false,
-      animation: false,
-      plugins: {
-        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 30, font: { family: 'Inter', size: 44, weight: '500' }, color: '#6b7280' } },
-        tooltip: { enabled: false }
-      },
-      scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 44 }, color: '#b0b5be', padding: 8, maxRotation: 45, autoSkip: false } },
-        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, title: { display: true, text: 'Leads', font: { family: 'Inter', size: 36, weight: '600' }, color: '#6b7280', padding: 12 }, ticks: { font: { family: 'Inter', size: 44 }, color: '#b0b5be', stepSize: 1, padding: 8 }, beginAtZero: true },
-        y1: { position: 'right', grid: { display: false }, border: { display: false }, title: { display: true, text: 'Ausgaben (\u20AC)', font: { family: 'Inter', size: 36, weight: '600' }, color: '#6b7280', padding: 12 }, ticks: { font: { family: 'Inter', size: 44 }, color: '#b0b5be', padding: 8, callback: function(v) { return '\u20AC' + Math.round(v); } }, beginAtZero: true }
-      }
-    }
-  };
-}
-
-// Build benchmark insights HTML for PDF
-function pdfBenchmarkInsightsHTML(totalSpend, totalLeads, totalImpressions, totalClicks) {
-  if (!benchmarkData || totalLeads === 0) return '';
-  var items = [];
-  var thisCPL = totalSpend / totalLeads;
-  if (thisCPL < benchmarkData.avgCPL) {
-    var pct = ((benchmarkData.avgCPL - thisCPL) / benchmarkData.avgCPL * 100).toFixed(0);
-    items.push('\u2728 CPL ' + formatEUR(thisCPL) + ' \u2014 ' + pct + '% unter dem R&G Durchschnitt von ' + formatEUR(benchmarkData.avgCPL));
-  }
-  var percentile = getCPLPercentile(thisCPL);
-  if (percentile !== null && percentile >= 75) {
-    items.push('\uD83C\uDFC6 Diese Kampagne geh\u00f6rt zu den Top ' + (100 - percentile) + '% aller R&G Kampagnen');
-  }
-  if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
-    var thisCTR = (totalClicks / totalImpressions) * 100;
-    if (thisCTR > benchmarkData.avgCTR) {
-      var pctA = ((thisCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
-      items.push('\uD83D\uDCC8 CTR von ' + thisCTR.toFixed(2) + '% \u2014 ' + pctA + '% \u00fcber dem Durchschnitt');
-    }
-  }
-  if (items.length === 0) return '';
-  var html = '<div style="margin-bottom:28px">';
-  html += '<div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#111827">\uD83D\uDCCA Performance Insights</div>';
-  items.forEach(function(text) {
-    html += '<div style="padding:12px 16px;background:linear-gradient(135deg,rgba(22,163,74,0.03),rgba(22,163,74,0.07));border-left:3px solid #16a34a;border-radius:8px;font-size:12px;line-height:1.6;color:#4b5563;margin-bottom:8px">' + text + '</div>';
-  });
-  html += '</div>';
-  return html;
-}
-
-// Build creative ranking HTML for PDF
-function pdfCreativeRankingHTML(creativesArr) {
-  if (creativesArr.length === 0) return '';
-  var typeMap = {};
-  creativesArr.forEach(function(c) {
-    var type = c.creative_type || 'sonstige';
-    if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0, impressions: 0, clicks: 0, count: 0 };
-    typeMap[type].spend += c.metrics.spend;
-    typeMap[type].leads += c.metrics.leads;
-    typeMap[type].impressions += c.metrics.impressions;
-    typeMap[type].clicks += c.metrics.clicks;
-    typeMap[type].count++;
-  });
-  var scored = scoreCreativeTypes(typeMap);
-  if (scored.length === 0 || scored.every(function(s) { return s.leads === 0; })) return '';
-  var maxScore = Math.max.apply(null, scored.map(function(t) { return t.score; }).concat([1]));
-
-  var rows = '';
-  scored.forEach(function(t, i) {
-    var cplStr = t.leads > 0 ? formatEUR(t.cpl) : '\u2014';
-    var pct = maxScore > 0 ? Math.round((t.score / maxScore) * 100) : 0;
-    var hue = Math.round(120 * (pct / 100));
-    var barColor = t.score > 0 ? 'hsl(' + hue + ', 65%, 48%)' : '#e5e7eb';
-    rows += '<tr>'
-      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;font-weight:800;width:36px;color:#6b7280">' + (i + 1) + '</td>'
-      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;font-weight:600">' + formatCreativeType(t.type) + '</td>'
-      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:700">' + t.leads + '</td>'
-      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;text-align:right">' + cplStr + '</td>'
-      + '<td style="padding:10px 14px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:800">' + t.score + '</td>'
-      + '</tr>';
-  });
-
-  var thStyle = 'text-align:left;padding:10px 14px;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;border-bottom:2px solid #e8eaed';
-  return '<div style="margin-bottom:28px">'
-    + '<div style="font-size:14px;font-weight:700;margin-bottom:12px;color:#111827">\uD83C\uDFC6 Creative Performance</div>'
-    + '<table style="width:100%;border-collapse:collapse;font-size:12px">'
-    + '<thead><tr style="background:#f8f9fb">'
-    + '<th style="' + thStyle + '">#</th>'
-    + '<th style="' + thStyle + '">Creative</th>'
-    + '<th style="' + thStyle + ';text-align:right">Leads</th>'
-    + '<th style="' + thStyle + ';text-align:right">CPL</th>'
-    + '<th style="' + thStyle + ';text-align:right">Score</th>'
-    + '</tr></thead>'
-    + '<tbody>' + rows + '</tbody>'
-    + '</table></div>';
-}
-
-// ============================================
-// PDF EXPORT — jsPDF DIRECT DRAWING (no html2canvas)
-// ============================================
-
-// Shared jsPDF helpers
-function pdfDrawRoundedRect(doc, x, y, w, h, r, fillColor) {
-  doc.setFillColor(fillColor[0], fillColor[1], fillColor[2]);
-  doc.roundedRect(x, y, w, h, r, r, 'F');
-}
-
-function pdfDrawKpiCard(doc, x, y, w, h, label, value) {
-  pdfDrawRoundedRect(doc, x, y, w, h, 3, [248, 249, 251]);
-  // Border
-  doc.setDrawColor(238, 240, 243);
-  doc.setLineWidth(0.3);
-  doc.roundedRect(x, y, w, h, 3, 3, 'S');
-  // Label
-  doc.setFont(PDF_FONT, 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(156, 163, 175);
-  doc.text(label.toUpperCase(), x + 6, y + 10);
-  // Value
-  doc.setFont(PDF_FONT, 'bold');
-  doc.setFontSize(16);
-  doc.setTextColor(17, 24, 39);
-  doc.text(value, x + 6, y + 22);
-}
-
-function pdfDrawSectionTitle(doc, x, y, text) {
-  doc.setFont(PDF_FONT, 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(17, 24, 39);
-  doc.text(text, x, y);
-}
-
-function pdfDrawTableRow(doc, x, y, cols, colWidths, opts) {
-  var rowH = opts.rowH || 8;
-  if (opts.bg) {
-    doc.setFillColor(opts.bg[0], opts.bg[1], opts.bg[2]);
-    doc.rect(x, y - rowH + 2.5, colWidths.reduce(function(a, b) { return a + b; }, 0), rowH, 'F');
-  }
-  doc.setFont(PDF_FONT, opts.bold ? 'bold' : 'normal');
-  doc.setFontSize(opts.fontSize || 8.5);
-  doc.setTextColor(opts.color ? opts.color[0] : 17, opts.color ? opts.color[1] : 24, opts.color ? opts.color[2] : 39);
-  var cx = x;
-  for (var i = 0; i < cols.length; i++) {
-    var align = (opts.align && opts.align[i]) || 'left';
-    var tx = align === 'right' ? cx + colWidths[i] - 2 : cx + 2;
-    var truncated = String(cols[i] || '');
-    // Truncate long text to fit column
-    if (truncated.length > Math.floor(colWidths[i] / 2)) {
-      truncated = truncated.substring(0, Math.floor(colWidths[i] / 2) - 1) + '\u2026';
-    }
-    doc.text(truncated, tx, y, { align: align });
-    cx += colWidths[i];
-  }
-}
-
-function pdfDrawFooter(doc, margin, dateStr) {
-  var pageCount = doc.internal.getNumberOfPages();
-  for (var p = 1; p <= pageCount; p++) {
-    doc.setPage(p);
-    doc.setFont(PDF_FONT, 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(156, 163, 175);
-    doc.text('Erstellt von Run & Gun \u2014 ' + dateStr, margin, 288);
-    doc.text('Seite ' + p + ' / ' + pageCount, 210 - margin, 288, { align: 'right' });
-    // Separator line
-    doc.setDrawColor(232, 234, 237);
-    doc.setLineWidth(0.3);
-    doc.line(margin, 284, 210 - margin, 284);
-  }
-}
-
-// Collect benchmark insight strings (reused for both PDF types)
-function collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks) {
-  if (!benchmarkData || totalLeads === 0) return [];
-  var items = [];
-  var thisCPL = totalSpend / totalLeads;
-  if (thisCPL < benchmarkData.avgCPL) {
-    var pct = ((benchmarkData.avgCPL - thisCPL) / benchmarkData.avgCPL * 100).toFixed(0);
-    items.push('CPL ' + formatEUR(thisCPL) + ' \u2014 ' + pct + '% unter dem R&G Durchschnitt von ' + formatEUR(benchmarkData.avgCPL));
-  }
-  var percentile = getCPLPercentile(thisCPL);
-  if (percentile !== null && percentile >= 75) {
-    items.push('Diese Kampagne gehört zu den Top ' + (100 - percentile) + '% aller R&G Kampagnen');
-  }
-  if (totalImpressions > 0 && benchmarkData.avgCTR > 0) {
-    var thisCTR = (totalClicks / totalImpressions) * 100;
-    if (thisCTR > benchmarkData.avgCTR) {
-      var pctA = ((thisCTR - benchmarkData.avgCTR) / benchmarkData.avgCTR * 100).toFixed(0);
-      items.push('CTR von ' + thisCTR.toFixed(2) + '% \u2014 ' + pctA + '% über dem Durchschnitt');
-    }
-  }
-  return items;
-}
-
-// Collect scored creative types for PDF
-function collectScoredCreatives(creativesArr) {
-  if (creativesArr.length === 0) return [];
-  var typeMap = {};
-  creativesArr.forEach(function(c) {
-    var type = c.creative_type || 'sonstige';
-    if (!typeMap[type]) typeMap[type] = { spend: 0, leads: 0, impressions: 0, clicks: 0, count: 0 };
-    typeMap[type].spend += c.metrics.spend;
-    typeMap[type].leads += c.metrics.leads;
-    typeMap[type].impressions += c.metrics.impressions;
-    typeMap[type].clicks += c.metrics.clicks;
-    typeMap[type].count++;
-  });
-  var scored = scoreCreativeTypes(typeMap);
-  if (scored.length === 0 || scored.every(function(s) { return s.leads === 0; })) return [];
-  return scored;
-}
-
-// ============================================
-// PDF EXPORT — FONT LOADING
-// ============================================
-var PDF_FONT = 'helvetica';  // Will be set to 'Inter' if font loads successfully
-var _pdfFontCache = { regular: null, bold: null };
-
-async function loadFontAsBase64(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Font fetch failed: ' + res.status);
-  const buf = await res.arrayBuffer();
-  const bytes = new Uint8Array(buf);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-  return btoa(binary);
-}
-
-async function setupPDFFont(doc) {
-  try {
-    // Load Inter TTF from Fontsource CDN (supports full Latin incl. German umlauts)
-    if (!_pdfFontCache.regular) {
-      _pdfFontCache.regular = await loadFontAsBase64('https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-400-normal.ttf');
-    }
-    if (!_pdfFontCache.bold) {
-      _pdfFontCache.bold = await loadFontAsBase64('https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-700-normal.ttf');
-    }
-    doc.addFileToVFS('Inter-Regular.ttf', _pdfFontCache.regular);
-    doc.addFont('Inter-Regular.ttf', 'Inter', 'normal');
-    doc.addFileToVFS('Inter-Bold.ttf', _pdfFontCache.bold);
-    doc.addFont('Inter-Bold.ttf', 'Inter', 'bold');
-    PDF_FONT = 'Inter';
-    doc.setFont('Inter', 'normal');
-    return true;
-  } catch (e) {
-    console.warn('Inter font load failed, falling back to Helvetica:', e);
-    PDF_FONT = 'helvetica';
-    doc.setFont('helvetica', 'normal');
-    return false;
-  }
-}
-
-// ============================================
-// PDF EXPORT — OVERVIEW (Gesamt-Report)
-// ============================================
-async function exportPDF() {
-  var btn = document.querySelector('.topnav-right .btn-secondary');
-  btn.disabled = true;
-  btn.innerHTML = '\u23F3 <span class="btn-label">Wird erstellt\u2026</span>';
-
-  try {
-    var { jsPDF } = window.jspdf;
-    var doc = new jsPDF('p', 'mm', 'a4');
-
-    // Setup font for umlaut support
-    await setupPDFFont(doc);
-
-    var pageWidth = 210;
-    var margin = 18;
-    var contentWidth = pageWidth - margin * 2;
-    var y = margin;
-
-    function checkPage(needed) {
-      if (y + needed > 278) { doc.addPage(); y = margin; }
-    }
-
-    // Gather data
-    var metrics = getFilteredMetrics();
-    var totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
-    metrics.forEach(function(m) {
-      totalSpend += parseFloat(m.spend) || 0;
-      totalLeads += parseInt(m.leads) || 0;
-      totalImpressions += parseInt(m.impressions) || 0;
-      totalClicks += parseInt(m.clicks) || 0;
-    });
-    var avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
-    var avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
-
-    var periodLabel = currentFilter === 'all' ? 'Gesamt' : document.getElementById('periodFilter').selectedOptions[0].text;
-    var dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
-
-    // ---- 1. LOGO ----
-    var logoB64 = await loadLogoBase64();
-    if (logoB64) {
-      try { doc.addImage(logoB64, 'PNG', margin, y, 12, 12); } catch(e) { /* skip logo */ }
-    }
-
-    // ---- 2. HEADER ----
-    doc.setFont(PDF_FONT, 'bold');
-    doc.setFontSize(18);
-    doc.setTextColor(17, 24, 39);
-    doc.text('Kampagnen-Report', margin + (logoB64 ? 16 : 0), y + 5);
-
-    doc.setFont(PDF_FONT, 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(107, 114, 128);
-    doc.text((clientData.name || '') + ' \u2014 ' + periodLabel, margin + (logoB64 ? 16 : 0), y + 11);
-
-    // Date on right
-    doc.setFontSize(8);
-    doc.setTextColor(156, 163, 175);
-    doc.text('Erstellt am', pageWidth - margin, y + 3, { align: 'right' });
-    doc.setFontSize(9);
-    doc.setTextColor(107, 114, 128);
-    doc.setFont(PDF_FONT, 'bold');
-    doc.text(dateStr, pageWidth - margin, y + 8, { align: 'right' });
-
-    y += 16;
-
-    // Header separator
-    doc.setDrawColor(232, 234, 237);
-    doc.setLineWidth(0.5);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 8;
-
-    // ---- 3. KPI CARDS (3x2 grid) ----
-    var kpiData = [
-      ['Gesamtausgaben', formatEUR(totalSpend)],
-      ['Leads', String(totalLeads)],
-      ['\u00D8 CPL', formatEUR(avgCPL)],
-      ['Impressions', formatNum(totalImpressions)],
-      ['Klicks', formatNum(totalClicks)],
-      ['\u00D8 CTR', avgCTR.toFixed(2) + '%']
-    ];
-    var cardW = (contentWidth - 8) / 3; // 3 columns, 4mm gap each
-    var cardH = 28;
-    for (var ki = 0; ki < kpiData.length; ki++) {
-      var col = ki % 3;
-      var row = Math.floor(ki / 3);
-      var cx = margin + col * (cardW + 4);
-      var cy = y + row * (cardH + 4);
-      pdfDrawKpiCard(doc, cx, cy, cardW, cardH, kpiData[ki][0], kpiData[ki][1]);
-    }
-    y += cardH * 2 + 4 + 10;
-
-    // ---- 4. TREND CHART ----
-    checkPage(75);
-    pdfDrawSectionTitle(doc, margin, y, 'Wöchentlicher Verlauf');
-    y += 14;
-
-    var weekMap = {};
-    metrics.forEach(function(m) {
-      var d = new Date(m.date);
-      var week = getISOWeek(d);
-      var yr = d.getFullYear();
-      var key = yr + '-W' + String(week).padStart(2, '0');
-      if (!weekMap[key]) weekMap[key] = { spend: 0, leads: 0, label: 'KW ' + week, key: key };
-      weekMap[key].spend += parseFloat(m.spend) || 0;
-      weekMap[key].leads += parseInt(m.leads) || 0;
-    });
-    var weeks = Object.values(weekMap).sort(function(a, b) { return a.key.localeCompare(b.key); });
-
-    var chartImg = await renderChartToImage(
-      pdfChartConfig(
-        weeks.map(function(w) { return w.label; }),
-        weeks.map(function(w) { return w.leads; }),
-        weeks.map(function(w) { return w.spend; })
-      ),
-      1400, 560
-    );
-
-    // Draw chart border
-    doc.setDrawColor(238, 240, 243);
-    doc.setLineWidth(0.3);
-    doc.roundedRect(margin, y, contentWidth, 62, 3, 3, 'S');
-    doc.addImage(chartImg, 'PNG', margin + 2, y + 2, contentWidth - 4, 58);
-    y += 68;
-
-    // ---- 5. CAMPAIGN TABLE ----
-    y += 14;
-    checkPage(20);
-    pdfDrawSectionTitle(doc, margin, y, 'Kampagnen-Übersicht');
-    y += 18;
-
-    // Compute per-campaign metrics in current filter
-    var campMetricsMap = {};
-    metrics.forEach(function(m) {
-      if (!campMetricsMap[m.campaign_id]) campMetricsMap[m.campaign_id] = { spend: 0, leads: 0, impressions: 0, clicks: 0 };
-      campMetricsMap[m.campaign_id].spend += parseFloat(m.spend) || 0;
-      campMetricsMap[m.campaign_id].leads += parseInt(m.leads) || 0;
-      campMetricsMap[m.campaign_id].impressions += parseInt(m.impressions) || 0;
-      campMetricsMap[m.campaign_id].clicks += parseInt(m.clicks) || 0;
-    });
-
-    var tblColWidths = [contentWidth * 0.32, contentWidth * 0.14, contentWidth * 0.18, contentWidth * 0.12, contentWidth * 0.12, contentWidth * 0.12];
-    var tblAlign = ['left', 'left', 'right', 'right', 'right', 'right'];
-
-    // Table header
-    pdfDrawTableRow(doc, margin, y, ['Objekt', 'Status', 'Ausgaben', 'Leads', 'CPL', 'Impressions'], tblColWidths, {
-      bold: true, fontSize: 9, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: tblAlign
-    });
-    y += 1;
-    doc.setDrawColor(232, 234, 237);
-    doc.setLineWidth(0.4);
-    doc.line(margin, y, margin + contentWidth, y);
-    y += 4;
-
-    // Sort campaigns by spend descending
-    var sortedCampaigns = campaigns.slice().sort(function(a, b) {
-      var sa = campMetricsMap[a.id] ? campMetricsMap[a.id].spend : 0;
-      var sb = campMetricsMap[b.id] ? campMetricsMap[b.id].spend : 0;
-      return sb - sa;
-    });
-
-    sortedCampaigns.forEach(function(c, idx) {
-      checkPage(9);
-      var fm = campMetricsMap[c.id] || { spend: 0, leads: 0, impressions: 0, clicks: 0 };
-      var cpl = fm.leads > 0 ? formatEUR(fm.spend / fm.leads) : '\u2014';
-      var statusLabel = c.status === 'active' ? 'Aktiv' : c.status === 'paused' ? 'Pausiert' : 'Abgeschl.';
-      var name = (c.property && c.property.name) || c.campaign_name || '\u2014';
-
-      if (idx % 2 === 1) {
-        doc.setFillColor(248, 249, 251);
-        doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
-      }
-      pdfDrawTableRow(doc, margin, y, [name, statusLabel, formatEUR(fm.spend), String(fm.leads), cpl, formatNum(fm.impressions)], tblColWidths, {
-        bold: false, fontSize: 9, align: tblAlign
-      });
-      y += 7;
-    });
-
-    // ---- 6. BENCHMARK INSIGHTS ----
-    y += 16;
-    var insights = collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks);
-    if (insights.length > 0) {
-      checkPage(10 + insights.length * 9);
-      pdfDrawSectionTitle(doc, margin, y, 'Performance Insights');
-      y += 14;
-      insights.forEach(function(text) {
-        checkPage(10);
-        // Green left border bar
-        doc.setFillColor(22, 163, 74);
-        doc.rect(margin, y, 1.2, 7, 'F');
-        // Light green background
-        pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
-        doc.setFont(PDF_FONT, 'normal');
-        doc.setFontSize(9);
-        doc.setTextColor(75, 85, 99);
-        doc.text(text, margin + 4, y + 4.5);
-        y += 9;
-      });
-      y += 4;
-    }
-
-    // ---- 7. CREATIVE PERFORMANCE ----
-    y += 14;
-    var scoredCreatives = collectScoredCreatives(allCreatives);
-    if (scoredCreatives.length > 0) {
-      checkPage(14 + scoredCreatives.length * 8);
-      pdfDrawSectionTitle(doc, margin, y, 'Creative Performance');
-      y += 18;
-      var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
-      var crAlign = ['left', 'left', 'right', 'right', 'right'];
-      // Header row
-      pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
-        bold: true, fontSize: 9, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
-      });
-      y += 1;
-      // Separator
-      doc.setDrawColor(232, 234, 237);
-      doc.setLineWidth(0.4);
-      doc.line(margin, y, margin + contentWidth, y);
-      y += 4;
-      scoredCreatives.forEach(function(t, i) {
-        checkPage(9);
-        var cplStr = t.leads > 0 ? formatEUR(t.cpl) : '\u2014';
-        if (i % 2 === 1) {
-          doc.setFillColor(248, 249, 251);
-          doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
-        }
-        pdfDrawTableRow(doc, margin, y, [String(i + 1), formatCreativeType(t.type), String(t.leads), cplStr, String(t.score)], crColWidths, {
-          bold: false, fontSize: 9, align: crAlign
-        });
-        y += 7;
-      });
-      y += 6;
-    }
-
-    // ---- 8. FOOTER (all pages) ----
-    pdfDrawFooter(doc, margin, dateStr);
-
-    // Save
-    doc.save(buildPdfFilename('overview'));
-
-  } catch (e) {
-    console.error('PDF export error:', e);
-    alert('PDF-Export fehlgeschlagen: ' + e.message);
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = '\uD83D\uDCC4 <span class="btn-label">Report exportieren</span>';
-}
-
-// ============================================
-// PDF EXPORT — SINGLE CAMPAIGN
-// ============================================
-async function exportCampaignPDF() {
-  if (!currentDetailCampaignId) return;
-  var campaign = campaigns.find(function(c) { return c.id === currentDetailCampaignId; });
-  if (!campaign) return;
-
-  var btn = document.getElementById('campaignPdfBtn');
-  btn.disabled = true;
-  btn.innerHTML = '\u23F3 Erstellen\u2026';
-
-  try {
-    var { jsPDF } = window.jspdf;
-    var doc = new jsPDF('p', 'mm', 'a4');
-
-    // Setup font for umlaut support
-    await setupPDFFont(doc);
-
-    var pageWidth = 210;
-    var margin = 18;
-    var contentWidth = pageWidth - margin * 2;
-    var y = margin;
-
-    function checkPage(needed) {
-      if (y + needed > 278) { doc.addPage(); y = margin; }
-    }
-
-    // Gather data
-    var prop = campaign.property || {};
-    var campMetrics = getFilteredMetrics().filter(function(m) { return m.campaign_id === currentDetailCampaignId; });
-
-    var totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
-    campMetrics.forEach(function(m) {
-      totalSpend += parseFloat(m.spend) || 0;
-      totalLeads += parseInt(m.leads) || 0;
-      totalImpressions += parseInt(m.impressions) || 0;
-      totalClicks += parseInt(m.clicks) || 0;
-    });
-    var avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
-    var avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
-
-    var dateStr = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
-    var campaignName = prop.name || campaign.campaign_name || '\u2014';
-    var dateRange = formatDateRange(campaign.start_date, campaign.end_date);
-
-    // ---- 1. LOGO ----
-    var logoB64 = await loadLogoBase64();
-    if (logoB64) {
-      try { doc.addImage(logoB64, 'PNG', margin, y, 12, 12); } catch(e) { /* skip */ }
-    }
-
-    // ---- 2. HEADER ----
-    doc.setFont(PDF_FONT, 'bold');
-    doc.setFontSize(18);
-    doc.setTextColor(17, 24, 39);
-    doc.text(campaignName, margin + (logoB64 ? 16 : 0), y + 5);
-
-    doc.setFont(PDF_FONT, 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(107, 114, 128);
-    doc.text((clientData.name || '') + ' \u2014 ' + dateRange, margin + (logoB64 ? 16 : 0), y + 11);
-
-    // Date on right
-    doc.setFontSize(8);
-    doc.setTextColor(156, 163, 175);
-    doc.text('Erstellt am', pageWidth - margin, y + 3, { align: 'right' });
-    doc.setFontSize(9);
-    doc.setTextColor(107, 114, 128);
-    doc.setFont(PDF_FONT, 'bold');
-    doc.text(dateStr, pageWidth - margin, y + 8, { align: 'right' });
-
-    y += 16;
-
-    // Header separator
-    doc.setDrawColor(232, 234, 237);
-    doc.setLineWidth(0.5);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 8;
-
-    // ---- 3. PROPERTY DETAILS (if available) ----
-    var propFields = [];
-    if (prop.property_type) propFields.push(['Objekttyp', formatPropertyType(prop.property_type)]);
-    if (prop.rooms) propFields.push(['Zimmer', String(prop.rooms)]);
-    if (prop.area_sqm) propFields.push(['Fläche', prop.area_sqm + ' m\u00b2']);
-    if (prop.price) propFields.push(['Preis', formatEUR(prop.price)]);
-    if (prop.city) propFields.push(['Stadt', prop.city]);
-    if (campaign.platform) propFields.push(['Plattform', campaign.platform]);
-
-    if (propFields.length > 0) {
-      checkPage(20);
-      pdfDrawRoundedRect(doc, margin, y, contentWidth, 18, 3, [248, 249, 251]);
-      doc.setDrawColor(238, 240, 243);
-      doc.setLineWidth(0.3);
-      doc.roundedRect(margin, y, contentWidth, 18, 3, 3, 'S');
-
-      var pfW = contentWidth / propFields.length;
-      propFields.forEach(function(pf, pi) {
-        var px = margin + pi * pfW + 6;
-        doc.setFont(PDF_FONT, 'bold');
-        doc.setFontSize(8);
-        doc.setTextColor(156, 163, 175);
-        doc.text(pf[0].toUpperCase(), px, y + 7);
-        doc.setFont(PDF_FONT, 'bold');
-        doc.setFontSize(10);
-        doc.setTextColor(17, 24, 39);
-        doc.text(String(pf[1]), px, y + 13);
-      });
-      y += 24;
-    }
-
-    // ---- 4. KPI CARDS (3x2 grid) ----
-    var kpiData = [
-      ['Ausgaben', formatEUR(totalSpend)],
-      ['Leads', String(totalLeads)],
-      ['CPL', formatEUR(avgCPL)],
-      ['Impressions', formatNum(totalImpressions)],
-      ['Klicks', formatNum(totalClicks)],
-      ['CTR', avgCTR.toFixed(2) + '%']
-    ];
-    var cardW = (contentWidth - 8) / 3;
-    var cardH = 28;
-    for (var ki = 0; ki < kpiData.length; ki++) {
-      var col = ki % 3;
-      var row = Math.floor(ki / 3);
-      var cx = margin + col * (cardW + 4);
-      var cy = y + row * (cardH + 4);
-      pdfDrawKpiCard(doc, cx, cy, cardW, cardH, kpiData[ki][0], kpiData[ki][1]);
-    }
-    y += cardH * 2 + 4 + 10;
-
-    // ---- 5. DAILY CHART ----
-    checkPage(75);
-    pdfDrawSectionTitle(doc, margin, y, 'Tagesverlauf');
-    y += 14;
-
-    var sorted = campMetrics.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
-    var chartImg = await renderChartToImage(
-      pdfChartConfig(
-        sorted.map(function(m) { return formatDateShort(m.date); }),
-        sorted.map(function(m) { return parseInt(m.leads) || 0; }),
-        sorted.map(function(m) { return parseFloat(m.spend) || 0; })
-      ),
-      1400, 520
-    );
-
-    doc.setDrawColor(238, 240, 243);
-    doc.setLineWidth(0.3);
-    doc.roundedRect(margin, y, contentWidth, 58, 3, 3, 'S');
-    doc.addImage(chartImg, 'PNG', margin + 2, y + 2, contentWidth - 4, 54);
-    y += 64;
-
-    // ---- 6. BENCHMARK INSIGHTS ----
-    y += 16;
-    var insights = collectBenchmarkInsights(totalSpend, totalLeads, totalImpressions, totalClicks);
-    if (insights.length > 0) {
-      checkPage(10 + insights.length * 9);
-      pdfDrawSectionTitle(doc, margin, y, 'Performance Insights');
-      y += 14;
-      insights.forEach(function(text) {
-        checkPage(10);
-        doc.setFillColor(22, 163, 74);
-        doc.rect(margin, y, 1.2, 7, 'F');
-        pdfDrawRoundedRect(doc, margin + 1.5, y, contentWidth - 1.5, 7, 2, [240, 253, 244]);
-        doc.setFont(PDF_FONT, 'normal');
-        doc.setFontSize(9);
-        doc.setTextColor(75, 85, 99);
-        doc.text(text, margin + 4, y + 4.5);
-        y += 9;
-      });
-      y += 4;
-    }
-
-    // ---- 7. CREATIVE PERFORMANCE TABLE ----
-    y += 14;
-    var campCreatives = allCreatives.filter(function(c) { return c.campaign_id === currentDetailCampaignId; });
-    var scoredCreatives = collectScoredCreatives(campCreatives);
-    if (scoredCreatives.length > 0) {
-      checkPage(14 + scoredCreatives.length * 8);
-      pdfDrawSectionTitle(doc, margin, y, 'Creative Performance');
-      y += 18;
-      var crColWidths = [12, contentWidth - 12 - 22 - 24 - 22, 22, 24, 22];
-      var crAlign = ['left', 'left', 'right', 'right', 'right'];
-      pdfDrawTableRow(doc, margin, y, ['#', 'Creative', 'Leads', 'CPL', 'Score'], crColWidths, {
-        bold: true, fontSize: 9, color: [156, 163, 175], bg: [248, 249, 251], rowH: 8, align: crAlign
-      });
-      y += 1;
-      doc.setDrawColor(232, 234, 237);
-      doc.setLineWidth(0.4);
-      doc.line(margin, y, margin + contentWidth, y);
-      y += 4;
-      scoredCreatives.forEach(function(t, i) {
-        checkPage(9);
-        var cplStr = t.leads > 0 ? formatEUR(t.cpl) : '\u2014';
-        if (i % 2 === 1) {
-          doc.setFillColor(248, 249, 251);
-          doc.rect(margin, y - 4.5, contentWidth, 7, 'F');
-        }
-        pdfDrawTableRow(doc, margin, y, [String(i + 1), formatCreativeType(t.type), String(t.leads), cplStr, String(t.score)], crColWidths, {
-          bold: false, fontSize: 9, align: crAlign
-        });
-        y += 7;
-      });
-      y += 6;
-    }
-
-    // ---- 8. FOOTER ----
-    pdfDrawFooter(doc, margin, dateStr);
-
-    // Save
-    doc.save(buildPdfFilename('campaign', campaignName));
-
-  } catch (e) {
-    console.error('Campaign PDF export error:', e);
-    alert('PDF-Export fehlgeschlagen: ' + e.message);
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = '\uD83D\uDCC4 PDF Export';
-}
-
 // ============================================
 // FORMATTING HELPERS
 // ============================================
@@ -3017,6 +2582,795 @@ function escHtml(str) {
   const el = document.createElement('span');
   el.textContent = str;
   return el.innerHTML;
+}
+
+// ============================================
+// TAB NAVIGATION
+// ============================================
+let _dataIntelLoaded = false;
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + tab));
+  
+  if (tab === 'data-intel' && !_dataIntelLoaded) {
+    _dataIntelLoaded = true;
+    loadDataIntelligence();
+  }
+}
+
+// ============================================
+// TOAST
+// ============================================
+function showToast(msg, type) {
+  type = type || 'info';
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
+}
+
+// ============================================
+// HELPER FUNCTIONS (Data Intelligence & Prediction)
+// ============================================
+const EV_ACCOUNT_ID = 'act_763575219714223';
+
+const CITY_RATINGS = {
+  A: ['berlin','hamburg','münchen','munich','köln','cologne','frankfurt','düsseldorf','stuttgart'],
+  B: ['hannover','nürnberg','bremen','dresden','leipzig','dortmund','essen','duisburg','bochum','wuppertal','bielefeld','bonn','münster','mannheim','karlsruhe','augsburg','wiesbaden','mönchengladbach','gelsenkirchen','braunschweig','aachen','kiel','chemnitz','halle','magdeburg','freiburg','krefeld','mainz','lübeck','erfurt','oberhausen','rostock','kassel','saarbrücken','potsdam','leverkusen','oldenburg','heidelberg','darmstadt','wolfsburg','regensburg','würzburg'],
+  C: []
+};
+
+function getCityRating(city) {
+  if (!city) return null;
+  var c = city.toLowerCase().trim();
+  if (CITY_RATINGS.A.includes(c)) return 'A';
+  if (CITY_RATINGS.B.includes(c)) return 'B';
+  return 'C';
+}
+
+function autoFillCityRating(cityInputId, ratingSelectId) {
+  var cityVal = document.getElementById(cityInputId).value;
+  var ratingSelect = document.getElementById(ratingSelectId);
+  var rating = getCityRating(cityVal);
+  if (rating) ratingSelect.value = rating;
+}
+
+function getEffectivePrice(prop) {
+  if (!prop) return null;
+  return prop.price || prop.price_from || null;
+}
+
+function getEffectiveSize(prop) {
+  if (!prop) return null;
+  return prop.size_sqm || prop.size_from || null;
+}
+
+function pearsonCorrelation(x, y) {
+  var n = x.length;
+  if (n < 2) return null;
+  var avgX = x.reduce(function(s,v) { return s+v; }, 0) / n;
+  var avgY = y.reduce(function(s,v) { return s+v; }, 0) / n;
+  var num = 0, denX = 0, denY = 0;
+  for (var i = 0; i < n; i++) {
+    var dx = x[i] - avgX, dy = y[i] - avgY;
+    num += dx * dy;
+    denX += dx * dx;
+    denY += dy * dy;
+  }
+  var den = Math.sqrt(denX * denY);
+  return den === 0 ? 0 : num / den;
+}
+
+function diLinearRegression(x, y) {
+  var n = x.length;
+  if (n < 2) return null;
+  var avgX = x.reduce(function(s,v) { return s+v; }, 0) / n;
+  var avgY = y.reduce(function(s,v) { return s+v; }, 0) / n;
+  var num = 0, den = 0;
+  for (var i = 0; i < n; i++) {
+    num += (x[i] - avgX) * (y[i] - avgY);
+    den += (x[i] - avgX) * (x[i] - avgX);
+  }
+  var slope = den === 0 ? 0 : num / den;
+  return { slope: slope, intercept: avgY - slope * avgX };
+}
+
+function diGroupBy(arr, keyFn) {
+  var map = {};
+  arr.forEach(function(item) {
+    var key = keyFn(item);
+    if (!map[key]) map[key] = [];
+    map[key].push(item);
+  });
+  return map;
+}
+
+function priceRange(price) {
+  if (!price) return 'Unbekannt';
+  if (price < 500000) return '< 500k';
+  if (price < 1000000) return '500k – 1M';
+  if (price < 2000000) return '1M – 2M';
+  return '2M+';
+}
+
+function correlationLabel(r) {
+  var abs = Math.abs(r);
+  if (abs < 0.3) return 'schwach';
+  if (abs < 0.6) return 'mittel';
+  if (abs < 0.8) return 'stark';
+  return 'sehr stark';
+}
+
+function diFormatEur(val) {
+  if (val == null || isNaN(val)) return '—';
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(val);
+}
+
+// ============================================
+// DATA INTELLIGENCE
+// ============================================
+var dataIntelCategoryFilter = 'all';
+var _diScatterChart = null;
+var _scatterMode = 'price';
+
+function switchDataIntelCategory(cat) {
+  dataIntelCategoryFilter = cat;
+  document.getElementById('di-cat-all').classList.toggle('active', cat === 'all');
+  document.getElementById('di-cat-neubau').classList.toggle('active', cat === 'neubauprojekt');
+  document.getElementById('di-cat-einzel').classList.toggle('active', cat === 'einzel');
+  loadDataIntelligence();
+}
+
+function switchScatterMode(mode) {
+  _scatterMode = mode;
+  document.getElementById('scatter-mode-price').classList.toggle('active', mode === 'price');
+  document.getElementById('scatter-mode-pricePerSqm').classList.toggle('active', mode === 'pricePerSqm');
+  document.getElementById('scatter-mode-size').classList.toggle('active', mode === 'size');
+  document.getElementById('scatter-mode-rooms').classList.toggle('active', mode === 'rooms');
+  document.getElementById('scatter-mode-plot').classList.toggle('active', mode === 'plot');
+  if (window._lastScatterData) {
+    renderScatterPlot(window._lastScatterData);
+  }
+}
+
+async function loadDataIntelligence() {
+  var loading = document.getElementById('data-intel-loading');
+  var content = document.getElementById('data-intel-content');
+  loading.style.display = 'flex';
+  content.style.display = 'none';
+
+  try {
+    var allCampaignsRaw = await sbGet('campaigns', 'ad_account_id=eq.' + EV_ACCOUNT_ID + '&select=*,properties(*),campaign_daily_metrics(spend,leads,impressions,reach),creatives(*,creative_daily_metrics(spend,leads,impressions))');
+
+    var allData = (allCampaignsRaw || []).map(function(c) {
+      var m = c.campaign_daily_metrics || [];
+      var spend = m.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
+      var leads = m.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+      var impr = m.reduce(function(s,x) { return s + (x.impressions || 0); }, 0);
+      var days = m.length || 1;
+      var prop = c.properties;
+      var effPrice = getEffectivePrice(prop);
+      var effSize = getEffectiveSize(prop);
+      return {
+        id: c.id,
+        name: c.campaign_name,
+        prop: prop,
+        effectivePrice: effPrice,
+        effectiveSize: effSize,
+        creatives: c.creatives || [],
+        spend: spend,
+        leads: leads,
+        impressions: impr,
+        days: days,
+        cpl: leads > 0 ? spend / leads : null,
+        cpm: impr > 0 ? (spend / impr) * 1000 : null,
+        leadsPerDay: leads / days,
+        startDate: c.start_date
+      };
+    }).filter(function(d) { return d.leads > 0; });
+
+    var totalSpendAll = allData.reduce(function(s,d) { return s + d.spend; }, 0);
+    var totalLeadsAll = allData.reduce(function(s,d) { return s + d.leads; }, 0);
+    var totalImprAll = allData.reduce(function(s,d) { return s + d.impressions; }, 0);
+    var globalAvgCPL = totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 0;
+    var globalAvgCPM = totalImprAll > 0 ? (totalSpendAll / totalImprAll) * 1000 : 0;
+
+    var catLabels = { all: 'Gesamt', neubauprojekt: 'Neubauprojekt', einzel: 'Einzelobjekte' };
+    var filteredData = allData;
+    if (dataIntelCategoryFilter === 'neubauprojekt') {
+      filteredData = allData.filter(function(d) { return d.prop && d.prop.property_type === 'neubauprojekt'; });
+    } else if (dataIntelCategoryFilter === 'einzel') {
+      filteredData = allData.filter(function(d) { return !d.prop || d.prop.property_type !== 'neubauprojekt'; });
+    }
+
+    var N = filteredData.length;
+    var warningEl = document.getElementById('data-intel-warning');
+    if (N === 0) {
+      warningEl.innerHTML = '<div class="data-intel-warning">Keine Kampagnen in der Kategorie „' + catLabels[dataIntelCategoryFilter] + '".</div>';
+      document.getElementById('data-intel-segments').innerHTML = '';
+      document.getElementById('data-intel-correlations').innerHTML = '';
+      document.getElementById('data-intel-insights').innerHTML = '';
+      if (_diScatterChart) { _diScatterChart.destroy(); _diScatterChart = null; }
+      var scatterCont = document.querySelector('.scatter-container');
+      if (scatterCont) scatterCont.innerHTML = '<canvas id="chart-scatter-cpl"></canvas>';
+      loading.style.display = 'none';
+      content.style.display = 'block';
+      return;
+    } else if (N < 5) {
+      warningEl.innerHTML = '<div class="data-intel-warning">Noch zu wenig Daten für statistische Signifikanz (' + N + ' Kampagnen in „' + catLabels[dataIntelCategoryFilter] + '"). Die Ergebnisse sind erste Tendenzen.</div>';
+    } else {
+      warningEl.innerHTML = '';
+    }
+
+    renderSegmentMatrix(filteredData, globalAvgCPL, globalAvgCPM);
+    renderCorrelationAnalysis(filteredData);
+    renderAutoInsights(filteredData, globalAvgCPL, N);
+    window._lastScatterData = filteredData;
+    renderScatterPlot(filteredData);
+
+    loading.style.display = 'none';
+    content.style.display = 'block';
+  } catch (e) {
+    console.error('Data Intelligence load error:', e);
+    loading.style.display = 'none';
+    content.style.display = 'block';
+    document.getElementById('data-intel-segments').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Fehler beim Laden</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
+  }
+}
+
+function renderSegmentMatrix(allData, globalAvgCPL, globalAvgCPM) {
+  var container = document.getElementById('data-intel-segments');
+  function buildTable(title, grouped, labelFn) {
+    var keys = Object.keys(grouped).sort();
+    if (keys.length === 0) return '';
+    var rows = keys.map(function(k) {
+      var items = grouped[k];
+      var sp = items.reduce(function(s,d) { return s + d.spend; }, 0);
+      var ld = items.reduce(function(s,d) { return s + d.leads; }, 0);
+      var im = items.reduce(function(s,d) { return s + d.impressions; }, 0);
+      var cpl = ld > 0 ? sp / ld : null;
+      var cpm = im > 0 ? (sp / im) * 1000 : null;
+      var cplCls = cpl !== null ? (cpl < globalAvgCPL * 0.95 ? 'segment-cell-good' : cpl > globalAvgCPL * 1.05 ? 'segment-cell-bad' : '') : '';
+      return '<tr><td style="font-weight:600;">' + escHtml(labelFn ? labelFn(k) : k) + '</td><td class="' + cplCls + '">' + (cpl !== null ? diFormatEur(cpl) : '—') + '</td><td>' + (cpm !== null ? diFormatEur(cpm) : '—') + '</td><td>' + items.length + '</td></tr>';
+    }).join('');
+    return '<div class="card"><div class="card-header"><div class="card-title">' + escHtml(title) + '</div></div><div class="card-body" style="padding:0;"><table class="segment-table"><thead><tr><th>Segment</th><th>Ø CPL</th><th>Ø CPM</th><th>Kampagnen</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+  }
+
+  var propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekt',zweifamilienhaus:'Zweifamilienhaus',doppelhaushaelfte:'Doppelhaushälfte',sonstige:'Sonstige'};
+  var byCity = diGroupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
+  var byType = diGroupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
+  var byRating = diGroupBy(allData.filter(function(d) { return d.prop && (d.prop.location_rating || d.prop.city); }), function(d) { return d.prop.location_rating || getCityRating(d.prop.city) || '?'; });
+  var byPrice = diGroupBy(allData.filter(function(d) { return d.effectivePrice; }), function(d) { return priceRange(d.effectivePrice); });
+
+  var html = '';
+  html += buildTable('Nach Stadt', byCity);
+  html += buildTable('Nach Objektart', byType, function(k) { return propTypeLabels[k] || k; });
+  html += buildTable('Nach Standort-Rating', byRating);
+  html += buildTable('Nach Preisklasse', byPrice);
+  container.innerHTML = html || '<div class="empty-state"><div class="empty-state-desc">Nicht genügend Daten für Segmentierung</div></div>';
+}
+
+function renderCorrelationAnalysis(allData) {
+  var container = document.getElementById('data-intel-correlations');
+  var correlations = [];
+  var withPrice = allData.filter(function(d) { return d.effectivePrice && d.cpl; });
+  var withSize = allData.filter(function(d) { return d.effectiveSize && d.cpl; });
+  var withPPSQM = allData.filter(function(d) { return d.effectivePrice && d.effectiveSize && d.cpl; });
+
+  if (withPrice.length >= 2) {
+    var r = pearsonCorrelation(withPrice.map(function(d) { return d.effectivePrice; }), withPrice.map(function(d) { return d.cpl; }));
+    if (r !== null) correlations.push({ label: 'Preis ↔ CPL', r: r, n: withPrice.length });
+  }
+  if (withSize.length >= 2) {
+    var r2 = pearsonCorrelation(withSize.map(function(d) { return d.effectiveSize; }), withSize.map(function(d) { return d.cpl; }));
+    if (r2 !== null) correlations.push({ label: 'Wohnfläche ↔ CPL', r: r2, n: withSize.length });
+  }
+  if (withPPSQM.length >= 2) {
+    var ppsqm = withPPSQM.map(function(d) { return d.effectivePrice / d.effectiveSize; });
+    var r3 = pearsonCorrelation(ppsqm, withPPSQM.map(function(d) { return d.cpl; }));
+    if (r3 !== null) correlations.push({ label: 'qm-Preis ↔ CPL', r: r3, n: withPPSQM.length });
+  }
+
+  if (correlations.length === 0) {
+    container.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Nicht genügend numerische Daten für Korrelationsanalyse.</div>';
+    return;
+  }
+
+  correlations.sort(function(a,b) { return Math.abs(b.r) - Math.abs(a.r); });
+  var html = correlations.map(function(c) {
+    var absR = Math.abs(c.r);
+    var isPos = c.r >= 0;
+    var barWidth = absR * 50;
+    var barLeft = isPos ? 50 : (50 - barWidth);
+    var cls = isPos ? 'positive' : 'negative';
+    var label = correlationLabel(c.r);
+    var dirLabel = isPos ? 'positive' : 'negative';
+    return '<div class="correlation-bar-container"><div class="correlation-bar-label"><span>' + escHtml(c.label) + '</span><span style="color:var(--' + (isPos ? 'red' : 'green') + ');font-weight:700;">r = ' + c.r.toFixed(2) + ' (' + label + ' ' + dirLabel + ')</span></div><div class="correlation-bar-track"><div class="correlation-bar-center"></div><div class="correlation-bar-fill ' + cls + '" style="left:' + barLeft + '%;width:' + barWidth + '%;"></div></div><div class="correlation-bar-sublabel">' + (isPos ? 'Höherer Wert → höherer CPL' : 'Höherer Wert → niedrigerer CPL') + ' (n=' + c.n + ')</div></div>';
+  }).join('');
+  container.innerHTML = html;
+}
+
+function renderAutoInsights(allData, globalAvgCPL, N) {
+  var container = document.getElementById('data-intel-insights');
+  var insights = [];
+
+  var cheap = allData.filter(function(d) { return d.effectivePrice && d.effectivePrice < 1000000; });
+  var expensive = allData.filter(function(d) { return d.effectivePrice && d.effectivePrice >= 1000000; });
+  if (cheap.length > 0 && expensive.length > 0) {
+    var cs = cheap.reduce(function(s,d) { return s + d.spend; }, 0);
+    var cl = cheap.reduce(function(s,d) { return s + d.leads; }, 0);
+    var es = expensive.reduce(function(s,d) { return s + d.spend; }, 0);
+    var el = expensive.reduce(function(s,d) { return s + d.leads; }, 0);
+    var cheapCPL = cl > 0 ? cs / cl : null;
+    var expCPL = el > 0 ? es / el : null;
+    if (cheapCPL && expCPL) {
+      var diff = Math.round(Math.abs((expCPL - cheapCPL) / Math.max(expCPL, cheapCPL)) * 100);
+      if (diff > 10) {
+        var better = cheapCPL < expCPL ? 'unter' : 'über';
+        insights.push('Objekte ' + better + ' 1M€ haben Ø ' + diff + '% niedrigeren CPL (' + diFormatEur(Math.min(cheapCPL, expCPL)) + ' vs ' + diFormatEur(Math.max(cheapCPL, expCPL)) + ')');
+      }
+    }
+  }
+
+  var byType = diGroupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
+  var typeKeys = Object.keys(byType);
+  if (typeKeys.length > 1) {
+    var propTypeLabels = {wohnung:'Wohnungen',haus:'Häuser',penthouse:'Penthouses',villa:'Villen',reihenhaus:'Reihenhäuser',grundstueck:'Grundstücke',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekte',zweifamilienhaus:'Zweifamilienhäuser',doppelhaushaelfte:'Doppelhaushälften',sonstige:'Sonstige'};
+    var typeAvgs = typeKeys.map(function(k) {
+      var items = byType[k];
+      var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
+      var tl = items.reduce(function(s,d) { return s + d.leads; }, 0);
+      return { type: k, label: propTypeLabels[k] || k, cpl: tl > 0 ? ts / tl : null };
+    }).filter(function(t) { return t.cpl !== null; }).sort(function(a,b) { return a.cpl - b.cpl; });
+    if (typeAvgs.length > 1) {
+      var best = typeAvgs[0];
+      var worst = typeAvgs[typeAvgs.length - 1];
+      if (best.cpl !== worst.cpl) {
+        insights.push(best.label + ' performen ' + (best.cpl < worst.cpl * 0.7 ? 'deutlich ' : '') + 'besser als ' + worst.label + ' (CPL ' + diFormatEur(best.cpl) + ' vs ' + diFormatEur(worst.cpl) + ')');
+      }
+    }
+  }
+
+  var withPrice2 = allData.filter(function(d) { return d.effectivePrice && d.cpl; });
+  var withSize2 = allData.filter(function(d) { return d.effectiveSize && d.cpl; });
+  var withPPSQM2 = allData.filter(function(d) { return d.effectivePrice && d.effectiveSize && d.cpl; });
+  var corrs = [];
+  if (withPrice2.length >= 2) {
+    var r1 = pearsonCorrelation(withPrice2.map(function(d) { return d.effectivePrice; }), withPrice2.map(function(d) { return d.cpl; }));
+    if (r1 !== null) corrs.push({ label: 'Objektpreis', r: r1 });
+  }
+  if (withSize2.length >= 2) {
+    var r2 = pearsonCorrelation(withSize2.map(function(d) { return d.effectiveSize; }), withSize2.map(function(d) { return d.cpl; }));
+    if (r2 !== null) corrs.push({ label: 'Wohnfläche', r: r2 });
+  }
+  if (withPPSQM2.length >= 2) {
+    var ppsqm = withPPSQM2.map(function(d) { return d.effectivePrice / d.effectiveSize; });
+    var r3 = pearsonCorrelation(ppsqm, withPPSQM2.map(function(d) { return d.cpl; }));
+    if (r3 !== null) corrs.push({ label: 'qm-Preis', r: r3 });
+  }
+  if (corrs.length > 0) {
+    corrs.sort(function(a,b) { return Math.abs(b.r) - Math.abs(a.r); });
+    var strongest = corrs[0];
+    insights.push('Der ' + strongest.label + ' korreliert am stärksten mit dem CPL (r = ' + strongest.r.toFixed(2) + ', ' + correlationLabel(strongest.r) + ')');
+  }
+
+  var byCity = diGroupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
+  var cityKeys = Object.keys(byCity);
+  if (cityKeys.length > 1) {
+    var cityData = cityKeys.map(function(k) {
+      var items = byCity[k];
+      var ts = items.reduce(function(s,d) { return s + d.spend; }, 0);
+      var tl = items.reduce(function(s,d) { return s + d.leads; }, 0);
+      var td = items.reduce(function(s,d) { return s + d.days; }, 0);
+      return { city: k, cpl: tl > 0 ? ts / tl : null, leadsPerDay: td > 0 ? tl / td : 0 };
+    }).filter(function(c) { return c.cpl !== null; }).sort(function(a,b) { return a.cpl - b.cpl; });
+    if (cityData.length >= 2) {
+      var best2 = cityData[0];
+      var other = cityData[cityData.length - 1];
+      if (best2.city !== other.city) {
+        var diffPct = Math.round(Math.abs((other.cpl - best2.cpl) / best2.cpl) * 100);
+        insights.push(other.city + ' hat ' + diffPct + '% höheren CPL als ' + best2.city);
+      }
+    }
+  }
+
+  var sorted = allData.filter(function(d) { return d.startDate; }).sort(function(a,b) { return (a.startDate || '').localeCompare(b.startDate || ''); });
+  if (sorted.length >= 2) {
+    var oldest = sorted[0];
+    var newest = sorted[sorted.length - 1];
+    if (oldest.cpl && newest.cpl && oldest.id !== newest.id) {
+      if (newest.cpl < oldest.cpl * 0.8) {
+        insights.push('Trend: Neueste Kampagne (' + escHtml(newest.name) + ') hat deutlich niedrigeren CPL als älteste');
+      } else if (newest.cpl > oldest.cpl * 1.2) {
+        insights.push('Trend: Neueste Kampagne (' + escHtml(newest.name) + ') hat höheren CPL als älteste — Optimierung prüfen');
+      }
+    }
+  }
+
+  var allCreativeTypes = {};
+  allData.forEach(function(d) {
+    (d.creatives || []).forEach(function(c) {
+      var type = c.creative_type || 'unknown';
+      var cm = c.creative_daily_metrics || [];
+      if (!allCreativeTypes[type]) allCreativeTypes[type] = { leads: 0, spend: 0 };
+      allCreativeTypes[type].leads += cm.reduce(function(s,m) { return s + (m.leads || 0); }, 0);
+      allCreativeTypes[type].spend += cm.reduce(function(s,m) { return s + (m.spend || 0); }, 0);
+    });
+  });
+  var ctKeys = Object.keys(allCreativeTypes).filter(function(k) { return allCreativeTypes[k].leads > 0; });
+  if (ctKeys.length > 1) {
+    var ctData = ctKeys.map(function(k) {
+      var t = allCreativeTypes[k];
+      return { type: k, label: formatCreativeType(k), cpl: t.leads > 0 ? t.spend / t.leads : null, leads: t.leads };
+    }).filter(function(t) { return t.cpl !== null; }).sort(function(a,b) { return a.cpl - b.cpl; });
+    if (ctData.length > 1) {
+      insights.push(ctData[0].label + ' hat den besten CPL über alle Kampagnen (Ø ' + diFormatEur(ctData[0].cpl) + ', ' + ctData[0].leads + ' Leads)');
+    }
+  }
+
+  if (insights.length === 0) {
+    container.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Noch nicht genügend Daten für automatische Insights.</div>';
+    return;
+  }
+  container.innerHTML = '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Insights (basierend auf ' + N + ' Kampagnen)</div>' + insights.map(function(i) { return '<div class="di-insight-item">' + i + '</div>'; }).join('');
+}
+
+function renderScatterPlot(allData) {
+  var scatterContainer = document.querySelector('.scatter-container');
+  if (!scatterContainer) return;
+  if (_diScatterChart) { _diScatterChart.destroy(); _diScatterChart = null; }
+  scatterContainer.innerHTML = '<canvas id="chart-scatter-cpl"></canvas>';
+  var canvas = document.getElementById('chart-scatter-cpl');
+  var ctx = canvas.getContext('2d');
+
+  var modeConfig = {
+    price: { title: 'Preis vs. CPL', xAxisLabel: 'Objektpreis (€)', xTickFormat: function(v) { return (v / 1000).toFixed(0) + 'k €'; }, tooltipXLabel: function(d) { return 'Preis ' + diFormatEur(d.effectivePrice); }, filter: function(d) { return d.effectivePrice && d.cpl; }, getX: function(d) { return d.effectivePrice; } },
+    pricePerSqm: { title: 'qm-Preis vs. CPL', xAxisLabel: 'qm-Preis (€/m²)', xTickFormat: function(v) { return v.toFixed(0) + ' €/m²'; }, tooltipXLabel: function(d) { return 'qm-Preis ' + (d.effectivePrice / d.effectiveSize).toFixed(0) + ' €/m²'; }, filter: function(d) { return d.effectivePrice && d.effectiveSize && d.effectiveSize > 0 && d.cpl; }, getX: function(d) { return d.effectivePrice / d.effectiveSize; } },
+    size: { title: 'Wohnfläche vs. CPL', xAxisLabel: 'Wohnfläche (m²)', xTickFormat: function(v) { return v + ' m²'; }, tooltipXLabel: function(d) { return 'Wohnfläche ' + d.effectiveSize + ' m²'; }, filter: function(d) { return d.effectiveSize && d.cpl; }, getX: function(d) { return d.effectiveSize; } },
+    rooms: { title: 'Zimmer vs. CPL', xAxisLabel: 'Zimmer', xTickFormat: function(v) { return v.toString(); }, tooltipXLabel: function(d) { return 'Zimmer ' + d.prop.rooms; }, filter: function(d) { return d.prop && d.prop.rooms && d.cpl; }, getX: function(d) { return d.prop.rooms; } },
+    plot: { title: 'Grundstück vs. CPL', xAxisLabel: 'Grundstück (m²)', xTickFormat: function(v) { return v + ' m²'; }, tooltipXLabel: function(d) { return 'Grundstück ' + d.prop.plot_size + ' m²'; }, filter: function(d) { return d.prop && d.prop.plot_size && d.cpl; }, getX: function(d) { return d.prop.plot_size; } }
+  };
+
+  var mode = modeConfig[_scatterMode] || modeConfig.price;
+  var titleEl = document.getElementById('scatter-chart-title');
+  if (titleEl) titleEl.textContent = mode.title;
+
+  var filteredData = allData.filter(mode.filter);
+  if (filteredData.length < 2) {
+    scatterContainer.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:60px;">Mindestens 2 Kampagnen mit passenden Daten nötig.</div>';
+    return;
+  }
+
+  var xValues = filteredData.map(mode.getX);
+  var yValues = filteredData.map(function(d) { return d.cpl; });
+  var reg = diLinearRegression(xValues, yValues);
+  var minX = Math.min.apply(null, xValues);
+  var maxX = Math.max.apply(null, xValues);
+
+  var scatterData = filteredData.map(function(d) {
+    return { x: mode.getX(d), y: d.cpl, label: d.name, dataItem: d };
+  });
+
+  var trendData = [];
+  if (reg) {
+    trendData = [{ x: minX, y: reg.slope * minX + reg.intercept }, { x: maxX, y: reg.slope * maxX + reg.intercept }];
+  }
+
+  _diScatterChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        { label: 'Kampagnen', data: scatterData, backgroundColor: 'rgba(231, 53, 46, 0.8)', borderColor: 'rgba(231, 53, 46, 1)', borderWidth: 2, pointRadius: 8, pointHoverRadius: 12 },
+        { label: 'Trendlinie', data: trendData, type: 'line', borderColor: 'rgba(245, 158, 11, 0.6)', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, fill: false }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(tooltipCtx) {
+              var item = tooltipCtx.raw;
+              if (item.label && item.dataItem) {
+                var xLabel = mode.tooltipXLabel(item.dataItem);
+                return item.label + ': ' + xLabel + ', CPL ' + diFormatEur(item.y);
+              }
+              return 'CPL ' + diFormatEur(item.y);
+            }
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: mode.xAxisLabel, color: '#8f8f8f' }, ticks: { callback: mode.xTickFormat }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        y: { title: { display: true, text: 'CPL (€)', color: '#8f8f8f' }, ticks: { callback: function(v) { return v.toFixed(0) + ' €'; } }, grid: { color: 'rgba(0,0,0,0.04)' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ============================================
+// PREDICTION ENGINE
+// ============================================
+var _predictionCreativesCache = null;
+
+async function loadCampaignDataForPrediction() {
+  var allRaw = await sbGet('campaigns', 'ad_account_id=eq.' + EV_ACCOUNT_ID + '&select=*,properties(*),campaign_daily_metrics(spend,leads,impressions),creatives(*,creative_daily_metrics(spend,leads,impressions))');
+  _predictionCreativesCache = [];
+  (allRaw || []).forEach(function(c) {
+    (c.creatives || []).forEach(function(cr) { _predictionCreativesCache.push(cr); });
+  });
+  return (allRaw || []).map(function(c) {
+    var m = c.campaign_daily_metrics || [];
+    var spend = m.reduce(function(s,x) { return s + (x.spend || 0); }, 0);
+    var leads = m.reduce(function(s,x) { return s + (x.leads || 0); }, 0);
+    var impressions = m.reduce(function(s,x) { return s + (x.impressions || 0); }, 0);
+    var days = m.length || 0;
+    var prop = c.properties || {};
+    return {
+      campaign_id: c.id, campaign_name: c.campaign_name, start_date: c.start_date, end_date: c.end_date,
+      total_budget: c.total_budget, status: c.status, id: c.id, name: c.campaign_name,
+      prop: {
+        price: prop.property_type === 'neubauprojekt' && prop.price_from ? prop.price_from : (prop.price || 0),
+        size_sqm: prop.size_sqm || 0, property_type: prop.property_type || 'unknown',
+        city: prop.city || '', location_rating: prop.location_rating || (prop.city ? getCityRating(prop.city) : null),
+        price_per_sqm: prop.property_type === 'neubauprojekt' && prop.price_from && prop.size_from ? prop.price_from / prop.size_from : ((prop.price && prop.size_sqm) ? prop.price / prop.size_sqm : null),
+        rooms: prop.rooms || null, plot_size: prop.plot_size || null
+      },
+      spend: spend, leads: leads, impressions: impressions, days: days,
+      cpl: leads > 0 ? spend / leads : null
+    };
+  }).filter(function(d) { return d.leads > 0 && d.cpl !== null; });
+}
+
+function engineFeatures(prop, allProps) {
+  var prices = allProps.map(function(p) { return p.price; }).filter(function(v) { return v > 0; });
+  var sizes = allProps.map(function(p) { return p.size_sqm; }).filter(function(v) { return v > 0; });
+  var pricePerSqms = allProps.map(function(p) { return (p.price && p.size_sqm) ? p.price / p.size_sqm : null; }).filter(function(v) { return v !== null; });
+  var normalize = function(val, arr) {
+    if (val == null || arr.length < 2) return 0.5;
+    var min = Math.min.apply(null, arr); var max = Math.max.apply(null, arr);
+    if (max === min) return 0.5;
+    return Math.max(0, Math.min(1, (val - min) / (max - min)));
+  };
+  return {
+    price_norm: normalize(prop.price, prices), size_norm: normalize(prop.size_sqm, sizes),
+    ppsqm_norm: normalize((prop.price && prop.size_sqm) ? prop.price / prop.size_sqm : null, pricePerSqms),
+    type: prop.property_type || 'unknown', city: (prop.city || '').toLowerCase().trim(),
+    rating: prop.location_rating || 'C'
+  };
+}
+
+function campaignSimilarity(inputFeatures, campaignFeatures) {
+  var priceDist = Math.abs(inputFeatures.price_norm - campaignFeatures.price_norm);
+  var sizeDist = Math.abs(inputFeatures.size_norm - campaignFeatures.size_norm);
+  var ppsqmDist = Math.abs(inputFeatures.ppsqm_norm - campaignFeatures.ppsqm_norm);
+  var typeMatch = inputFeatures.type === campaignFeatures.type ? 0 : 1;
+  var cityMatch = inputFeatures.city === campaignFeatures.city ? 0 : 1;
+  var inputRatingIdx = 'ABCD'.indexOf(inputFeatures.rating);
+  var campRatingIdx = 'ABCD'.indexOf(campaignFeatures.rating);
+  var ratingDist = (inputRatingIdx >= 0 && campRatingIdx >= 0) ? Math.abs(inputRatingIdx - campRatingIdx) / 3 : 0.5;
+  var weights = { ppsqm: 0.30, price: 0.20, type: 0.20, size: 0.10, city: 0.10, rating: 0.10 };
+  var distance = weights.ppsqm * ppsqmDist + weights.price * priceDist + weights.type * typeMatch + weights.size * sizeDist + weights.city * cityMatch + weights.rating * ratingDist;
+  return 1 - distance;
+}
+
+function temporalWeight(campaignEndDate) {
+  var now = new Date();
+  var end = new Date(campaignEndDate);
+  var daysSince = Math.max(0, (now - end) / (1000 * 60 * 60 * 24));
+  return Math.exp(-0.005 * daysSince);
+}
+
+function bayesianEstimate(predictions, weights) {
+  var prior = { mean: 10.0, variance: 25.0 };
+  var totalWeight = weights.reduce(function(s, w) { return s + w; }, 0);
+  if (totalWeight === 0) return { mean: prior.mean, low: prior.mean - Math.sqrt(prior.variance) * 1.5, high: prior.mean + Math.sqrt(prior.variance) * 1.5, confidence: 0, priorInfluence: 100, dataInfluence: 0 };
+  var dataMean = predictions.reduce(function(s, p, i) { return s + p * weights[i]; }, 0) / totalWeight;
+  var dataVariance = predictions.reduce(function(s, p, i) { return s + weights[i] * Math.pow(p - dataMean, 2); }, 0) / totalWeight;
+  var n = predictions.length;
+  var priorPrecision = 1 / prior.variance;
+  var dataPrecision = n / (dataVariance + 0.01);
+  var posteriorPrecision = priorPrecision + dataPrecision;
+  var posteriorMean = (priorPrecision * prior.mean + dataPrecision * dataMean) / posteriorPrecision;
+  var posteriorVariance = 1 / posteriorPrecision;
+  var posteriorStd = Math.sqrt(posteriorVariance);
+  var confidence = Math.min(100, Math.round((dataPrecision / posteriorPrecision) * 100));
+  return { mean: posteriorMean, low: Math.max(0.5, posteriorMean - 1.5 * posteriorStd), high: posteriorMean + 1.5 * posteriorStd, confidence: confidence, priorInfluence: Math.round((priorPrecision / posteriorPrecision) * 100), dataInfluence: Math.round((dataPrecision / posteriorPrecision) * 100) };
+}
+
+function calculateFeatureImportance(inputFeatures, scoredCampaigns) {
+  var features = ['ppsqm', 'price', 'type', 'size', 'city', 'rating'];
+  var labels = { ppsqm: '€/qm', price: 'Preis', type: 'Objektart', size: 'Größe', city: 'Stadt', rating: 'Standort-Rating' };
+  var allCampProps = scoredCampaigns.map(function(s) { return s.prop; });
+  var importance = {};
+  features.forEach(function(f) {
+    var distances = scoredCampaigns.map(function(c) {
+      var cf = engineFeatures(c.prop, allCampProps);
+      switch(f) {
+        case 'ppsqm': return Math.abs(inputFeatures.ppsqm_norm - cf.ppsqm_norm);
+        case 'price': return Math.abs(inputFeatures.price_norm - cf.price_norm);
+        case 'type': return inputFeatures.type === cf.type ? 0 : 1;
+        case 'size': return Math.abs(inputFeatures.size_norm - cf.size_norm);
+        case 'city': return inputFeatures.city === cf.city ? 0 : 1;
+        case 'rating': var ir = 'ABCD'.indexOf(inputFeatures.rating); var cr = 'ABCD'.indexOf(cf.rating); return (ir >= 0 && cr >= 0) ? Math.abs(ir - cr) / 3 : 0.5;
+        default: return 0;
+      }
+    });
+    var avg = distances.length > 0 ? distances.reduce(function(s,v) { return s + v; }, 0) / distances.length : 0;
+    importance[f] = { variance: avg, label: labels[f] };
+  });
+  var total = Object.keys(importance).reduce(function(s, k) { return s + importance[k].variance; }, 0);
+  Object.keys(importance).forEach(function(f) { importance[f].pct = total > 0 ? Math.round((importance[f].variance / total) * 100) : 0; });
+  return importance;
+}
+
+function predictCPLAdvanced(inputProp, allData) {
+  var N = allData.length;
+  if (N === 0) return { prediction: { mean: 10, low: 5, high: 15, confidence: 0, priorInfluence: 100, dataInfluence: 0 }, method: 'prior_only', similarities: [], featureImportance: {}, N: 0, globalAvgCPL: 10 };
+  var allProps = allData.map(function(d) { return d.prop; }).filter(function(p) { return p; });
+  var inputFeatures = engineFeatures(inputProp, allProps);
+  var scored = allData.filter(function(d) { return d.cpl > 0; }).map(function(d) {
+    var campFeatures = engineFeatures(d.prop, allProps);
+    var similarity = campaignSimilarity(inputFeatures, campFeatures);
+    var temporal = temporalWeight(d.end_date || new Date().toISOString());
+    return { campaign_id: d.campaign_id || d.id, campaign_name: d.campaign_name || d.name, name: d.campaign_name || d.name, start_date: d.start_date, end_date: d.end_date, spend: d.spend, leads: d.leads, impressions: d.impressions, cpl: d.cpl, days: d.days, prop: d.prop, similarity: similarity, temporalWeight: temporal, combinedWeight: similarity * temporal };
+  });
+  scored.sort(function(a, b) { return b.combinedWeight - a.combinedWeight; });
+  var cplValues = scored.map(function(s) { return s.cpl; });
+  var weights = scored.map(function(s) { return s.combinedWeight; });
+  var prediction = bayesianEstimate(cplValues, weights);
+  var featureImportance = calculateFeatureImportance(inputFeatures, scored);
+  var totalSpendAll = allData.reduce(function(s,d) { return s + d.spend; }, 0);
+  var totalLeadsAll = allData.reduce(function(s,d) { return s + d.leads; }, 0);
+  return { prediction: prediction, method: N >= 10 ? 'full_model' : N >= 5 ? 'limited_data' : 'early_stage', similarities: scored.slice(0, 5), featureImportance: featureImportance, N: N, globalAvgCPL: totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 10 };
+}
+
+function getPerformanceScore(predictedCPL, avgCPL) {
+  if (!predictedCPL || !avgCPL || avgCPL === 0) return { stars: 3, label: 'Durchschnitt', cls: 'pred-score-yellow' };
+  var ratio = predictedCPL / avgCPL;
+  if (ratio < 0.4) return { stars: 5, label: 'Exzellent', cls: 'pred-score-green' };
+  if (ratio < 0.7) return { stars: 4, label: 'Gut', cls: 'pred-score-yellow-green' };
+  if (ratio < 1.3) return { stars: 3, label: 'Durchschnitt', cls: 'pred-score-yellow' };
+  if (ratio < 1.8) return { stars: 2, label: 'Unterdurchschnittlich', cls: 'pred-score-orange' };
+  return { stars: 1, label: 'Schwach', cls: 'pred-score-red' };
+}
+
+function renderStars(count) {
+  var html = '';
+  for (var i = 1; i <= 5; i++) html += '<span class="' + (i <= count ? 'star-active' : 'star-inactive') + '">★</span>';
+  return html;
+}
+
+function calcPredScore(leads, cpl, avgCPL) {
+  if (!leads || leads === 0 || !cpl || cpl === 0) return 0;
+  return leads * (avgCPL / cpl);
+}
+
+function getPredCreativeRecommendations(similarCampaigns, allCreatives) {
+  var typeScores = {};
+  similarCampaigns.forEach(function(camp) {
+    var campCreatives = allCreatives.filter(function(c) { return c.campaign_id === camp.campaign_id; });
+    if (!campCreatives.length) return;
+    var totalSpend = campCreatives.reduce(function(s, c) { return s + (c.creative_daily_metrics || []).reduce(function(ss, m) { return ss + (m.spend || 0); }, 0); }, 0);
+    var totalLeads = campCreatives.reduce(function(s, c) { return s + (c.creative_daily_metrics || []).reduce(function(ss, m) { return ss + (m.leads || 0); }, 0); }, 0);
+    var avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+    campCreatives.forEach(function(c) {
+      var type = c.creative_type || 'unknown';
+      var metrics = c.creative_daily_metrics || [];
+      var spend = metrics.reduce(function(s, m) { return s + (m.spend || 0); }, 0);
+      var leads = metrics.reduce(function(s, m) { return s + (m.leads || 0); }, 0);
+      var cpl = leads > 0 ? spend / leads : null;
+      var score = calcPredScore(leads, cpl, avgCPL);
+      if (!typeScores[type]) typeScores[type] = { type: type, totalScore: 0, totalWeight: 0, totalLeads: 0, totalSpend: 0, campaigns: 0 };
+      var weight = camp.similarity || camp.combinedWeight || 1;
+      typeScores[type].totalScore += score * weight;
+      typeScores[type].totalWeight += weight;
+      typeScores[type].totalLeads += leads;
+      typeScores[type].totalSpend += spend;
+      typeScores[type].campaigns += 1;
+    });
+  });
+  return Object.values(typeScores).map(function(t) {
+    return { type: t.type, avgScore: t.totalWeight > 0 ? t.totalScore / t.totalWeight : 0, avgCPL: t.totalLeads > 0 ? t.totalSpend / t.totalLeads : null, totalLeads: t.totalLeads, campaigns: t.campaigns };
+  }).filter(function(t) { return t.totalLeads > 0 || t.campaigns > 0; }).sort(function(a, b) { return b.avgScore - a.avgScore; });
+}
+
+function renderPredCreativeRecommendations(recommendations) {
+  if (!recommendations || recommendations.length === 0) return '<div class="creative-rec-empty">Keine Creative-Daten für ähnliche Kampagnen verfügbar</div>';
+  var medals = ['🥇', '🥈', '🥉'];
+  var maxScore = recommendations[0].avgScore || 1;
+  var totalScore = recommendations.reduce(function(s, r) { return s + r.avgScore; }, 0);
+  var html = '';
+  recommendations.forEach(function(rec, i) {
+    var medal = i < 3 ? medals[i] : (i + 1) + '.';
+    var pct = maxScore > 0 ? Math.round((rec.avgScore / maxScore) * 100) : 0;
+    var label = formatCreativeType(rec.type);
+    var cplStr = rec.avgCPL !== null ? diFormatEur(rec.avgCPL) : '—';
+    html += '<div class="creative-rec-item"><div class="creative-rec-badge">' + medal + '</div><div class="creative-rec-info"><div class="creative-rec-name">' + escHtml(label) + '</div><div class="creative-rec-stats"><span>Score: <strong>' + rec.avgScore.toFixed(1) + '</strong></span><span>Ø CPL: <strong>' + cplStr + '</strong></span><span>' + rec.totalLeads + ' Leads</span><span>' + rec.campaigns + ' Kampagnen</span></div><div class="creative-rec-bar-wrap"><div class="creative-rec-bar"><div class="creative-rec-bar-fill" style="width:' + pct + '%;"></div></div></div></div></div>';
+  });
+  if (recommendations.length >= 1) {
+    var top = recommendations[0];
+    var topLabel = formatCreativeType(top.type);
+    var tipText = 'Setze hauptsächlich auf <strong>' + escHtml(topLabel) + '</strong>.';
+    if (recommendations.length >= 2) {
+      var second = recommendations[1];
+      var ratio = second.avgScore > 0 ? top.avgScore / second.avgScore : Infinity;
+      if (ratio < 1.3) tipText = 'Kombiniere <strong>' + escHtml(topLabel) + '</strong> und <strong>' + escHtml(formatCreativeType(second.type)) + '</strong> für optimale Performance.';
+    }
+    html += '<div class="creative-rec-tip">' + tipText + '</div>';
+  }
+  return html;
+}
+
+async function predictPerformance() {
+  var resultsEl = document.getElementById('pred-results');
+  var inputType = document.getElementById('pred-type').value;
+  var inputSize = parseFloat(document.getElementById('pred-size').value) || null;
+  var inputPlot = parseFloat(document.getElementById('pred-plot').value) || null;
+  var inputRooms = parseFloat(document.getElementById('pred-rooms').value) || null;
+  var inputPrice = parseFloat(document.getElementById('pred-price').value) || null;
+  var inputCity = document.getElementById('pred-city').value.trim();
+  var inputRating = document.getElementById('pred-rating').value || (inputCity ? getCityRating(inputCity) : null);
+
+  if (!inputPrice) { showToast('Bitte mindestens den Preis eingeben', 'error'); return; }
+
+  resultsEl.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+
+  try {
+    var allData = await loadCampaignDataForPrediction();
+    var N = allData.length;
+    if (N === 0) {
+      resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">Keine Daten</div><div class="empty-state-desc">Noch keine Kampagnen mit Leads vorhanden.</div></div>';
+      return;
+    }
+
+    var inputProp = { price: inputPrice, size_sqm: inputSize || 0, property_type: inputType, city: inputCity, location_rating: inputRating || 'C', rooms: inputRooms, plot_size: inputPlot };
+    var result = predictCPLAdvanced(inputProp, allData);
+    var pred = result.prediction;
+    var score = getPerformanceScore(pred.mean, result.globalAvgCPL);
+    var cplColorCls = pred.mean < 8 ? 'cpl-green' : pred.mean < 12 ? 'cpl-yellow' : 'cpl-red';
+
+    var methodLabels = { 'prior_only': { text: 'Nur Prior', cls: 'early' }, 'early_stage': { text: 'Early Stage (' + result.N + ' Kampagnen)', cls: 'early' }, 'limited_data': { text: 'Eingeschränkte Daten (' + result.N + ' Kampagnen)', cls: 'limited' }, 'full_model': { text: 'Vollständiges Modell (' + result.N + ' Kampagnen)', cls: 'full' } };
+    var methodInfo = methodLabels[result.method] || methodLabels['early_stage'];
+
+    var mainHtml = '<div class="prediction-section"><div class="prediction-section-header">Erwarteter CPL</div><div class="prediction-main"><div class="pred-cpl-big ' + cplColorCls + '">' + diFormatEur(pred.mean) + '</div><div class="pred-range-text">Spanne: ' + diFormatEur(pred.low) + ' – ' + diFormatEur(pred.high) + '</div><div style="margin-top:8px;"><span style="font-size:12px;color:var(--text-muted);">Konfidenz: ' + pred.confidence + '%</span><div class="confidence-bar"><div class="confidence-bar-fill" style="width:' + pred.confidence + '%;"></div></div></div></div></div>';
+
+    var breakdownHtml = '<div class="prediction-section"><div class="prediction-section-header">Datengrundlage</div><div class="prediction-breakdown"><div class="pb-item"><div class="pb-label">Eigene Daten</div><div class="pb-value">' + pred.dataInfluence + '%</div></div><div class="pb-item"><div class="pb-label">Industry Prior</div><div class="pb-value">' + pred.priorInfluence + '%</div></div><div class="pb-item"><div class="pb-label">Kampagnen</div><div class="pb-value">' + result.N + '</div></div><div class="pb-item"><div class="pb-label">Modell</div><div class="pb-value"><span class="pred-method-badge ' + methodInfo.cls + '">' + methodInfo.text + '</span></div></div></div>' + (result.N < 10 ? '<div style="margin-top:10px;font-size:12px;color:var(--orange);">Mehr Kampagnen = genauere Vorhersage</div>' : '') + '</div>';
+
+    var scoreHtml = '<div class="prediction-section"><div class="prediction-section-header">Performance-Score</div><div class="pred-stars" style="font-size:28px;">' + renderStars(score.stars) + '</div><div class="pred-score-label ' + score.cls + '" style="margin-top:6px;">' + score.label + '</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Global Ø CPL: ' + diFormatEur(result.globalAvgCPL) + '</div></div>';
+
+    var similarHtml = '<div class="prediction-section"><div class="prediction-section-header">Ähnlichste Kampagnen</div>';
+    if (result.similarities.length > 0) {
+      similarHtml += result.similarities.map(function(c, i) {
+        var simPct = Math.round(c.similarity * 100);
+        return '<div class="pred-similar-item"><span class="pred-similar-name">' + (i + 1) + '. ' + escHtml(c.name) + '</span><span style="display:flex;align-items:center;gap:8px;"><span style="color:var(--text-secondary)">' + simPct + '% ähnlich</span><span class="similarity-inline-bar"><span class="similarity-inline-bar-fill" style="width:' + simPct + '%;"></span></span><span style="font-weight:700;">CPL ' + diFormatEur(c.cpl) + '</span></span></div>';
+      }).join('');
+    } else { similarHtml += '<div style="font-size:13px;color:var(--text-muted);">Keine ähnlichen Kampagnen gefunden.</div>'; }
+    similarHtml += '</div>';
+
+    var featureHtml = '<div class="prediction-section"><div class="prediction-section-header">Was beeinflusst den CPL am meisten?</div>';
+    var fi = result.featureImportance;
+    var fiKeys = Object.keys(fi);
+    fiKeys.sort(function(a, b) { return (fi[b].pct || 0) - (fi[a].pct || 0); });
+    fiKeys.forEach(function(k) {
+      var item = fi[k];
+      featureHtml += '<div class="feature-importance-bar"><span class="fi-label">' + escHtml(item.label) + '</span><span class="fi-track"><span class="fi-fill" style="width:' + Math.max(2, item.pct) + '%;"></span></span><span class="fi-pct">' + item.pct + '%</span></div>';
+    });
+    featureHtml += '</div>';
+
+    var creativeRecHtml = '<div class="prediction-section"><div class="prediction-section-header">Empfohlene Werbemittel</div>';
+    var creativeRecs = getPredCreativeRecommendations(result.similarities, _predictionCreativesCache || []);
+    creativeRecHtml += renderPredCreativeRecommendations(creativeRecs);
+    creativeRecHtml += '</div>';
+
+    resultsEl.innerHTML = '<div class="pred-result-card"><div class="card-body">' + mainHtml + breakdownHtml + scoreHtml + similarHtml + featureHtml + creativeRecHtml + '</div></div>';
+  } catch (e) {
+    console.error('Prediction error:', e);
+    resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Fehler</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
+  }
 }
 
 // ============================================
