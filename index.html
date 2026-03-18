@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Redirect to Client Dashboard when accessed via custom domain
+    if (window.location.hostname === 'dashboard.runandgun.agency' && window.location.pathname === '/') {
+      window.location.replace('/client/');
+    }
+  </script>
   <title>Run & Gun — Command Center</title>
   <link rel="icon" type="image/png" href="assets/rg-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
