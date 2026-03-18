@@ -2178,22 +2178,32 @@ Chart.register({
   }
 });
 
-// Plugin 4: Cursor Proximity Glow — dots near the cursor glow and enlarge
+// Plugin 4: Cursor Proximity Glow — follows REAL mouse position, renders BEHIND lines
 Chart.register({
   id: 'cursorGlow',
-  afterDraw: function(chart) {
-    var tooltip = chart.tooltip;
-    if (!tooltip || !tooltip._active || !tooltip._active.length) return;
-    var mouseX = tooltip.caretX || (tooltip._active[0] && tooltip._active[0].element.x);
-    var mouseY = tooltip.caretY || (tooltip._active[0] && tooltip._active[0].element.y);
-    if (!mouseX || !mouseY) return;
+  beforeInit: function(chart) {
+    chart._cursorPos = null;
+  },
+  afterEvent: function(chart, args) {
+    var evt = args.event;
+    if (evt.type === 'mousemove' && args.inChartArea) {
+      chart._cursorPos = { x: evt.x, y: evt.y };
+      chart.draw();
+    } else if (evt.type === 'mouseout') {
+      chart._cursorPos = null;
+    }
+  },
+  beforeDatasetsDraw: function(chart) {
+    if (!chart._cursorPos) return;
+    var mouseX = chart._cursorPos.x;
+    var mouseY = chart._cursorPos.y;
 
     var ctx = chart.ctx;
     var area = chart.chartArea;
     if (!area) return;
 
     var spacing = 18;
-    var glowRadius = 80; // pixels — how far the glow reaches
+    var glowRadius = 90;
 
     ctx.save();
     for (var y = area.top; y < area.bottom; y += spacing) {
@@ -2203,10 +2213,10 @@ Chart.register({
         var dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < glowRadius) {
-          var intensity = 1 - (dist / glowRadius); // 1 at cursor, 0 at edge
-          var dotSize = 1.2 + intensity * 2.5; // 1.2 at edge, 3.7 at cursor
-          var opacity = 0.08 + intensity * 0.25; // 0.08 at edge, 0.33 at cursor
-          var blur = intensity * 4; // 0 at edge, 4 at cursor
+          var intensity = 1 - (dist / glowRadius);
+          var dotSize = 1.2 + intensity * 2.5;
+          var opacity = 0.08 + intensity * 0.25;
+          var blur = intensity * 4;
 
           ctx.beginPath();
           ctx.arc(x, y, dotSize, 0, Math.PI * 2);
