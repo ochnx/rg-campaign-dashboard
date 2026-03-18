@@ -2975,6 +2975,9 @@ function renderCampaignTable(metrics) {
     const statusBadge = status === 'active' ? 'badge-active' : status === 'paused' ? 'badge-paused' : 'badge-completed';
     const statusLabel = status === 'active' ? 'Aktiv' : status === 'paused' ? 'Pausiert' : 'Abgeschl.';
     const cplStr = c.fLeads > 0 ? formatEUR(c.fCPL) : '—';
+    // Landing Page badge for A/B test campaigns
+    const isLPCampaign = c.campaign_name && c.campaign_name.includes('Conversions');
+    const lpBadge = isLPCampaign ? '<span style="font-size:9px;padding:2px 6px;background:rgba(255,165,0,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);border-radius:4px;font-weight:600;letter-spacing:0.04em">LANDING PAGE</span>' : '';
 
     const div = document.createElement('div');
     div.className = 'campaign-item';
@@ -2984,6 +2987,7 @@ function renderCampaignTable(metrics) {
         <div class="campaign-item-name">${escHtml(name)}</div>
         <div class="campaign-item-meta">
           <span class="badge ${statusBadge}" style="font-size:10px;padding:2px 8px"><span class="badge-dot"></span>${statusLabel}</span>
+          ${lpBadge}
           ${city ? '<span>' + escHtml(city) + '</span>' : ''}
           <span>${formatDateRange(c.start_date, c.end_date)}</span>
         </div>
