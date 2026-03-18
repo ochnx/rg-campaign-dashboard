@@ -485,8 +485,6 @@
       position: relative;
       width: 100%;
       height: 320px;
-      background-image: radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
-      background-size: 20px 20px;
       border-radius: var(--radius-sm);
       padding: 8px;
     }
@@ -591,13 +589,11 @@
       position: relative;
       height: 300px;
       padding: 16px 24px 20px;
-      background-image: radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px);
-      background-size: 20px 20px;
     }
 
     .bottom-grid {
       display: grid;
-      grid-template-columns: 1fr 340px;
+      grid-template-columns: 1fr 380px;
       gap: 20px;
       align-items: start;
     }
@@ -657,33 +653,18 @@
     .campaign-item-leads { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
     .creative-panel {
-      background: rgba(26, 26, 46, 0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-card);
-      color: #e2e8f0;
+      color: var(--text-primary);
       overflow: hidden;
     }
-    .panel-header.dark { border-bottom-color: rgba(255,255,255,0.06); }
-    .panel-header.dark .panel-title { color: #f1f5f9; }
     .creative-list { padding: 8px 0; }
 
-    /* Creative ranking table inside dark card — invert colors */
     .creative-panel .creative-ranking-table { table-layout: auto; width: 100%; }
-    .creative-panel .creative-ranking-table th {
-      color: rgba(255,255,255,0.4);
-      background: rgba(255,255,255,0.04);
-      border-bottom-color: rgba(255,255,255,0.06);
-    }
-    .creative-panel .creative-ranking-table td {
-      color: #e2e8f0;
-      border-bottom-color: rgba(255,255,255,0.04);
-    }
-    .creative-panel .creative-type-name { color: #f1f5f9; }
-    .creative-panel .creative-score-track { background: rgba(255,255,255,0.08); }
-    .creative-panel .creative-score-value { color: #f1f5f9; }
 
     /* Campaign Table */
     .campaign-table {
@@ -932,7 +913,7 @@
     }
 
     .creative-ranking-table th:last-child,
-    .creative-ranking-table td:last-child { text-align: right; }
+    .creative-ranking-table td:last-child { text-align: left; }
     .creative-ranking-table th:nth-child(3),
     .creative-ranking-table td:nth-child(3),
     .creative-ranking-table th:nth-child(4),
@@ -1451,8 +1432,6 @@
       position: relative;
       width: 100%;
       height: 400px;
-      background-image: radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px);
-      background-size: 20px 20px;
     }
 
     /* DI tabs (category filter within data intel) */
@@ -1916,7 +1895,7 @@
         </div>
 
         <div class="creative-panel" id="mainCreativeSection" style="display:none">
-          <div class="panel-header dark">
+          <div class="panel-header">
             <span class="panel-title">Creative Ranking</span>
           </div>
           <div class="creative-list" id="mainCreativeRanking"></div>
@@ -2120,6 +2099,74 @@
 </div>
 
 <script>
+// ============================================
+// CHART.JS GLOBAL PLUGINS — Premium Effects
+// ============================================
+
+// Plugin 1: Line Glow Effect
+Chart.register({
+  id: 'lineGlow',
+  beforeDatasetDraw(chart, args) {
+    if (chart.config.type === 'scatter') return;
+    var dataset = chart.data.datasets[args.index];
+    if (dataset.type === 'bar' || (!dataset.borderColor && chart.config.type !== 'line')) return;
+    var ctx = chart.ctx;
+    ctx.save();
+    var color = dataset.borderColor || 'rgba(231,53,46,0.5)';
+    if (typeof color === 'string') {
+      ctx.shadowColor = color.replace(/[\d.]+\)$/, '0.3)');
+      ctx.shadowBlur = 12;
+    }
+  },
+  afterDatasetDraw(chart, args) {
+    if (chart.config.type === 'scatter') return;
+    chart.ctx.restore();
+  }
+});
+
+// Plugin 2: Vertical Crosshair on Hover
+Chart.register({
+  id: 'crosshair',
+  afterDraw(chart) {
+    if (chart.tooltip && chart.tooltip.opacity > 0 && chart.tooltip.caretX) {
+      var ctx = chart.ctx;
+      var x = chart.tooltip.caretX;
+      var topY = chart.scales.y ? chart.scales.y.top : chart.chartArea.top;
+      var bottomY = chart.scales.y ? chart.scales.y.bottom : chart.chartArea.bottom;
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash([3, 3]);
+      ctx.moveTo(x, topY);
+      ctx.lineTo(x, bottomY);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+});
+
+// Plugin 3: Dotted Background Pattern
+Chart.register({
+  id: 'dottedBg',
+  beforeDraw(chart) {
+    var ctx = chart.ctx;
+    var area = chart.chartArea;
+    if (!area) return;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.025)';
+    var spacing = 20;
+    for (var y = area.top; y < area.bottom; y += spacing) {
+      for (var x = area.left; x < area.right; x += spacing) {
+        ctx.beginPath();
+        ctx.arc(x, y, 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+});
+
 // ============================================
 // CONFIG
 // ============================================
@@ -2517,7 +2564,7 @@ function renderCreativeRankingHTML(scoredTypes) {
           <th>Creative</th>
           <th>Leads</th>
           <th>CPL</th>
-          <th style="min-width:120px">Score</th>
+          <th style="min-width:100px">Score</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -2650,7 +2697,7 @@ function renderTrendChart(metrics) {
 
   // Gradients for area fills
   const leadsGradient = ctx.createLinearGradient(0, 0, 0, 300);
-  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.15)');
+  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.25)');
   leadsGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
 
   const spendGradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -2668,6 +2715,7 @@ function renderTrendChart(metrics) {
           borderColor: accentColor,
           backgroundColor: leadsGradient,
           borderWidth: 2.5,
+          hoverBorderWidth: 3.5,
           pointRadius: 0,
           pointHoverRadius: 6,
           pointHoverBackgroundColor: '#fff',
@@ -2683,6 +2731,7 @@ function renderTrendChart(metrics) {
           borderColor: 'rgba(99, 102, 241, 0.7)',
           backgroundColor: spendGradient,
           borderWidth: 2,
+          hoverBorderWidth: 3,
           pointRadius: 0,
           pointHoverRadius: 5,
           pointHoverBackgroundColor: '#fff',
@@ -2697,21 +2746,23 @@ function renderTrendChart(metrics) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 800, easing: 'easeOutQuart' },
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(255,255,255,0.95)',
-          titleColor: '#1a1a2e',
-          bodyColor: '#6b7280',
-          borderColor: 'rgba(0,0,0,0.06)',
+          backgroundColor: 'rgba(15,15,15,0.9)',
+          titleColor: '#ffffff',
+          bodyColor: 'rgba(255,255,255,0.8)',
+          borderColor: 'rgba(255,255,255,0.1)',
           borderWidth: 1,
-          titleFont: { family: 'Inter', weight: '700', size: 13 },
+          titleFont: { family: 'Inter', weight: '600', size: 13 },
           bodyFont: { family: 'Inter', size: 12 },
-          padding: 16,
-          cornerRadius: 12,
+          padding: 12,
+          cornerRadius: 10,
           displayColors: true,
           boxPadding: 6,
+          caretSize: 0,
           callbacks: {
             label: ctx => {
               if (ctx.dataset.label === 'Ausgaben (€)') return ` Ausgaben: ${formatEUR(ctx.raw)}`;
@@ -2728,7 +2779,7 @@ function renderTrendChart(metrics) {
         },
         y: {
           position: 'left',
-          grid: { color: 'rgba(0,0,0,0.04)', borderDash: [2, 4], drawBorder: false },
+          grid: { color: 'rgba(0,0,0,0.06)', borderDash: [2, 4], drawBorder: false },
           border: { display: false },
           ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', stepSize: 1, padding: 8 },
           beginAtZero: true
@@ -3047,7 +3098,7 @@ function renderDetailChart(metrics) {
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e7352e';
 
   const leadsGradient = ctx.createLinearGradient(0, 0, 0, 260);
-  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.15)');
+  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.25)');
   leadsGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
 
   const spendGradient = ctx.createLinearGradient(0, 0, 0, 260);
@@ -3065,6 +3116,7 @@ function renderDetailChart(metrics) {
           borderColor: accentColor,
           backgroundColor: leadsGradient,
           borderWidth: 2.5,
+          hoverBorderWidth: 3.5,
           pointRadius: 0,
           pointHoverRadius: 6,
           pointHoverBackgroundColor: '#fff',
@@ -3080,6 +3132,7 @@ function renderDetailChart(metrics) {
           borderColor: 'rgba(99, 102, 241, 0.7)',
           backgroundColor: spendGradient,
           borderWidth: 2,
+          hoverBorderWidth: 3.5,
           pointRadius: 0,
           pointHoverRadius: 5,
           pointHoverBackgroundColor: '#fff',
@@ -3094,21 +3147,23 @@ function renderDetailChart(metrics) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 800, easing: 'easeOutQuart' },
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(255,255,255,0.95)',
-          titleColor: '#1a1a2e',
-          bodyColor: '#6b7280',
-          borderColor: 'rgba(0,0,0,0.06)',
+          backgroundColor: 'rgba(15,15,15,0.9)',
+          titleColor: '#ffffff',
+          bodyColor: 'rgba(255,255,255,0.8)',
+          borderColor: 'rgba(255,255,255,0.1)',
           borderWidth: 1,
-          titleFont: { family: 'Inter', weight: '700', size: 12 },
+          titleFont: { family: 'Inter', weight: '600', size: 13 },
           bodyFont: { family: 'Inter', size: 12 },
-          padding: 14,
-          cornerRadius: 12,
+          padding: 12,
+          cornerRadius: 10,
           displayColors: true,
           boxPadding: 6,
+          caretSize: 0,
           callbacks: {
             label: ctx => {
               if (ctx.dataset.label === 'Ausgaben (€)') return ` Ausgaben: ${formatEUR(ctx.raw)}`;
@@ -3125,7 +3180,7 @@ function renderDetailChart(metrics) {
         },
         y: {
           position: 'left',
-          grid: { color: 'rgba(0,0,0,0.04)', borderDash: [2, 4], drawBorder: false },
+          grid: { color: 'rgba(0,0,0,0.06)', borderDash: [2, 4], drawBorder: false },
           border: { display: false },
           ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', stepSize: 1, padding: 6 },
           beginAtZero: true
@@ -3790,20 +3845,22 @@ function renderScatterPlot(allData) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 800, easing: 'easeOutQuart' },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(255,255,255,0.95)',
-          titleColor: '#1a1a2e',
-          bodyColor: '#6b7280',
-          borderColor: 'rgba(0,0,0,0.06)',
+          backgroundColor: 'rgba(15,15,15,0.9)',
+          titleColor: '#ffffff',
+          bodyColor: 'rgba(255,255,255,0.8)',
+          borderColor: 'rgba(255,255,255,0.1)',
           borderWidth: 1,
-          cornerRadius: 12,
-          padding: 14,
-          titleFont: { family: 'Inter', weight: '700', size: 13 },
+          cornerRadius: 10,
+          padding: 12,
+          titleFont: { family: 'Inter', weight: '600', size: 13 },
           bodyFont: { family: 'Inter', size: 12 },
           displayColors: false,
           boxPadding: 6,
+          caretSize: 0,
           callbacks: {
             label: function(tooltipCtx) {
               var item = tooltipCtx.raw;
@@ -3820,13 +3877,13 @@ function renderScatterPlot(allData) {
         x: {
           title: { display: true, text: mode.xAxisLabel, color: '#94a3b8', font: { family: 'Inter', size: 11, weight: '500' } },
           ticks: { callback: mode.xTickFormat, color: '#94a3b8', font: { family: 'Inter', size: 11 }, padding: 8 },
-          grid: { color: 'rgba(0,0,0,0.04)', borderDash: [2, 4], drawBorder: false },
+          grid: { color: 'rgba(0,0,0,0.06)', borderDash: [2, 4], drawBorder: false },
           border: { display: false }
         },
         y: {
           title: { display: true, text: 'CPL (€)', color: '#94a3b8', font: { family: 'Inter', size: 11, weight: '500' } },
           ticks: { callback: function(v) { return v.toFixed(0) + ' €'; }, color: '#94a3b8', font: { family: 'Inter', size: 11 }, padding: 8 },
-          grid: { color: 'rgba(0,0,0,0.04)', borderDash: [2, 4], drawBorder: false },
+          grid: { color: 'rgba(0,0,0,0.06)', borderDash: [2, 4], drawBorder: false },
           border: { display: false },
           beginAtZero: true
         }
