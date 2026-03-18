@@ -3845,10 +3845,8 @@ function renderAutoInsights(allData, globalAvgCPL, N) {
     }).filter(function(c) { return c.cpl !== null; }).sort(function(a,b) { return a.cpl - b.cpl; });
     if (cityData.length >= 2) {
       var best2 = cityData[0];
-      var other = cityData[cityData.length - 1];
-      if (best2.city !== other.city) {
-        var diffPct = Math.round(Math.abs((other.cpl - best2.cpl) / best2.cpl) * 100);
-        insights.push(other.city + ' hat ' + diffPct + '% höheren CPL als ' + best2.city);
+      if (best2.city) {
+        insights.push(best2.city + ' zeigt den stärksten CPL im Portfolio (Ø ' + diFormatEur(best2.cpl) + ')');
       }
     }
   }
@@ -3860,9 +3858,8 @@ function renderAutoInsights(allData, globalAvgCPL, N) {
     if (oldest.cpl && newest.cpl && oldest.id !== newest.id) {
       if (newest.cpl < oldest.cpl * 0.8) {
         insights.push('Trend: Neueste Kampagne (' + escHtml(newest.name) + ') hat deutlich niedrigeren CPL als älteste');
-      } else if (newest.cpl > oldest.cpl * 1.2) {
-        insights.push('Trend: Neueste Kampagne (' + escHtml(newest.name) + ') hat höheren CPL als älteste — Optimierung prüfen');
       }
+      // Note: negative trend ("höherer CPL") not shown in client view
     }
   }
 
