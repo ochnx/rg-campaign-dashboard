@@ -513,10 +513,10 @@
     .campaign-table tbody tr:active { transform: scale(0.998); }
     .campaign-table tbody tr:last-child td { border-bottom: none; }
 
-    .campaign-table tbody tr {
+    .campaign-table tbody td:first-child {
       position: relative;
     }
-    .campaign-table tbody tr::before {
+    .campaign-table tbody td:first-child::before {
       content: '';
       position: absolute;
       left: 0;
@@ -528,7 +528,7 @@
       opacity: 0;
       transition: opacity 200ms var(--ease-out-expo);
     }
-    .campaign-table tbody tr:hover::before {
+    .campaign-table tbody tr:hover td:first-child::before {
       opacity: 1;
     }
 
@@ -578,8 +578,8 @@
       -webkit-backdrop-filter: blur(12px);
       z-index: 200;
       justify-content: center;
-      align-items: flex-start;
-      padding: 48px 24px;
+      align-items: center;
+      padding: 24px;
       overflow-y: auto;
     }
 
@@ -780,6 +780,166 @@
       font-weight: 800;
       min-width: 32px;
       text-align: right;
+    }
+
+    /* Detail Modal — Expanded Sections */
+    .detail-property-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      border: 1px solid rgba(0,0,0,0.03);
+      margin-bottom: 24px;
+    }
+    .detail-property-grid .prop-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .detail-property-grid .prop-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .detail-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .detail-kpi-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    .detail-kpi-card .kpi-label {
+      font-size: 10px;
+      margin-bottom: 6px;
+    }
+    .detail-kpi-card .kpi-value {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .detail-kpi-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .benchmark-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .benchmark-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .benchmark-metric {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+    }
+    .benchmark-metric-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .benchmark-metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .benchmark-metric-compare {
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .benchmark-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .benchmark-badge.good {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+    .benchmark-badge.neutral {
+      background: rgba(136, 136, 160, 0.12);
+      color: var(--text-secondary);
+      border: 1px solid rgba(136, 136, 160, 0.25);
+    }
+    .smart-insights {
+      margin-top: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    .smart-insights-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+    .smart-insight-item {
+      display: flex;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .smart-insight-item:last-child { border-bottom: none; }
+    .smart-insight-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .smart-insight-content { flex: 1; }
+    .smart-insight-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .smart-insight-text {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+    .smart-insight-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .benchmark-sample-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 12px;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .detail-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .benchmark-grid { grid-template-columns: repeat(2, 1fr); }
+      .detail-property-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .detail-kpi-grid { grid-template-columns: 1fr; }
+      .benchmark-grid { grid-template-columns: 1fr; }
     }
 
     /* Loading */
@@ -1678,6 +1838,16 @@
       </div>
     </div>
     <div class="modal-body" id="detailBody">
+      <!-- Property Details -->
+      <div class="detail-property-grid" id="detailPropertyGrid"></div>
+
+      <!-- KPI Cards -->
+      <div class="detail-kpi-grid" id="detailKpiGrid"></div>
+
+      <!-- Benchmark -->
+      <div id="detailBenchmark"></div>
+
+      <!-- Daily Chart -->
       <div class="card" style="margin-bottom:24px">
         <div class="card-header">
           <span class="card-title">Tagesverlauf</span>
@@ -1689,8 +1859,9 @@
         </div>
       </div>
 
+      <!-- Creative Performance (campaign detail) -->
       <div id="creativeSection" style="margin-top:24px">
-        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">🏆 Creative Performance</h3>
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">Creative Performance</h3>
         <div class="creative-ranking" id="creativeRanking"></div>
       </div>
     </div>
@@ -2451,24 +2622,158 @@ function openDetail(campaignId) {
   document.getElementById('detailTitle').textContent = prop.name || campaign.campaign_name || '—';
   document.getElementById('detailSubtitle').textContent = [prop.address, prop.city].filter(Boolean).join(', ') || campaign.platform || '';
 
-  // Calculate aggregates for this campaign in filtered period
-  let totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0;
+  // Calculate aggregates
+  let totalSpend = 0, totalLeads = 0, totalImpressions = 0, totalClicks = 0, totalReach = 0;
   campaignMetrics.forEach(m => {
     totalSpend += parseFloat(m.spend) || 0;
     totalLeads += parseInt(m.leads) || 0;
     totalImpressions += parseInt(m.impressions) || 0;
     totalClicks += parseInt(m.clicks) || 0;
+    totalReach += parseInt(m.reach) || 0;
   });
+  const days = campaignMetrics.length;
+  const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : null;
+  const avgCPM = totalImpressions > 0 ? (totalSpend / totalImpressions) * 1000 : null;
+  const leadsPerDay = days > 0 ? totalLeads / days : 0;
 
-  // Daily chart
+  // 1. Property Details (without Standort-Rating & Mikrolage)
+  const propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekt',zweifamilienhaus:'Zweifamilienhaus',doppelhaushaelfte:'Doppelhaushälfte',sonstige:'Sonstige'};
+  const propTypeLabel = propTypeLabels[prop.property_type] || prop.property_type || '—';
+  let propHtml = '';
+  propHtml += '<div><div class="prop-label">Adresse</div><div class="prop-value">' + escHtml(prop.address || '—') + '</div></div>';
+  propHtml += '<div><div class="prop-label">PLZ / Stadt</div><div class="prop-value">' + escHtml((prop.plz || '') + ' ' + (prop.city || '—')) + '</div></div>';
+  if (prop.stadtteil) propHtml += '<div><div class="prop-label">Stadtteil</div><div class="prop-value">' + escHtml(prop.stadtteil) + '</div></div>';
+  propHtml += '<div><div class="prop-label">Objektart</div><div class="prop-value">' + escHtml(propTypeLabel) + '</div></div>';
+  if (prop.size_sqm) propHtml += '<div><div class="prop-label">Wohnfläche</div><div class="prop-value">' + prop.size_sqm + ' m²</div></div>';
+  if (prop.plot_size) propHtml += '<div><div class="prop-label">Grundstück</div><div class="prop-value">' + prop.plot_size + ' m²</div></div>';
+  if (prop.rooms) propHtml += '<div><div class="prop-label">Zimmer</div><div class="prop-value">' + prop.rooms + '</div></div>';
+  if (prop.price) propHtml += '<div><div class="prop-label">Preis</div><div class="prop-value">' + formatEUR(prop.price) + '</div></div>';
+  if (prop.property_type === 'neubauprojekt') {
+    if (prop.price_from) propHtml += '<div><div class="prop-label">Preis von</div><div class="prop-value">' + formatEUR(prop.price_from) + '</div></div>';
+    if (prop.price_to) propHtml += '<div><div class="prop-label">Preis bis</div><div class="prop-value">' + formatEUR(prop.price_to) + '</div></div>';
+    if (prop.size_from) propHtml += '<div><div class="prop-label">Fläche von</div><div class="prop-value">' + prop.size_from + ' m²</div></div>';
+    if (prop.size_to) propHtml += '<div><div class="prop-label">Fläche bis</div><div class="prop-value">' + prop.size_to + ' m²</div></div>';
+    if (prop.num_units) propHtml += '<div><div class="prop-label">Einheiten</div><div class="prop-value">' + prop.num_units + '</div></div>';
+  }
+  document.getElementById('detailPropertyGrid').innerHTML = propHtml;
+
+  // 2. KPI Cards
+  document.getElementById('detailKpiGrid').innerHTML =
+    '<div class="detail-kpi-card"><div class="kpi-label">Gesamtausgaben</div><div class="kpi-value">' + formatEUR(totalSpend) + '</div><div class="detail-kpi-sub">' + days + ' Tage · Ø ' + formatEUR(totalSpend / Math.max(days, 1)) + '/Tag</div></div>' +
+    '<div class="detail-kpi-card"><div class="kpi-label">Leads gesamt</div><div class="kpi-value">' + totalLeads + '</div><div class="detail-kpi-sub">Ø ' + leadsPerDay.toFixed(1) + ' Leads/Tag</div></div>' +
+    '<div class="detail-kpi-card"><div class="kpi-label">Ø Cost per Lead</div><div class="kpi-value">' + (avgCPL ? formatEUR(avgCPL) : '—') + '</div><div class="detail-kpi-sub">' + (avgCPL && avgCPL < 10 ? '✓ Unter 10 €' : 'Im Zielbereich') + '</div></div>' +
+    '<div class="detail-kpi-card"><div class="kpi-label">Impressions</div><div class="kpi-value">' + formatNum(totalImpressions) + '</div><div class="detail-kpi-sub">Reichweite: ' + formatNum(totalReach) + '</div></div>' +
+    '<div class="detail-kpi-card"><div class="kpi-label">Ø CPM</div><div class="kpi-value">' + (avgCPM ? formatEUR(avgCPM) : '—') + '</div><div class="detail-kpi-sub">Pro 1.000 Impressions</div></div>' +
+    '<div class="detail-kpi-card"><div class="kpi-label">Lead-Rate</div><div class="kpi-value">' + (totalImpressions > 0 ? ((totalLeads / totalImpressions) * 100).toFixed(2) + '%' : '—') + '</div><div class="detail-kpi-sub">Leads / Impressions</div></div>';
+
+  // 3. Benchmark — compare against all client campaigns (green or grey only, never red)
+  renderDetailBenchmark(campaignId, totalSpend, totalLeads, totalImpressions, totalClicks, days);
+
+  // 4. Daily chart
   renderDetailChart(campaignMetrics);
 
-  // Creative performance
+  // 5. Creative performance
   renderCreativePerformance(campaignId, totalSpend, totalLeads);
 
   // Show modal
   document.getElementById('detailModal').classList.add('show');
   document.body.style.overflow = 'hidden';
+}
+
+function renderDetailBenchmark(campaignId, totalSpend, totalLeads, totalImpressions, totalClicks, days) {
+  var container = document.getElementById('detailBenchmark');
+
+  // Compute benchmark from all client campaigns
+  var allCampMetrics = {};
+  allMetrics.forEach(function(m) {
+    if (!allCampMetrics[m.campaign_id]) allCampMetrics[m.campaign_id] = { spend: 0, leads: 0, impressions: 0, clicks: 0, days: 0 };
+    allCampMetrics[m.campaign_id].spend += parseFloat(m.spend) || 0;
+    allCampMetrics[m.campaign_id].leads += parseInt(m.leads) || 0;
+    allCampMetrics[m.campaign_id].impressions += parseInt(m.impressions) || 0;
+    allCampMetrics[m.campaign_id].clicks += parseInt(m.clicks) || 0;
+    allCampMetrics[m.campaign_id].days++;
+  });
+
+  var validCampaigns = Object.entries(allCampMetrics).filter(function(e) { return e[1].leads > 0; });
+  if (validCampaigns.length < 2) { container.innerHTML = ''; return; }
+
+  var allCPLs = validCampaigns.map(function(e) { return e[1].spend / e[1].leads; });
+  var allCPMs = validCampaigns.filter(function(e) { return e[1].impressions > 0; }).map(function(e) { return (e[1].spend / e[1].impressions) * 1000; });
+  var allLPDs = validCampaigns.map(function(e) { return e[1].leads / Math.max(e[1].days, 1); });
+
+  var avgCPL = allCPLs.reduce(function(s,v) { return s+v; }, 0) / allCPLs.length;
+  var avgCPM = allCPMs.length > 0 ? allCPMs.reduce(function(s,v) { return s+v; }, 0) / allCPMs.length : 0;
+  var avgLPD = allLPDs.reduce(function(s,v) { return s+v; }, 0) / allLPDs.length;
+
+  var thisCPL = totalLeads > 0 ? totalSpend / totalLeads : null;
+  var thisCPM = totalImpressions > 0 ? (totalSpend / totalImpressions) * 1000 : null;
+  var thisLPD = days > 0 ? totalLeads / days : 0;
+
+  // Compare: green if good, grey otherwise (NEVER red)
+  function cmpLower(val, avg) {
+    if (!val || !avg || avg === 0) return { pct: 0, cls: 'neutral', arrow: '' };
+    var pct = ((val - avg) / avg) * 100;
+    if (Math.abs(pct) < 5) return { pct: pct, cls: 'neutral', arrow: '≈' };
+    return { pct: pct, cls: pct < 0 ? 'good' : 'neutral', arrow: pct < 0 ? '↓' : '↑' };
+  }
+  function cmpHigher(val, avg) {
+    if (!val || !avg || avg === 0) return { pct: 0, cls: 'neutral', arrow: '' };
+    var pct = ((val - avg) / avg) * 100;
+    if (Math.abs(pct) < 5) return { pct: pct, cls: 'neutral', arrow: '≈' };
+    return { pct: pct, cls: pct > 0 ? 'good' : 'neutral', arrow: pct > 0 ? '↑' : '↓' };
+  }
+
+  var cplComp = cmpLower(thisCPL, avgCPL);
+  var cpmComp = cmpLower(thisCPM, avgCPM);
+  var lpdComp = cmpHigher(thisLPD, avgLPD);
+
+  // Overall badge
+  var goodCount = (cplComp.cls === 'good' ? 1 : 0) + (cpmComp.cls === 'good' ? 1 : 0) + (lpdComp.cls === 'good' ? 1 : 0);
+  var overallCls = goodCount >= 2 ? 'good' : 'neutral';
+  var overallLabel = goodCount >= 2 ? 'Überdurchschnittlich' : 'Im Durchschnitt';
+  var pctBadge = '<span class="benchmark-badge ' + overallCls + '">' + overallLabel + '</span>';
+
+  function metricColor(comp) { return comp.cls === 'good' ? 'var(--green)' : 'var(--text-secondary)'; }
+  function compareColor(comp) { return comp.cls === 'good' ? 'var(--green)' : 'var(--text-muted)'; }
+
+  // Smart insights (green or grey only)
+  var insights = [];
+  if (thisCPL && thisCPL < avgCPL * 0.9) {
+    var pctBelow = Math.round(((avgCPL - thisCPL) / avgCPL) * 100);
+    insights.push({ icon: '✨', title: 'Kosten-Effizienz', text: 'CPL von <strong>' + formatEUR(thisCPL) + '</strong> — das sind <strong>' + pctBelow + '% unter</strong> dem Portfolio-Durchschnitt von ' + formatEUR(avgCPL) });
+  }
+  if (thisLPD > avgLPD * 1.1) {
+    var pctAbove = Math.round(((thisLPD - avgLPD) / avgLPD) * 100);
+    insights.push({ icon: '📈', title: 'Lead-Volumen', text: '<strong>' + pctAbove + '% mehr Leads pro Tag</strong> als der Portfolio-Durchschnitt (' + thisLPD.toFixed(1) + ' vs. Ø ' + avgLPD.toFixed(1) + ')' });
+  }
+  // CPL percentile
+  var sortedCPLs = allCPLs.slice().sort(function(a,b) { return a-b; });
+  if (thisCPL) {
+    var betterThan = sortedCPLs.filter(function(c) { return c > thisCPL; }).length;
+    var percentile = Math.round((betterThan / sortedCPLs.length) * 100);
+    if (percentile >= 60) {
+      insights.push({ icon: '🏆', title: 'Ranking', text: 'Diese Kampagne gehört zu den <strong>Top ' + (100 - percentile) + '%</strong> aller ' + validCampaigns.length + ' Kampagnen im Portfolio' });
+    }
+  }
+
+  var insightsHtml = '';
+  if (insights.length > 0) {
+    insightsHtml = '<div class="smart-insights"><div class="smart-insights-title">Kampagnen-Insights</div>' +
+      insights.map(function(si) {
+        return '<div class="smart-insight-item"><div class="smart-insight-icon">' + si.icon + '</div><div class="smart-insight-content"><div class="smart-insight-label">' + escHtml(si.title) + '</div><div class="smart-insight-text">' + si.text + '</div></div></div>';
+      }).join('') + '</div>';
+  }
+
+  container.innerHTML =
+    '<div class="benchmark-card"><div class="card-header"><div class="card-title">Benchmark ' + pctBadge + '</div></div><div class="card-body">' +
+      '<div class="benchmark-grid">' +
+        '<div class="benchmark-metric"><div class="benchmark-metric-label">CPL</div><div class="benchmark-metric-value" style="color:' + metricColor(cplComp) + '">' + (thisCPL ? formatEUR(thisCPL) : '—') + '</div><div class="benchmark-metric-compare" style="color:' + compareColor(cplComp) + '">' + (thisCPL ? cplComp.arrow + Math.abs(cplComp.pct).toFixed(0) + '% vs. Ø ' + formatEUR(avgCPL) : '') + '</div></div>' +
+        '<div class="benchmark-metric"><div class="benchmark-metric-label">CPM</div><div class="benchmark-metric-value" style="color:' + metricColor(cpmComp) + '">' + (thisCPM ? formatEUR(thisCPM) : '—') + '</div><div class="benchmark-metric-compare" style="color:' + compareColor(cpmComp) + '">' + (thisCPM ? cpmComp.arrow + Math.abs(cpmComp.pct).toFixed(0) + '% vs. Ø ' + formatEUR(avgCPM) : '') + '</div></div>' +
+        '<div class="benchmark-metric"><div class="benchmark-metric-label">Leads/Tag</div><div class="benchmark-metric-value" style="color:' + metricColor(lpdComp) + '">' + (thisLPD ? thisLPD.toFixed(1) : '—') + '</div><div class="benchmark-metric-compare" style="color:' + compareColor(lpdComp) + '">' + (thisLPD ? lpdComp.arrow + Math.abs(lpdComp.pct).toFixed(0) + '% vs. Ø ' + avgLPD.toFixed(1) : '') + '</div></div>' +
+      '</div>' +
+      insightsHtml +
+      '<div class="benchmark-sample-note">Vergleich basiert auf ' + validCampaigns.length + ' Kampagnen in Ihrem Portfolio</div>' +
+    '</div></div>';
 }
 
 function closeDetail() {
