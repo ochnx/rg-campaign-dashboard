@@ -779,8 +779,8 @@
       -webkit-backdrop-filter: blur(8px);
       z-index: 200;
       justify-content: center;
-      align-items: center;
-      padding: 88px 24px 24px;
+      align-items: flex-start;
+      padding: 70px 24px 14px;
       overflow-y: auto;
       will-change: opacity;
       contain: layout style;
@@ -799,6 +799,8 @@
       border-radius: var(--radius-xl);
       width: 100%;
       max-width: 860px;
+      max-height: calc(100vh - 84px);
+      overflow-y: auto;
       box-shadow: 0 32px 80px rgba(231, 53, 46, 0.1), 0 0 0 1px rgba(255,255,255,0.4);
       animation: slideUp 0.4s var(--ease-out-expo);
       will-change: transform;
@@ -1818,6 +1820,7 @@
       <img src="../assets/rg-logo.png" class="topnav-logo" alt="R&G">
       <div class="topnav-divider"></div>
       <span id="navClientName" class="topnav-client"></span>
+      <span id="navClientLogo" class="topnav-client" style="display:none;"></span>
     </div>
     <div class="topnav-right">
       <button class="btn btn-ghost" onclick="logout()" title="Abmelden">
@@ -2169,7 +2172,7 @@ Chart.register({
     if (!area) return;
     ctx.save();
     ctx.fillStyle = 'rgba(0,0,0,0.08)';
-    var spacing = 18;
+    var spacing = 16;
     var dotRadius = 1.2;
     for (var y = area.top; y < area.bottom; y += spacing) {
       for (var x = area.left; x < area.right; x += spacing) {
@@ -2183,18 +2186,29 @@ Chart.register({
 });
 
 // Plugin 4: Cursor Proximity Glow — follows REAL mouse position, renders BEHIND lines
+// Uses afterInit to attach a native mousemove listener directly to each canvas,
+// ensuring scatter charts and late-created charts all get proper tracking.
 Chart.register({
   id: 'cursorGlow',
-  beforeInit: function(chart) {
+  afterInit: function(chart) {
     chart._cursorPos = null;
-  },
-  afterEvent: function(chart, args) {
-    var evt = args.event;
-    if (evt.type === 'mousemove' && args.inChartArea) {
-      chart._cursorPos = { x: evt.x, y: evt.y };
-    } else if (evt.type === 'mouseout') {
+    var canvas = chart.canvas;
+    canvas.addEventListener('mousemove', function(e) {
+      var rect = canvas.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var area = chart.chartArea;
+      if (area && x >= area.left && x <= area.right && y >= area.top && y <= area.bottom) {
+        chart._cursorPos = { x: x, y: y };
+      } else {
+        chart._cursorPos = null;
+      }
+      chart.draw();
+    });
+    canvas.addEventListener('mouseleave', function() {
       chart._cursorPos = null;
-    }
+      chart.draw();
+    });
   },
   beforeDatasetsDraw: function(chart) {
     if (!chart._cursorPos) return;
@@ -2205,7 +2219,7 @@ Chart.register({
     var area = chart.chartArea;
     if (!area) return;
 
-    var spacing = 18;
+    var spacing = 16;
     var glowRadius = 90;
 
     ctx.save();
@@ -2392,8 +2406,25 @@ async function loadDashboard() {
     document.documentElement.style.setProperty('--accent-light', lighter);
     document.documentElement.style.setProperty('--accent-bg', `rgba(${r},${g},${b},0.06)`);
 
-    // Set client name
-    document.getElementById('navClientName').textContent = clientData.name || clientData.brand || '';
+    // Set client name (or logo for specific clients)
+    var cName = clientData.name || clientData.brand || '';
+    var navClientName = document.getElementById('navClientName');
+    var navClientLogo = document.getElementById('navClientLogo');
+    if (/engel\s*[&+]\s*v/i.test(cName)) {
+      // Show inline SVG wordmark for Engel & Völkers
+      navClientName.style.display = 'none';
+      navClientLogo.style.display = '';
+      navClientLogo.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 24" height="22" style="display:block;">' +
+        '<text y="18" font-family="Futura,Avenir,\'Helvetica Neue\',Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="1">' +
+        '<tspan fill="#333333">ENGEL</tspan>' +
+        '<tspan fill="#E4002B">&amp;</tspan>' +
+        '<tspan fill="#333333">VÖLKERS</tspan>' +
+        '</text></svg>';
+    } else {
+      navClientName.textContent = cName;
+      navClientName.style.display = '';
+      navClientLogo.style.display = 'none';
+    }
 
     // 1. Load properties for this client
     const properties = await sbGet('properties', `client_id=eq.${clientData.id}&select=*`);
