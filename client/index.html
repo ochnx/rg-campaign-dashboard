@@ -4312,7 +4312,10 @@ async function predictPerformance() {
     featureHtml += '</div>';
 
     var creativeRecHtml = '<div class="prediction-section"><div class="prediction-section-header">Empfohlene Werbemittel</div>';
-    var creativeRecs = getPredCreativeRecommendations(result.allScored || result.similarities, _predictionCreativesCache || []);
+    // Build a filtered creative list: only from the scored campaigns (not global cache)
+    var scoredCampaignIds = new Set((result.allScored || result.similarities).map(function(s) { return s.campaign_id; }));
+    var relevantCreatives = (_predictionCreativesCache || []).filter(function(cr) { return scoredCampaignIds.has(cr.campaign_id); });
+    var creativeRecs = getPredCreativeRecommendations(result.allScored || result.similarities, relevantCreatives);
     creativeRecHtml += renderPredCreativeRecommendations(creativeRecs);
     creativeRecHtml += '</div>';
 
