@@ -13,10 +13,10 @@
     :root {
       --bg-primary: #fef7f6;
       --bg-secondary: #fdf2f0;
-      --bg-card: rgba(255, 255, 255, 0.65);
+      --bg-card: rgba(255, 255, 255, 0.78);
       --bg-card-hover: rgba(255, 255, 255, 0.8);
       --bg-input: rgba(255, 255, 255, 0.5);
-      --border: rgba(255, 255, 255, 0.3);
+      --border: rgba(0, 0, 0, 0.06);
       --border-focus: #e7352e;
       --text-primary: #1a1a2e;
       --text-secondary: #6b7280;
@@ -43,13 +43,13 @@
       --transition: 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
       --transition-fast: 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
       --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-      --glass-bg: rgba(255, 255, 255, 0.55);
-      --glass-border: 1px solid rgba(255, 255, 255, 0.35);
+      --glass-bg: rgba(255, 255, 255, 0.72);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.5);
       --glass-blur: blur(20px) saturate(180%);
       --shadow-glass: 0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5);
-      --border-subtle: rgba(0, 0, 0, 0.04);
-      --shadow-card: 0 4px 24px rgba(231, 53, 46, 0.05), 0 0 0 1px rgba(255,255,255,0.5);
-      --shadow-card-hover: 0 12px 40px rgba(231, 53, 46, 0.08), 0 0 0 1px rgba(255,255,255,0.6);
+      --border-subtle: rgba(0, 0, 0, 0.05);
+      --shadow-card: 0 2px 8px rgba(0,0,0,0.04), 0 8px 32px rgba(231, 53, 46, 0.06), 0 0 0 1px rgba(255,255,255,0.6);
+      --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.06), 0 16px 48px rgba(231, 53, 46, 0.1), 0 0 0 1px rgba(255,255,255,0.7);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -57,7 +57,7 @@
 
     body {
       font-family: 'Inter', -apple-system, system-ui, sans-serif;
-      background: linear-gradient(160deg, #fef7f6 0%, #fdf2f0 30%, #f8f4f3 60%, #f5f0ee 100%);
+      background: linear-gradient(135deg, #fef2f0 0%, #fce8e4 25%, #f8ece8 50%, #fdf2f0 75%, #fef7f5 100%);
       background-attachment: fixed;
       color: var(--text-primary);
       min-height: 100dvh;
@@ -214,11 +214,11 @@
       top: 16px;
       left: 16px;
       right: 16px;
-      background: var(--glass-bg);
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border);
-      box-shadow: var(--shadow-glass);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.06);
       padding: 0 24px;
       height: 56px;
       display: flex;
@@ -504,12 +504,13 @@
       border-radius: var(--radius-lg);
       padding: 32px 28px;
       box-shadow: var(--shadow-card);
-      transition: transform 250ms var(--ease-out-expo), box-shadow 250ms var(--ease-out-expo);
+      transition: transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
     .hero-card:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-card-hover);
     }
+    .hero-card:active { transform: scale(0.99); }
     .hero-label {
       font-size: 12px;
       font-weight: 600;
@@ -519,7 +520,7 @@
       margin-bottom: 12px;
     }
     .hero-value {
-      font-size: 48px;
+      font-size: 52px;
       font-weight: 800;
       letter-spacing: -0.04em;
       line-height: 1;
@@ -551,6 +552,7 @@
       transition: transform 200ms var(--ease-out-expo);
     }
     .mini-stat:hover { transform: translateY(-1px); }
+    .mini-stat:active { transform: scale(0.98); }
     .mini-value {
       font-size: 22px;
       font-weight: 800;
@@ -645,12 +647,13 @@
     }
     .campaign-item:last-child { border-bottom: none; }
     .campaign-item:hover { background: rgba(231, 53, 46, 0.03); }
+    .campaign-item:active { transform: scale(0.995); }
     .campaign-item-left { flex: 1; min-width: 0; }
     .campaign-item-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .campaign-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .campaign-item-right { text-align: right; flex-shrink: 0; margin-left: 16px; }
     .campaign-item-cpl { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary); font-variant-numeric: tabular-nums; }
-    .campaign-item-leads { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .campaign-item-leads { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
 
     .creative-panel {
       background: var(--glass-bg);
@@ -661,8 +664,9 @@
       box-shadow: var(--shadow-card);
       color: var(--text-primary);
       overflow: hidden;
+      overflow-x: auto;
     }
-    .creative-list { padding: 8px 0; }
+    .creative-list { padding: 0 8px 8px; }
 
     .creative-panel .creative-ranking-table { table-layout: auto; width: 100%; }
 
@@ -979,6 +983,7 @@
       font-weight: 800;
       min-width: 32px;
       text-align: right;
+      font-variant-numeric: tabular-nums;
     }
 
     /* Detail Modal — Expanded Sections */
@@ -1064,6 +1069,7 @@
       font-size: 18px;
       font-weight: 700;
       margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
     }
     .benchmark-metric-compare {
       font-size: 12px;
@@ -1358,6 +1364,7 @@
       border: 1px solid rgba(255,255,255,0.1);
       letter-spacing: 0.02em;
       white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
     .correlation-bar-sublabel {
       font-size: 11px;
@@ -1627,7 +1634,7 @@
     .creative-rec-empty { font-size: 13px; color: var(--text-muted); padding: 10px 0; }
 
     .prediction-main { text-align: center; padding: 20px 0; }
-    .prediction-main .pred-cpl-big { font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+    .prediction-main .pred-cpl-big { font-size: 36px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
     .prediction-main .pred-cpl-big.cpl-green { color: var(--green); }
     .prediction-main .pred-cpl-big.cpl-yellow { color: var(--orange); }
     .prediction-main .pred-cpl-big.cpl-red { color: var(--red); }
@@ -1641,7 +1648,7 @@
     }
     .prediction-breakdown .pb-item { background: rgba(255,255,255,0.3); border-radius: var(--radius-sm); padding: 10px 14px; }
     .prediction-breakdown .pb-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 4px; }
-    .prediction-breakdown .pb-value { font-size: 16px; font-weight: 700; }
+    .prediction-breakdown .pb-value { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
     .prediction-section { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
     .prediction-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
@@ -2044,7 +2051,7 @@
 
         <div id="pred-results">
           <div class="empty-state" style="padding:60px 30px;">
-            <div class="empty-state-icon">🔮</div>
+            <div class="empty-state-icon" style="font-size:32px;color:var(--text-muted)">—</div>
             <div class="empty-state-title">Prognose starten</div>
             <div class="empty-state-desc">Objekt-Daten links eingeben und auf „Performance vorhersagen“ klicken.</div>
           </div>
@@ -2103,23 +2110,25 @@
 // CHART.JS GLOBAL PLUGINS — Premium Effects
 // ============================================
 
-// Plugin 1: Line Glow Effect
+// Plugin 1: Line Glow Effect — adds shadow behind line datasets
 Chart.register({
   id: 'lineGlow',
-  beforeDatasetDraw(chart, args) {
-    if (chart.config.type === 'scatter') return;
-    var dataset = chart.data.datasets[args.index];
-    if (dataset.type === 'bar' || (!dataset.borderColor && chart.config.type !== 'line')) return;
+  beforeDatasetDraw: function(chart, args) {
+    var meta = chart.getDatasetMeta(args.index);
+    if (meta.type !== 'line') return;
     var ctx = chart.ctx;
     ctx.save();
-    var color = dataset.borderColor || 'rgba(231,53,46,0.5)';
-    if (typeof color === 'string') {
-      ctx.shadowColor = color.replace(/[\d.]+\)$/, '0.3)');
-      ctx.shadowBlur = 12;
+    var ds = chart.data.datasets[args.index];
+    var color = ds.borderColor;
+    if (typeof color === 'string' && color.indexOf('rgba') === 0) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetY = 4;
     }
   },
-  afterDatasetDraw(chart, args) {
-    if (chart.config.type === 'scatter') return;
+  afterDatasetDraw: function(chart, args) {
+    var meta = chart.getDatasetMeta(args.index);
+    if (meta.type !== 'line') return;
     chart.ctx.restore();
   }
 });
@@ -2127,43 +2136,69 @@ Chart.register({
 // Plugin 2: Vertical Crosshair on Hover
 Chart.register({
   id: 'crosshair',
-  afterDraw(chart) {
-    if (chart.tooltip && chart.tooltip.opacity > 0 && chart.tooltip.caretX) {
-      var ctx = chart.ctx;
-      var x = chart.tooltip.caretX;
-      var topY = chart.scales.y ? chart.scales.y.top : chart.chartArea.top;
-      var bottomY = chart.scales.y ? chart.scales.y.bottom : chart.chartArea.bottom;
-      ctx.save();
-      ctx.beginPath();
-      ctx.setLineDash([3, 3]);
-      ctx.moveTo(x, topY);
-      ctx.lineTo(x, bottomY);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(0,0,0,0.08)';
-      ctx.stroke();
-      ctx.restore();
-    }
+  afterDraw: function(chart) {
+    var tooltip = chart.tooltip;
+    if (!tooltip || !tooltip._active || !tooltip._active.length) return;
+    var ctx = chart.ctx;
+    var x = tooltip._active[0].element.x;
+    var top = chart.chartArea.top;
+    var bottom = chart.chartArea.bottom;
+    ctx.save();
+    ctx.beginPath();
+    ctx.setLineDash([4, 4]);
+    ctx.moveTo(x, top);
+    ctx.lineTo(x, bottom);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+    ctx.stroke();
+    ctx.restore();
   }
 });
 
-// Plugin 3: Dotted Background Pattern
+// Plugin 3: Dotted Background Pattern — draws visible dots inside chart area
 Chart.register({
   id: 'dottedBg',
-  beforeDraw(chart) {
+  beforeDraw: function(chart) {
     var ctx = chart.ctx;
     var area = chart.chartArea;
     if (!area) return;
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.025)';
-    var spacing = 20;
+    ctx.fillStyle = 'rgba(0,0,0,0.045)';
+    var spacing = 18;
+    var dotRadius = 1;
     for (var y = area.top; y < area.bottom; y += spacing) {
       for (var x = area.left; x < area.right; x += spacing) {
         ctx.beginPath();
-        ctx.arc(x, y, 0.8, 0, Math.PI * 2);
+        ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
         ctx.fill();
       }
     }
     ctx.restore();
+  }
+});
+
+// Plugin 4: Active Point Pulse Ring
+Chart.register({
+  id: 'pulsePoint',
+  afterDatasetDraw: function(chart, args) {
+    var meta = chart.getDatasetMeta(args.index);
+    if (meta.type !== 'line') return;
+    var activeElements = chart.getActiveElements();
+    if (!activeElements.length) return;
+    var ctx = chart.ctx;
+    activeElements.forEach(function(el) {
+      if (el.datasetIndex !== args.index) return;
+      var point = meta.data[el.index];
+      if (!point) return;
+      var ds = chart.data.datasets[args.index];
+      var color = ds.borderColor || '#e7352e';
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 12, 0, Math.PI * 2);
+      ctx.fillStyle = typeof color === 'string' ? color.replace(/[\d.]+\)$/, '0.12)') : 'rgba(231,53,46,0.12)';
+      ctx.fill();
+      ctx.restore();
+    });
   }
 });
 
@@ -2422,7 +2457,7 @@ function showEmpty() {
   const container = document.getElementById('dashboardContent');
   container.innerHTML = `
     <div class="empty-state">
-      <div class="empty-state-icon">📭</div>
+      <div class="empty-state-icon">&mdash;</div>
       <div class="empty-state-title">Keine Kampagnen vorhanden</div>
       <div class="empty-state-text">Für Ihren Account liegen aktuell keine Kampagnendaten vor.</div>
     </div>
@@ -2697,11 +2732,11 @@ function renderTrendChart(metrics) {
 
   // Gradients for area fills
   const leadsGradient = ctx.createLinearGradient(0, 0, 0, 300);
-  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.25)');
+  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.3)');
   leadsGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
 
   const spendGradient = ctx.createLinearGradient(0, 0, 0, 300);
-  spendGradient.addColorStop(0, 'rgba(99, 102, 241, 0.12)');
+  spendGradient.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
   spendGradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
 
   trendChart = new Chart(ctx, {
@@ -2715,7 +2750,7 @@ function renderTrendChart(metrics) {
           borderColor: accentColor,
           backgroundColor: leadsGradient,
           borderWidth: 2.5,
-          hoverBorderWidth: 3.5,
+          hoverBorderWidth: 4,
           pointRadius: 0,
           pointHoverRadius: 6,
           pointHoverBackgroundColor: '#fff',
@@ -2731,7 +2766,7 @@ function renderTrendChart(metrics) {
           borderColor: 'rgba(99, 102, 241, 0.7)',
           backgroundColor: spendGradient,
           borderWidth: 2,
-          hoverBorderWidth: 3,
+          hoverBorderWidth: 3.5,
           pointRadius: 0,
           pointHoverRadius: 5,
           pointHoverBackgroundColor: '#fff',
@@ -2751,14 +2786,14 @@ function renderTrendChart(metrics) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(15,15,15,0.9)',
+          backgroundColor: 'rgba(15,15,15,0.92)',
           titleColor: '#ffffff',
-          bodyColor: 'rgba(255,255,255,0.8)',
-          borderColor: 'rgba(255,255,255,0.1)',
+          bodyColor: 'rgba(255,255,255,0.75)',
+          borderColor: 'rgba(255,255,255,0.08)',
           borderWidth: 1,
           titleFont: { family: 'Inter', weight: '600', size: 13 },
           bodyFont: { family: 'Inter', size: 12 },
-          padding: 12,
+          padding: 14,
           cornerRadius: 10,
           displayColors: true,
           boxPadding: 6,
@@ -3044,11 +3079,11 @@ function renderDetailBenchmark(campaignId, totalSpend, totalLeads, totalImpressi
   var insights = [];
   if (thisCPL && thisCPL < avgCPL * 0.9) {
     var pctBelow = Math.round(((avgCPL - thisCPL) / avgCPL) * 100);
-    insights.push({ icon: '✨', title: 'Kosten-Effizienz', text: 'CPL von <strong>' + formatEUR(thisCPL) + '</strong> — das sind <strong>' + pctBelow + '% unter</strong> dem Portfolio-Durchschnitt von ' + formatEUR(avgCPL) });
+    insights.push({ icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8l-4 4-4-4"/></svg>', title: 'Kosten-Effizienz', text: 'CPL von <strong>' + formatEUR(thisCPL) + '</strong> — das sind <strong>' + pctBelow + '% unter</strong> dem Portfolio-Durchschnitt von ' + formatEUR(avgCPL) });
   }
   if (thisLPD > avgLPD * 1.1) {
     var pctAbove = Math.round(((thisLPD - avgLPD) / avgLPD) * 100);
-    insights.push({ icon: '📈', title: 'Lead-Volumen', text: '<strong>' + pctAbove + '% mehr Leads pro Tag</strong> als der Portfolio-Durchschnitt (' + thisLPD.toFixed(1) + ' vs. Ø ' + avgLPD.toFixed(1) + ')' });
+    insights.push({ icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>', title: 'Lead-Volumen', text: '<strong>' + pctAbove + '% mehr Leads pro Tag</strong> als der Portfolio-Durchschnitt (' + thisLPD.toFixed(1) + ' vs. Ø ' + avgLPD.toFixed(1) + ')' });
   }
   // CPL percentile
   var sortedCPLs = allCPLs.slice().sort(function(a,b) { return a-b; });
@@ -3056,7 +3091,7 @@ function renderDetailBenchmark(campaignId, totalSpend, totalLeads, totalImpressi
     var betterThan = sortedCPLs.filter(function(c) { return c > thisCPL; }).length;
     var percentile = Math.round((betterThan / sortedCPLs.length) * 100);
     if (percentile >= 60) {
-      insights.push({ icon: '🏆', title: 'Ranking', text: 'Diese Kampagne gehört zu den <strong>Top ' + (100 - percentile) + '%</strong> aller ' + validCampaigns.length + ' Kampagnen im Portfolio' });
+      insights.push({ icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>', title: 'Ranking', text: 'Diese Kampagne gehört zu den <strong>Top ' + (100 - percentile) + '%</strong> aller ' + validCampaigns.length + ' Kampagnen im Portfolio' });
     }
   }
 
@@ -3098,11 +3133,11 @@ function renderDetailChart(metrics) {
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e7352e';
 
   const leadsGradient = ctx.createLinearGradient(0, 0, 0, 260);
-  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.25)');
+  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.3)');
   leadsGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
 
   const spendGradient = ctx.createLinearGradient(0, 0, 0, 260);
-  spendGradient.addColorStop(0, 'rgba(99, 102, 241, 0.12)');
+  spendGradient.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
   spendGradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
 
   detailChartInstance = new Chart(ctx, {
@@ -3116,7 +3151,7 @@ function renderDetailChart(metrics) {
           borderColor: accentColor,
           backgroundColor: leadsGradient,
           borderWidth: 2.5,
-          hoverBorderWidth: 3.5,
+          hoverBorderWidth: 4,
           pointRadius: 0,
           pointHoverRadius: 6,
           pointHoverBackgroundColor: '#fff',
@@ -3152,14 +3187,14 @@ function renderDetailChart(metrics) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(15,15,15,0.9)',
+          backgroundColor: 'rgba(15,15,15,0.92)',
           titleColor: '#ffffff',
-          bodyColor: 'rgba(255,255,255,0.8)',
-          borderColor: 'rgba(255,255,255,0.1)',
+          bodyColor: 'rgba(255,255,255,0.75)',
+          borderColor: 'rgba(255,255,255,0.08)',
           borderWidth: 1,
           titleFont: { family: 'Inter', weight: '600', size: 13 },
           bodyFont: { family: 'Inter', size: 12 },
-          padding: 12,
+          padding: 14,
           cornerRadius: 10,
           displayColors: true,
           boxPadding: 6,
@@ -3558,7 +3593,7 @@ async function loadDataIntelligence() {
     console.error('Data Intelligence load error:', e);
     loading.style.display = 'none';
     content.style.display = 'block';
-    document.getElementById('data-intel-segments').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Fehler beim Laden</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
+    document.getElementById('data-intel-segments').innerHTML = '<div class="empty-state"><div class="empty-state-icon">!</div><div class="empty-state-title">Fehler beim Laden</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
   }
 }
 
@@ -3849,13 +3884,13 @@ function renderScatterPlot(allData) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(15,15,15,0.9)',
+          backgroundColor: 'rgba(15,15,15,0.92)',
           titleColor: '#ffffff',
-          bodyColor: 'rgba(255,255,255,0.8)',
-          borderColor: 'rgba(255,255,255,0.1)',
+          bodyColor: 'rgba(255,255,255,0.75)',
+          borderColor: 'rgba(255,255,255,0.08)',
           borderWidth: 1,
           cornerRadius: 10,
-          padding: 12,
+          padding: 14,
           titleFont: { family: 'Inter', weight: '600', size: 13 },
           bodyFont: { family: 'Inter', size: 12 },
           displayColors: false,
@@ -4081,7 +4116,7 @@ function getPredCreativeRecommendations(similarCampaigns, allCreatives) {
 
 function renderPredCreativeRecommendations(recommendations) {
   if (!recommendations || recommendations.length === 0) return '<div class="creative-rec-empty">Keine Creative-Daten für ähnliche Kampagnen verfügbar</div>';
-  var medals = ['🥇', '🥈', '🥉'];
+  var medals = ['1.', '2.', '3.'];
   var maxScore = recommendations[0].avgScore || 1;
   var totalScore = recommendations.reduce(function(s, r) { return s + r.avgScore; }, 0);
   var html = '';
@@ -4124,7 +4159,7 @@ async function predictPerformance() {
     var allData = await loadCampaignDataForPrediction();
     var N = allData.length;
     if (N === 0) {
-      resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">Keine Daten</div><div class="empty-state-desc">Noch keine Kampagnen mit Leads vorhanden.</div></div>';
+      resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">&mdash;</div><div class="empty-state-title">Keine Daten</div><div class="empty-state-desc">Noch keine Kampagnen mit Leads vorhanden.</div></div>';
       return;
     }
 
@@ -4170,7 +4205,7 @@ async function predictPerformance() {
     resultsEl.innerHTML = '<div class="pred-result-card"><div class="card-body">' + mainHtml + breakdownHtml + scoreHtml + similarHtml + featureHtml + creativeRecHtml + '</div></div>';
   } catch (e) {
     console.error('Prediction error:', e);
-    resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-title">Fehler</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
+    resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">!</div><div class="empty-state-title">Fehler</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
   }
 }
 
