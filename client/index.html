@@ -653,6 +653,7 @@
     .campaign-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .campaign-item-right { text-align: right; flex-shrink: 0; margin-left: 16px; }
     .campaign-item-cpl { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+    .campaign-item-cpl-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-top: 1px; margin-bottom: 4px; }
     .campaign-item-leads { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
 
     .creative-panel {
@@ -2163,9 +2164,9 @@ Chart.register({
     var area = chart.chartArea;
     if (!area) return;
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.045)';
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
     var spacing = 18;
-    var dotRadius = 1;
+    var dotRadius = 1.2;
     for (var y = area.top; y < area.bottom; y += spacing) {
       for (var x = area.left; x < area.right; x += spacing) {
         ctx.beginPath();
@@ -2177,28 +2178,50 @@ Chart.register({
   }
 });
 
-// Plugin 4: Active Point Pulse Ring
+// Plugin 4: Cursor Proximity Glow — dots near the cursor glow and enlarge
 Chart.register({
-  id: 'pulsePoint',
-  afterDatasetDraw: function(chart, args) {
-    var meta = chart.getDatasetMeta(args.index);
-    if (meta.type !== 'line') return;
-    var activeElements = chart.getActiveElements();
-    if (!activeElements.length) return;
+  id: 'cursorGlow',
+  afterDraw: function(chart) {
+    var tooltip = chart.tooltip;
+    if (!tooltip || !tooltip._active || !tooltip._active.length) return;
+    var mouseX = tooltip.caretX || (tooltip._active[0] && tooltip._active[0].element.x);
+    var mouseY = tooltip.caretY || (tooltip._active[0] && tooltip._active[0].element.y);
+    if (!mouseX || !mouseY) return;
+
     var ctx = chart.ctx;
-    activeElements.forEach(function(el) {
-      if (el.datasetIndex !== args.index) return;
-      var point = meta.data[el.index];
-      if (!point) return;
-      var ds = chart.data.datasets[args.index];
-      var color = ds.borderColor || '#e7352e';
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(point.x, point.y, 12, 0, Math.PI * 2);
-      ctx.fillStyle = typeof color === 'string' ? color.replace(/[\d.]+\)$/, '0.12)') : 'rgba(231,53,46,0.12)';
-      ctx.fill();
-      ctx.restore();
-    });
+    var area = chart.chartArea;
+    if (!area) return;
+
+    var spacing = 18;
+    var glowRadius = 80; // pixels — how far the glow reaches
+
+    ctx.save();
+    for (var y = area.top; y < area.bottom; y += spacing) {
+      for (var x = area.left; x < area.right; x += spacing) {
+        var dx = x - mouseX;
+        var dy = y - mouseY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < glowRadius) {
+          var intensity = 1 - (dist / glowRadius); // 1 at cursor, 0 at edge
+          var dotSize = 1.2 + intensity * 2.5; // 1.2 at edge, 3.7 at cursor
+          var opacity = 0.08 + intensity * 0.25; // 0.08 at edge, 0.33 at cursor
+          var blur = intensity * 4; // 0 at edge, 4 at cursor
+
+          ctx.beginPath();
+          ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(231, 53, 46, ' + opacity.toFixed(3) + ')';
+          if (blur > 0.5) {
+            ctx.shadowColor = 'rgba(231, 53, 46, ' + (opacity * 0.6).toFixed(3) + ')';
+            ctx.shadowBlur = blur;
+          }
+          ctx.fill();
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+        }
+      }
+    }
+    ctx.restore();
   }
 });
 
@@ -2814,7 +2837,7 @@ function renderTrendChart(metrics) {
         },
         y: {
           position: 'left',
-          grid: { color: 'rgba(0,0,0,0.06)', borderDash: [2, 4], drawBorder: false },
+          grid: { display: false },
           border: { display: false },
           ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', stepSize: 1, padding: 8 },
           beginAtZero: true
@@ -2929,7 +2952,8 @@ function renderCampaignTable(metrics) {
       </div>
       <div class="campaign-item-right">
         <div class="campaign-item-cpl">${cplStr}</div>
-        <div class="campaign-item-leads">${c.fLeads} Leads · ${formatEUR(c.fSpend)}</div>
+        <div class="campaign-item-cpl-label">CPL</div>
+        <div class="campaign-item-leads">${c.fLeads} Leads · ${formatEUR(c.fSpend)} Spend</div>
       </div>
     `;
     container.appendChild(div);
@@ -3215,7 +3239,7 @@ function renderDetailChart(metrics) {
         },
         y: {
           position: 'left',
-          grid: { color: 'rgba(0,0,0,0.06)', borderDash: [2, 4], drawBorder: false },
+          grid: { display: false },
           border: { display: false },
           ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', stepSize: 1, padding: 6 },
           beginAtZero: true
@@ -3912,13 +3936,13 @@ function renderScatterPlot(allData) {
         x: {
           title: { display: true, text: mode.xAxisLabel, color: '#94a3b8', font: { family: 'Inter', size: 11, weight: '500' } },
           ticks: { callback: mode.xTickFormat, color: '#94a3b8', font: { family: 'Inter', size: 11 }, padding: 8 },
-          grid: { color: 'rgba(0,0,0,0.06)', borderDash: [2, 4], drawBorder: false },
+          grid: { display: false },
           border: { display: false }
         },
         y: {
           title: { display: true, text: 'CPL (€)', color: '#94a3b8', font: { family: 'Inter', size: 11, weight: '500' } },
           ticks: { callback: function(v) { return v.toFixed(0) + ' €'; }, color: '#94a3b8', font: { family: 'Inter', size: 11 }, padding: 8 },
-          grid: { color: 'rgba(0,0,0,0.06)', borderDash: [2, 4], drawBorder: false },
+          grid: { display: false },
           border: { display: false },
           beginAtZero: true
         }
