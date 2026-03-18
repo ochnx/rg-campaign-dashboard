@@ -2248,6 +2248,13 @@ let clientData = null;    // { id, name, brand, logo_url, primary_color }
 let campaigns = [];       // enriched campaign objects
 let allMetrics = [];      // all campaign_daily_metrics
 let allCreatives = [];    // creatives with metrics
+
+// IDs of A/B Test Landing Page campaigns — shown in UI but excluded from all calculations
+const EXCLUDED_CAMPAIGN_IDS = new Set([
+  '2f3193fa-d115-469d-aa01-d46cd5ff0d24', // Völckersstraße Conversions (A/B Test LP)
+  'd2d820d9-7d9b-4091-afc6-b2c9651b37ec'  // Von-Siemens-Straße Conversions (A/B Test LP)
+]);
+function isExcludedCampaign(id) { return EXCLUDED_CAMPAIGN_IDS.has(id); }
 let trendChart = null;
 let detailChartInstance = null;
 let currentSort = { field: 'spend', dir: 'desc' };
@@ -3051,9 +3058,10 @@ function openDetail(campaignId) {
 function renderDetailBenchmark(campaignId, totalSpend, totalLeads, totalImpressions, totalClicks, days) {
   var container = document.getElementById('detailBenchmark');
 
-  // Compute benchmark from all client campaigns
+  // Compute benchmark from all client campaigns (excluding A/B test LP campaigns)
   var allCampMetrics = {};
   allMetrics.forEach(function(m) {
+    if (isExcludedCampaign(m.campaign_id)) return; // skip excluded campaigns from benchmark
     if (!allCampMetrics[m.campaign_id]) allCampMetrics[m.campaign_id] = { spend: 0, leads: 0, impressions: 0, clicks: 0, days: 0 };
     allCampMetrics[m.campaign_id].spend += parseFloat(m.spend) || 0;
     allCampMetrics[m.campaign_id].leads += parseInt(m.leads) || 0;
@@ -3580,7 +3588,10 @@ async function loadDataIntelligence() {
         leadsPerDay: leads / days,
         startDate: c.start_date
       };
-    }).filter(function(d) { return d.leads > 0; });
+    }).filter(function(d) {
+      if (isExcludedCampaign(d.id)) return false; // exclude A/B test LP campaigns
+      return d.leads > 0;
+    });
 
     updateDITabVisibility(allData);
 
@@ -3997,7 +4008,10 @@ async function loadCampaignDataForPrediction() {
       spend: spend, leads: leads, impressions: impressions, days: days,
       cpl: leads > 0 ? spend / leads : null
     };
-  }).filter(function(d) { return d.leads > 0 && d.cpl !== null; });
+  }).filter(function(d) {
+    if (isExcludedCampaign(d.id)) return false; // exclude A/B test LP campaigns from prediction
+    return d.leads > 0 && d.cpl !== null;
+  });
 }
 
 function engineFeatures(prop, allProps) {
