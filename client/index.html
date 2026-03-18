@@ -774,9 +774,9 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(254, 247, 246, 0.6);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(254, 247, 246, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 200;
       justify-content: center;
       align-items: center;
@@ -792,9 +792,9 @@
     }
 
     .modal {
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       border: var(--glass-border);
       border-radius: var(--radius-xl);
       width: 100%;
@@ -3050,6 +3050,12 @@ function openDetail(campaignId) {
   // 5. Creative performance
   renderCreativePerformance(campaignId, totalSpend, totalLeads);
 
+  // Disable background chart hover to prevent flicker (backdrop-filter + chart redraws = flicker)
+  if (trendChart) {
+    trendChart.options.events = [];
+    trendChart.update('none');
+  }
+
   // Show modal
   document.getElementById('detailModal').classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -3156,6 +3162,12 @@ function closeDetail() {
   document.getElementById('detailModal').classList.remove('show');
   document.body.style.overflow = '';
   if (detailChartInstance) { detailChartInstance.destroy(); detailChartInstance = null; }
+
+  // Re-enable background chart hover
+  if (trendChart) {
+    trendChart.options.events = ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'];
+    trendChart.update('none');
+  }
 }
 
 function renderDetailChart(metrics) {
