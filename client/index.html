@@ -633,6 +633,7 @@
     }
     .sort-btn:hover { background: rgba(0,0,0,0.04); color: var(--text-primary); }
     .sort-btn.active { background: var(--accent); color: white; }
+    .sort-arrow { font-size: 10px; opacity: 0.7; margin-left: 2px; }
 
     .campaign-list { max-height: 500px; overflow-y: auto; }
 
@@ -669,6 +670,7 @@
     .creative-list { padding: 8px 0; }
 
     /* Creative ranking table inside dark card — invert colors */
+    .creative-panel .creative-ranking-table { table-layout: auto; width: 100%; }
     .creative-panel .creative-ranking-table th {
       color: rgba(255,255,255,0.4);
       background: rgba(255,255,255,0.04);
@@ -972,15 +974,16 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      min-width: 0;
     }
 
     .creative-score-track {
       flex: 1;
-      height: 5px;
+      height: 6px;
       background: rgba(0,0,0,0.04);
       border-radius: 3px;
       overflow: hidden;
-      min-width: 60px;
+      min-width: 40px;
     }
 
     .creative-score-fill {
@@ -1876,9 +1879,9 @@
           <div class="panel-header">
             <span class="panel-title" id="campaignsTitle">Kampagnen</span>
             <div class="sort-controls">
-              <button class="sort-btn active" data-sort="spend" onclick="sortTable('spend')">Ausgaben</button>
-              <button class="sort-btn" data-sort="leads" onclick="sortTable('leads')">Leads</button>
-              <button class="sort-btn" data-sort="cpl" onclick="sortTable('cpl')">CPL</button>
+              <button class="sort-btn active" data-sort="spend" onclick="sortTable('spend')">Ausgaben <span class="sort-arrow">↓</span></button>
+              <button class="sort-btn" data-sort="leads" onclick="sortTable('leads')">Leads <span class="sort-arrow">↕</span></button>
+              <button class="sort-btn" data-sort="cpl" onclick="sortTable('cpl')">CPL <span class="sort-arrow">↕</span></button>
             </div>
           </div>
           <div class="campaign-list" id="campaignTableBody"></div>
@@ -2486,7 +2489,7 @@ function renderCreativeRankingHTML(scoredTypes) {
           <th>Creative</th>
           <th>Leads</th>
           <th>CPL</th>
-          <th style="min-width:140px">Score</th>
+          <th style="min-width:120px">Score</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -2772,7 +2775,12 @@ function renderCampaignTable(metrics) {
 
   // Update sort buttons
   document.querySelectorAll('.sort-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.sort === currentSort.field);
+    const isActive = btn.dataset.sort === currentSort.field;
+    btn.classList.toggle('active', isActive);
+    const arrow = btn.querySelector('.sort-arrow');
+    if (arrow) {
+      arrow.textContent = isActive ? (currentSort.dir === 'asc' ? '↑' : '↓') : '↕';
+    }
   });
 
   document.getElementById('campaignsTitle').textContent = `Kampagnen (${displayCampaigns.length})`;
@@ -3713,8 +3721,8 @@ function renderScatterPlot(allData) {
     type: 'scatter',
     data: {
       datasets: [
-        { label: 'Kampagnen', data: scatterData, backgroundColor: 'rgba(231, 53, 46, 0.8)', borderColor: 'rgba(231, 53, 46, 1)', borderWidth: 2, pointRadius: 8, pointHoverRadius: 12 },
-        { label: 'Trendlinie', data: trendData, type: 'line', borderColor: 'rgba(245, 158, 11, 0.6)', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, fill: false }
+        { label: 'Kampagnen', data: scatterData, backgroundColor: 'rgba(231, 53, 46, 0.6)', borderColor: 'rgba(231, 53, 46, 0.9)', borderWidth: 2, pointRadius: 7, pointHoverRadius: 10, pointHoverBackgroundColor: '#fff', pointHoverBorderColor: 'rgba(231, 53, 46, 1)', pointHoverBorderWidth: 2.5 },
+        { label: 'Trendlinie', data: trendData, type: 'line', borderColor: 'rgba(99, 102, 241, 0.5)', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, fill: false }
       ]
     },
     options: {
@@ -3722,6 +3730,17 @@ function renderScatterPlot(allData) {
       maintainAspectRatio: false,
       plugins: {
         tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          titleColor: '#1a1a2e',
+          bodyColor: '#6b7280',
+          borderColor: 'rgba(0,0,0,0.06)',
+          borderWidth: 1,
+          cornerRadius: 12,
+          padding: 14,
+          titleFont: { family: 'Inter', weight: '700', size: 13 },
+          bodyFont: { family: 'Inter', size: 12 },
+          displayColors: true,
+          boxPadding: 6,
           callbacks: {
             label: function(tooltipCtx) {
               var item = tooltipCtx.raw;
@@ -3735,8 +3754,8 @@ function renderScatterPlot(allData) {
         }
       },
       scales: {
-        x: { title: { display: true, text: mode.xAxisLabel, color: '#8f8f8f' }, ticks: { callback: mode.xTickFormat }, grid: { color: 'rgba(0,0,0,0.04)' } },
-        y: { title: { display: true, text: 'CPL (€)', color: '#8f8f8f' }, ticks: { callback: function(v) { return v.toFixed(0) + ' €'; } }, grid: { color: 'rgba(0,0,0,0.04)' }, beginAtZero: true }
+        x: { title: { display: true, text: mode.xAxisLabel, color: '#94a3b8', font: { family: 'Inter', size: 11 } }, ticks: { callback: mode.xTickFormat, color: '#94a3b8', font: { family: 'Inter', size: 11 } }, grid: { color: 'rgba(0,0,0,0.04)', borderDash: [2, 4] }, border: { display: false } },
+        y: { title: { display: true, text: 'CPL (€)', color: '#94a3b8', font: { family: 'Inter', size: 11 } }, ticks: { callback: function(v) { return v.toFixed(0) + ' €'; }, color: '#94a3b8', font: { family: 'Inter', size: 11 } }, grid: { color: 'rgba(0,0,0,0.04)', borderDash: [2, 4] }, border: { display: false }, beginAtZero: true }
       }
     }
   });
