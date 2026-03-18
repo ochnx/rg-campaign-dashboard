@@ -490,6 +490,198 @@
       padding: 8px;
     }
 
+    /* ===== REPORTING TAB — NEW LAYOUT ===== */
+    .hero-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .hero-card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      box-shadow: var(--shadow-card);
+      transition: transform 250ms var(--ease-out-expo), box-shadow 250ms var(--ease-out-expo);
+    }
+    .hero-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .hero-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .hero-value {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+    .hero-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .mini-stat {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: transform 200ms var(--ease-out-expo);
+    }
+    .mini-stat:hover { transform: translateY(-1px); }
+    .mini-value {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+    .mini-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .chart-card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .chart-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px 0;
+    }
+    .chart-card-title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+    .chart-card-subtitle { font-size: 12px; color: var(--text-muted); }
+    .chart-area {
+      position: relative;
+      height: 300px;
+      padding: 16px 24px 20px;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .campaigns-panel {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .panel-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+    .sort-controls { display: flex; gap: 4px; }
+    .sort-btn {
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 150ms var(--ease-out-expo);
+    }
+    .sort-btn:hover { background: rgba(0,0,0,0.04); color: var(--text-primary); }
+    .sort-btn.active { background: var(--accent); color: white; }
+
+    .campaign-list { max-height: 500px; overflow-y: auto; }
+
+    .campaign-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background 150ms var(--ease-out-expo);
+    }
+    .campaign-item:last-child { border-bottom: none; }
+    .campaign-item:hover { background: rgba(231, 53, 46, 0.03); }
+    .campaign-item-left { flex: 1; min-width: 0; }
+    .campaign-item-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .campaign-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .campaign-item-right { text-align: right; flex-shrink: 0; margin-left: 16px; }
+    .campaign-item-cpl { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+    .campaign-item-leads { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .creative-panel {
+      background: rgba(26, 26, 46, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      color: #e2e8f0;
+      overflow: hidden;
+    }
+    .panel-header.dark { border-bottom-color: rgba(255,255,255,0.06); }
+    .panel-header.dark .panel-title { color: #f1f5f9; }
+    .creative-list { padding: 8px 0; }
+
+    /* Creative ranking table inside dark card — invert colors */
+    .creative-panel .creative-ranking-table th {
+      color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.04);
+      border-bottom-color: rgba(255,255,255,0.06);
+    }
+    .creative-panel .creative-ranking-table td {
+      color: #e2e8f0;
+      border-bottom-color: rgba(255,255,255,0.04);
+    }
+    .creative-panel .creative-type-name { color: #f1f5f9; }
+    .creative-panel .creative-score-track { background: rgba(255,255,255,0.08); }
+    .creative-panel .creative-score-value { color: #f1f5f9; }
+
     /* Campaign Table */
     .campaign-table {
       width: 100%;
@@ -810,9 +1002,9 @@
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 14px;
       padding: 20px;
-      background: var(--bg-secondary);
+      background: rgba(255,255,255,0.3);
       border-radius: var(--radius);
-      border: 1px solid rgba(0,0,0,0.03);
+      border: 1px solid rgba(255,255,255,0.2);
       margin-bottom: 24px;
     }
     .detail-property-grid .prop-label {
@@ -836,10 +1028,10 @@
       margin-bottom: 24px;
     }
     .detail-kpi-card {
-      background: var(--bg-secondary);
+      background: rgba(255,255,255,0.3);
       border-radius: var(--radius-sm);
       padding: 16px;
-      border: 1px solid rgba(0,0,0,0.03);
+      border: 1px solid rgba(255,255,255,0.2);
     }
     .detail-kpi-card .kpi-label {
       font-size: 10px;
@@ -871,7 +1063,7 @@
       margin-bottom: 16px;
     }
     .benchmark-metric {
-      background: var(--bg-secondary);
+      background: rgba(255,255,255,0.3);
       border-radius: var(--radius-sm);
       padding: 14px;
     }
@@ -1032,6 +1224,7 @@
     /* Responsive */
     @media (max-width: 1100px) {
       .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+      .bottom-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 768px) {
@@ -1050,12 +1243,19 @@
       .tab-btn { flex-shrink: 0; }
       .kpi-card:nth-child(1), .kpi-card:nth-child(2) { grid-column: span 1; }
       .kpi-card:nth-child(1) .kpi-value, .kpi-card:nth-child(2) .kpi-value { font-size: 28px; }
+      .hero-stats { grid-template-columns: 1fr; }
+      .hero-value { font-size: 36px; }
+      .mini-stats { grid-template-columns: repeat(2, 1fr); }
+      .chart-area { height: 220px; }
     }
 
     @media (max-width: 480px) {
       .kpi-grid { grid-template-columns: 1fr; }
       .kpi-value { font-size: 24px; }
       .login-card { padding: 36px 28px; }
+      .mini-stats { grid-template-columns: 1fr 1fr; }
+      .mini-value { font-size: 18px; }
+      .hero-value { font-size: 28px; }
     }
 
     /* Tab Navigation */
@@ -1116,8 +1316,8 @@
       gap: 10px;
     }
     .data-intel-warning {
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      background: rgba(245, 158, 11, 0.06);
+      border: 1px solid rgba(245, 158, 11, 0.15);
       border-radius: var(--radius-sm);
       padding: 10px 16px;
       font-size: 12px;
@@ -1155,7 +1355,7 @@
     }
     .correlation-bar-track {
       height: 24px;
-      background: var(--bg-input);
+      background: rgba(255,255,255,0.3);
       border-radius: var(--radius-sm);
       position: relative;
       overflow: hidden;
@@ -1203,7 +1403,7 @@
       letter-spacing: 0.06em;
       color: var(--text-muted);
       border-bottom: 1px solid var(--border);
-      background: var(--bg-input);
+      background: rgba(255,255,255,0.3);
     }
     .segment-table td {
       padding: 10px 12px;
@@ -1220,12 +1420,21 @@
       position: relative;
       width: 100%;
       height: 400px;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
     }
 
     /* DI tabs (category filter within data intel) */
     .di-tabs {
-      display: flex;
-      gap: 0;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 6px;
+      display: inline-flex;
+      gap: 4px;
+      box-shadow: var(--shadow-sm);
       margin-bottom: 24px;
     }
     .di-tab {
@@ -1234,18 +1443,17 @@
       font-size: 13px;
       font-weight: 600;
       color: var(--text-muted);
-      background: var(--bg-input);
-      border: 1px solid var(--border);
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       transition: all var(--transition);
     }
-    .di-tab:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
-    .di-tab:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
-    .di-tab:not(:first-child) { border-left: none; }
     .di-tab.active {
       background: var(--accent);
       color: white;
-      border-color: var(--accent);
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(231, 53, 46, 0.15);
     }
     .di-tab:hover:not(.active) {
       background: var(--bg-card-hover);
@@ -1276,7 +1484,7 @@
       width: 100%;
       padding: 10px 14px;
       background: var(--bg-input);
-      border: 1.5px solid transparent;
+      border: 1px solid rgba(255,255,255,0.3);
       border-radius: var(--radius-sm);
       color: var(--text-primary);
       font-family: inherit;
@@ -1301,7 +1509,7 @@
     .confidence-bar {
       width: 100%;
       height: 8px;
-      background: var(--bg-input);
+      background: rgba(255,255,255,0.3);
       border-radius: 4px;
       overflow: hidden;
       margin-top: 8px;
@@ -1347,7 +1555,7 @@
     .feature-importance-bar .fi-track {
       flex: 1;
       height: 18px;
-      background: var(--bg-input);
+      background: rgba(255,255,255,0.3);
       border-radius: 4px;
       overflow: hidden;
     }
@@ -1421,7 +1629,7 @@
       gap: 12px;
       margin-top: 12px;
     }
-    .prediction-breakdown .pb-item { background: var(--bg-input); border-radius: var(--radius-sm); padding: 10px 14px; }
+    .prediction-breakdown .pb-item { background: rgba(255,255,255,0.3); border-radius: var(--radius-sm); padding: 10px 14px; }
     .prediction-breakdown .pb-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 4px; }
     .prediction-breakdown .pb-value { font-size: 16px; font-weight: 700; }
 
@@ -1487,7 +1695,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 8px 12px;
-      background: var(--bg-input);
+      background: rgba(255,255,255,0.3);
       border-radius: var(--radius-sm);
       margin-bottom: 6px;
       font-size: 13px;
@@ -1617,87 +1825,70 @@
     <!-- Tab: Reporting -->
     <div class="tab-content active" id="tab-reporting">
 
-      <!-- KPI Row -->
-      <div class="kpi-grid" id="kpiGrid">
-        <div class="kpi-card">
-          <div class="kpi-icon">💰</div>
-          <div class="kpi-label">Gesamtausgaben</div>
-          <div class="kpi-value" id="kpiSpend">—</div>
+      <!-- Hero Stats Row -->
+      <div class="hero-stats">
+        <div class="hero-card">
+          <div class="hero-label">Gesamtausgaben</div>
+          <div class="hero-value" id="kpiSpend">—</div>
+          <div class="hero-sub" id="kpiSpendSub"></div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">👥</div>
-          <div class="kpi-label">Leads generiert</div>
-          <div class="kpi-value" id="kpiLeads">—</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">📊</div>
-          <div class="kpi-label">Ø CPL</div>
-          <div class="kpi-value" id="kpiCPL">—</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">👁️</div>
-          <div class="kpi-label">Impressions</div>
-          <div class="kpi-value" id="kpiImpressions">—</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">🖱️</div>
-          <div class="kpi-label">Klicks</div>
-          <div class="kpi-value" id="kpiClicks">—</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon">📈</div>
-          <div class="kpi-label">Ø CTR</div>
-          <div class="kpi-value" id="kpiCTR">—</div>
+        <div class="hero-card">
+          <div class="hero-label">Leads generiert</div>
+          <div class="hero-value" id="kpiLeads">—</div>
+          <div class="hero-sub" id="kpiLeadsSub"></div>
         </div>
       </div>
 
-      <!-- Trend Chart -->
-      <div class="section">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">Wöchentlicher Verlauf</span>
-          </div>
-          <div class="card-body">
-            <div class="chart-container">
-              <canvas id="trendChart"></canvas>
+      <!-- Mini Stats Row -->
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <div class="mini-value" id="kpiCPL">—</div>
+          <div class="mini-label">Ø CPL</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-value" id="kpiCTR">—</div>
+          <div class="mini-label">Ø CTR</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-value" id="kpiImpressions">—</div>
+          <div class="mini-label">Impressions</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-value" id="kpiClicks">—</div>
+          <div class="mini-label">Klicks</div>
+        </div>
+      </div>
+
+      <!-- Performance Chart -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <span class="chart-card-title">Performance</span>
+          <span class="chart-card-subtitle" id="chartPeriodLabel"></span>
+        </div>
+        <div class="chart-area">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Bottom Grid: Campaigns + Creative -->
+      <div class="bottom-grid">
+        <div class="campaigns-panel">
+          <div class="panel-header">
+            <span class="panel-title" id="campaignsTitle">Kampagnen</span>
+            <div class="sort-controls">
+              <button class="sort-btn active" data-sort="spend" onclick="sortTable('spend')">Ausgaben</button>
+              <button class="sort-btn" data-sort="leads" onclick="sortTable('leads')">Leads</button>
+              <button class="sort-btn" data-sort="cpl" onclick="sortTable('cpl')">CPL</button>
             </div>
           </div>
+          <div class="campaign-list" id="campaignTableBody"></div>
         </div>
-      </div>
 
-      <!-- Campaigns Table -->
-      <div class="section">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title" id="campaignsTitle">Kampagnen</span>
+        <div class="creative-panel" id="mainCreativeSection" style="display:none">
+          <div class="panel-header dark">
+            <span class="panel-title">Creative Ranking</span>
           </div>
-          <div style="overflow-x:auto">
-            <table class="campaign-table" id="campaignTable">
-              <thead>
-                <tr>
-                  <th class="sortable" data-sort="name" onclick="sortTable('name')">Objekt <span class="sort-icon">↕</span></th>
-                  <th>Status</th>
-                  <th class="sortable" data-sort="period" onclick="sortTable('period')">Zeitraum <span class="sort-icon">↕</span></th>
-                  <th class="sortable" data-sort="spend" onclick="sortTable('spend')">Ausgaben <span class="sort-icon">↕</span></th>
-                  <th class="sortable" data-sort="leads" onclick="sortTable('leads')">Leads <span class="sort-icon">↕</span></th>
-                  <th class="sortable" data-sort="cpl" onclick="sortTable('cpl')">CPL <span class="sort-icon">↕</span></th>
-                </tr>
-              </thead>
-              <tbody id="campaignTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Creative Performance (main page, cross-campaign) -->
-      <div class="section" id="mainCreativeSection" style="display:none">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">🏆 Creative Performance</span>
-          </div>
-          <div class="card-body">
-            <div class="creative-ranking" id="mainCreativeRanking"></div>
-          </div>
+          <div class="creative-list" id="mainCreativeRanking"></div>
         </div>
       </div>
 
@@ -2150,7 +2341,6 @@ async function loadDashboard() {
 }
 
 function showEmpty() {
-  document.getElementById('kpiGrid').style.display = 'none';
   const container = document.getElementById('dashboardContent');
   container.innerHTML = `
     <div class="empty-state">
@@ -2361,15 +2551,23 @@ function renderKPIs(metrics) {
     totalClicks += parseInt(m.clicks) || 0;
   });
 
+  const days = new Set(metrics.map(m => m.date)).size || 1;
   const avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
   const avgCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
 
+  // Hero cards
   animateValue('kpiSpend', totalSpend, v => formatEUR(v));
   animateValue('kpiLeads', totalLeads, v => formatNum(v));
+  var spendSub = document.getElementById('kpiSpendSub');
+  var leadsSub = document.getElementById('kpiLeadsSub');
+  if (spendSub) spendSub.textContent = days + ' Tage · Ø ' + formatEUR(totalSpend / days) + '/Tag';
+  if (leadsSub) leadsSub.textContent = 'Ø ' + (totalLeads / days).toFixed(1) + ' Leads/Tag';
+
+  // Mini stats
   animateValue('kpiCPL', avgCPL, v => formatEUR(v));
+  animateValue('kpiCTR', avgCTR, v => v.toFixed(2) + '%');
   animateValue('kpiImpressions', totalImpressions, v => formatNum(v));
   animateValue('kpiClicks', totalClicks, v => formatNum(v));
-  animateValue('kpiCTR', avgCTR, v => v.toFixed(2) + '%');
 }
 
 function animateValue(elId, target, formatter) {
@@ -2398,7 +2596,6 @@ function animateValue(elId, target, formatter) {
 // TREND CHART
 // ============================================
 function renderTrendChart(metrics) {
-  // Group by ISO week
   const weekMap = {};
   metrics.forEach(m => {
     const d = new Date(m.date);
@@ -2420,42 +2617,49 @@ function renderTrendChart(metrics) {
 
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e7352e';
 
-  const spendGradient = ctx.createLinearGradient(0, 0, 0, 320);
-  spendGradient.addColorStop(0, 'rgba(231, 53, 46, 0.12)');
-  spendGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
+  // Gradients for area fills
+  const leadsGradient = ctx.createLinearGradient(0, 0, 0, 300);
+  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.15)');
+  leadsGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
+
+  const spendGradient = ctx.createLinearGradient(0, 0, 0, 300);
+  spendGradient.addColorStop(0, 'rgba(99, 102, 241, 0.12)');
+  spendGradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
 
   trendChart = new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     data: {
       labels,
       datasets: [
         {
           label: 'Leads',
           data: leadsData,
-          backgroundColor: accentColor + '18',
           borderColor: accentColor,
-          borderWidth: 1.5,
-          borderRadius: 8,
-          borderSkipped: false,
-          yAxisID: 'y',
-          order: 2
-        },
-        {
-          label: 'Ausgaben (€)',
-          data: spendData,
-          type: 'line',
-          borderColor: 'rgba(231, 53, 46, 0.5)',
-          backgroundColor: spendGradient,
-          borderWidth: 2,
+          backgroundColor: leadsGradient,
+          borderWidth: 2.5,
           pointRadius: 0,
           pointHoverRadius: 6,
           pointHoverBackgroundColor: '#fff',
           pointHoverBorderColor: accentColor,
           pointHoverBorderWidth: 2.5,
           fill: true,
-          tension: 0.45,
-          yAxisID: 'y1',
-          order: 1
+          tension: 0.4,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Ausgaben (€)',
+          data: spendData,
+          borderColor: 'rgba(99, 102, 241, 0.7)',
+          backgroundColor: spendGradient,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgb(99, 102, 241)',
+          pointHoverBorderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          yAxisID: 'y1'
         }
       ]
     },
@@ -2464,27 +2668,17 @@ function renderTrendChart(metrics) {
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: {
-          position: 'top',
-          align: 'end',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'rectRounded',
-            padding: 24,
-            font: { family: 'Inter', size: 12, weight: '500' },
-            color: '#6b7280'
-          }
-        },
+        legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(255,255,255,0.92)',
+          backgroundColor: 'rgba(255,255,255,0.95)',
           titleColor: '#1a1a2e',
           bodyColor: '#6b7280',
           borderColor: 'rgba(0,0,0,0.06)',
           borderWidth: 1,
-          titleFont: { family: 'Inter', weight: '600', size: 13 },
-          bodyFont: { family: 'Inter', size: 13 },
-          padding: 14,
-          cornerRadius: 12,
+          titleFont: { family: 'Inter', weight: '700', size: 13 },
+          bodyFont: { family: 'Inter', size: 12 },
+          padding: 16,
+          cornerRadius: 14,
           displayColors: true,
           boxPadding: 6,
           callbacks: {
@@ -2499,27 +2693,20 @@ function renderTrendChart(metrics) {
         x: {
           grid: { display: false },
           border: { display: false },
-          ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', padding: 8, autoSkip: false, maxRotation: 0 }
+          ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', padding: 8, maxRotation: 0 }
         },
         y: {
           position: 'left',
-          title: { display: true, text: 'Leads', font: { family: 'Inter', size: 11, weight: '600' }, color: '#94a3b8', padding: 12 },
-          grid: { color: 'rgba(0,0,0,0.05)', borderDash: [2, 4], drawBorder: false },
+          grid: { color: 'rgba(0,0,0,0.04)', borderDash: [2, 4], drawBorder: false },
           border: { display: false },
           ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', stepSize: 1, padding: 8 },
           beginAtZero: true
         },
         y1: {
           position: 'right',
-          title: { display: true, text: 'Ausgaben (€)', font: { family: 'Inter', size: 11, weight: '600' }, color: '#94a3b8', padding: 12 },
           grid: { display: false },
           border: { display: false },
-          ticks: {
-            font: { family: 'Inter', size: 11 },
-            color: '#94a3b8',
-            padding: 8,
-            callback: v => formatEUR(v)
-          },
+          ticks: { display: false },
           beginAtZero: true
         }
       }
@@ -2538,7 +2725,6 @@ function getISOWeek(date) {
 // CAMPAIGN TABLE
 // ============================================
 function renderCampaignTable(metrics) {
-  // Recalculate per-campaign metrics for the current filter
   const filteredMetricsMap = {};
   metrics.forEach(m => {
     if (!filteredMetricsMap[m.campaign_id]) filteredMetricsMap[m.campaign_id] = { spend: 0, impressions: 0, clicks: 0, leads: 0 };
@@ -2548,7 +2734,6 @@ function renderCampaignTable(metrics) {
     filteredMetricsMap[m.campaign_id].leads += parseInt(m.leads) || 0;
   });
 
-  // Enrich campaigns with filtered data
   let displayCampaigns = campaigns.map(c => {
     const fm = filteredMetricsMap[c.id] || { spend: 0, impressions: 0, clicks: 0, leads: 0 };
     return {
@@ -2561,7 +2746,6 @@ function renderCampaignTable(metrics) {
     };
   });
 
-  // Sort
   displayCampaigns.sort((a, b) => {
     let va, vb;
     switch (currentSort.field) {
@@ -2586,52 +2770,47 @@ function renderCampaignTable(metrics) {
     }
   });
 
-  // Update sort indicators
-  document.querySelectorAll('.campaign-table th.sortable').forEach(th => {
-    th.classList.toggle('sort-active', th.dataset.sort === currentSort.field);
-    const icon = th.querySelector('.sort-icon');
-    if (th.dataset.sort === currentSort.field) {
-      icon.textContent = currentSort.dir === 'asc' ? '↑' : '↓';
-    } else {
-      icon.textContent = '↕';
-    }
+  // Update sort buttons
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sort === currentSort.field);
   });
 
-  // Update count
   document.getElementById('campaignsTitle').textContent = `Kampagnen (${displayCampaigns.length})`;
 
-  const tbody = document.getElementById('campaignTableBody');
-  tbody.innerHTML = '';
+  const container = document.getElementById('campaignTableBody');
+  container.innerHTML = '';
 
   if (displayCampaigns.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Keine Kampagnen im gewählten Zeitraum</td></tr>`;
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">Keine Kampagnen im gewählten Zeitraum</div>';
     return;
   }
 
   displayCampaigns.forEach(c => {
-    const tr = document.createElement('tr');
-    tr.onclick = () => openDetail(c.id);
-
     const name = c.property?.name || c.campaign_name || '—';
-    const address = c.property?.address || '';
+    const city = c.property?.city || '';
     const status = c.status || 'active';
     const statusBadge = status === 'active' ? 'badge-active' : status === 'paused' ? 'badge-paused' : 'badge-completed';
-    const statusLabel = status === 'active' ? 'Aktiv' : status === 'paused' ? 'Pausiert' : 'Abgeschlossen';
-    const period = formatDateRange(c.start_date, c.end_date);
+    const statusLabel = status === 'active' ? 'Aktiv' : status === 'paused' ? 'Pausiert' : 'Abgeschl.';
     const cplStr = c.fLeads > 0 ? formatEUR(c.fCPL) : '—';
 
-    tr.innerHTML = `
-      <td>
-        <div class="campaign-name">${escHtml(name)}</div>
-        ${address ? `<div class="campaign-address">${escHtml(address)}</div>` : ''}
-      </td>
-      <td><span class="badge ${statusBadge}"><span class="badge-dot"></span>${statusLabel}</span></td>
-      <td style="font-size:13px;color:var(--text-secondary)">${period}</td>
-      <td class="value-eur">${formatEUR(c.fSpend)}</td>
-      <td><strong>${c.fLeads}</strong></td>
-      <td class="value-eur">${cplStr}</td>
+    const div = document.createElement('div');
+    div.className = 'campaign-item';
+    div.onclick = () => openDetail(c.id);
+    div.innerHTML = `
+      <div class="campaign-item-left">
+        <div class="campaign-item-name">${escHtml(name)}</div>
+        <div class="campaign-item-meta">
+          <span class="badge ${statusBadge}" style="font-size:10px;padding:2px 8px"><span class="badge-dot"></span>${statusLabel}</span>
+          ${city ? '<span>' + escHtml(city) + '</span>' : ''}
+          <span>${formatDateRange(c.start_date, c.end_date)}</span>
+        </div>
+      </div>
+      <div class="campaign-item-right">
+        <div class="campaign-item-cpl">${cplStr}</div>
+        <div class="campaign-item-leads">${c.fLeads} Leads · ${formatEUR(c.fSpend)}</div>
+      </div>
     `;
-    tbody.appendChild(tr);
+    container.appendChild(div);
   });
 }
 
@@ -2831,42 +3010,48 @@ function renderDetailChart(metrics) {
 
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e7352e';
 
+  const leadsGradient = ctx.createLinearGradient(0, 0, 0, 260);
+  leadsGradient.addColorStop(0, 'rgba(231, 53, 46, 0.15)');
+  leadsGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
+
   const spendGradient = ctx.createLinearGradient(0, 0, 0, 260);
-  spendGradient.addColorStop(0, 'rgba(231, 53, 46, 0.12)');
-  spendGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
+  spendGradient.addColorStop(0, 'rgba(99, 102, 241, 0.12)');
+  spendGradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
 
   detailChartInstance = new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     data: {
       labels,
       datasets: [
         {
           label: 'Leads',
           data: leadsData,
-          backgroundColor: accentColor + '18',
           borderColor: accentColor,
-          borderWidth: 1,
-          borderRadius: 8,
-          borderSkipped: false,
-          yAxisID: 'y',
-          order: 2
-        },
-        {
-          label: 'Ausgaben (€)',
-          data: spendData,
-          type: 'line',
-          borderColor: 'rgba(231, 53, 46, 0.5)',
-          backgroundColor: spendGradient,
-          borderWidth: 2,
+          backgroundColor: leadsGradient,
+          borderWidth: 2.5,
           pointRadius: 0,
           pointHoverRadius: 6,
           pointHoverBackgroundColor: '#fff',
           pointHoverBorderColor: accentColor,
           pointHoverBorderWidth: 2.5,
           fill: true,
-          tension: 0.45,
-          yAxisID: 'y1',
-          order: 1
+          tension: 0.4,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Ausgaben (€)',
+          data: spendData,
+          borderColor: 'rgba(99, 102, 241, 0.7)',
+          backgroundColor: spendGradient,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgb(99, 102, 241)',
+          pointHoverBorderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          yAxisID: 'y1'
         }
       ]
     },
@@ -2875,19 +3060,15 @@ function renderDetailChart(metrics) {
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: {
-          position: 'top',
-          align: 'end',
-          labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 20, font: { family: 'Inter', size: 11 }, color: '#6b7280' }
-        },
+        legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(255,255,255,0.92)',
+          backgroundColor: 'rgba(255,255,255,0.95)',
           titleColor: '#1a1a2e',
           bodyColor: '#6b7280',
           borderColor: 'rgba(0,0,0,0.06)',
           borderWidth: 1,
-          titleFont: { family: 'Inter', weight: '600', size: 13 },
-          bodyFont: { family: 'Inter', size: 13 },
+          titleFont: { family: 'Inter', weight: '700', size: 12 },
+          bodyFont: { family: 'Inter', size: 12 },
           padding: 14,
           cornerRadius: 12,
           displayColors: true,
@@ -2901,9 +3082,25 @@ function renderDetailChart(metrics) {
         }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', maxRotation: 45, padding: 6, autoSkip: false } },
-        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.05)', borderDash: [2, 4], drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', stepSize: 1, padding: 6 }, beginAtZero: true },
-        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', padding: 6, callback: v => formatEUR(v) }, beginAtZero: true }
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', maxRotation: 45, padding: 6 }
+        },
+        y: {
+          position: 'left',
+          grid: { color: 'rgba(0,0,0,0.04)', borderDash: [2, 4], drawBorder: false },
+          border: { display: false },
+          ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', stepSize: 1, padding: 6 },
+          beginAtZero: true
+        },
+        y1: {
+          position: 'right',
+          grid: { display: false },
+          border: { display: false },
+          ticks: { display: false },
+          beginAtZero: true
+        }
       }
     }
   });
@@ -3159,23 +3356,6 @@ function updateDITabVisibility(allData) {
     tabAll.style.display = '';
     tabNeubau.style.display = neuCount > 0 ? '' : 'none';
     tabEinzel.style.display = einzelCount > 0 ? '' : 'none';
-
-    // Fix border-radius for visible tabs
-    var visibleTabs = Array.from(tabsContainer.querySelectorAll('.di-tab')).filter(function(t) {
-      return t.style.display !== 'none';
-    });
-    visibleTabs.forEach(function(t) {
-      t.style.borderRadius = '0';
-      t.style.borderLeft = 'none';
-    });
-    if (visibleTabs.length > 0) {
-      visibleTabs[0].style.borderRadius = 'var(--radius-sm) 0 0 var(--radius-sm)';
-      visibleTabs[0].style.borderLeft = '1px solid var(--border)';
-      visibleTabs[visibleTabs.length - 1].style.borderRadius = '0 var(--radius-sm) var(--radius-sm) 0';
-    }
-    if (visibleTabs.length === 1) {
-      visibleTabs[0].style.borderRadius = 'var(--radius-sm)';
-    }
 
     // Reset filter if pointing to hidden category
     if (dataIntelCategoryFilter === 'neubauprojekt' && neuCount === 0) {
