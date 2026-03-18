@@ -780,7 +780,7 @@
       z-index: 200;
       justify-content: center;
       align-items: flex-start;
-      padding: 70px 24px 14px;
+      padding: 80px 24px 24px;
       overflow-y: auto;
       will-change: opacity;
       contain: layout style;
@@ -2411,15 +2411,10 @@ async function loadDashboard() {
     var navClientName = document.getElementById('navClientName');
     var navClientLogo = document.getElementById('navClientLogo');
     if (/engel\s*[&+]\s*v/i.test(cName)) {
-      // Show inline SVG wordmark for Engel & Völkers
+      // Show E&V logo image
       navClientName.style.display = 'none';
       navClientLogo.style.display = '';
-      navClientLogo.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 24" height="22" style="display:block;">' +
-        '<text y="18" font-family="Futura,Avenir,\'Helvetica Neue\',Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="1">' +
-        '<tspan fill="#333333">ENGEL</tspan>' +
-        '<tspan fill="#E4002B">&amp;</tspan>' +
-        '<tspan fill="#333333">VÖLKERS</tspan>' +
-        '</text></svg>';
+      navClientLogo.innerHTML = '<img src="../assets/ev-logo.svg" alt="Engel &amp; Völkers" style="height:22px;display:block;" />';
     } else {
       navClientName.textContent = cName;
       navClientName.style.display = '';
