@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 50" width="480" height="50">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@700&amp;display=swap');
-    text { font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 700; font-size: 42px; letter-spacing: 2px; }
-  </style>
-  <text y="40">
-    <tspan fill="#333333">ENGEL</tspan><tspan fill="#E4002B">&amp;</tspan><tspan fill="#333333">VÖLKERS</tspan>
-  </text>
-</svg>
