@@ -780,8 +780,10 @@
       z-index: 200;
       justify-content: center;
       align-items: center;
-      padding: 24px;
+      padding: 88px 24px 24px;
       overflow-y: auto;
+      will-change: opacity;
+      contain: layout style;
     }
 
     .modal-overlay.show {
@@ -799,6 +801,7 @@
       max-width: 860px;
       box-shadow: 0 32px 80px rgba(231, 53, 46, 0.1), 0 0 0 1px rgba(255,255,255,0.4);
       animation: slideUp 0.4s var(--ease-out-expo);
+      will-change: transform;
     }
 
     .modal-header {
@@ -1083,6 +1086,7 @@
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
+      margin-left: 12px;
     }
     .benchmark-badge.good {
       background: rgba(34, 197, 94, 0.12);
@@ -2188,7 +2192,6 @@ Chart.register({
     var evt = args.event;
     if (evt.type === 'mousemove' && args.inChartArea) {
       chart._cursorPos = { x: evt.x, y: evt.y };
-      chart.draw();
     } else if (evt.type === 'mouseout') {
       chart._cursorPos = null;
     }
@@ -2214,20 +2217,12 @@ Chart.register({
 
         if (dist < glowRadius) {
           var intensity = 1 - (dist / glowRadius);
-          var dotSize = 1.2 + intensity * 2.5;
-          var opacity = 0.08 + intensity * 0.25;
-          var blur = intensity * 4;
+          var dotSize = 1.2 + intensity * 3;
 
           ctx.beginPath();
           ctx.arc(x, y, dotSize, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(231, 53, 46, ' + opacity.toFixed(3) + ')';
-          if (blur > 0.5) {
-            ctx.shadowColor = 'rgba(231, 53, 46, ' + (opacity * 0.6).toFixed(3) + ')';
-            ctx.shadowBlur = blur;
-          }
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
           ctx.fill();
-          ctx.shadowColor = 'transparent';
-          ctx.shadowBlur = 0;
         }
       }
     }
@@ -3387,8 +3382,6 @@ function showToast(msg, type) {
 // ============================================
 // HELPER FUNCTIONS (Data Intelligence & Prediction)
 // ============================================
-const EV_ACCOUNT_ID = 'act_763575219714223';
-
 const CITY_RATINGS = {
   A: ['berlin','hamburg','münchen','munich','köln','cologne','frankfurt','düsseldorf','stuttgart'],
   B: ['hannover','nürnberg','bremen','dresden','leipzig','dortmund','essen','duisburg','bochum','wuppertal','bielefeld','bonn','münster','mannheim','karlsruhe','augsburg','wiesbaden','mönchengladbach','gelsenkirchen','braunschweig','aachen','kiel','chemnitz','halle','magdeburg','freiburg','krefeld','mainz','lübeck','erfurt','oberhausen','rostock','kassel','saarbrücken','potsdam','leverkusen','oldenburg','heidelberg','darmstadt','wolfsburg','regensburg','würzburg'],
@@ -3551,7 +3544,16 @@ async function loadDataIntelligence() {
   content.style.display = 'none';
 
   try {
-    var allCampaignsRaw = await sbGet('campaigns', 'ad_account_id=eq.' + EV_ACCOUNT_ID + '&select=*,properties(*),campaign_daily_metrics(spend,leads,impressions,reach),creatives(*,creative_daily_metrics(spend,leads,impressions))');
+    // Use the client's campaigns (same properties loaded in dashboard)
+    var propIds = campaigns.map(function(c) { return c.property_id; }).filter(function(v, i, a) { return a.indexOf(v) === i; });
+    if (propIds.length === 0) {
+      loading.style.display = 'none';
+      content.style.display = 'block';
+      document.getElementById('data-intel-segments').innerHTML = '<div class="empty-state"><div class="empty-state-title">Keine Daten</div></div>';
+      return;
+    }
+    var propFilter = propIds.map(function(id) { return '"' + id + '"'; }).join(',');
+    var allCampaignsRaw = await sbGet('campaigns', 'property_id=in.(' + propFilter + ')&select=*,properties(*),campaign_daily_metrics(spend,leads,impressions,reach),creatives(*,creative_daily_metrics(spend,leads,impressions))');
 
     var allData = (allCampaignsRaw || []).map(function(c) {
       var m = c.campaign_daily_metrics || [];
@@ -3967,7 +3969,10 @@ function renderScatterPlot(allData) {
 var _predictionCreativesCache = null;
 
 async function loadCampaignDataForPrediction() {
-  var allRaw = await sbGet('campaigns', 'ad_account_id=eq.' + EV_ACCOUNT_ID + '&select=*,properties(*),campaign_daily_metrics(spend,leads,impressions),creatives(*,creative_daily_metrics(spend,leads,impressions))');
+  var propIds = campaigns.map(function(c) { return c.property_id; }).filter(function(v, i, a) { return a.indexOf(v) === i; });
+  if (propIds.length === 0) return [];
+  var propFilter = propIds.map(function(id) { return '"' + id + '"'; }).join(',');
+  var allRaw = await sbGet('campaigns', 'property_id=in.(' + propFilter + ')&select=*,properties(*),campaign_daily_metrics(spend,leads,impressions),creatives(*,creative_daily_metrics(spend,leads,impressions))');
   _predictionCreativesCache = [];
   (allRaw || []).forEach(function(c) {
     (c.creatives || []).forEach(function(cr) { _predictionCreativesCache.push(cr); });
