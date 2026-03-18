@@ -10554,7 +10554,11 @@ async function loadDataIntelligence() {
         leadsPerDay: leads / days,
         startDate: c.start_date
       };
-    }).filter(function(d) { return d.leads > 0; });
+    }).filter(function(d) {
+      // Exclude A/B Test Landing Page campaigns from Data Intelligence (small test, distorts benchmarks)
+      if (d.name && d.name.indexOf('Conversions') !== -1 && d.name.indexOf('A/B Test') !== -1) return false;
+      return d.leads > 0;
+    });
 
     // ALWAYS calculate global averages from ALL campaigns (not filtered by category)
     var totalSpendAll = allData.reduce(function(s,d) { return s + d.spend; }, 0);
