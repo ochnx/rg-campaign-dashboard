@@ -4170,7 +4170,7 @@ function predictCPLAdvanced(inputProp, allData) {
   var featureImportance = calculateFeatureImportance(inputFeatures, scored);
   var totalSpendAll = allData.reduce(function(s,d) { return s + d.spend; }, 0);
   var totalLeadsAll = allData.reduce(function(s,d) { return s + d.leads; }, 0);
-  return { prediction: prediction, method: N >= 10 ? 'full_model' : N >= 5 ? 'limited_data' : 'early_stage', similarities: scored.slice(0, 5), featureImportance: featureImportance, N: N, globalAvgCPL: totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 10 };
+  return { prediction: prediction, method: N >= 10 ? 'full_model' : N >= 5 ? 'limited_data' : 'early_stage', similarities: scored.slice(0, 5), allScored: scored, featureImportance: featureImportance, N: N, globalAvgCPL: totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 10 };
 }
 
 function getPerformanceScore(predictedCPL, avgCPL) {
@@ -4202,6 +4202,7 @@ function getPredCreativeRecommendations(similarCampaigns, allCreatives) {
     var totalSpend = campCreatives.reduce(function(s, c) { return s + (c.creative_daily_metrics || []).reduce(function(ss, m) { return ss + (m.spend || 0); }, 0); }, 0);
     var totalLeads = campCreatives.reduce(function(s, c) { return s + (c.creative_daily_metrics || []).reduce(function(ss, m) { return ss + (m.leads || 0); }, 0); }, 0);
     var avgCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+    // Track which unique campaigns contributed to each creative type
     campCreatives.forEach(function(c) {
       var type = c.creative_type || 'unknown';
       var metrics = c.creative_daily_metrics || [];
@@ -4209,13 +4210,17 @@ function getPredCreativeRecommendations(similarCampaigns, allCreatives) {
       var leads = metrics.reduce(function(s, m) { return s + (m.leads || 0); }, 0);
       var cpl = leads > 0 ? spend / leads : null;
       var score = calcPredScore(leads, cpl, avgCPL);
-      if (!typeScores[type]) typeScores[type] = { type: type, totalScore: 0, totalWeight: 0, totalLeads: 0, totalSpend: 0, campaigns: 0 };
+      if (!typeScores[type]) typeScores[type] = { type: type, totalScore: 0, totalWeight: 0, totalLeads: 0, totalSpend: 0, campaigns: 0, campaignIds: new Set() };
       var weight = camp.similarity || camp.combinedWeight || 1;
       typeScores[type].totalScore += score * weight;
       typeScores[type].totalWeight += weight;
       typeScores[type].totalLeads += leads;
       typeScores[type].totalSpend += spend;
-      typeScores[type].campaigns += 1;
+      // Count unique campaigns, not individual creatives
+      if (!typeScores[type].campaignIds.has(camp.campaign_id)) {
+        typeScores[type].campaignIds.add(camp.campaign_id);
+        typeScores[type].campaigns += 1;
+      }
     });
   });
   return Object.values(typeScores).map(function(t) {
@@ -4307,7 +4312,7 @@ async function predictPerformance() {
     featureHtml += '</div>';
 
     var creativeRecHtml = '<div class="prediction-section"><div class="prediction-section-header">Empfohlene Werbemittel</div>';
-    var creativeRecs = getPredCreativeRecommendations(result.similarities, _predictionCreativesCache || []);
+    var creativeRecs = getPredCreativeRecommendations(result.allScored || result.similarities, _predictionCreativesCache || []);
     creativeRecHtml += renderPredCreativeRecommendations(creativeRecs);
     creativeRecHtml += '</div>';
 
