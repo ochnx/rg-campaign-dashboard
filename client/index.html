@@ -11,12 +11,12 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg-primary: #ffffff;
-      --bg-secondary: #f8f9fb;
-      --bg-card: #ffffff;
-      --bg-card-hover: #f5f6f8;
-      --bg-input: #f5f6f8;
-      --border: #e8eaed;
+      --bg-primary: #fef7f6;
+      --bg-secondary: #fdf2f0;
+      --bg-card: rgba(255, 255, 255, 0.65);
+      --bg-card-hover: rgba(255, 255, 255, 0.8);
+      --bg-input: rgba(255, 255, 255, 0.5);
+      --border: rgba(255, 255, 255, 0.3);
       --border-focus: #e7352e;
       --text-primary: #1a1a2e;
       --text-secondary: #6b7280;
@@ -31,20 +31,25 @@
       --red-bg: rgba(220, 38, 38, 0.08);
       --blue: #2563eb;
       --orange: #ea580c;
-      --radius: 12px;
-      --radius-sm: 8px;
-      --radius-lg: 16px;
-      --radius-xl: 20px;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02);
-      --shadow: 0 2px 4px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.03);
-      --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
-      --shadow-hover: 0 8px 24px rgba(0,0,0,0.07), 0 2px 8px rgba(0,0,0,0.04);
+      --radius: 20px;
+      --radius-sm: 12px;
+      --radius-lg: 24px;
+      --radius-xl: 28px;
+      --shadow-sm: 0 2px 8px rgba(231, 53, 46, 0.04), 0 1px 2px rgba(0,0,0,0.02);
+      --shadow: 0 4px 16px rgba(231, 53, 46, 0.05), 0 2px 4px rgba(0,0,0,0.02);
+      --shadow-md: 0 8px 32px rgba(231, 53, 46, 0.06), 0 4px 8px rgba(0,0,0,0.03);
+      --shadow-lg: 0 16px 48px rgba(231, 53, 46, 0.08), 0 8px 16px rgba(0,0,0,0.04);
+      --shadow-hover: 0 8px 24px rgba(231, 53, 46, 0.07), 0 2px 8px rgba(0,0,0,0.04);
       --transition: 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
       --transition-fast: 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
       --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-      --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.03);
-      --shadow-card-hover: 0 8px 30px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
+      --glass-bg: rgba(255, 255, 255, 0.55);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.35);
+      --glass-blur: blur(20px) saturate(180%);
+      --shadow-glass: 0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5);
+      --border-subtle: rgba(0, 0, 0, 0.04);
+      --shadow-card: 0 4px 24px rgba(231, 53, 46, 0.05), 0 0 0 1px rgba(255,255,255,0.5);
+      --shadow-card-hover: 0 12px 40px rgba(231, 53, 46, 0.08), 0 0 0 1px rgba(255,255,255,0.6);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -52,7 +57,8 @@
 
     body {
       font-family: 'Inter', -apple-system, system-ui, sans-serif;
-      background: var(--bg-secondary);
+      background: linear-gradient(160deg, #fef7f6 0%, #fdf2f0 30%, #f8f4f3 60%, #f5f0ee 100%);
+      background-attachment: fixed;
       color: var(--text-primary);
       min-height: 100dvh;
       -webkit-font-smoothing: antialiased;
@@ -71,21 +77,22 @@
       justify-content: center;
       min-height: 100vh;
       padding: 24px;
-      background: #f8f9fb;
+      background: linear-gradient(160deg, #fef7f6, #fdf2f0, #f8f4f3);
       background-image:
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(231, 53, 46, 0.04), transparent),
-        radial-gradient(circle at 20% 80%, rgba(0,0,0,0.015), transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(0,0,0,0.01), transparent 50%);
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(231, 53, 46, 0.08), transparent),
+        radial-gradient(circle at 20% 80%, rgba(231, 53, 46, 0.04), transparent 50%);
     }
 
     .login-card {
-      background: var(--bg-card);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
       border-radius: var(--radius-xl);
       padding: 52px 44px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.03), 0 0 0 1px rgba(0,0,0,0.04);
-      border: none;
+      box-shadow: var(--shadow-lg);
       text-align: center;
       animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -190,23 +197,35 @@
     .dashboard { display: none; min-height: 100vh; }
     .dashboard.active { display: block; }
 
+    .dashboard::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .dashboard > * { position: relative; z-index: 1; }
+
     /* Top Nav */
     .topnav {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(12px) saturate(160%);
-      -webkit-backdrop-filter: blur(12px) saturate(160%);
-      border-bottom: 1px solid rgba(0,0,0,0.06);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 4px 20px rgba(0,0,0,0.02);
-      padding: 0 32px;
-      height: 64px;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      box-shadow: var(--shadow-glass);
+      padding: 0 24px;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       z-index: 1000;
+      border-radius: var(--radius-xl);
     }
 
     .topnav-left {
@@ -289,9 +308,9 @@
       align-items: center;
       gap: 12px;
       padding: 14px 32px;
-      padding-top: 78px;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      background: var(--bg-card);
+      padding-top: 88px;
+      border-bottom: none;
+      background: transparent;
     }
 
     .filter-label {
@@ -304,8 +323,10 @@
 
     .filter-select {
       padding: 8px 32px 8px 12px;
-      background: var(--bg-card);
-      border: 1.5px solid transparent;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: var(--glass-border);
       box-shadow: var(--shadow-sm);
       border-radius: var(--radius-sm);
       color: var(--text-primary);
@@ -346,10 +367,12 @@
     }
 
     .kpi-card {
-      background: var(--bg-card);
-      border: 1px solid rgba(0,0,0,0.05);
-      border-radius: var(--radius);
-      padding: 22px 20px;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
       transition: transform 250ms var(--ease-out-expo), box-shadow 250ms var(--ease-out-expo);
       position: relative;
       overflow: hidden;
@@ -357,26 +380,17 @@
     }
 
     .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-light));
-      opacity: 1;
-      transition: opacity var(--transition);
-      border-radius: 0;
+      display: none;
     }
 
     .kpi-card:hover {
       transform: translateY(-3px);
       box-shadow: var(--shadow-card-hover);
-      border-color: transparent;
+      border-color: rgba(231, 53, 46, 0.12);
     }
 
-    .kpi-card:hover::before { opacity: 1; }
+    .kpi-card:nth-child(1), .kpi-card:nth-child(2) { grid-column: span 3; }
+    .kpi-card:nth-child(1) .kpi-value, .kpi-card:nth-child(2) .kpi-value { font-size: 40px; }
 
     .kpi-card { animation: fadeInUp 0.4s var(--ease-out-expo) both; }
     .kpi-card:nth-child(1) { animation-delay: 0ms; }
@@ -434,9 +448,11 @@
 
     /* Card */
     .card {
-      background: var(--bg-card);
-      border: 1px solid rgba(0,0,0,0.05);
-      border-radius: var(--radius);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--radius-lg);
       box-shadow: var(--shadow-card);
       transition: box-shadow 250ms var(--ease-out-expo);
     }
@@ -451,7 +467,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(180deg, rgba(0,0,0,0.012), transparent);
+      background: transparent;
     }
 
     .card-title {
@@ -468,6 +484,10 @@
       position: relative;
       width: 100%;
       height: 320px;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
+      background-size: 20px 20px;
+      border-radius: var(--radius-sm);
+      padding: 8px;
     }
 
     /* Campaign Table */
@@ -485,7 +505,7 @@
       letter-spacing: 0.08em;
       color: var(--text-muted);
       border-bottom: 1px solid rgba(0,0,0,0.06);
-      background: var(--bg-secondary);
+      background: rgba(255,255,255,0.3);
       position: sticky;
       top: 0;
       z-index: 10;
@@ -508,8 +528,8 @@
       transition: background var(--transition-fast), transform var(--transition-fast);
     }
 
-    .campaign-table tbody tr:nth-child(even) { background: rgba(0,0,0,0.01); }
-    .campaign-table tbody tr:hover { background: rgba(231, 53, 46, 0.02); }
+    .campaign-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.15); }
+    .campaign-table tbody tr:hover { background: rgba(231, 53, 46, 0.04); }
     .campaign-table tbody tr:active { transform: scale(0.998); }
     .campaign-table tbody tr:last-child td { border-bottom: none; }
 
@@ -573,9 +593,9 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(10, 10, 30, 0.4);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(254, 247, 246, 0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       z-index: 200;
       justify-content: center;
       align-items: center;
@@ -589,12 +609,14 @@
     }
 
     .modal {
-      background: var(--bg-card);
-      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: var(--glass-border);
+      border-radius: var(--radius-xl);
       width: 100%;
       max-width: 860px;
-      box-shadow: 0 32px 100px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04);
-      border: none;
+      box-shadow: 0 32px 80px rgba(231, 53, 46, 0.1), 0 0 0 1px rgba(255,255,255,0.4);
       animation: slideUp 0.4s var(--ease-out-expo);
     }
 
@@ -1015,8 +1037,9 @@
     @media (max-width: 768px) {
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
       .container { padding: 20px 16px; }
-      .topnav { padding: 0 16px; }
-      .filter-bar { padding: 12px 16px; flex-wrap: wrap; }
+      .topnav { top: 0; left: 0; right: 0; border-radius: 0; height: 56px; padding: 0 16px; }
+      .filter-bar { padding-top: 68px; padding-left: 16px; padding-right: 16px; flex-wrap: wrap; }
+      .tab-nav { margin: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
       .campaign-table { font-size: 13px; }
       .campaign-table th, .campaign-table td { padding: 12px; }
       .topnav-client { display: none; }
@@ -1024,8 +1047,9 @@
       .modal-body { padding: 20px; }
       .prop-grid { grid-template-columns: repeat(2, 1fr); }
       .btn span.btn-label { display: none; }
-      .tab-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
       .tab-btn { flex-shrink: 0; }
+      .kpi-card:nth-child(1), .kpi-card:nth-child(2) { grid-column: span 1; }
+      .kpi-card:nth-child(1) .kpi-value, .kpi-card:nth-child(2) .kpi-value { font-size: 28px; }
     }
 
     @media (max-width: 480px) {
@@ -1036,22 +1060,27 @@
 
     /* Tab Navigation */
     .tab-nav {
-      display: flex;
-      gap: 0;
-      padding: 0 32px;
-      background: var(--bg-card);
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      display: inline-flex;
+      gap: 4px;
+      padding: 6px;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--radius-lg);
+      margin: 0 32px;
+      box-shadow: var(--shadow-sm);
     }
 
     .tab-btn {
-      padding: 14px 24px;
+      padding: 10px 20px;
       font-family: inherit;
       font-size: 14px;
       font-weight: 600;
       color: var(--text-muted);
       background: transparent;
       border: none;
-      border-bottom: 2.5px solid transparent;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       transition: all var(--transition);
       white-space: nowrap;
@@ -1059,13 +1088,13 @@
 
     .tab-btn:hover {
       color: var(--text-primary);
-      background: rgba(0,0,0,0.02);
-      border-bottom-color: rgba(0,0,0,0.08);
+      background: rgba(0,0,0,0.04);
     }
 
     .tab-btn.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 12px rgba(231, 53, 46, 0.15);
     }
 
     .tab-content {
@@ -2391,6 +2420,10 @@ function renderTrendChart(metrics) {
 
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e7352e';
 
+  const spendGradient = ctx.createLinearGradient(0, 0, 0, 320);
+  spendGradient.addColorStop(0, 'rgba(231, 53, 46, 0.12)');
+  spendGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
+
   trendChart = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -2402,7 +2435,7 @@ function renderTrendChart(metrics) {
           backgroundColor: accentColor + '18',
           borderColor: accentColor,
           borderWidth: 1.5,
-          borderRadius: 6,
+          borderRadius: 8,
           borderSkipped: false,
           yAxisID: 'y',
           order: 2
@@ -2411,15 +2444,16 @@ function renderTrendChart(metrics) {
           label: 'Ausgaben (€)',
           data: spendData,
           type: 'line',
-          borderColor: '#9ca3af',
-          backgroundColor: 'transparent',
+          borderColor: 'rgba(231, 53, 46, 0.5)',
+          backgroundColor: spendGradient,
           borderWidth: 2,
           pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: '#6b7280',
-          pointHoverBorderColor: '#fff',
-          pointHoverBorderWidth: 2,
-          tension: 0.4,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: accentColor,
+          pointHoverBorderWidth: 2.5,
+          fill: true,
+          tension: 0.45,
           yAxisID: 'y1',
           order: 1
         }
@@ -2442,13 +2476,17 @@ function renderTrendChart(metrics) {
           }
         },
         tooltip: {
-          backgroundColor: '#111827',
+          backgroundColor: 'rgba(255,255,255,0.92)',
+          titleColor: '#1a1a2e',
+          bodyColor: '#6b7280',
+          borderColor: 'rgba(0,0,0,0.06)',
+          borderWidth: 1,
           titleFont: { family: 'Inter', weight: '600', size: 13 },
           bodyFont: { family: 'Inter', size: 13 },
           padding: 14,
-          cornerRadius: 10,
+          cornerRadius: 12,
           displayColors: true,
-          boxPadding: 4,
+          boxPadding: 6,
           callbacks: {
             label: ctx => {
               if (ctx.dataset.label === 'Ausgaben (€)') return ` Ausgaben: ${formatEUR(ctx.raw)}`;
@@ -2461,24 +2499,24 @@ function renderTrendChart(metrics) {
         x: {
           grid: { display: false },
           border: { display: false },
-          ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', padding: 8, autoSkip: false, maxRotation: 0 }
+          ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', padding: 8, autoSkip: false, maxRotation: 0 }
         },
         y: {
           position: 'left',
-          title: { display: true, text: 'Leads', font: { family: 'Inter', size: 11, weight: '600' }, color: '#b0b5be', padding: 12 },
-          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+          title: { display: true, text: 'Leads', font: { family: 'Inter', size: 11, weight: '600' }, color: '#94a3b8', padding: 12 },
+          grid: { color: 'rgba(0,0,0,0.05)', borderDash: [2, 4], drawBorder: false },
           border: { display: false },
-          ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', stepSize: 1, padding: 8 },
+          ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', stepSize: 1, padding: 8 },
           beginAtZero: true
         },
         y1: {
           position: 'right',
-          title: { display: true, text: 'Ausgaben (€)', font: { family: 'Inter', size: 11, weight: '600' }, color: '#b0b5be', padding: 12 },
+          title: { display: true, text: 'Ausgaben (€)', font: { family: 'Inter', size: 11, weight: '600' }, color: '#94a3b8', padding: 12 },
           grid: { display: false },
           border: { display: false },
           ticks: {
             font: { family: 'Inter', size: 11 },
-            color: '#b0b5be',
+            color: '#94a3b8',
             padding: 8,
             callback: v => formatEUR(v)
           },
@@ -2793,6 +2831,10 @@ function renderDetailChart(metrics) {
 
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e7352e';
 
+  const spendGradient = ctx.createLinearGradient(0, 0, 0, 260);
+  spendGradient.addColorStop(0, 'rgba(231, 53, 46, 0.12)');
+  spendGradient.addColorStop(1, 'rgba(231, 53, 46, 0)');
+
   detailChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -2804,7 +2846,7 @@ function renderDetailChart(metrics) {
           backgroundColor: accentColor + '18',
           borderColor: accentColor,
           borderWidth: 1,
-          borderRadius: 4,
+          borderRadius: 8,
           borderSkipped: false,
           yAxisID: 'y',
           order: 2
@@ -2813,16 +2855,16 @@ function renderDetailChart(metrics) {
           label: 'Ausgaben (€)',
           data: spendData,
           type: 'line',
-          borderColor: '#9ca3af',
-          backgroundColor: 'rgba(156,163,175,0.04)',
+          borderColor: 'rgba(231, 53, 46, 0.5)',
+          backgroundColor: spendGradient,
           borderWidth: 2,
           pointRadius: 0,
-          pointHoverRadius: 4,
-          pointHoverBackgroundColor: '#6b7280',
-          pointHoverBorderColor: '#fff',
-          pointHoverBorderWidth: 2,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: accentColor,
+          pointHoverBorderWidth: 2.5,
           fill: true,
-          tension: 0.4,
+          tension: 0.45,
           yAxisID: 'y1',
           order: 1
         }
@@ -2839,13 +2881,17 @@ function renderDetailChart(metrics) {
           labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 20, font: { family: 'Inter', size: 11 }, color: '#6b7280' }
         },
         tooltip: {
-          backgroundColor: '#111827',
-          titleFont: { family: 'Inter', weight: '600', size: 12 },
-          bodyFont: { family: 'Inter', size: 12 },
-          padding: 12,
-          cornerRadius: 10,
+          backgroundColor: 'rgba(255,255,255,0.92)',
+          titleColor: '#1a1a2e',
+          bodyColor: '#6b7280',
+          borderColor: 'rgba(0,0,0,0.06)',
+          borderWidth: 1,
+          titleFont: { family: 'Inter', weight: '600', size: 13 },
+          bodyFont: { family: 'Inter', size: 13 },
+          padding: 14,
+          cornerRadius: 12,
           displayColors: true,
-          boxPadding: 4,
+          boxPadding: 6,
           callbacks: {
             label: ctx => {
               if (ctx.dataset.label === 'Ausgaben (€)') return ` Ausgaben: ${formatEUR(ctx.raw)}`;
@@ -2855,9 +2901,9 @@ function renderDetailChart(metrics) {
         }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', maxRotation: 45, padding: 6, autoSkip: false } },
-        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', stepSize: 1, padding: 6 }, beginAtZero: true },
-        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#b0b5be', padding: 6, callback: v => formatEUR(v) }, beginAtZero: true }
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', maxRotation: 45, padding: 6, autoSkip: false } },
+        y: { position: 'left', grid: { color: 'rgba(0,0,0,0.05)', borderDash: [2, 4], drawBorder: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', stepSize: 1, padding: 6 }, beginAtZero: true },
+        y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', padding: 6, callback: v => formatEUR(v) }, beginAtZero: true }
       }
     }
   });
