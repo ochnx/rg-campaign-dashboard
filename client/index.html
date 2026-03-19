@@ -3830,7 +3830,9 @@ function renderAutoInsights(allData, globalAvgCPL, N) {
   if (corrs.length > 0) {
     corrs.sort(function(a,b) { return Math.abs(b.r) - Math.abs(a.r); });
     var strongest = corrs[0];
-    insights.push('Der ' + strongest.label + ' korreliert am stärksten mit dem CPL (r = ' + strongest.r.toFixed(2) + ', ' + correlationLabel(strongest.r) + ')');
+    var featureArticle = { 'Wohnfläche': 'Die', 'Zimmer': 'Die', 'Grundstück': 'Das', 'Preis': 'Der', '€/qm': 'Der', 'qm-Preis': 'Der', 'Stadt': 'Die', 'Standort-Rating': 'Das', 'Objektart': 'Die' };
+    var article = featureArticle[strongest.label] || 'Der';
+    insights.push(article + ' ' + strongest.label + ' korreliert am stärksten mit dem CPL (r = ' + strongest.r.toFixed(2) + ', ' + correlationLabel(strongest.r) + ')');
   }
 
   var byCity = diGroupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
