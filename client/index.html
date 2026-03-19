@@ -97,6 +97,15 @@
       animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    .login-logo-link {
+      display: inline-block;
+      transition: transform 200ms ease, opacity 200ms ease;
+    }
+    .login-logo-link:hover {
+      transform: scale(1.05);
+      opacity: 0.85;
+    }
+
     .login-logo {
       width: 60px;
       height: 60px;
@@ -1327,7 +1336,7 @@
     #tab-reporting.tab-animate-in > .hero-stats,
     #tab-reporting.tab-animate-in > .mini-stats,
     #tab-reporting.tab-animate-in > .chart-card {
-      animation: none;
+      animation: none !important;
       opacity: 1;
       transform: none;
     }
@@ -1928,7 +1937,7 @@
 <!-- ===== LOGIN SCREEN ===== -->
 <div id="loginScreen" class="login-screen">
   <div class="login-card">
-    <img src="../assets/rg-logo.png" class="login-logo" alt="Run & Gun">
+    <a href="https://runandgun.agency" target="_blank" rel="noopener noreferrer" class="login-logo-link"><img src="../assets/rg-logo.png" class="login-logo" alt="Run & Gun"></a>
     <h1 class="login-title">Reporting Dashboard</h1>
     <p class="login-subtitle">Zugang zum Kampagnen-Reporting.<br>Bitte geben Sie Ihren Zugangscode ein.</p>
     <div class="login-input-group">
@@ -3206,7 +3215,18 @@ function renderTrendChart(metrics) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      animation: { duration: 800, easing: 'easeOutQuart' },
+      animation: {
+        duration: 1200,
+        easing: 'easeOutQuart',
+        x: {
+          from: 0
+        },
+        y: {
+          from: function(ctx) {
+            return ctx.chart.chartArea ? ctx.chart.chartArea.bottom : 0;
+          }
+        }
+      },
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
