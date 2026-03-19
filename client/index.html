@@ -1825,7 +1825,7 @@
     .geo-tooltip-row { display: flex; justify-content: space-between; gap: 16px; }
     .geo-tooltip-label { color: rgba(255,255,255,0.6); }
     .geo-tooltip-value { font-weight: 600; font-variant-numeric: tabular-nums; }
-    .geo-map-dots { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .geo-map-dots { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
     .geo-map-container svg { position: relative; z-index: 2; }
     .geo-tooltip { z-index: 10; }
 
@@ -4783,17 +4783,28 @@ async function predictPerformance() {
       tooltip.className = 'geo-tooltip';
       container.appendChild(tooltip);
 
-      // Dot grid overlay — span the full parent panel, not just the narrow map container
+      // Dot grid overlay — covers the map + tabs area, not the table below
       var dotParent = container.closest('.ai-panel') || container.parentElement;
       if (!dotParent.style.position) dotParent.style.position = 'relative';
       var dotCanvas = document.createElement('canvas');
       dotCanvas.className = 'geo-map-dots';
+      dotCanvas.style.position = 'absolute';
+      dotCanvas.style.top = '0';
+      dotCanvas.style.left = '0';
+      dotCanvas.style.pointerEvents = 'none';
+      dotCanvas.style.zIndex = '1';
       dotParent.insertBefore(dotCanvas, dotParent.firstChild);
       var dotCtx = dotCanvas.getContext('2d');
       var dotSpacing = 18;
       var dotMouseX = -1, dotMouseY = -1;
       var dotTargetX = -1, dotTargetY = -1;
       var dotAnimId = null;
+
+      function getMapDotBounds() {
+        var w = dotParent.offsetWidth;
+        var h = container.offsetTop + container.offsetHeight;
+        return { w: w, h: h };
+      }
 
       function easeMapDots() {
         if (dotTargetX < 0) {
@@ -4817,11 +4828,15 @@ async function predictPerformance() {
       }
 
       function drawMapDots() {
-        dotCanvas.width = dotParent.offsetWidth;
-        dotCanvas.height = container.offsetTop + container.offsetHeight;
-        dotCtx.clearRect(0, 0, dotCanvas.width, dotCanvas.height);
-        for (var dx = 0; dx < dotCanvas.width; dx += dotSpacing) {
-          for (var dy = 0; dy < dotCanvas.height; dy += dotSpacing) {
+        var bounds = getMapDotBounds();
+        // Set both the canvas internal resolution AND CSS size to prevent skewing
+        dotCanvas.width = bounds.w;
+        dotCanvas.height = bounds.h;
+        dotCanvas.style.width = bounds.w + 'px';
+        dotCanvas.style.height = bounds.h + 'px';
+        dotCtx.clearRect(0, 0, bounds.w, bounds.h);
+        for (var dx = 0; dx < bounds.w; dx += dotSpacing) {
+          for (var dy = 0; dy < bounds.h; dy += dotSpacing) {
             var dist = Math.sqrt(Math.pow(dx - dotMouseX, 2) + Math.pow(dy - dotMouseY, 2));
             var baseR = 1.0;
             var r = baseR;
