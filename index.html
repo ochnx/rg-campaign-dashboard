@@ -8494,7 +8494,21 @@ async function openCampaign(id) {
     `;
 
     // === BENCHMARKS ===
-    renderBenchmarks(campaign, property, { totalSpend, totalLeads, totalImpressions, totalReach, avgCPL, avgCPM, days, avgLeadsDay });
+    // Cold-start guard: show message instead of benchmarks for new campaigns
+    if (totalLeads < 5 && days < 4) {
+      var daysNeeded = Math.max(0, 4 - days);
+      var leadsNeeded = Math.max(0, 5 - totalLeads);
+      var container = document.getElementById('detail-benchmarks');
+      if (container) {
+        container.innerHTML = '<div style="padding:16px 0;color:var(--text-muted);font-size:13px;display:flex;align-items:center;gap:8px;">' +
+          '<span style="font-size:18px;">⏳</span>' +
+          '<span>Noch nicht genug Daten für Benchmarks. Kampagne läuft erst seit ' + days + ' Tag' + (days === 1 ? '' : 'en') + ' mit ' + totalLeads + ' Lead' + (totalLeads === 1 ? '' : 's') + '. ' +
+          'In ca. ' + Math.max(daysNeeded, leadsNeeded > 0 ? 1 : 0) + ' weiteren Tag' + (Math.max(daysNeeded, 1) === 1 ? '' : 'en') + ' werden hier Benchmarks sichtbar.</span>' +
+          '</div>';
+      }
+    } else {
+      renderBenchmarks(campaign, property, { totalSpend, totalLeads, totalImpressions, totalReach, avgCPL, avgCPM, days, avgLeadsDay });
+    }
 
     // === CHARTS ===
     renderDailyChart(metrics);
@@ -10567,7 +10581,8 @@ async function loadDataIntelligence() {
     }).filter(function(d) {
       // Exclude A/B Test Landing Page campaigns from Data Intelligence (small test, distorts benchmarks)
       if (d.name && d.name.indexOf('Conversions') !== -1 && d.name.indexOf('A/B Test') !== -1) return false;
-      return d.leads > 0;
+      // Cold-start filter: must have leads AND enough data to be statistically meaningful
+      return d.leads > 0 && (d.leads >= 5 || d.days >= 4);
     });
 
     // ALWAYS calculate global averages from ALL campaigns (not filtered by category)
