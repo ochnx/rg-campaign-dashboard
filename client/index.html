@@ -2060,6 +2060,14 @@
           </div>
           <div class="creative-list" id="mainCreativeRanking"></div>
         </div>
+
+        <div class="creative-panel" id="weekdaySection" style="display:none">
+          <div class="panel-header">
+            <span class="panel-title">📅 Wochentag-Performance</span>
+          </div>
+          <div style="padding:0 18px 4px;color:var(--text-muted);font-size:12px;">Ø Leads und CPL nach Wochentag (über alle Kampagnen)</div>
+          <div class="creative-list" id="weekdayTable"></div>
+        </div>
       </div>
 
       <!-- Audience Insights (global) -->
@@ -3080,6 +3088,7 @@ function renderDashboard() {
   renderTrendChart(metrics);
   renderCampaignTable(metrics);
   renderMainCreativePerformance(metrics);
+  renderWeekdayPerformance(metrics);
   loadGlobalAudienceData();
   animateKpiCards();
 }
@@ -3123,6 +3132,78 @@ function renderMainCreativePerformance(metrics) {
 
   section.style.display = 'block';
   container.innerHTML = renderCreativeRankingHTML(scored);
+}
+
+// ============================================
+// WEEKDAY PERFORMANCE
+// ============================================
+function renderWeekdayPerformance(metrics) {
+  var section = document.getElementById('weekdaySection');
+  var container = document.getElementById('weekdayTable');
+  if (!section || !container) return;
+
+  var dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+  var dayData = {};
+  for (var i = 0; i < 7; i++) dayData[i] = { leads: 0, spend: 0, impressions: 0, days: 0 };
+
+  // Group by weekday — use unique dates to count actual days
+  var seenDates = {};
+  metrics.forEach(function(m) {
+    if (!m.date) return;
+    var d = new Date(m.date);
+    var dow = d.getDay();
+    dayData[dow].leads += (m.leads || 0);
+    dayData[dow].spend += (m.spend || 0);
+    dayData[dow].impressions += (m.impressions || 0);
+    var dateKey = dow + '_' + m.date;
+    if (!seenDates[dateKey]) {
+      seenDates[dateKey] = true;
+      dayData[dow].days++;
+    }
+  });
+
+  // Build rows, filter to days with data, sort by avgLeads DESC
+  var rows = [];
+  // Reorder: Monday first (1,2,3,4,5,6,0)
+  [1,2,3,4,5,6,0].forEach(function(dow) {
+    var d = dayData[dow];
+    if (d.days === 0) return;
+    rows.push({
+      name: dayNames[dow],
+      avgLeads: d.leads / d.days,
+      avgCPL: d.leads > 0 ? d.spend / d.leads : null,
+      avgSpend: d.spend / d.days,
+      days: d.days
+    });
+  });
+
+  if (rows.length === 0) { section.style.display = 'none'; return; }
+  rows.sort(function(a, b) { return b.avgLeads - a.avgLeads; });
+
+  var bestDay = rows[0].name;
+  var html = '<table class="creative-ranking-table" style="width:100%"><thead><tr>' +
+    '<th style="text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Wochentag</th>' +
+    '<th style="text-align:right;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Ø Leads/Tag</th>' +
+    '<th style="text-align:right;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Ø CPL</th>' +
+    '<th style="text-align:right;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Ø Spend/Tag</th>' +
+    '<th style="text-align:right;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Tage</th>' +
+    '</tr></thead><tbody>';
+
+  rows.forEach(function(r) {
+    var isBest = r.name === bestDay;
+    var rowStyle = isBest ? 'background:rgba(231,53,46,0.04);border-left:3px solid var(--accent);' : 'border-left:3px solid transparent;';
+    html += '<tr style="' + rowStyle + 'border-bottom:1px solid rgba(0,0,0,0.04)">' +
+      '<td style="padding:12px;font-weight:' + (isBest ? '700' : '600') + '">' + r.name + (isBest ? ' <span style="font-size:10px;background:var(--accent);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:600">Bester Tag</span>' : '') + '</td>' +
+      '<td style="text-align:right;padding:12px;font-weight:700;font-variant-numeric:tabular-nums">' + r.avgLeads.toFixed(1) + '</td>' +
+      '<td style="text-align:right;padding:12px;font-weight:700;color:' + (isBest ? 'var(--accent)' : 'var(--text-primary)') + ';font-variant-numeric:tabular-nums">' + (r.avgCPL !== null ? formatEUR(r.avgCPL) : '—') + '</td>' +
+      '<td style="text-align:right;padding:12px;font-variant-numeric:tabular-nums">' + formatEUR(r.avgSpend) + '</td>' +
+      '<td style="text-align:right;padding:12px;color:var(--text-muted)">' + r.days + '</td>' +
+      '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+  section.style.display = 'block';
 }
 
 // ============================================
