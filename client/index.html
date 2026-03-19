@@ -1303,6 +1303,53 @@
       display: block;
     }
 
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tab-animate-in {
+      animation: fadeSlideUp 0.4s ease-out both;
+    }
+    .tab-animate-in > * {
+      animation: fadeSlideUp 0.4s ease-out both;
+    }
+    .tab-animate-in > :nth-child(1) { animation-delay: 0s; }
+    .tab-animate-in > :nth-child(2) { animation-delay: 0.06s; }
+    .tab-animate-in > :nth-child(3) { animation-delay: 0.12s; }
+    .tab-animate-in > :nth-child(4) { animation-delay: 0.18s; }
+    .tab-animate-in > :nth-child(5) { animation-delay: 0.24s; }
+    .tab-animate-in > :nth-child(6) { animation-delay: 0.3s; }
+    .tab-animate-in > :nth-child(7) { animation-delay: 0.36s; }
+    .tab-animate-in > :nth-child(8) { animation-delay: 0.42s; }
+
+    /* Staggered entrance animations for reporting KPI cards */
+    /* Override tab-animate-in for reporting top sections — cards animate individually instead */
+    #tab-reporting.tab-animate-in > .hero-stats,
+    #tab-reporting.tab-animate-in > .mini-stats,
+    #tab-reporting.tab-animate-in > .chart-card {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    #tab-reporting .hero-card,
+    #tab-reporting .mini-stat,
+    #tab-reporting > .chart-card {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    #tab-reporting.kpi-cards-animate .hero-card,
+    #tab-reporting.kpi-cards-animate .mini-stat,
+    #tab-reporting.kpi-cards-animate > .chart-card {
+      animation: fadeSlideUp 0.5s ease-out forwards;
+    }
+    #tab-reporting.kpi-cards-animate .hero-card:nth-child(1) { animation-delay: 0ms; }
+    #tab-reporting.kpi-cards-animate .hero-card:nth-child(2) { animation-delay: 60ms; }
+    #tab-reporting.kpi-cards-animate .mini-stat:nth-child(1) { animation-delay: 120ms; }
+    #tab-reporting.kpi-cards-animate .mini-stat:nth-child(2) { animation-delay: 180ms; }
+    #tab-reporting.kpi-cards-animate .mini-stat:nth-child(3) { animation-delay: 240ms; }
+    #tab-reporting.kpi-cards-animate .mini-stat:nth-child(4) { animation-delay: 300ms; }
+    #tab-reporting.kpi-cards-animate > .chart-card { animation-delay: 360ms; }
+
     /* Data Intelligence */
     .data-intel-section { margin-bottom: 40px; }
     .data-intel-section-title {
@@ -1798,13 +1845,14 @@
       transition: all var(--transition); user-select: none;
     }
     .audience-insights-wrapper > details > summary::-webkit-details-marker { display: none; }
-    .audience-insights-wrapper > details > summary::after { content: '▾'; font-size: 14px; color: var(--text-muted); transition: transform 300ms ease; }
-    .audience-insights-wrapper > details[open] > summary::after { transform: rotate(180deg); }
+    .audience-insights-wrapper > details > summary::before { content: '›'; display: inline-block; font-size: 1.2em; font-weight: 700; margin-right: 8px; transition: transform 300ms ease; transform: rotate(0deg); }
+    .audience-insights-wrapper > details[open] > summary::before { transform: rotate(90deg); }
     .audience-insights-wrapper > details[open] > summary { border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
     .audience-insights-body {
       background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg);
       box-shadow: var(--shadow-card); padding: 24px;
+      overflow: hidden; animation: detailsOpen 0.35s ease-out;
     }
     .ai-tabs { display: inline-flex; gap: 4px; padding: 4px; background: rgba(0,0,0,0.04); border-radius: var(--radius); margin-bottom: 20px; }
     .ai-tab { padding: 8px 16px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-muted); background: transparent; border: none; border-radius: var(--radius-sm); cursor: pointer; transition: all 150ms ease; }
@@ -1857,10 +1905,14 @@
       list-style: none; display: flex; align-items: center; justify-content: space-between; transition: all 150ms ease;
     }
     .detail-audience-wrapper > details > summary::-webkit-details-marker { display: none; }
-    .detail-audience-wrapper > details > summary::after { content: '▾'; font-size: 13px; color: var(--text-muted); transition: transform 300ms ease; }
-    .detail-audience-wrapper > details[open] > summary::after { transform: rotate(180deg); }
+    .detail-audience-wrapper > details > summary::before { content: '›'; display: inline-block; font-size: 1.2em; font-weight: 700; margin-right: 8px; transition: transform 300ms ease; transform: rotate(0deg); }
+    .detail-audience-wrapper > details[open] > summary::before { transform: rotate(90deg); }
     .detail-audience-wrapper > details[open] > summary { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: rgba(0,0,0,0.06); }
-    .detail-audience-body { padding: 20px; background: rgba(0,0,0,0.01); border: 1px solid rgba(0,0,0,0.06); border-top: none; border-radius: 0 0 var(--radius) var(--radius); }
+    .detail-audience-body { padding: 20px; background: rgba(0,0,0,0.01); border: 1px solid rgba(0,0,0,0.06); border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; animation: detailsOpen 0.35s ease-out; }
+    @keyframes detailsOpen {
+      from { opacity: 0; max-height: 0; transform: translateY(-8px); }
+      to { opacity: 1; max-height: 2000px; transform: translateY(0); }
+    }
 
     @media (max-width: 768px) {
       .geo-map-container, .geo-map-container.compact { max-width: 100%; }
@@ -2980,6 +3032,15 @@ function renderDashboard() {
   renderCampaignTable(metrics);
   renderMainCreativePerformance(metrics);
   loadGlobalAudienceData();
+  animateKpiCards();
+}
+
+function animateKpiCards() {
+  var tab = document.getElementById('tab-reporting');
+  if (!tab) return;
+  tab.classList.remove('kpi-cards-animate');
+  void tab.offsetWidth; // force reflow to restart animations
+  tab.classList.add('kpi-cards-animate');
 }
 
 // ============================================
@@ -3721,8 +3782,23 @@ let _dataIntelLoaded = false;
 
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + tab));
-  
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.toggle('active', c.id === 'tab-' + tab);
+    c.classList.remove('tab-animate-in');
+    c.classList.remove('kpi-cards-animate');
+  });
+
+  // Animate the newly active panel
+  var activePanel = document.getElementById('tab-' + tab);
+  if (activePanel) {
+    void activePanel.offsetWidth; // force reflow
+    activePanel.classList.add('tab-animate-in');
+  }
+
+  if (tab === 'reporting') {
+    animateKpiCards();
+  }
+
   if (tab === 'data-intel' && !_dataIntelLoaded) {
     _dataIntelLoaded = true;
     loadDataIntelligence();
