@@ -3528,7 +3528,7 @@ function renderDetailBenchmark(campaignId, totalSpend, totalLeads, totalImpressi
 
   var validCampaigns = Object.entries(allCampMetrics).filter(function(e) {
     // Cold-start filter: exclude campaigns with insufficient data to avoid skewing benchmarks
-    return e[1].leads > 0 && (e[1].leads >= 5 || e[1].days >= 4);
+    return e[1].leads >= 5 && e[1].days >= 4;
   });
   if (validCampaigns.length < 2) { container.innerHTML = ''; return; }
 
@@ -4074,7 +4074,7 @@ async function loadDataIntelligence() {
     }).filter(function(d) {
       if (isExcludedCampaign(d.id)) return false; // exclude A/B test LP campaigns
       // Cold-start filter: exclude campaigns with insufficient data
-      return d.leads > 0 && (d.leads >= 5 || d.days >= 4);
+      return d.leads >= 5 && d.days >= 4;
     });
 
     updateDITabVisibility(allData);

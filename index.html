@@ -8495,7 +8495,7 @@ async function openCampaign(id) {
 
     // === BENCHMARKS ===
     // Cold-start guard: show message instead of benchmarks for new campaigns
-    if (totalLeads < 5 && days < 4) {
+    if (totalLeads < 5 || days < 4) {
       var daysNeeded = Math.max(0, 4 - days);
       var leadsNeeded = Math.max(0, 5 - totalLeads);
       var container = document.getElementById('detail-benchmarks');
@@ -9973,7 +9973,7 @@ async function renderBenchmarks(campaign, property, metrics) {
     }).filter(function(d) {
       // Cold-start filter: exclude campaigns with insufficient data to avoid skewing benchmarks
       // Must have at least 1 lead AND (5+ leads OR 4+ days running)
-      return d.leads > 0 && (d.leads >= 5 || d.days >= 4);
+      return d.leads >= 5 && d.days >= 4;
     });
 
     var N = allData.length;
@@ -10582,7 +10582,7 @@ async function loadDataIntelligence() {
       // Exclude A/B Test Landing Page campaigns from Data Intelligence (small test, distorts benchmarks)
       if (d.name && d.name.indexOf('Conversions') !== -1 && d.name.indexOf('A/B Test') !== -1) return false;
       // Cold-start filter: must have leads AND enough data to be statistically meaningful
-      return d.leads > 0 && (d.leads >= 5 || d.days >= 4);
+      return d.leads >= 5 && d.days >= 4;
     });
 
     // ALWAYS calculate global averages from ALL campaigns (not filtered by category)
@@ -11250,7 +11250,7 @@ async function loadCampaignDataForPrediction() {
     };
   }).filter(function(d) {
     // Cold-start filter: same threshold as main analytics
-    return d.leads > 0 && d.cpl !== null && (d.leads >= 5 || d.days >= 4);
+    return d.leads >= 5 && d.days >= 4 && d.cpl !== null;
   });
 }
 
