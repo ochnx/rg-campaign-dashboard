@@ -1786,6 +1786,86 @@
       .tab-nav { padding: 0 16px; overflow-x: auto; }
       .tab-btn { padding: 12px 16px; font-size: 13px; }
     }
+
+    /* ===== AUDIENCE INSIGHTS ===== */
+    .audience-insights-wrapper { margin-top: 24px; }
+    .audience-insights-wrapper > details > summary {
+      font-size: 16px; font-weight: 700; color: var(--text-primary);
+      cursor: pointer; padding: 18px 22px;
+      background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+      list-style: none; display: flex; align-items: center; justify-content: space-between;
+      transition: all var(--transition); user-select: none;
+    }
+    .audience-insights-wrapper > details > summary::-webkit-details-marker { display: none; }
+    .audience-insights-wrapper > details > summary::after { content: '▾'; font-size: 14px; color: var(--text-muted); transition: transform 300ms ease; }
+    .audience-insights-wrapper > details[open] > summary::after { transform: rotate(180deg); }
+    .audience-insights-wrapper > details[open] > summary { border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .audience-insights-body {
+      background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      box-shadow: var(--shadow-card); padding: 24px;
+    }
+    .ai-tabs { display: inline-flex; gap: 4px; padding: 4px; background: rgba(0,0,0,0.04); border-radius: var(--radius); margin-bottom: 20px; }
+    .ai-tab { padding: 8px 16px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-muted); background: transparent; border: none; border-radius: var(--radius-sm); cursor: pointer; transition: all 150ms ease; }
+    .ai-tab.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(231,53,46,0.15); }
+    .ai-tab:hover:not(.active) { color: var(--text-primary); }
+    .ai-panel { display: none; }
+    .ai-panel.active { display: block; }
+
+    /* Geo Map */
+    .geo-map-container { position: relative; max-width: 480px; margin: 0 auto 24px; border-radius: var(--radius); overflow: hidden; background: rgba(0,0,0,0.02); }
+    .geo-map-container svg { width: 100%; height: auto; display: block; }
+    .geo-map-container svg path.state-path { stroke: rgba(255,255,255,0.7); stroke-width: 1.2; cursor: pointer; transition: opacity 200ms ease, filter 200ms ease; }
+    .geo-map-container svg path.state-path:hover { opacity: 0.85; filter: brightness(0.92); stroke: rgba(255,255,255,0.95); stroke-width: 1.8; }
+    .geo-map-container.compact { max-width: 360px; }
+    .geo-tooltip { position: absolute; pointer-events: none; background: rgba(26,26,46,0.92); backdrop-filter: blur(8px); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 12px; line-height: 1.6; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 10; opacity: 0; transition: opacity 150ms ease; white-space: nowrap; }
+    .geo-tooltip.visible { opacity: 1; }
+    .geo-tooltip-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+    .geo-tooltip-row { display: flex; justify-content: space-between; gap: 16px; }
+    .geo-tooltip-label { color: rgba(255,255,255,0.6); }
+    .geo-tooltip-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    /* Geo Table */
+    .geo-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .geo-table th { text-align: left; padding: 10px 14px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); border-bottom: 2px solid rgba(0,0,0,0.06); }
+    .geo-table td { padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.04); font-variant-numeric: tabular-nums; }
+    .geo-table tbody tr:last-child td { border-bottom: none; }
+    .geo-table tbody tr:hover { background: rgba(231,53,46,0.03); }
+    .geo-table-label { font-size: 11px; color: var(--text-muted); margin-top: 16px; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Demo Bars */
+    .demo-bars { display: flex; flex-direction: column; gap: 12px; }
+    .demo-bar-row { display: flex; align-items: center; gap: 12px; }
+    .demo-bar-label { width: 55px; font-size: 13px; font-weight: 600; color: var(--text-primary); flex-shrink: 0; }
+    .demo-bar-track { flex: 1; height: 28px; background: rgba(0,0,0,0.04); border-radius: 14px; overflow: hidden; }
+    .demo-bar-fill { height: 100%; border-radius: 14px; background: linear-gradient(90deg, var(--accent), rgba(231,53,46,0.6)); transition: width 800ms cubic-bezier(0.22,1,0.36,1); min-width: 0; }
+    .demo-bar-value { width: 100px; font-size: 13px; font-weight: 700; color: var(--text-primary); text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .gender-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+    .gender-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.06); }
+    .gender-pill-pct { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    /* Modal audience */
+    .detail-audience-wrapper { margin-top: 24px; }
+    .detail-audience-wrapper > details > summary {
+      font-size: 15px; font-weight: 700; color: var(--text-primary);
+      cursor: pointer; padding: 14px 18px;
+      background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: var(--radius);
+      list-style: none; display: flex; align-items: center; justify-content: space-between; transition: all 150ms ease;
+    }
+    .detail-audience-wrapper > details > summary::-webkit-details-marker { display: none; }
+    .detail-audience-wrapper > details > summary::after { content: '▾'; font-size: 13px; color: var(--text-muted); transition: transform 300ms ease; }
+    .detail-audience-wrapper > details[open] > summary::after { transform: rotate(180deg); }
+    .detail-audience-wrapper > details[open] > summary { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: rgba(0,0,0,0.06); }
+    .detail-audience-body { padding: 20px; background: rgba(0,0,0,0.01); border: 1px solid rgba(0,0,0,0.06); border-top: none; border-radius: 0 0 var(--radius) var(--radius); }
+
+    @media (max-width: 768px) {
+      .geo-map-container, .geo-map-container.compact { max-width: 100%; }
+      .demo-bar-row { flex-wrap: wrap; }
+      .demo-bar-label { width: 100%; }
+      .demo-bar-value { width: auto; text-align: left; }
+      .gender-pills { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
@@ -1915,6 +1995,33 @@
           </div>
           <div class="creative-list" id="mainCreativeRanking"></div>
         </div>
+      </div>
+
+      <!-- Audience Insights (global) -->
+      <div class="audience-insights-wrapper" id="globalAudienceInsights" style="display:none">
+        <details>
+          <summary>Audience Insights</summary>
+          <div class="audience-insights-body">
+            <div class="ai-tabs">
+              <button class="ai-tab active" onclick="switchAITab('geo',this,'globalAI')">Geographisch</button>
+              <button class="ai-tab" onclick="switchAITab('demo',this,'globalAI')">Demographie</button>
+            </div>
+            <div class="ai-panel active" id="globalAI-geo">
+              <div class="geo-map-container" id="globalGeoMap"></div>
+              <div class="geo-table-label">nach Bundesland</div>
+              <div style="overflow-x:auto">
+                <table class="geo-table" id="globalGeoTable">
+                  <thead><tr><th>Bundesland</th><th style="text-align:right">Leads</th><th style="text-align:right">Ausgaben</th><th style="text-align:right">Ø CPL</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="ai-panel" id="globalAI-demo">
+              <div class="demo-bars" id="globalDemoBars"></div>
+              <div class="gender-pills" id="globalGenderPills"></div>
+            </div>
+          </div>
+        </details>
       </div>
 
     </div>
@@ -2109,6 +2216,33 @@
         <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">Creative Performance</h3>
         <div class="creative-ranking" id="creativeRanking"></div>
       </div>
+
+      <!-- Zielgruppen-Analyse (per-campaign) -->
+      <div class="detail-audience-wrapper" id="detailAudienceWrapper" style="display:none">
+        <details id="detailAudienceDetails">
+          <summary>Zielgruppen-Analyse</summary>
+          <div class="detail-audience-body">
+            <div class="ai-tabs">
+              <button class="ai-tab active" onclick="switchAITab('geo',this,'detailAI')">Geographisch</button>
+              <button class="ai-tab" onclick="switchAITab('demo',this,'detailAI')">Demographie</button>
+            </div>
+            <div class="ai-panel active" id="detailAI-geo">
+              <div class="geo-map-container compact" id="detailGeoMap"></div>
+              <div class="geo-table-label">nach Bundesland</div>
+              <div style="overflow-x:auto">
+                <table class="geo-table" id="detailGeoTable">
+                  <thead><tr><th>Bundesland</th><th style="text-align:right">Leads</th><th style="text-align:right">Ausgaben</th><th style="text-align:right">Ø CPL</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="ai-panel" id="detailAI-demo">
+              <div class="demo-bars" id="detailDemoBars"></div>
+              <div class="gender-pills" id="detailGenderPills"></div>
+            </div>
+          </div>
+        </details>
+      </div>
     </div>
   </div>
 </div>
@@ -2274,6 +2408,160 @@ let detailChartInstance = null;
 let currentSort = { field: 'spend', dir: 'desc' };
 let currentFilter = 'all'; // 'all' or 'YYYY-MM'
 let currentDetailCampaignId = null;
+
+    // Audience insight state
+    let _globalGeoData = null;
+    let _globalDemoData = null;
+    let _detailAudienceCache = {};
+    let _globalAudienceLoaded = false;
+
+// ============================================
+// GERMANY SVG MAP (inlined from germany-svg.js)
+// ============================================
+
+const STATE_NAMES = {
+  SH: 'Schleswig-Holstein',
+  HH: 'Hamburg',
+  MV: 'Mecklenburg-Vorpommern',
+  NI: 'Niedersachsen',
+  HB: 'Bremen',
+  BB: 'Brandenburg',
+  BE: 'Berlin',
+  ST: 'Sachsen-Anhalt',
+  NW: 'Nordrhein-Westfalen',
+  HE: 'Hessen',
+  TH: 'Thüringen',
+  SN: 'Sachsen',
+  RP: 'Rheinland-Pfalz',
+  SL: 'Saarland',
+  BW: 'Baden-Württemberg',
+  BY: 'Bayern',
+};
+
+const REGION_TO_STATE_ID = {
+  'Schleswig-Holstein': 'SH',
+  'Hamburg': 'HH',
+  'Mecklenburg-Vorpommern': 'MV',
+  'Niedersachsen': 'NI',
+  'Bremen': 'HB',
+  'Brandenburg': 'BB',
+  'Berlin': 'BE',
+  'Sachsen-Anhalt': 'ST',
+  'Nordrhein-Westfalen': 'NW',
+  'Hessen': 'HE',
+  'Thüringen': 'TH',
+  'Sachsen': 'SN',
+  'Rheinland-Pfalz': 'RP',
+  'Saarland': 'SL',
+  'Baden-Württemberg': 'BW',
+  'Bayern': 'BY',
+  'NRW': 'NW',
+  'Nordrhein Westfalen': 'NW',
+  'Baden Württemberg': 'BW',
+  'Baden-Wuerttemberg': 'BW',
+  'Rheinland Pfalz': 'RP',
+  'Thueringen': 'TH',
+  'Bavaria': 'BY',
+  'Saxony': 'SN',
+  'Saxony-Anhalt': 'ST',
+  'Lower Saxony': 'NI',
+  'North Rhine-Westphalia': 'NW',
+  'Rhineland-Palatinate': 'RP',
+  'Hesse': 'HE',
+  'Thuringia': 'TH',
+  'Mecklenburg-Western Pomerania': 'MV',
+};
+
+const STATE_PATHS = {
+  SH: {
+    name: 'Schleswig-Holstein',
+    d: 'M181.9,122.5L176.1,111.4L167.7,99.2L179.4,90.1L180.6,78.0L196.8,70.9L200.0,58.7L183.2,47.6L181.9,32.4L185.8,22.3L200.0,20.3L207.7,23.3L218.1,23.3L229.7,28.4L233.5,27.3L256.8,29.4L262.6,33.4L268.4,34.4L272.3,43.5L283.2,51.6L273.5,62.8L262.6,63.8L268.4,73.9L280.0,72.9L289.0,81.0L296.8,77.0L307.7,73.9L317.4,80.0L323.9,78.0L327.7,72.9L334.8,72.9L340.0,73.9L338.1,83.0L330.3,94.2L327.7,104.3L323.2,114.4L316.8,117.5L313.5,124.6L308.4,126.6L298.1,124.6L292.9,122.5L286.5,124.6L282.6,128.6L278.1,132.7L280.0,139.7L284.5,146.8L286.5,154.9L280.0,154.9L273.5,155.9L265.2,155.9L260.0,158.0L256.8,152.9L246.5,150.9L236.1,153.9L225.8,154.9L214.8,157.0L207.1,154.9L203.9,149.9L196.8,146.8L194.8,142.8L188.4,139.7L180.6,135.7L175.5,133.7L179.4,129.6L181.9,122.5Z',
+  },
+  HH: {
+    name: 'Hamburg',
+    d: 'M253.5,166.1L255.5,163.0L258.1,161.0L260.0,158.0L265.2,155.9L273.5,155.9L280.0,154.9L284.5,152.9L285.8,157.0L282.6,162.0L280.0,165.1L274.8,167.1L270.3,169.1L266.5,172.2L261.9,173.2L257.4,170.1L253.5,166.1Z',
+  },
+  MV: {
+    name: 'Mecklenburg-Vorpommern',
+    d: 'M309.7,126.6L308.4,122.5L313.5,117.5L316.8,114.4L323.9,111.4L327.7,104.3L330.3,94.2L338.1,83.0L340.0,73.9L346.5,71.9L359.4,72.9L371.0,74.9L382.6,72.9L392.3,68.9L404.5,67.8L411.6,65.8L422.6,68.9L433.5,67.8L438.7,62.8L446.5,63.8L456.8,67.8L465.8,70.9L472.9,73.9L475.5,78.0L482.6,81.0L489.0,84.1L498.1,78.0L504.5,73.9L511.0,75.9L517.4,83.0L514.2,90.1L509.7,94.2L504.5,101.3L496.8,104.3L489.0,108.4L485.2,115.4L480.6,121.5L476.1,126.6L472.3,131.6L475.5,138.7L478.7,146.8L476.1,152.9L471.0,158.0L463.2,163.0L456.8,170.1L449.0,175.2L440.0,177.2L431.6,178.2L423.9,179.2L415.5,180.3L405.8,178.2L397.4,179.2L389.0,176.2L380.0,174.2L371.0,173.2L362.6,173.2L356.1,172.2L347.7,168.1L341.9,163.0L334.2,159.0L327.7,154.9L323.9,150.9L320.0,145.8L316.1,139.7L312.3,134.7L309.7,129.6L309.7,126.6Z',
+  },
+  NI: {
+    name: 'Niedersachsen',
+    d: 'M54.8,158.0L67.7,153.9L80.6,151.9L89.0,146.8L95.5,143.8L104.5,139.7L117.4,141.8L127.7,142.8L136.8,140.8L142.6,139.7L149.7,139.7L160.0,142.8L169.0,139.7L175.5,133.7L179.4,129.6L181.9,122.5L188.4,139.7L194.8,142.8L196.8,146.8L203.9,149.9L207.1,154.9L214.8,157.0L225.8,154.9L236.1,153.9L246.5,150.9L253.5,166.1L257.4,170.1L261.9,173.2L266.5,172.2L270.3,169.1L274.8,167.1L280.0,165.1L282.6,162.0L285.8,157.0L286.5,154.9L298.1,157.0L304.5,160.0L309.7,164.1L316.1,167.1L323.9,170.1L327.7,172.2L334.2,174.2L334.2,159.0L341.9,163.0L347.7,168.1L356.1,172.2L362.6,173.2L367.1,179.2L367.7,187.3L371.0,194.4L374.2,202.5L372.9,210.6L369.7,218.7L366.5,226.8L362.6,234.9L358.7,242.0L353.5,248.1L348.4,255.2L343.2,259.2L340.6,265.3L336.8,271.4L334.2,275.4L327.7,279.5L323.9,285.6L321.3,291.6L317.4,296.7L314.8,301.8L311.0,307.8L308.4,313.9L303.9,317.0L298.1,321.0L292.9,325.1L286.5,328.1L278.7,332.2L272.3,334.2L265.8,336.2L259.4,338.2L252.9,340.3L247.7,342.3L241.9,343.3L235.5,345.3L230.3,348.4L225.8,352.4L220.6,356.5L214.2,359.5L209.0,361.5L203.9,362.5L197.4,364.6L189.7,364.6L181.9,365.6L174.2,366.6L166.5,367.6L157.4,366.6L148.4,363.5L139.4,360.5L131.6,357.5L125.2,354.4L118.7,352.4L111.0,351.4L108.4,345.3L105.8,341.3L101.9,336.2L98.1,330.1L92.9,324.1L89.0,318.0L83.9,311.9L80.0,304.8L76.1,298.7L72.3,291.6L69.7,285.6L67.1,279.5L63.2,273.4L60.6,267.3L58.1,261.3L59.4,255.2L64.5,249.1L68.4,243.0L71.0,237.0L76.1,230.9L78.7,224.8L82.6,218.7L85.2,212.7L82.6,204.6L78.7,198.5L74.8,192.4L69.7,186.3L65.8,180.3L61.9,174.2L59.4,168.1L56.8,164.1L54.8,158.0Z',
+  },
+  HB: {
+    name: 'Bremen',
+    d: 'M181.9,212.7L178.1,209.6L175.5,206.6L176.8,202.5L180.6,198.5L184.5,194.4L188.4,192.4L192.3,194.4L196.1,196.5L200.0,199.5L203.2,202.5L202.6,206.6L200.0,208.6L196.1,210.6L192.3,212.7L188.4,213.7L181.9,212.7Z',
+  },
+  BB: {
+    name: 'Brandenburg',
+    d: 'M367.7,187.3L371.0,194.4L374.2,202.5L380.0,204.6L389.0,202.5L397.4,198.5L405.8,194.4L415.5,190.4L423.9,185.3L431.6,182.3L440.0,180.3L449.0,177.2L456.8,174.2L463.2,170.1L471.0,164.1L476.1,160.0L478.7,153.9L475.5,146.8L472.3,139.7L475.5,131.6L478.7,126.6L482.6,121.5L485.2,115.4L491.6,119.5L500.6,123.5L508.4,125.6L514.8,129.6L521.3,133.7L527.7,137.7L534.2,143.8L540.6,149.9L547.1,157.0L552.3,164.1L556.1,171.1L562.6,178.2L566.5,185.3L569.0,194.4L571.6,203.5L572.9,212.7L575.5,220.8L576.1,228.9L575.5,237.0L572.9,245.1L569.0,253.2L564.5,261.3L562.6,269.4L560.0,277.5L556.1,285.6L553.5,293.7L549.7,301.8L547.1,307.8L543.2,313.9L538.7,320.0L534.2,326.1L530.3,332.2L523.9,337.2L517.4,342.3L511.0,346.3L504.5,350.4L498.1,352.4L491.6,356.5L485.2,359.5L478.7,362.5L471.0,364.6L465.8,366.6L459.4,367.6L452.9,369.6L446.5,370.6L440.0,372.7L433.5,374.7L427.1,375.7L419.4,376.7L411.6,376.7L405.2,374.7L398.7,372.7L392.3,370.6L385.8,367.6L379.4,364.6L372.9,362.5L366.5,359.5L362.6,356.5L358.7,352.4L356.1,346.3L353.5,340.3L351.0,334.2L349.7,328.1L349.7,322.0L351.0,315.9L353.5,309.9L356.1,303.8L358.7,297.7L361.3,291.6L363.9,285.6L365.2,279.5L366.5,273.4L367.7,265.3L366.5,259.2L362.6,251.1L358.7,245.1L353.5,239.0L356.1,232.9L358.7,226.8L362.6,220.8L365.2,214.7L366.5,206.6L367.1,198.5L367.7,187.3Z',
+  },
+  BE: {
+    name: 'Berlin',
+    d: 'M471.0,273.4L471.0,270.4L472.3,267.3L474.8,263.3L477.4,260.3L480.0,257.2L483.9,255.2L487.7,254.2L491.6,255.2L495.5,256.2L499.4,258.2L501.9,261.3L504.5,264.3L505.8,267.3L505.8,271.4L504.5,274.4L501.9,277.5L499.4,279.5L495.5,280.5L491.6,281.5L487.7,281.5L483.9,280.5L480.0,279.5L476.1,277.5L473.5,275.4L471.0,273.4Z',
+  },
+  ST: {
+    name: 'Sachsen-Anhalt',
+    d: 'M308.4,313.9L311.0,307.8L314.8,301.8L317.4,296.7L321.3,291.6L323.9,285.6L327.7,279.5L334.2,275.4L336.8,271.4L340.6,265.3L343.2,259.2L348.4,255.2L353.5,248.1L358.7,242.0L362.6,234.9L366.5,226.8L369.7,218.7L372.9,210.6L374.2,202.5L380.0,204.6L389.0,202.5L397.4,198.5L405.8,194.4L415.5,190.4L419.4,197.5L418.1,206.6L415.5,214.7L414.2,222.8L416.1,230.9L418.1,239.0L419.4,247.1L418.1,255.2L415.5,263.3L411.6,271.4L409.0,279.5L406.5,287.6L405.2,295.7L406.5,303.8L409.0,311.9L411.6,320.0L414.2,328.1L416.8,336.2L418.1,342.3L415.5,348.4L411.6,354.4L407.7,360.5L405.2,366.6L401.3,372.7L398.7,372.7L392.3,370.6L385.8,367.6L379.4,364.6L372.9,362.5L366.5,359.5L362.6,362.5L358.7,366.6L353.5,369.6L348.4,372.7L343.2,374.7L338.1,376.7L332.9,378.7L327.7,380.8L322.6,381.8L317.4,382.8L311.0,381.8L304.5,379.7L298.1,376.7L304.5,372.7L307.1,366.6L305.8,359.5L303.2,354.4L301.9,348.4L303.2,342.3L304.5,336.2L303.2,330.1L300.6,326.1L298.1,321.0L303.9,317.0L308.4,313.9Z',
+  },
+  NW: {
+    name: 'Nordrhein-Westfalen',
+    d: 'M4.5,410.1L10.3,411.1L18.1,414.2L20.6,419.2L24.5,423.3L29.7,427.3L34.8,431.4L40.0,435.4L45.2,439.5L52.9,443.5L60.6,447.6L68.4,449.6L76.1,451.6L83.9,453.7L91.6,455.7L99.4,457.7L105.8,459.7L111.0,461.8L117.4,463.8L123.9,461.8L129.0,459.7L134.2,457.7L139.4,453.7L144.5,449.6L149.7,447.6L154.8,443.5L161.3,439.5L166.5,435.4L171.6,431.4L175.5,427.3L180.6,423.3L185.8,417.2L192.3,413.2L197.4,409.1L201.3,403.0L203.9,397.0L206.5,390.9L209.0,384.8L211.6,378.7L212.9,372.7L214.2,366.6L214.2,359.5L209.0,361.5L203.9,362.5L197.4,364.6L189.7,364.6L181.9,365.6L174.2,366.6L166.5,367.6L157.4,366.6L148.4,363.5L139.4,360.5L131.6,357.5L125.2,354.4L118.7,352.4L111.0,351.4L108.4,345.3L105.8,341.3L101.9,336.2L98.1,330.1L92.9,324.1L89.0,318.0L83.9,311.9L80.0,304.8L76.1,298.7L72.3,291.6L69.7,285.6L67.1,285.6L63.2,291.6L59.4,297.7L54.2,301.8L49.0,305.8L43.9,309.9L37.4,313.9L31.0,318.0L24.5,322.0L18.1,326.1L11.6,330.1L5.2,332.2L7.7,338.2L10.3,346.3L11.6,354.4L10.3,362.5L7.7,370.6L5.2,378.7L3.9,386.8L2.6,394.9L2.6,403.0L4.5,410.1Z',
+  },
+  HE: {
+    name: 'Hessen',
+    d: 'M185.8,417.2L192.3,413.2L197.4,409.1L201.3,403.0L203.9,397.0L206.5,390.9L209.0,384.8L211.6,378.7L212.9,372.7L214.2,366.6L214.2,359.5L220.6,356.5L225.8,352.4L230.3,348.4L235.5,345.3L241.9,343.3L247.7,342.3L252.9,340.3L259.4,338.2L265.8,336.2L272.3,334.2L278.7,332.2L286.5,328.1L292.9,325.1L298.1,321.0L300.6,326.1L303.2,330.1L304.5,336.2L303.2,342.3L301.9,348.4L303.2,354.4L305.8,359.5L307.1,366.6L304.5,372.7L298.1,376.7L291.6,380.8L286.5,384.8L282.6,390.9L278.7,397.0L276.1,403.0L273.5,409.1L272.3,415.2L271.0,421.3L269.7,427.3L268.4,433.4L265.8,439.5L263.2,445.6L260.6,451.6L258.1,457.7L255.5,463.8L252.9,469.9L250.3,475.9L246.5,480.0L242.6,484.1L237.4,488.1L231.0,492.2L224.5,496.2L218.1,499.2L211.6,502.3L205.2,504.3L198.7,506.3L192.3,508.4L185.8,510.4L179.4,512.4L172.9,516.5L166.5,520.5L160.0,522.5L153.5,524.6L147.1,526.6L140.6,528.6L134.2,528.6L129.0,524.6L127.7,518.5L129.0,512.4L130.3,506.3L132.9,500.3L134.2,494.2L136.8,488.1L139.4,482.0L141.9,475.9L144.5,469.9L147.1,463.8L149.7,459.7L152.3,455.7L154.8,451.6L154.8,443.5L161.3,439.5L166.5,435.4L171.6,431.4L175.5,427.3L180.6,423.3L185.8,417.2Z',
+  },
+  TH: {
+    name: 'Thüringen',
+    d: 'M298.1,376.7L304.5,379.7L311.0,381.8L317.4,382.8L322.6,381.8L327.7,380.8L332.9,378.7L338.1,376.7L343.2,374.7L348.4,372.7L353.5,369.6L358.7,366.6L362.6,362.5L366.5,359.5L362.6,356.5L358.7,352.4L356.1,346.3L353.5,340.3L351.0,334.2L349.7,328.1L349.7,322.0L353.5,326.1L357.4,330.1L362.6,334.2L367.7,338.2L372.9,342.3L379.4,346.3L385.8,350.4L392.3,354.4L398.7,358.5L405.2,362.5L407.7,360.5L411.6,354.4L415.5,348.4L418.1,342.3L419.4,348.4L421.9,354.4L424.5,360.5L428.4,366.6L431.0,372.7L432.3,378.7L433.5,384.8L432.3,390.9L429.7,397.0L425.8,403.0L421.9,407.1L418.1,411.1L412.9,415.2L407.7,417.2L402.6,419.2L396.1,421.3L389.7,423.3L383.2,425.3L376.8,427.3L370.3,429.4L363.9,431.4L357.4,433.4L351.0,435.4L344.5,437.5L338.1,439.5L331.6,441.5L325.2,443.5L318.7,445.6L312.3,447.6L305.8,449.6L299.4,451.6L292.9,453.7L286.5,455.7L282.6,457.7L278.7,453.7L276.1,447.6L273.5,441.5L272.3,435.4L272.3,429.4L272.3,423.3L272.3,415.2L273.5,409.1L276.1,403.0L278.7,397.0L282.6,390.9L286.5,384.8L291.6,380.8L298.1,376.7Z',
+  },
+  SN: {
+    name: 'Sachsen',
+    d: 'M392.3,370.6L398.7,372.7L405.2,374.7L411.6,376.7L419.4,376.7L427.1,375.7L433.5,374.7L440.0,372.7L446.5,370.6L452.9,369.6L459.4,367.6L465.8,366.6L471.0,364.6L478.7,362.5L485.2,359.5L491.6,356.5L498.1,352.4L504.5,350.4L511.0,346.3L517.4,342.3L523.9,337.2L530.3,332.2L534.2,332.2L538.7,336.2L543.2,342.3L548.4,348.4L553.5,354.4L557.4,360.5L562.6,366.6L566.5,372.7L569.0,378.7L572.9,386.8L575.5,394.9L578.1,403.0L579.4,411.1L578.1,419.2L575.5,425.3L571.6,431.4L566.5,435.4L560.0,437.5L553.5,439.5L547.1,441.5L540.6,443.5L534.2,443.5L527.7,441.5L521.3,441.5L514.8,443.5L508.4,445.6L501.9,447.6L495.5,449.6L489.0,451.6L482.6,453.7L476.1,455.7L469.7,457.7L463.2,459.7L456.8,461.8L450.3,463.8L443.9,465.8L437.4,467.8L432.3,469.9L427.1,471.9L421.9,473.9L416.8,475.9L411.6,475.9L406.5,471.9L403.9,465.8L401.3,459.7L400.0,453.7L401.3,447.6L402.6,441.5L405.2,435.4L406.5,429.4L407.7,423.3L407.7,417.2L412.9,415.2L418.1,411.1L421.9,407.1L425.8,403.0L429.7,397.0L432.3,390.9L433.5,384.8L432.3,378.7L431.0,372.7L428.4,366.6L424.5,360.5L421.9,356.5L415.5,360.5L407.7,364.6L401.3,372.7L398.7,372.7L392.3,370.6Z',
+  },
+  RP: {
+    name: 'Rheinland-Pfalz',
+    d: 'M20.6,419.2L24.5,423.3L29.7,427.3L34.8,431.4L40.0,435.4L45.2,439.5L52.9,443.5L60.6,447.6L68.4,449.6L76.1,451.6L83.9,453.7L91.6,455.7L99.4,457.7L105.8,459.7L111.0,461.8L117.4,463.8L123.9,461.8L129.0,459.7L134.2,457.7L139.4,453.7L144.5,449.6L149.7,447.6L152.3,455.7L149.7,459.7L147.1,463.8L144.5,469.9L141.9,475.9L139.4,482.0L136.8,488.1L134.2,494.2L132.9,500.3L130.3,506.3L129.0,512.4L127.7,518.5L129.0,524.6L134.2,528.6L140.6,528.6L147.1,526.6L153.5,524.6L160.0,528.6L163.9,534.7L165.2,540.8L163.9,546.8L161.3,552.9L158.7,559.0L156.1,565.1L153.5,571.1L152.3,577.2L149.7,583.3L147.1,589.4L144.5,595.4L143.2,599.5L143.2,605.6L145.8,611.6L147.1,617.7L140.6,617.7L134.2,615.7L127.7,613.7L121.3,611.6L114.8,609.6L108.4,607.6L101.9,605.6L95.5,603.5L89.0,601.5L82.6,599.5L76.1,597.5L69.7,595.4L63.2,593.4L56.8,591.4L50.3,587.3L45.2,583.3L40.0,579.2L34.8,573.2L31.0,567.1L28.4,561.0L25.8,554.9L23.2,548.9L20.6,542.8L21.9,536.7L24.5,530.6L27.1,524.6L24.5,518.5L21.9,512.4L19.4,506.3L16.8,500.3L15.5,494.2L15.5,488.1L16.8,482.0L18.1,475.9L16.8,469.9L15.5,463.8L14.2,457.7L12.9,451.6L11.6,445.6L10.3,439.5L9.0,433.4L9.0,427.3L10.3,421.3L14.2,417.2L20.6,419.2Z',
+  },
+  SL: {
+    name: 'Saarland',
+    d: 'M34.8,573.2L40.0,579.2L45.2,583.3L50.3,587.3L56.8,591.4L63.2,593.4L69.7,595.4L76.1,597.5L82.6,599.5L80.0,603.5L76.1,607.6L72.3,611.6L68.4,615.7L65.8,619.7L63.2,623.8L60.6,619.7L56.8,615.7L52.9,611.6L49.0,607.6L43.9,603.5L38.7,599.5L36.1,595.4L33.5,591.4L31.0,587.3L29.7,583.3L31.0,579.2L34.8,573.2Z',
+  },
+  BW: {
+    name: 'Baden-Württemberg',
+    d: 'M147.1,617.7L145.8,611.6L143.2,605.6L143.2,599.5L144.5,595.4L147.1,589.4L149.7,583.3L152.3,577.2L153.5,571.1L156.1,565.1L158.7,559.0L161.3,552.9L163.9,546.8L165.2,540.8L163.9,534.7L160.0,528.6L160.0,522.5L166.5,520.5L172.9,516.5L179.4,512.4L185.8,510.4L192.3,508.4L198.7,506.3L205.2,504.3L211.6,502.3L218.1,499.2L224.5,496.2L231.0,492.2L237.4,488.1L242.6,484.1L246.5,480.0L250.3,475.9L252.9,480.0L256.8,486.1L260.6,492.2L263.2,498.2L267.1,504.3L272.3,508.4L276.1,512.4L280.0,516.5L282.6,522.5L283.9,528.6L282.6,534.7L280.0,540.8L278.7,546.8L277.4,552.9L276.1,559.0L273.5,565.1L271.0,571.1L268.4,577.2L265.8,583.3L263.2,589.4L260.6,595.4L259.4,601.5L260.6,607.6L263.2,613.7L265.8,619.7L268.4,625.8L272.3,631.9L276.1,635.9L280.0,640.0L282.6,646.1L281.3,652.2L278.7,658.2L274.8,664.3L271.0,670.4L265.8,676.5L260.6,680.5L255.5,684.6L250.3,688.6L243.9,692.7L237.4,696.7L231.0,700.8L224.5,704.8L218.1,708.9L211.6,712.9L205.2,717.0L198.7,721.0L192.3,725.1L185.8,729.1L179.4,733.2L172.9,737.2L166.5,741.3L160.0,743.3L153.5,745.3L147.1,747.3L140.6,747.3L134.2,745.3L127.7,743.3L123.9,741.3L121.3,735.2L117.4,729.1L114.8,723.0L111.0,717.0L108.4,710.9L109.7,704.8L112.3,698.7L116.1,692.7L120.0,686.6L122.6,680.5L123.9,674.4L125.2,668.4L126.5,662.3L127.7,656.2L129.0,650.1L131.6,644.1L134.2,638.0L136.8,631.9L140.6,625.8L143.2,621.8L147.1,617.7Z',
+  },
+  BY: {
+    name: 'Bayern',
+    d: 'M282.6,457.7L286.5,455.7L292.9,453.7L299.4,451.6L305.8,449.6L312.3,447.6L318.7,445.6L325.2,443.5L331.6,441.5L338.1,439.5L344.5,437.5L351.0,435.4L357.4,433.4L363.9,431.4L370.3,429.4L376.8,427.3L383.2,425.3L389.7,423.3L396.1,421.3L402.6,419.2L407.7,423.3L406.5,429.4L405.2,435.4L402.6,441.5L401.3,447.6L400.0,453.7L401.3,459.7L403.9,465.8L406.5,471.9L411.6,475.9L416.8,475.9L421.9,473.9L427.1,471.9L432.3,469.9L437.4,467.8L443.9,465.8L450.3,463.8L456.8,465.8L463.2,469.9L469.7,473.9L476.1,475.9L482.6,478.0L489.0,482.0L495.5,486.1L498.1,492.2L496.8,498.2L492.9,504.3L489.0,510.4L485.2,516.5L482.6,522.5L478.7,528.6L476.1,534.7L473.5,540.8L469.7,546.8L465.8,552.9L461.9,559.0L459.4,565.1L456.8,571.1L454.2,577.2L451.6,583.3L450.3,589.4L449.0,595.4L450.3,601.5L452.9,607.6L456.8,613.7L460.6,619.7L464.5,625.8L469.7,629.9L474.8,633.9L480.0,638.0L485.2,642.0L490.3,646.1L495.5,650.1L499.4,656.2L500.6,662.3L498.1,668.4L494.2,674.4L490.3,680.5L486.5,686.6L482.6,690.6L477.4,694.7L472.3,698.7L467.1,702.8L461.9,706.8L456.8,710.9L450.3,714.9L443.9,719.0L437.4,723.0L431.0,727.1L424.5,731.1L418.1,735.2L411.6,739.2L405.2,743.3L398.7,747.3L392.3,751.4L385.8,755.4L379.4,759.5L372.9,763.5L366.5,767.6L360.0,771.6L353.5,775.7L347.1,779.7L340.6,781.8L334.2,783.8L327.7,785.8L321.3,786.8L314.8,785.8L308.4,782.8L301.9,779.7L295.5,777.7L289.0,775.7L282.6,771.6L276.1,767.6L272.3,763.5L268.4,767.6L263.2,765.6L256.8,765.6L250.3,763.5L243.9,761.5L240.0,765.6L243.9,771.6L250.3,773.7L255.5,777.7L258.1,781.8L259.4,785.8L256.8,789.9L252.9,791.9L246.5,789.9L240.0,785.8L234.8,781.8L229.7,777.7L224.5,771.6L218.1,767.6L211.6,763.5L205.2,761.5L198.7,759.5L192.3,755.4L185.8,751.4L181.9,745.3L179.4,739.2L179.4,733.2L185.8,729.1L192.3,725.1L198.7,721.0L205.2,717.0L211.6,712.9L218.1,708.9L224.5,704.8L231.0,700.8L237.4,696.7L243.9,692.7L250.3,688.6L255.5,684.6L260.6,680.5L265.8,676.5L271.0,670.4L274.8,664.3L278.7,658.2L281.3,652.2L282.6,646.1L280.0,640.0L276.1,635.9L272.3,631.9L268.4,625.8L265.8,619.7L263.2,613.7L260.6,607.6L259.4,601.5L260.6,595.4L263.2,589.4L265.8,583.3L268.4,577.2L271.0,571.1L273.5,565.1L276.1,559.0L277.4,552.9L278.7,546.8L280.0,540.8L282.6,534.7L283.9,528.6L282.6,522.5L280.0,516.5L276.1,512.4L272.3,508.4L267.1,504.3L263.2,498.2L260.6,492.2L256.8,486.1L252.9,480.0L250.3,475.9L252.9,469.9L255.5,463.8L258.1,457.7L260.6,451.6L263.2,445.6L265.8,439.5L268.4,433.4L269.7,427.3L271.0,421.3L272.3,415.2L273.5,421.3L274.8,429.4L276.1,437.5L277.4,443.5L278.7,449.6L280.0,453.7L282.6,457.7Z',
+  },
+};
+
+function buildGermanySVG(options) {
+  options = options || {};
+  var fill = options.fill || '#e8e8e8';
+  var stroke = options.stroke || '#999999';
+  var strokeWidth = options.strokeWidth || 1.2;
+  var hoverFill = options.hoverFill || '#cccccc';
+  var includeStyle = options.includeStyle !== undefined ? options.includeStyle : true;
+
+  var paths = Object.entries(STATE_PATHS)
+    .map(function(entry) {
+      var code = entry[0];
+      var name = entry[1].name;
+      var d = entry[1].d;
+      return '    <path class="state-path" id="state-' + code + '" data-name="' + name + '" d="' + d + '" />';
+    })
+    .join('\n');
+
+  var style = includeStyle
+    ? '\n  <style>\n    .state-path {\n      fill: ' + fill + ';\n      stroke: ' + stroke + ';\n      stroke-width: ' + strokeWidth + ';\n      stroke-linejoin: round;\n      cursor: pointer;\n      transition: fill 0.15s ease;\n    }\n    ' + (hoverFill ? '.state-path:hover { fill: ' + hoverFill + '; }' : '') + '\n  </style>'
+    : '';
+
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" role="img" aria-label="Map of Germany">' + style + '\n  <g id="germany-states">\n' + paths + '\n  </g>\n</svg>';
+}
 
 // ============================================
 // SUPABASE REST
@@ -2677,6 +2965,7 @@ function renderDashboard() {
   renderTrendChart(metrics);
   renderCampaignTable(metrics);
   renderMainCreativePerformance(metrics);
+  loadGlobalAudienceData();
 }
 
 // ============================================
@@ -3086,6 +3375,12 @@ function openDetail(campaignId) {
     trendChart.update('none');
   }
 
+  // Load audience insights for this campaign
+  document.getElementById('detailAudienceWrapper').style.display = 'none';
+  loadCampaignAudienceData(campaignId).then(function(data) {
+    if (data) renderCampaignAudienceInsights(data);
+  });
+
   // Show modal
   document.getElementById('detailModal').classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -3198,6 +3493,9 @@ function closeDetail() {
     trendChart.options.events = ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'];
     trendChart.update('none');
   }
+
+  var dAD = document.getElementById('detailAudienceDetails');
+  if (dAD) dAD.removeAttribute('open');
 }
 
 function renderDetailChart(metrics) {
@@ -4354,6 +4652,252 @@ async function predictPerformance() {
     resultsEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">!</div><div class="empty-state-title">Fehler</div><div class="empty-state-desc" style="color:var(--red);font-family:monospace;font-size:12px;">' + escHtml(e.message || String(e)) + '</div></div>';
   }
 }
+
+// ===== AUDIENCE INSIGHTS =====
+
+    function resolveStateId(region) {
+      if (!region) return null;
+      var r = region.trim();
+      // Try exact match first
+      if (REGION_TO_STATE_ID[r]) return REGION_TO_STATE_ID[r];
+      // Try case-insensitive
+      var lower = r.toLowerCase();
+      for (var key in REGION_TO_STATE_ID) {
+        if (key.toLowerCase() === lower) return REGION_TO_STATE_ID[key];
+      }
+      // Try partial match
+      for (var key in REGION_TO_STATE_ID) {
+        if (lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower)) return REGION_TO_STATE_ID[key];
+      }
+      return null;
+    }
+
+    function deduplicateByLatestSync(rows, groupKeys) {
+      // Group rows by groupKeys, keep only the row with the latest sync_date per group
+      var groups = {};
+      rows.forEach(function(r) {
+        var key = groupKeys.map(function(k) { return (r[k] || '').toString().toLowerCase().trim(); }).join('|');
+        if (!groups[key] || r.sync_date > groups[key].sync_date) {
+          groups[key] = r;
+        }
+      });
+      return Object.values(groups);
+    }
+
+    function aggregateGeoData(rows) {
+      // Deduplicate: keep latest sync_date per (campaign_id, region)
+      var deduped = deduplicateByLatestSync(rows, ['campaign_id', 'region']);
+      var map = {};
+      deduped.forEach(function(r) {
+        var stateId = resolveStateId(r.region);
+        if (!stateId) { console.warn('Unrecognized region:', r.region); return; }
+        if (!map[stateId]) map[stateId] = { leads: 0, impressions: 0, spend: 0, clicks: 0, reach: 0 };
+        map[stateId].leads += parseInt(r.leads) || 0;
+        map[stateId].impressions += parseInt(r.impressions) || 0;
+        map[stateId].spend += parseFloat(r.spend) || 0;
+        map[stateId].clicks += parseInt(r.clicks) || 0;
+        map[stateId].reach += parseInt(r.reach) || 0;
+      });
+      return map;
+    }
+
+    function aggregateDemoData(rows) {
+      // Deduplicate: keep latest sync_date per (campaign_id, age, gender)
+      var deduped = deduplicateByLatestSync(rows, ['campaign_id', 'age', 'gender']);
+      var ageMap = {};
+      var genderMap = {};
+      deduped.forEach(function(r) {
+        var age = r.age || 'Unbekannt';
+        if (!ageMap[age]) ageMap[age] = { leads: 0, impressions: 0, spend: 0 };
+        ageMap[age].leads += parseInt(r.leads) || 0;
+        ageMap[age].impressions += parseInt(r.impressions) || 0;
+        ageMap[age].spend += parseFloat(r.spend) || 0;
+
+        var gender = (r.gender || 'unknown').toLowerCase();
+        if (!genderMap[gender]) genderMap[gender] = { leads: 0 };
+        genderMap[gender].leads += parseInt(r.leads) || 0;
+      });
+      return { age: ageMap, gender: genderMap };
+    }
+
+    async function loadGlobalAudienceData() {
+      if (_globalAudienceLoaded) return;
+      _globalAudienceLoaded = true;
+      var campIds = campaigns.filter(function(c) { return !isExcludedCampaign(c.id); }).map(function(c) { return c.id; });
+      if (campIds.length === 0) return;
+      var campFilter = campIds.map(function(id) { return '"' + id + '"'; }).join(',');
+      try {
+        var geoRaw = await sbGet('campaign_geo_insights', 'campaign_id=in.(' + campFilter + ')&select=campaign_id,sync_date,region,impressions,reach,clicks,leads,spend');
+        var demoRaw = await sbGet('campaign_demo_insights', 'campaign_id=in.(' + campFilter + ')&select=campaign_id,sync_date,age,gender,impressions,reach,clicks,leads,spend');
+        _globalGeoData = aggregateGeoData(geoRaw);
+        _globalDemoData = aggregateDemoData(demoRaw);
+        renderGlobalAudienceInsights();
+      } catch (e) {
+        console.warn('Audience insights load failed:', e);
+      }
+    }
+
+    async function loadCampaignAudienceData(campaignId) {
+      if (_detailAudienceCache[campaignId]) return _detailAudienceCache[campaignId];
+      try {
+        var geoRaw = await sbGet('campaign_geo_insights', 'campaign_id=eq.' + campaignId + '&select=campaign_id,sync_date,region,impressions,reach,clicks,leads,spend');
+        var demoRaw = await sbGet('campaign_demo_insights', 'campaign_id=eq.' + campaignId + '&select=campaign_id,sync_date,age,gender,impressions,reach,clicks,leads,spend');
+        _detailAudienceCache[campaignId] = {
+          geo: aggregateGeoData(geoRaw),
+          demo: aggregateDemoData(demoRaw)
+        };
+        return _detailAudienceCache[campaignId];
+      } catch (e) {
+        console.warn('Campaign audience data failed:', e);
+        return null;
+      }
+    }
+
+    function renderGlobalAudienceInsights() {
+      var wrapper = document.getElementById('globalAudienceInsights');
+      if (!_globalGeoData && !_globalDemoData) { wrapper.style.display = 'none'; return; }
+      var hasGeo = _globalGeoData && Object.values(_globalGeoData).some(function(d) { return d.leads > 0; });
+      var hasDemo = _globalDemoData && _globalDemoData.age && Object.values(_globalDemoData.age).some(function(d) { return d.leads > 0; });
+      if (!hasGeo && !hasDemo) { wrapper.style.display = 'none'; return; }
+      wrapper.style.display = '';
+      if (hasGeo) {
+        renderGeoMap('globalGeoMap', _globalGeoData);
+        renderGeoTable('globalGeoTable', _globalGeoData);
+      }
+      if (hasDemo) {
+        renderDemoBars('globalDemoBars', _globalDemoData.age);
+        renderGenderPills('globalGenderPills', _globalDemoData.gender);
+      }
+    }
+
+    function renderCampaignAudienceInsights(data) {
+      var wrapper = document.getElementById('detailAudienceWrapper');
+      if (!data) { wrapper.style.display = 'none'; return; }
+      var hasGeo = data.geo && Object.values(data.geo).some(function(d) { return d.leads > 0; });
+      var hasDemo = data.demo && data.demo.age && Object.values(data.demo.age).some(function(d) { return d.leads > 0; });
+      if (!hasGeo && !hasDemo) { wrapper.style.display = 'none'; return; }
+      wrapper.style.display = '';
+      var details = document.getElementById('detailAudienceDetails');
+      if (details) details.removeAttribute('open');
+      if (hasGeo) {
+        renderGeoMap('detailGeoMap', data.geo);
+        renderGeoTable('detailGeoTable', data.geo);
+      }
+      if (hasDemo) {
+        renderDemoBars('detailDemoBars', data.demo.age);
+        renderGenderPills('detailGenderPills', data.demo.gender);
+      }
+    }
+
+    function renderGeoMap(containerId, geoData) {
+      var container = document.getElementById(containerId);
+      container.innerHTML = buildGermanySVG({ includeStyle: false });
+      var tooltip = document.createElement('div');
+      tooltip.className = 'geo-tooltip';
+      container.appendChild(tooltip);
+      var leadValues = Object.values(geoData).map(function(d) { return d.leads; }).filter(function(v) { return v > 0; });
+      var maxLeads = Math.max.apply(null, leadValues.length ? leadValues : [1]);
+      var stateIds = Object.keys(STATE_NAMES);
+      stateIds.forEach(function(id) {
+        var path = container.querySelector('#state-' + id);
+        if (!path) return;
+        var data = geoData[id];
+        if (!data || data.leads === 0) {
+          path.style.fill = '#e5e7eb';
+        } else {
+          var intensity = Math.pow(data.leads / maxLeads, 0.6);
+          var r = Math.round(254 - intensity * 23);
+          var g = Math.round(226 - intensity * 173);
+          var b = Math.round(220 - intensity * 174);
+          path.style.fill = 'rgb(' + r + ',' + g + ',' + b + ')';
+        }
+        path.addEventListener('mouseenter', function(e) {
+          var name = STATE_NAMES[id];
+          var d = geoData[id] || { leads: 0, impressions: 0, spend: 0 };
+          var cpl = d.leads > 0 ? formatEUR(d.spend / d.leads) : '—';
+          tooltip.innerHTML =
+            '<div class="geo-tooltip-title">' + escHtml(name) + '</div>' +
+            '<div class="geo-tooltip-row"><span class="geo-tooltip-label">Leads</span><span class="geo-tooltip-value">' + formatNum(d.leads) + '</span></div>' +
+            '<div class="geo-tooltip-row"><span class="geo-tooltip-label">Impressionen</span><span class="geo-tooltip-value">' + formatNum(d.impressions) + '</span></div>' +
+            '<div class="geo-tooltip-row"><span class="geo-tooltip-label">Ausgaben</span><span class="geo-tooltip-value">' + formatEUR(d.spend) + '</span></div>' +
+            '<div class="geo-tooltip-row"><span class="geo-tooltip-label">Ø CPL</span><span class="geo-tooltip-value">' + cpl + '</span></div>';
+          tooltip.classList.add('visible');
+        });
+        path.addEventListener('mousemove', function(e) {
+          var rect = container.getBoundingClientRect();
+          tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
+          tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+        });
+        path.addEventListener('mouseleave', function() {
+          tooltip.classList.remove('visible');
+        });
+      });
+    }
+
+    function renderGeoTable(tableId, geoData) {
+      var tbody = document.querySelector('#' + tableId + ' tbody');
+      var entries = Object.entries(geoData)
+        .map(function(e) { return { id: e[0], name: STATE_NAMES[e[0]] || e[0], leads: e[1].leads, spend: e[1].spend, impressions: e[1].impressions }; })
+        .filter(function(d) { return d.leads > 0; })
+        .sort(function(a, b) { return b.leads - a.leads; });
+      if (entries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">Keine geographischen Daten verfügbar</td></tr>';
+        return;
+      }
+      tbody.innerHTML = entries.map(function(d) {
+        var cpl = d.leads > 0 ? formatEUR(d.spend / d.leads) : '—';
+        return '<tr><td style="font-weight:600">' + escHtml(d.name) + '</td><td style="text-align:right">' + formatNum(d.leads) + '</td><td style="text-align:right">' + formatEUR(d.spend) + '</td><td style="text-align:right;font-weight:700">' + cpl + '</td></tr>';
+      }).join('');
+    }
+
+    function renderDemoBars(containerId, ageData) {
+      var container = document.getElementById(containerId);
+      var ageOrder = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+      var totalLeads = ageOrder.reduce(function(s, a) { return s + ((ageData[a] || {}).leads || 0); }, 0);
+      if (totalLeads === 0) {
+        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:24px">Keine demographischen Daten verfügbar</div>';
+        return;
+      }
+      container.innerHTML = ageOrder.map(function(age) {
+        var d = ageData[age] || { leads: 0 };
+        var pct = totalLeads > 0 ? (d.leads / totalLeads) * 100 : 0;
+        return '<div class="demo-bar-row">' +
+          '<div class="demo-bar-label">' + age + '</div>' +
+          '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:0%"></div></div>' +
+          '<div class="demo-bar-value">' + pct.toFixed(1) + '% (' + d.leads + ')</div>' +
+        '</div>';
+      }).join('');
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          var fills = container.querySelectorAll('.demo-bar-fill');
+          fills.forEach(function(el, i) {
+            var d = ageData[ageOrder[i]] || { leads: 0 };
+            var pct = totalLeads > 0 ? (d.leads / totalLeads) * 100 : 0;
+            el.style.width = pct + '%';
+          });
+        });
+      });
+    }
+
+    function renderGenderPills(containerId, genderData) {
+      var container = document.getElementById(containerId);
+      var totalLeads = Object.values(genderData).reduce(function(s, d) { return s + d.leads; }, 0);
+      if (totalLeads === 0) { container.innerHTML = ''; return; }
+      var labels = { male: 'Männlich', female: 'Weiblich', unknown: 'Unbekannt' };
+      var order = ['male', 'female', 'unknown'];
+      container.innerHTML = order.map(function(g) {
+        var d = genderData[g] || { leads: 0 };
+        var pct = totalLeads > 0 ? ((d.leads / totalLeads) * 100).toFixed(1) : '0.0';
+        return '<div class="gender-pill"><span>' + (labels[g] || g) + '</span><span class="gender-pill-pct">' + pct + '%</span></div>';
+      }).join('');
+    }
+
+    function switchAITab(tab, btnEl, prefix) {
+      btnEl.parentElement.querySelectorAll('.ai-tab').forEach(function(b) { b.classList.remove('active'); });
+      btnEl.classList.add('active');
+      document.getElementById(prefix + '-geo').classList.toggle('active', tab === 'geo');
+      document.getElementById(prefix + '-demo').classList.toggle('active', tab === 'demo');
+    }
 
 // ============================================
 // KEYBOARD SHORTCUTS
