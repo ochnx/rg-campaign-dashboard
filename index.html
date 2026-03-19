@@ -11237,16 +11237,24 @@ async function loadCampaignDataForPrediction() {
 // k-NN Similarity + Temporal Decay + Bayesian Confidence
 // ============================================
 
-// Step 1: Feature Engineering — normalize to 0-1 range
+// Step 1: Feature Engineering — log-scale price, rooms added, ppsqm removed
 function engineFeatures(prop, allProps) {
-  const prices = allProps.map(function(p) { return p.price; }).filter(function(v) { return v > 0; });
-  const sizes = allProps.map(function(p) { return p.size_sqm; }).filter(function(v) { return v > 0; });
-  const pricePerSqms = allProps.map(function(p) {
-    return (p.price && p.size_sqm) ? p.price / p.size_sqm : null;
-  }).filter(function(v) { return v !== null; });
+  // Log-scale price: compresses outlier effect (€600k vs €1.2M != €300k vs €4M)
+  var logPrices = allProps.map(function(p) { return p.price > 0 ? Math.log(p.price) : null; }).filter(function(v) { return v !== null; });
+  var sizes = allProps.map(function(p) { return p.size_sqm > 0 ? p.size_sqm : null; }).filter(function(v) { return v !== null; });
+  var roomsArr = allProps.map(function(p) { return p.rooms > 0 ? p.rooms : null; }).filter(function(v) { return v !== null; });
+
+  var normalizeLog = function(val, arr) {
+    if (val == null || val <= 0 || arr.length < 2) return null;
+    var logVal = Math.log(val);
+    var min = Math.min.apply(null, arr);
+    var max = Math.max.apply(null, arr);
+    if (max === min) return 0.5;
+    return Math.max(0, Math.min(1, (logVal - min) / (max - min)));
+  };
 
   var normalize = function(val, arr) {
-    if (val == null || arr.length < 2) return 0.5;
+    if (val == null || arr.length < 2) return null;
     var min = Math.min.apply(null, arr);
     var max = Math.max.apply(null, arr);
     if (max === min) return 0.5;
@@ -11254,57 +11262,104 @@ function engineFeatures(prop, allProps) {
   };
 
   return {
-    price_norm: normalize(prop.price, prices),
+    price_norm: normalizeLog(prop.price, logPrices),
     size_norm: normalize(prop.size_sqm, sizes),
-    ppsqm_norm: normalize((prop.price && prop.size_sqm) ? prop.price / prop.size_sqm : null, pricePerSqms),
+    rooms_norm: normalize(prop.rooms, roomsArr),
     type: prop.property_type || 'unknown',
     city: (prop.city || '').toLowerCase().trim(),
     rating: prop.location_rating || 'C'
   };
 }
 
-// Step 2: Multi-Dimensional Similarity (k-NN)
-function campaignSimilarity(inputFeatures, campaignFeatures) {
-  var priceDist = Math.abs(inputFeatures.price_norm - campaignFeatures.price_norm);
-  var sizeDist = Math.abs(inputFeatures.size_norm - campaignFeatures.size_norm);
-  var ppsqmDist = Math.abs(inputFeatures.ppsqm_norm - campaignFeatures.ppsqm_norm);
-  var typeMatch = inputFeatures.type === campaignFeatures.type ? 0 : 1;
-  var cityMatch = inputFeatures.city === campaignFeatures.city ? 0 : 1;
-  var inputRatingIdx = 'ABCD'.indexOf(inputFeatures.rating);
-  var campRatingIdx = 'ABCD'.indexOf(campaignFeatures.rating);
-  var ratingDist = (inputRatingIdx >= 0 && campRatingIdx >= 0) ? Math.abs(inputRatingIdx - campRatingIdx) / 3 : 0.5;
+// Semantic type distance — not binary, grouped by buyer profile
+function typeDistance(typeA, typeB) {
+  if (!typeA || !typeB) return 0.5;
+  var a = typeA.toLowerCase().replace(/[_\-äöü]/g, function(c) { return {ä:'ae',ö:'oe',ü:'ue',_:'',' ':'','-':''}[c]||c; });
+  var b = typeB.toLowerCase().replace(/[_\-äöü]/g, function(c) { return {ä:'ae',ö:'oe',ü:'ue',_:'',' ':'','-':''}[c]||c; });
+  if (a === b) return 0;
 
-  var weights = {
-    ppsqm: 0.30,
-    price: 0.20,
-    type: 0.20,
-    size: 0.10,
-    city: 0.10,
-    rating: 0.10
-  };
+  function getGroup(t) {
+    if (/wohnung|penthouse|apartment|loft/.test(t)) return 'wohnung';
+    if (/einfamilienhaus|villa|bungalow|reihenhaus|doppelhaus|reihenmittelhaus|reiheneckhaus/.test(t)) return 'haus';
+    if (/neubauprojekt|neubau/.test(t)) return 'neubau';
+    if (/grundstueck|gewerbefläche|gewerbeflaeche|garage/.test(t)) return 'special';
+    return 'unknown';
+  }
 
-  var distance = weights.ppsqm * ppsqmDist
-               + weights.price * priceDist
-               + weights.type * typeMatch
-               + weights.size * sizeDist
-               + weights.city * cityMatch
-               + weights.rating * ratingDist;
-
-  return 1 - distance;
+  var gA = getGroup(a);
+  var gB = getGroup(b);
+  if (gA === gB) return 0.20;           // same group: Wohnung≈Penthouse, EFH≈Villa, DHH≈Villa
+  if (gA === 'unknown' || gB === 'unknown') return 0.55;
+  if (gA === 'special' || gB === 'special') return 1.0;
+  if (gA === 'neubau' || gB === 'neubau') return 0.50; // neubau can be house or apt
+  return 0.70;                           // wohnung vs haus
 }
 
-// Step 3: Temporal Decay
+// Step 2: Multi-Dimensional Similarity — Objektart + Preis first, Zimmer added
+function campaignSimilarity(inputFeatures, campaignFeatures) {
+  // Type: semantic distance
+  var typeDist = typeDistance(inputFeatures.type, campaignFeatures.type);
+
+  // Price: log-normalized, 0.35 penalty if one is missing
+  var priceDist = (inputFeatures.price_norm != null && campaignFeatures.price_norm != null)
+    ? Math.abs(inputFeatures.price_norm - campaignFeatures.price_norm)
+    : 0.35;
+
+  // Rooms: 0.30 penalty if missing (common for land/commercial)
+  var roomsDist = (inputFeatures.rooms_norm != null && campaignFeatures.rooms_norm != null)
+    ? Math.abs(inputFeatures.rooms_norm - campaignFeatures.rooms_norm)
+    : 0.30;
+
+  // City: binary (Hamburg always = Hamburg), 0.35 penalty if either missing
+  var cityDist = (!inputFeatures.city || !campaignFeatures.city)
+    ? 0.35
+    : (inputFeatures.city === campaignFeatures.city ? 0 : 0.80);
+
+  // Size: 0.30 penalty if missing
+  var sizeDist = (inputFeatures.size_norm != null && campaignFeatures.size_norm != null)
+    ? Math.abs(inputFeatures.size_norm - campaignFeatures.size_norm)
+    : 0.30;
+
+  // Rating
+  var inputRatingIdx = 'ABCD'.indexOf(inputFeatures.rating);
+  var campRatingIdx = 'ABCD'.indexOf(campaignFeatures.rating);
+  var ratingDist = (inputRatingIdx >= 0 && campRatingIdx >= 0)
+    ? Math.abs(inputRatingIdx - campRatingIdx) / 3
+    : 0.30;
+
+  // Weights: Objektart + Preis share top position (Oskar's model)
+  var weights = {
+    type:   0.28,
+    price:  0.28,
+    rooms:  0.18,
+    city:   0.15,
+    size:   0.07,
+    rating: 0.04
+  };
+
+  var distance = weights.type   * typeDist
+               + weights.price  * priceDist
+               + weights.rooms  * roomsDist
+               + weights.city   * cityDist
+               + weights.size   * sizeDist
+               + weights.rating * ratingDist;
+
+  return Math.max(0, Math.min(1, 1 - distance));
+}
+
+// Step 3: Temporal Decay — λ=0.002, half-life ~350 days (was 140, too aggressive)
 function temporalWeight(campaignEndDate) {
   var now = new Date();
   var end = new Date(campaignEndDate);
   var daysSince = Math.max(0, (now - end) / (1000 * 60 * 60 * 24));
-  var lambda = 0.005; // half-life ~140 days
+  var lambda = 0.002; // half-life ~350 days: after 6mo=83%, 9mo=70%, 1.5yr=37%
   return Math.exp(-lambda * daysSince);
 }
 
 // Step 4: Bayesian-Style Confidence Band
-function bayesianEstimate(predictions, weights) {
-  var prior = { mean: 10.0, variance: 25.0 };
+// priorMean: dynamic (portfolio avg CPL if N>=5, else 10 as industry fallback)
+function bayesianEstimate(predictions, weights, priorMean) {
+  var prior = { mean: priorMean || 10.0, variance: 25.0 };
 
   var totalWeight = weights.reduce(function(s, w) { return s + w; }, 0);
   if (totalWeight === 0) {
@@ -11430,19 +11485,23 @@ function predictCPLAdvanced(inputProp, allData) {
   var cplValues = scored.map(function(s) { return s.cpl; });
   var weights = scored.map(function(s) { return s.combinedWeight; });
 
-  var prediction = bayesianEstimate(cplValues, weights);
-  var featureImportance = calculateFeatureImportance(inputFeatures, scored);
-
   var totalSpendAll = allData.reduce(function(s,d) { return s + d.spend; }, 0);
   var totalLeadsAll = allData.reduce(function(s,d) { return s + d.leads; }, 0);
+  var globalAvgCPL = totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 10;
+
+  var prediction = bayesianEstimate(cplValues, weights, N >= 5 ? globalAvgCPL : 10);
+  var featureImportance = calculateFeatureImportance(inputFeatures, scored);
+
+  // Display: sort by pure similarity (not combinedWeight) — most similar first
+  var similarityDisplay = scored.slice().sort(function(a, b) { return b.similarity - a.similarity; });
 
   return {
     prediction: prediction,
     method: N >= 10 ? 'full_model' : N >= 5 ? 'limited_data' : 'early_stage',
-    similarities: scored.slice(0, 5),
+    similarities: similarityDisplay.slice(0, 5),
     featureImportance: featureImportance,
     N: N,
-    globalAvgCPL: totalLeadsAll > 0 ? totalSpendAll / totalLeadsAll : 10
+    globalAvgCPL: globalAvgCPL
   };
 }
 
