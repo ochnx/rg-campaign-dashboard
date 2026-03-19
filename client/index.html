@@ -1814,7 +1814,7 @@
     .ai-panel.active { display: block; }
 
     /* Geo Map */
-    .geo-map-container { position: relative; max-width: 480px; margin: 0 auto 24px; border-radius: var(--radius); overflow: hidden; background: rgba(0,0,0,0.02); }
+    .geo-map-container { position: relative; max-width: 480px; margin: 0 auto 24px; }
     .geo-map-container svg { width: 100%; height: auto; display: block; }
     .geo-map-container svg path.state-path { stroke: rgba(255,255,255,0.7); stroke-width: 1.2; cursor: pointer; transition: opacity 200ms ease, filter 200ms ease; }
     .geo-map-container svg path.state-path:hover { opacity: 0.85; filter: brightness(0.92); stroke: rgba(255,255,255,0.95); stroke-width: 1.8; }
@@ -1825,6 +1825,9 @@
     .geo-tooltip-row { display: flex; justify-content: space-between; gap: 16px; }
     .geo-tooltip-label { color: rgba(255,255,255,0.6); }
     .geo-tooltip-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .geo-map-dots { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .geo-map-container svg { position: relative; z-index: 2; }
+    .geo-tooltip { z-index: 10; }
 
     /* Geo Table */
     .geo-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -4743,6 +4746,50 @@ async function predictPerformance() {
       var tooltip = document.createElement('div');
       tooltip.className = 'geo-tooltip';
       container.appendChild(tooltip);
+
+      // Dot grid overlay
+      var dotCanvas = document.createElement('canvas');
+      dotCanvas.className = 'geo-map-dots';
+      container.insertBefore(dotCanvas, container.firstChild);
+      var dotCtx = dotCanvas.getContext('2d');
+      var dotSpacing = 18;
+      var dotMouseX = -1, dotMouseY = -1;
+
+      function drawMapDots() {
+        dotCanvas.width = container.offsetWidth;
+        dotCanvas.height = container.offsetHeight;
+        dotCtx.clearRect(0, 0, dotCanvas.width, dotCanvas.height);
+        for (var dx = 0; dx < dotCanvas.width; dx += dotSpacing) {
+          for (var dy = 0; dy < dotCanvas.height; dy += dotSpacing) {
+            var dist = Math.sqrt(Math.pow(dx - dotMouseX, 2) + Math.pow(dy - dotMouseY, 2));
+            var baseR = 1.0;
+            var r = baseR;
+            var alpha = 0.12;
+            if (dotMouseX >= 0 && dist < 120) {
+              var t = 1 - dist / 120;
+              r = baseR + t * 1.8;
+              // No opacity increase per user preference — only size changes
+            }
+            dotCtx.beginPath();
+            dotCtx.arc(dx, dy, r, 0, Math.PI * 2);
+            dotCtx.fillStyle = 'rgba(180, 120, 120, ' + alpha + ')';
+            dotCtx.fill();
+          }
+        }
+      }
+      drawMapDots();
+
+      container.addEventListener('mousemove', function(ev) {
+        var cRect = container.getBoundingClientRect();
+        dotMouseX = ev.clientX - cRect.left;
+        dotMouseY = ev.clientY - cRect.top;
+        requestAnimationFrame(drawMapDots);
+      });
+      container.addEventListener('mouseleave', function() {
+        dotMouseX = -1; dotMouseY = -1;
+        requestAnimationFrame(drawMapDots);
+      });
+
       var leadValues = Object.values(geoData).map(function(d) { return d.leads; }).filter(function(v) { return v > 0; });
       var maxLeads = Math.max.apply(null, leadValues.length ? leadValues : [1]);
       var stateIds = Object.keys(STATE_NAMES);
@@ -4773,8 +4820,12 @@ async function predictPerformance() {
         });
         path.addEventListener('mousemove', function(e) {
           var rect = container.getBoundingClientRect();
-          tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
-          tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+          var x = e.clientX - rect.left + 12;
+          var y = e.clientY - rect.top - 10;
+          var tw = tooltip.offsetWidth || 180;
+          if (x + tw > rect.width + 40) x = e.clientX - rect.left - tw - 12;
+          tooltip.style.left = x + 'px';
+          tooltip.style.top = y + 'px';
         });
         path.addEventListener('mouseleave', function() {
           tooltip.classList.remove('visible');
