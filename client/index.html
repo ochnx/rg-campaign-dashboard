@@ -2340,14 +2340,18 @@ Chart.register({
         chart._cursorAnimId = null;
         return;
       }
-      var ease = 0.12;
       if (!chart._cursorPos) {
         chart._cursorPos = { x: chart._cursorTarget.x, y: chart._cursorTarget.y };
       }
-      chart._cursorPos.x += (chart._cursorTarget.x - chart._cursorPos.x) * ease;
-      chart._cursorPos.y += (chart._cursorTarget.y - chart._cursorPos.y) * ease;
+      var dx = chart._cursorTarget.x - chart._cursorPos.x;
+      var dy = chart._cursorTarget.y - chart._cursorPos.y;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      // Ease-in-out: slow start, then snaps. Farther = slower start, closer = faster snap.
+      var t = dist > 1 ? Math.pow(Math.min(dist, 300) / 300, 0.3) * 0.06 + 0.02 : 0.5;
+      chart._cursorPos.x += dx * t;
+      chart._cursorPos.y += dy * t;
       chart.draw();
-      if (Math.abs(chart._cursorTarget.x - chart._cursorPos.x) > 0.5 || Math.abs(chart._cursorTarget.y - chart._cursorPos.y) > 0.5) {
+      if (Math.abs(dx) > 0.3 || Math.abs(dy) > 0.3) {
         chart._cursorAnimId = requestAnimationFrame(easeCursor);
       } else {
         chart._cursorPos.x = chart._cursorTarget.x;
@@ -2385,7 +2389,7 @@ Chart.register({
     if (!area) return;
 
     var spacing = 16;
-    var glowRadius = 90;
+    var glowRadius = 300;
 
     ctx.save();
     for (var y = area.top; y < area.bottom; y += spacing) {
@@ -2396,7 +2400,8 @@ Chart.register({
 
         if (dist < glowRadius) {
           var intensity = 1 - (dist / glowRadius);
-          var dotSize = 1.2 + intensity * 3;
+          intensity = intensity * intensity; // quadratic falloff for subtlety
+          var dotSize = 1.2 + intensity * 2.5;
 
           ctx.beginPath();
           ctx.arc(x, y, dotSize, 0, Math.PI * 2);
@@ -4813,12 +4818,15 @@ async function predictPerformance() {
           dotAnimId = null;
           return;
         }
-        var ease = 0.12;
         if (dotMouseX < 0) { dotMouseX = dotTargetX; dotMouseY = dotTargetY; }
-        dotMouseX += (dotTargetX - dotMouseX) * ease;
-        dotMouseY += (dotTargetY - dotMouseY) * ease;
+        var dx = dotTargetX - dotMouseX;
+        var dy = dotTargetY - dotMouseY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var t = dist > 1 ? Math.pow(Math.min(dist, 300) / 300, 0.3) * 0.06 + 0.02 : 0.5;
+        dotMouseX += dx * t;
+        dotMouseY += dy * t;
         drawMapDots();
-        if (Math.abs(dotTargetX - dotMouseX) > 0.5 || Math.abs(dotTargetY - dotMouseY) > 0.5) {
+        if (Math.abs(dx) > 0.3 || Math.abs(dy) > 0.3) {
           dotAnimId = requestAnimationFrame(easeMapDots);
         } else {
           dotMouseX = dotTargetX; dotMouseY = dotTargetY;
@@ -4841,9 +4849,10 @@ async function predictPerformance() {
             var baseR = 1.0;
             var r = baseR;
             var alpha = 0.12;
-            if (dotMouseX >= 0 && dist < 120) {
-              var t = 1 - dist / 120;
-              r = baseR + t * 1.8;
+            if (dotMouseX >= 0 && dist < 300) {
+              var t = 1 - dist / 300;
+              t = t * t; // quadratic falloff for subtlety
+              r = baseR + t * 2.2;
             }
             dotCtx.beginPath();
             dotCtx.arc(dx, dy, r, 0, Math.PI * 2);
