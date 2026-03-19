@@ -2695,11 +2695,11 @@ async function loadDashboard() {
       navClientName.style.display = 'none';
       navClientLogo.style.display = '';
       navClientLogo.innerHTML = '<img src="../assets/ev-logo.png" alt="Engel &amp; Völkers" style="height:16px;display:block;" />';
-    } else if (/von\s*poll/i.test(cName)) {
+    } else if (/von\s*poll|vpi|v\.?\s*poll/i.test(cName) || /von\s*poll|vpi|v\.?\s*poll/i.test(clientData.brand || '')) {
       // Show Von Poll logo image
       navClientName.style.display = 'none';
       navClientLogo.style.display = '';
-      navClientLogo.innerHTML = '<img src="../assets/vp-logo.png" alt="Von Poll Immobilien" style="height:18px;display:block;" />';
+      navClientLogo.innerHTML = '<img src="../assets/vp-logo.svg" alt="Von Poll Immobilien" style="height:22px;display:block;" />';
     } else {
       navClientName.textContent = cName;
       navClientName.style.display = '';
