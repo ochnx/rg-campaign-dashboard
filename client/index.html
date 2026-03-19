@@ -2329,22 +2329,50 @@ Chart.register({
   id: 'cursorGlow',
   afterInit: function(chart) {
     chart._cursorPos = null;
+    chart._cursorTarget = null;
+    chart._cursorAnimId = null;
     var canvas = chart.canvas;
+
+    function easeCursor() {
+      if (!chart._cursorTarget) {
+        chart._cursorPos = null;
+        chart.draw();
+        chart._cursorAnimId = null;
+        return;
+      }
+      var ease = 0.12;
+      if (!chart._cursorPos) {
+        chart._cursorPos = { x: chart._cursorTarget.x, y: chart._cursorTarget.y };
+      }
+      chart._cursorPos.x += (chart._cursorTarget.x - chart._cursorPos.x) * ease;
+      chart._cursorPos.y += (chart._cursorTarget.y - chart._cursorPos.y) * ease;
+      chart.draw();
+      if (Math.abs(chart._cursorTarget.x - chart._cursorPos.x) > 0.5 || Math.abs(chart._cursorTarget.y - chart._cursorPos.y) > 0.5) {
+        chart._cursorAnimId = requestAnimationFrame(easeCursor);
+      } else {
+        chart._cursorPos.x = chart._cursorTarget.x;
+        chart._cursorPos.y = chart._cursorTarget.y;
+        chart.draw();
+        chart._cursorAnimId = null;
+      }
+    }
+    chart._easeCursor = easeCursor;
+
     canvas.addEventListener('mousemove', function(e) {
       var rect = canvas.getBoundingClientRect();
       var x = e.clientX - rect.left;
       var y = e.clientY - rect.top;
       var area = chart.chartArea;
       if (area && x >= area.left && x <= area.right && y >= area.top && y <= area.bottom) {
-        chart._cursorPos = { x: x, y: y };
+        chart._cursorTarget = { x: x, y: y };
       } else {
-        chart._cursorPos = null;
+        chart._cursorTarget = null;
       }
-      chart.draw();
+      if (!chart._cursorAnimId) chart._cursorAnimId = requestAnimationFrame(chart._easeCursor);
     });
     canvas.addEventListener('mouseleave', function() {
-      chart._cursorPos = null;
-      chart.draw();
+      chart._cursorTarget = null;
+      if (!chart._cursorAnimId) chart._cursorAnimId = requestAnimationFrame(chart._easeCursor);
     });
   },
   beforeDatasetsDraw: function(chart) {
@@ -2667,6 +2695,11 @@ async function loadDashboard() {
       navClientName.style.display = 'none';
       navClientLogo.style.display = '';
       navClientLogo.innerHTML = '<img src="../assets/ev-logo.png" alt="Engel &amp; Völkers" style="height:16px;display:block;" />';
+    } else if (/von\s*poll/i.test(cName)) {
+      // Show Von Poll logo image
+      navClientName.style.display = 'none';
+      navClientLogo.style.display = '';
+      navClientLogo.innerHTML = '<img src="../assets/vp-logo.png" alt="Von Poll Immobilien" style="height:18px;display:block;" />';
     } else {
       navClientName.textContent = cName;
       navClientName.style.display = '';
@@ -4759,10 +4792,33 @@ async function predictPerformance() {
       var dotCtx = dotCanvas.getContext('2d');
       var dotSpacing = 18;
       var dotMouseX = -1, dotMouseY = -1;
+      var dotTargetX = -1, dotTargetY = -1;
+      var dotAnimId = null;
+
+      function easeMapDots() {
+        if (dotTargetX < 0) {
+          dotMouseX = -1; dotMouseY = -1;
+          drawMapDots();
+          dotAnimId = null;
+          return;
+        }
+        var ease = 0.12;
+        if (dotMouseX < 0) { dotMouseX = dotTargetX; dotMouseY = dotTargetY; }
+        dotMouseX += (dotTargetX - dotMouseX) * ease;
+        dotMouseY += (dotTargetY - dotMouseY) * ease;
+        drawMapDots();
+        if (Math.abs(dotTargetX - dotMouseX) > 0.5 || Math.abs(dotTargetY - dotMouseY) > 0.5) {
+          dotAnimId = requestAnimationFrame(easeMapDots);
+        } else {
+          dotMouseX = dotTargetX; dotMouseY = dotTargetY;
+          drawMapDots();
+          dotAnimId = null;
+        }
+      }
 
       function drawMapDots() {
         dotCanvas.width = dotParent.offsetWidth;
-        dotCanvas.height = dotParent.offsetHeight;
+        dotCanvas.height = container.offsetTop + container.offsetHeight;
         dotCtx.clearRect(0, 0, dotCanvas.width, dotCanvas.height);
         for (var dx = 0; dx < dotCanvas.width; dx += dotSpacing) {
           for (var dy = 0; dy < dotCanvas.height; dy += dotSpacing) {
@@ -4785,13 +4841,13 @@ async function predictPerformance() {
 
       dotParent.addEventListener('mousemove', function(ev) {
         var cRect = dotParent.getBoundingClientRect();
-        dotMouseX = ev.clientX - cRect.left;
-        dotMouseY = ev.clientY - cRect.top;
-        requestAnimationFrame(drawMapDots);
+        dotTargetX = ev.clientX - cRect.left;
+        dotTargetY = ev.clientY - cRect.top;
+        if (!dotAnimId) dotAnimId = requestAnimationFrame(easeMapDots);
       });
       dotParent.addEventListener('mouseleave', function() {
-        dotMouseX = -1; dotMouseY = -1;
-        requestAnimationFrame(drawMapDots);
+        dotTargetX = -1; dotTargetY = -1;
+        if (!dotAnimId) dotAnimId = requestAnimationFrame(easeMapDots);
       });
 
       var leadValues = Object.values(geoData).map(function(d) { return d.leads; }).filter(function(v) { return v > 0; });
