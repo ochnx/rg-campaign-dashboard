@@ -4755,38 +4755,23 @@ async function predictPerformance() {
 
     function renderGlobalAudienceInsights() {
       var wrapper = document.getElementById('globalAudienceInsights');
-      if (!_globalGeoData && !_globalDemoData) { wrapper.style.display = 'none'; return; }
-      var hasGeo = _globalGeoData && Object.values(_globalGeoData).some(function(d) { return d.leads > 0; });
-      var hasDemo = _globalDemoData && _globalDemoData.age && Object.values(_globalDemoData.age).some(function(d) { return d.leads > 0; });
-      if (!hasGeo && !hasDemo) { wrapper.style.display = 'none'; return; }
       wrapper.style.display = '';
-      if (hasGeo) {
-        renderGeoMap('globalGeoMap', _globalGeoData);
-        renderGeoTable('globalGeoTable', _globalGeoData);
-      }
-      if (hasDemo) {
-        renderDemoBars('globalDemoBars', _globalDemoData.age);
-        renderGenderPills('globalGenderPills', _globalDemoData.gender);
-      }
+      renderGeoMap('globalGeoMap', _globalGeoData || {});
+      renderGeoTable('globalGeoTable', _globalGeoData || {});
+      renderDemoBars('globalDemoBars', (_globalDemoData || {}).age || {});
+      renderGenderPills('globalGenderPills', (_globalDemoData || {}).gender || {});
     }
 
     function renderCampaignAudienceInsights(data) {
       var wrapper = document.getElementById('detailAudienceWrapper');
       if (!data) { wrapper.style.display = 'none'; return; }
-      var hasGeo = data.geo && Object.values(data.geo).some(function(d) { return d.leads > 0; });
-      var hasDemo = data.demo && data.demo.age && Object.values(data.demo.age).some(function(d) { return d.leads > 0; });
-      if (!hasGeo && !hasDemo) { wrapper.style.display = 'none'; return; }
       wrapper.style.display = '';
       var details = document.getElementById('detailAudienceDetails');
       if (details) details.removeAttribute('open');
-      if (hasGeo) {
-        renderGeoMap('detailGeoMap', data.geo);
-        renderGeoTable('detailGeoTable', data.geo);
-      }
-      if (hasDemo) {
-        renderDemoBars('detailDemoBars', data.demo.age);
-        renderGenderPills('detailGenderPills', data.demo.gender);
-      }
+      renderGeoMap('detailGeoMap', data.geo || {});
+      renderGeoTable('detailGeoTable', data.geo || {});
+      renderDemoBars('detailDemoBars', (data.demo || {}).age || {});
+      renderGenderPills('detailGenderPills', (data.demo || {}).gender || {});
     }
 
     function renderGeoMap(containerId, geoData) {
