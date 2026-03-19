@@ -8842,7 +8842,7 @@ async function loadIntelligence() {
 
   try {
     // Load all creatives with their metrics AND campaign/property info
-    const creatives = await sbGet('creatives', 'select=*,creative_daily_metrics(*),campaigns(id,property_id,properties(property_type))');
+    const creatives = await sbGet('creatives', 'select=*,creative_daily_metrics(*),campaigns(id,campaign_name,property_id,properties(property_type))');
 
     // Time filter: calculate cutoff date for 30-day filter
     let dateCutoff = null;
@@ -8863,8 +8863,13 @@ async function loadIntelligence() {
     });
     const globalAvgCPL = globalTotalLeads > 0 ? globalTotalSpend / globalTotalLeads : 0;
 
+    // Exclude LP/Conversions A/B Test campaigns from Creative Intelligence
+    let filteredCreatives = (creatives || []).filter(c => {
+      const campName = c.campaigns?.campaign_name || c.campaign_name || '';
+      return !(campName.indexOf('Conversions') !== -1 && campName.indexOf('A/B Test') !== -1);
+    });
+
     // Filter by property category (AFTER computing global benchmark)
-    let filteredCreatives = creatives || [];
     if (intelCategoryFilter === 'neubauprojekt') {
       filteredCreatives = filteredCreatives.filter(c => {
         const propType = c.campaigns?.properties?.property_type;
