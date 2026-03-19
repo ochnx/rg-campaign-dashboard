@@ -9956,7 +9956,11 @@ async function renderBenchmarks(campaign, property, metrics) {
         cpm: impr > 0 ? (spend / impr) * 1000 : null,
         leadsPerDay: leads / days
       };
-    }).filter(function(d) { return d.leads > 0; });
+    }).filter(function(d) {
+      // Cold-start filter: exclude campaigns with insufficient data to avoid skewing benchmarks
+      // Must have at least 1 lead AND (5+ leads OR 4+ days running)
+      return d.leads > 0 && (d.leads >= 5 || d.days >= 4);
+    });
 
     var N = allData.length;
     if (N < 2) { container.innerHTML = ''; return; }
@@ -11229,7 +11233,10 @@ async function loadCampaignDataForPrediction() {
       days: days,
       cpl: leads > 0 ? spend / leads : null
     };
-  }).filter(function(d) { return d.leads > 0 && d.cpl !== null; });
+  }).filter(function(d) {
+    // Cold-start filter: same threshold as main analytics
+    return d.leads > 0 && d.cpl !== null && (d.leads >= 5 || d.days >= 4);
+  });
 }
 
 // ============================================
