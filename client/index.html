@@ -1850,12 +1850,12 @@
       cursor: pointer; padding: 18px 22px;
       background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
       border: var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
-      list-style: none; display: flex; align-items: center; justify-content: space-between;
+      list-style: none; display: flex; align-items: center;
       transition: all var(--transition); user-select: none;
     }
     .audience-insights-wrapper > details > summary::-webkit-details-marker { display: none; }
-    .audience-insights-wrapper > details > summary::before { content: '›'; display: inline-block; font-size: 1.2em; font-weight: 700; margin-right: 8px; transition: transform 300ms ease; transform: rotate(0deg); }
-    .audience-insights-wrapper > details[open] > summary::before { transform: rotate(90deg); }
+    .audience-insights-wrapper > details > summary::after { content: '›'; display: inline-block; font-size: 1.2em; font-weight: 700; margin-left: 10px; transition: transform 300ms ease; transform: rotate(0deg); }
+    .audience-insights-wrapper > details[open] > summary::after { transform: rotate(90deg); }
     .audience-insights-wrapper > details[open] > summary { border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-bottom: 1px solid rgba(0,0,0,0.06); }
     .audience-insights-body {
       background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
@@ -1911,11 +1911,11 @@
       font-size: 15px; font-weight: 700; color: var(--text-primary);
       cursor: pointer; padding: 14px 18px;
       background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: var(--radius);
-      list-style: none; display: flex; align-items: center; justify-content: space-between; transition: all 150ms ease;
+      list-style: none; display: flex; align-items: center; transition: all 150ms ease;
     }
     .detail-audience-wrapper > details > summary::-webkit-details-marker { display: none; }
-    .detail-audience-wrapper > details > summary::before { content: '›'; display: inline-block; font-size: 1.2em; font-weight: 700; margin-right: 8px; transition: transform 300ms ease; transform: rotate(0deg); }
-    .detail-audience-wrapper > details[open] > summary::before { transform: rotate(90deg); }
+    .detail-audience-wrapper > details > summary::after { content: '›'; display: inline-block; font-size: 1.2em; font-weight: 700; margin-left: 10px; transition: transform 300ms ease; transform: rotate(0deg); }
+    .detail-audience-wrapper > details[open] > summary::after { transform: rotate(90deg); }
     .detail-audience-wrapper > details[open] > summary { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: rgba(0,0,0,0.06); }
     .detail-audience-body { padding: 20px; background: rgba(0,0,0,0.01); border: 1px solid rgba(0,0,0,0.06); border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; animation: detailsOpen 0.35s ease-out; }
     @keyframes detailsOpen {
