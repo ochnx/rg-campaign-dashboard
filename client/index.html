@@ -2308,9 +2308,9 @@ Chart.register({
     var area = chart.chartArea;
     if (!area) return;
     ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.fillStyle = 'rgba(180, 120, 120, 0.08)';
     var spacing = 16;
-    var dotRadius = 1.2;
+    var dotRadius = 1.0;
     for (var y = area.top; y < area.bottom; y += spacing) {
       for (var x = area.left; x < area.right; x += spacing) {
         ctx.beginPath();
@@ -2337,10 +2337,10 @@ Chart.register({
 
     function easeCursor() {
       var changed = false;
-      // Animate glow strength (grow in / fade out)
+      // Animate glow strength (slow grow in / faster fade out)
       var sDiff = chart._glowTarget - chart._glowStrength;
       if (Math.abs(sDiff) > 0.005) {
-        chart._glowStrength += sDiff * (chart._glowTarget > 0.5 ? 0.04 : 0.08);
+        chart._glowStrength += sDiff * (chart._glowTarget > 0.5 ? 0.02 : 0.06);
         changed = true;
       } else {
         chart._glowStrength = chart._glowTarget;
@@ -2378,14 +2378,9 @@ Chart.register({
       var rect = canvas.getBoundingClientRect();
       var x = e.clientX - rect.left;
       var y = e.clientY - rect.top;
-      var area = chart.chartArea;
-      if (area && x >= area.left && x <= area.right && y >= area.top && y <= area.bottom) {
-        chart._cursorTarget = { x: x, y: y };
-        chart._glowTarget = 1;
-      } else {
-        chart._cursorTarget = null;
-        chart._glowTarget = 0;
-      }
+      // Always track position and start grow-in when on canvas
+      chart._cursorTarget = { x: x, y: y };
+      chart._glowTarget = 1;
       if (!chart._cursorAnimId) chart._cursorAnimId = requestAnimationFrame(chart._easeCursor);
     });
     canvas.addEventListener('mouseleave', function() {
@@ -2422,7 +2417,7 @@ Chart.register({
 
           ctx.beginPath();
           ctx.arc(x, y, dotSize, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+          ctx.fillStyle = 'rgba(180, 120, 120, 0.08)';
           ctx.fill();
         }
       }
@@ -4835,7 +4830,7 @@ async function predictPerformance() {
         // Animate glow strength for organic grow-in / fade-out
         var sDiff = dotGlowTarget - dotGlowStrength;
         if (Math.abs(sDiff) > 0.005) {
-          dotGlowStrength += sDiff * (dotGlowTarget > 0.5 ? 0.04 : 0.08);
+          dotGlowStrength += sDiff * (dotGlowTarget > 0.5 ? 0.02 : 0.06);
           changed = true;
         } else {
           dotGlowStrength = dotGlowTarget;
@@ -4879,7 +4874,7 @@ async function predictPerformance() {
             var dist = Math.sqrt(Math.pow(dx - dotMouseX, 2) + Math.pow(dy - dotMouseY, 2));
             var baseR = 1.0;
             var r = baseR;
-            var alpha = 0.12;
+            var alpha = 0.08;
             if (dotMouseX >= 0 && dist < glowRadius && dotGlowStrength > 0.01) {
               var t = 1 - dist / glowRadius;
               t = t * t;
