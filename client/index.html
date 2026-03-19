@@ -2317,114 +2317,42 @@
 // CHART.JS GLOBAL PLUGINS — Premium Effects
 // ============================================
 
-// Plugin 0: Spotlight Opacity Effect — dims trendChart, reveals near cursor
+// Plugin 0: Trim-path reveal — lines draw in from left to right
 Chart.register({
-  id: 'spotlightLine',
-  afterDraw: function(chart) {
-    if (chart.canvas.id !== 'trendChart') return;
-    if (!chartSpotlightActive) return;
-
-    var ctx = chart.ctx;
+  id: 'trimReveal',
+  afterInit: function(chart) {
+    chart._trimProgress = 0;
+    chart._trimStart = null;
+    chart._trimDuration = 1400; // ms
+    chart._trimDone = false;
+  },
+  beforeDraw: function(chart) {
+    if (chart._trimDone) return;
+    if (!chart._trimStart) chart._trimStart = Date.now();
+    var elapsed = Date.now() - chart._trimStart;
+    // easeOutCubic
+    var t = Math.min(elapsed / chart._trimDuration, 1);
+    chart._trimProgress = 1 - Math.pow(1 - t, 3);
+    if (t >= 1) chart._trimDone = true;
+  },
+  beforeDatasetsDraw: function(chart) {
+    if (chart._trimDone) return;
     var area = chart.chartArea;
     if (!area) return;
-
-    // Step 1: Dim the entire chart area
+    var ctx = chart.ctx;
+    var revealWidth = (area.right - area.left) * chart._trimProgress;
     ctx.save();
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = 'rgba(255, 248, 245, 0.88)';
-    ctx.fillRect(area.left, area.top, area.right - area.left, area.bottom - area.top);
-    ctx.restore();
-
-    // Step 2: Redraw each dataset with spotlight gradient
-    var sigma = 120;
-    var mouseX = chartMouseX;
-    if (mouseX === null) mouseX = -9999;
-
-    chart.data.datasets.forEach(function(dataset, datasetIndex) {
-      var meta = chart.getDatasetMeta(datasetIndex);
-      if (meta.hidden || !meta.data || meta.data.length < 2) return;
-
-      var points = meta.data;
-      var baseColor = dataset.borderColor || 'rgba(231,53,46,1)';
-
-      // Parse the base color to get r,g,b
-      var tempCanvas = document.createElement('canvas');
-      tempCanvas.width = 1; tempCanvas.height = 1;
-      var tempCtx = tempCanvas.getContext('2d');
-      tempCtx.fillStyle = baseColor;
-      tempCtx.fillRect(0,0,1,1);
-      var pixel = tempCtx.getImageData(0,0,1,1).data;
-      var r = pixel[0], g = pixel[1], b = pixel[2];
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(area.left, area.top, area.right - area.left, area.bottom - area.top);
-      ctx.clip();
-
-      // Draw the spotlight line segments
-      ctx.lineWidth = dataset.borderWidth || 2.5;
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-
-      for (var i = 0; i < points.length - 1; i++) {
-        var p1 = points[i];
-        var p2 = points[i + 1];
-
-        // Use control points for bezier if available
-        var cp1x = p1.cp ? p1.cp.x : (p1.x + p2.x) / 2;
-        var cp1y = p1.cp ? p1.cp.y : p1.y;
-        var cp2x = p2.cp ? p2.cp.x : (p1.x + p2.x) / 2;
-        var cp2y = p2.cp ? p2.cp.y : p2.y;
-
-        // Calculate alpha at midpoint of segment
-        var midX = (p1.x + p2.x) / 2;
-        var dist = midX - mouseX;
-        var alpha = Math.exp(-0.5 * (dist / sigma) * (dist / sigma));
-        alpha = Math.max(alpha, 0.08); // minimum visibility
-
-        ctx.beginPath();
-        ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-        ctx.moveTo(p1.x, p1.y);
-        ctx.bezierCurveTo(
-          p1.cp2 ? p1.cp2.x : cp1x, p1.cp2 ? p1.cp2.y : cp1y,
-          p2.cp1 ? p2.cp1.x : cp2x, p2.cp1 ? p2.cp1.y : cp2y,
-          p2.x, p2.y
-        );
-        ctx.stroke();
-      }
-
-      // Draw spotlight fill
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, area.bottom);
-      ctx.lineTo(points[0].x, points[0].y);
-      for (var i = 0; i < points.length - 1; i++) {
-        var p1 = points[i];
-        var p2 = points[i + 1];
-        ctx.bezierCurveTo(
-          p1.cp2 ? p1.cp2.x : (p1.x + p2.x) / 2, p1.cp2 ? p1.cp2.y : p1.y,
-          p2.cp1 ? p2.cp1.x : (p1.x + p2.x) / 2, p2.cp1 ? p2.cp1.y : p2.y,
-          p2.x, p2.y
-        );
-      }
-      ctx.lineTo(points[points.length - 1].x, area.bottom);
-      ctx.closePath();
-
-      // Create horizontal gradient for fill
-      var fillGrad = ctx.createLinearGradient(area.left, 0, area.right, 0);
-      var gradSteps = 40;
-      for (var s = 0; s <= gradSteps; s++) {
-        var ratio = s / gradSteps;
-        var gx = area.left + ratio * (area.right - area.left);
-        var d = gx - mouseX;
-        var a = Math.exp(-0.5 * (d / sigma) * (d / sigma)) * 0.30;
-        a = Math.max(a, 0.01);
-        fillGrad.addColorStop(ratio, 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')');
-      }
-      ctx.fillStyle = fillGrad;
-      ctx.fill();
-
-      ctx.restore();
-    });
+    ctx.beginPath();
+    ctx.rect(area.left, area.top - 10, revealWidth, area.bottom - area.top + 20);
+    ctx.clip();
+  },
+  afterDatasetsDraw: function(chart) {
+    if (chart._trimDone) return;
+    chart.ctx.restore();
+    // Keep requesting frames until done
+    if (!chart._trimDone) {
+      requestAnimationFrame(function() { chart.draw(); });
+    }
   }
 });
 
@@ -2625,8 +2553,6 @@ const EXCLUDED_CAMPAIGN_IDS = new Set([
 ]);
 function isExcludedCampaign(id) { return EXCLUDED_CAMPAIGN_IDS.has(id); }
 let trendChart = null;
-let chartSpotlightActive = false;
-let chartMouseX = null;
 let detailChartInstance = null;
 let currentSort = { field: 'spend', dir: 'desc' };
 let currentFilter = 'all'; // 'all' or 'YYYY-MM'
@@ -3329,18 +3255,7 @@ function renderTrendChart(metrics) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      animation: {
-        duration: 1200,
-        easing: 'easeOutQuart',
-        x: {
-          from: 0
-        },
-        y: {
-          from: function(ctx) {
-            return ctx.chart.chartArea ? ctx.chart.chartArea.bottom : 0;
-          }
-        }
-      },
+      animation: false, // handled by trimReveal plugin
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
@@ -3389,26 +3304,6 @@ function renderTrendChart(metrics) {
     }
   });
 
-  // Spotlight effect listeners
-  var chartCard = document.getElementById('trendChart').closest('.chart-card');
-  var trendCanvas = document.getElementById('trendChart');
-
-  chartCard.addEventListener('mouseenter', function() {
-    chartSpotlightActive = true;
-    if (trendChart) trendChart.update('none');
-  });
-
-  trendCanvas.addEventListener('mousemove', function(e) {
-    var rect = trendCanvas.getBoundingClientRect();
-    chartMouseX = e.clientX - rect.left;
-    if (trendChart) trendChart.update('none');
-  });
-
-  chartCard.addEventListener('mouseleave', function() {
-    chartSpotlightActive = false;
-    chartMouseX = null;
-    if (trendChart) trendChart.update('none');
-  });
 }
 
 function getISOWeek(date) {
