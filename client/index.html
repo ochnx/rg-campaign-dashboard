@@ -2591,6 +2591,9 @@ function logout() {
   clientData = null;
   campaigns = [];
   allMetrics = [];
+  _globalAudienceLoaded = false;
+  _detailAudienceCache = {};
+  document.getElementById('globalGeoMap').innerHTML = '';
   document.getElementById('dashboard').classList.remove('active');
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('tokenInput').value = '';
@@ -4747,17 +4750,19 @@ async function predictPerformance() {
       tooltip.className = 'geo-tooltip';
       container.appendChild(tooltip);
 
-      // Dot grid overlay
+      // Dot grid overlay — span the full parent panel, not just the narrow map container
+      var dotParent = container.closest('.ai-panel') || container.parentElement;
+      if (!dotParent.style.position) dotParent.style.position = 'relative';
       var dotCanvas = document.createElement('canvas');
       dotCanvas.className = 'geo-map-dots';
-      container.insertBefore(dotCanvas, container.firstChild);
+      dotParent.insertBefore(dotCanvas, dotParent.firstChild);
       var dotCtx = dotCanvas.getContext('2d');
       var dotSpacing = 18;
       var dotMouseX = -1, dotMouseY = -1;
 
       function drawMapDots() {
-        dotCanvas.width = container.offsetWidth;
-        dotCanvas.height = container.offsetHeight;
+        dotCanvas.width = dotParent.offsetWidth;
+        dotCanvas.height = dotParent.offsetHeight;
         dotCtx.clearRect(0, 0, dotCanvas.width, dotCanvas.height);
         for (var dx = 0; dx < dotCanvas.width; dx += dotSpacing) {
           for (var dy = 0; dy < dotCanvas.height; dy += dotSpacing) {
@@ -4768,7 +4773,6 @@ async function predictPerformance() {
             if (dotMouseX >= 0 && dist < 120) {
               var t = 1 - dist / 120;
               r = baseR + t * 1.8;
-              // No opacity increase per user preference — only size changes
             }
             dotCtx.beginPath();
             dotCtx.arc(dx, dy, r, 0, Math.PI * 2);
@@ -4779,13 +4783,13 @@ async function predictPerformance() {
       }
       drawMapDots();
 
-      container.addEventListener('mousemove', function(ev) {
-        var cRect = container.getBoundingClientRect();
+      dotParent.addEventListener('mousemove', function(ev) {
+        var cRect = dotParent.getBoundingClientRect();
         dotMouseX = ev.clientX - cRect.left;
         dotMouseY = ev.clientY - cRect.top;
         requestAnimationFrame(drawMapDots);
       });
-      container.addEventListener('mouseleave', function() {
+      dotParent.addEventListener('mouseleave', function() {
         dotMouseX = -1; dotMouseY = -1;
         requestAnimationFrame(drawMapDots);
       });
