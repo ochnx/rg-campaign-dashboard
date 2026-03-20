@@ -3231,7 +3231,13 @@ function renderWeekdayPerformance(metrics) {
   });
 
   if (rows.length === 0) { section.style.display = 'none'; return; }
-  rows.sort(function(a, b) { return b.avgLeads - a.avgLeads; });
+  rows.sort(function(a, b) {
+    // CPL-first: lowest CPL wins. Null CPL goes to end.
+    if (a.avgCPL === null && b.avgCPL === null) return 0;
+    if (a.avgCPL === null) return 1;
+    if (b.avgCPL === null) return -1;
+    return a.avgCPL - b.avgCPL;
+  });
 
   var bestDay = rows[0].name;
   var html = '<table class="creative-ranking-table weekday-table" style="width:100%"><thead><tr>' +
