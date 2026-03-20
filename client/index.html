@@ -2568,8 +2568,16 @@ Chart.register({
           intensity = intensity * intensity;
           var dotSize = 1.2 + intensity * 2.5 * strength;
 
+          var drawX = x;
+          var drawY = y;
+          if (dist > 0) {
+            var pushStrength = Math.pow(1 - dist / glowRadius, 2) * 8 * strength;
+            drawX = x + (dx / dist) * pushStrength;
+            drawY = y + (dy / dist) * pushStrength;
+          }
+
           ctx.beginPath();
-          ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+          ctx.arc(drawX, drawY, dotSize, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(180, 120, 120, 0.08)';
           ctx.fill();
         }
@@ -5154,13 +5162,20 @@ async function predictPerformance() {
             var baseR = 1.0;
             var r = baseR;
             var alpha = 0.08;
+            var drawDx = dx;
+            var drawDy = dy;
             if (dotMouseX >= 0 && dist < glowRadius && dotGlowStrength > 0.01) {
               var t = 1 - dist / glowRadius;
               t = t * t;
               r = baseR + t * 2.2 * dotGlowStrength;
+              if (dist > 0) {
+                var pushStrength = Math.pow(1 - dist / glowRadius, 2) * 8 * dotGlowStrength;
+                drawDx = dx + ((dx - dotMouseX) / dist) * pushStrength;
+                drawDy = dy + ((dy - dotMouseY) / dist) * pushStrength;
+              }
             }
             dotCtx.beginPath();
-            dotCtx.arc(dx, dy, r, 0, Math.PI * 2);
+            dotCtx.arc(drawDx, drawDy, r, 0, Math.PI * 2);
             dotCtx.fillStyle = 'rgba(180, 120, 120, ' + alpha + ')';
             dotCtx.fill();
           }
