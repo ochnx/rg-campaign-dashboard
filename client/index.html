@@ -57,7 +57,14 @@
 
     body {
       font-family: 'Inter', -apple-system, system-ui, sans-serif;
-      background: linear-gradient(175deg, #ffffff 0%, #fffafa 20%, #fef5f3 40%, #fceae6 65%, #f8dbd5 85%, #f4cec6 100%);
+      background:
+        radial-gradient(ellipse 80% 50% at 15% 10%, rgba(252,210,204,0.5) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 70% at 85% 25%, rgba(248,195,186,0.35) 0%, transparent 65%),
+        radial-gradient(ellipse 90% 60% at 50% 60%, rgba(244,180,168,0.4) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 80% at 20% 80%, rgba(240,165,152,0.5) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 75% 85%, rgba(236,150,138,0.45) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 40% at 50% 100%, rgba(232,140,128,0.4) 0%, transparent 50%),
+        linear-gradient(175deg, #fef5f2 0%, #fdf0ec 30%, #fceae5 60%, #f8ddd6 100%);
       background-attachment: fixed;
       color: var(--text-primary);
       min-height: 100dvh;
