@@ -2080,10 +2080,10 @@
           <div class="panel-header">
             <span class="panel-title" id="campaignsTitle">Kampagnen</span>
             <div class="sort-controls">
-              <button class="sort-btn active" data-sort="spend" onclick="sortTable('spend')">Ausgaben <span class="sort-arrow">↓</span></button>
+              <button class="sort-btn" data-sort="spend" onclick="sortTable('spend')">Ausgaben <span class="sort-arrow">↕</span></button>
               <button class="sort-btn" data-sort="leads" onclick="sortTable('leads')">Leads <span class="sort-arrow">↕</span></button>
               <button class="sort-btn" data-sort="cpl" onclick="sortTable('cpl')">CPL <span class="sort-arrow">↕</span></button>
-              <button class="sort-btn" data-sort="status" onclick="sortTable('status')">Status <span class="sort-arrow">↕</span></button>
+              <button class="sort-btn active" data-sort="status" onclick="sortTable('status')">Status <span class="sort-arrow">↑</span></button>
             </div>
           </div>
           <div class="status-filter-bar">
@@ -2614,7 +2614,7 @@ const EXCLUDED_CAMPAIGN_IDS = new Set([
 function isExcludedCampaign(id) { return EXCLUDED_CAMPAIGN_IDS.has(id); }
 let trendChart = null;
 let detailChartInstance = null;
-let currentSort = { field: 'spend', dir: 'desc' };
+let currentSort = { field: 'status', dir: 'asc' };
 let currentStatusFilter = 'all';
 
 function filterByStatus(status) {
