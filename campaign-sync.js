@@ -163,11 +163,11 @@ function parseInsightsRow(row) {
   var spend = parseFloat(row.spend) || 0;
   var impressions = parseInt(row.impressions) || 0;
   var reach = parseInt(row.reach) || 0;
-  var clicks = 0;
+  // Use top-level clicks field (= "Klicks (alle)" in Ads Manager) for consistency with exports
+  var clicks = parseInt(row.clicks) || 0;
   var leads = 0;
   if (row.actions && Array.isArray(row.actions)) {
     row.actions.forEach(function(a) {
-      if (a.action_type === 'link_click') clicks = parseInt(a.value) || 0;
       if (a.action_type === 'lead') leads = parseInt(a.value) || 0;
     });
   }
@@ -186,7 +186,7 @@ function parseInsightsRow(row) {
 // ============================================
 async function fetchAllInsights(entityId, token, sinceDate) {
   var allRows = [];
-  var fields = 'spend,impressions,reach,actions,cost_per_action_type';
+  var fields = 'spend,impressions,reach,clicks,actions,cost_per_action_type';
   var params = 'fields=' + fields + '&time_increment=1&limit=500&access_token=' + encodeURIComponent(token);
   if (sinceDate) {
     params += '&time_range=' + encodeURIComponent(JSON.stringify({ since: sinceDate, until: new Date().toISOString().slice(0, 10) }));
@@ -218,7 +218,7 @@ async function fetchAllInsights(entityId, token, sinceDate) {
 // Actually, let me fix the pagination properly:
 async function fetchAllInsightsPages(entityId, token, sinceDate) {
   var allRows = [];
-  var fields = 'spend,impressions,reach,actions';
+  var fields = 'spend,impressions,reach,clicks,actions';
   var params = 'fields=' + fields + '&time_increment=1&limit=500&access_token=' + encodeURIComponent(token);
   if (sinceDate) {
     params += '&time_range=' + encodeURIComponent(JSON.stringify({ since: sinceDate, until: new Date().toISOString().slice(0, 10) }));
@@ -253,14 +253,18 @@ async function syncCampaign(campaign, token) {
 
   log('Syncing campaign: ' + campaignName + ' (meta_id=' + metaCampaignId + ')');
 
-  // 1. Find last synced date
+  // 1. Find since date — always re-sync last 7 days for Meta attribution window corrections
   var sinceDate = null;
+  var ATTRIBUTION_LOOKBACK_DAYS = 7;
   try {
     var maxDateRows = await sbGet('campaign_daily_metrics',
       'select=date&campaign_id=eq.' + campaignId + '&order=date.desc&limit=1');
     if (maxDateRows.length > 0) {
-      sinceDate = maxDateRows[0].date;
-      log('  Last synced date: ' + sinceDate + ' — fetching from there');
+      // Go back 7 days from last synced date to catch attribution corrections
+      var lastDate = new Date(maxDateRows[0].date);
+      lastDate.setDate(lastDate.getDate() - ATTRIBUTION_LOOKBACK_DAYS);
+      sinceDate = lastDate.toISOString().slice(0, 10);
+      log('  Last synced date: ' + maxDateRows[0].date + ' — re-syncing from ' + sinceDate + ' (attribution lookback)');
     } else {
       log('  No existing data — fetching all history');
     }
