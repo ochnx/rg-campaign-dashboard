@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script>
-    // Redirect to Client Dashboard when accessed via custom domain
-    if (window.location.hostname === 'dashboard.runandgun.agency' && window.location.pathname === '/') {
+    // Redirect to Client Dashboard when accessed via custom domain (bypass with ?cc)
+    if (window.location.hostname === 'dashboard.runandgun.agency' && window.location.pathname === '/' && !window.location.search.includes('cc')) {
       window.location.replace('/client/');
     }
   </script>
