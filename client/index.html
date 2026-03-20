@@ -2557,24 +2557,25 @@ Chart.register({
     var glowRadius = (area.right - area.left) * 0.45;
 
     ctx.save();
+    var pushRadius = glowRadius * 1.8;
     for (var y = area.top; y < area.bottom; y += spacing) {
       for (var x = area.left; x < area.right; x += spacing) {
         var dx = x - mouseX;
         var dy = y - mouseY;
         var dist = Math.sqrt(dx * dx + dy * dy);
 
+        var drawX = x;
+        var drawY = y;
+        if (dist < pushRadius && dist > 0) {
+          var pushAmt = Math.pow(1 - dist / pushRadius, 2) * 8 * strength;
+          drawX = x + (dx / dist) * pushAmt;
+          drawY = y + (dy / dist) * pushAmt;
+        }
+
         if (dist < glowRadius) {
           var intensity = 1 - (dist / glowRadius);
           intensity = intensity * intensity;
           var dotSize = 1.2 + intensity * 2.5 * strength;
-
-          var drawX = x;
-          var drawY = y;
-          if (dist > 0) {
-            var pushStrength = Math.pow(1 - dist / glowRadius, 2) * 8 * strength;
-            drawX = x + (dx / dist) * pushStrength;
-            drawY = y + (dy / dist) * pushStrength;
-          }
 
           ctx.beginPath();
           ctx.arc(drawX, drawY, dotSize, 0, Math.PI * 2);
@@ -5156,6 +5157,7 @@ async function predictPerformance() {
         dotCanvas.style.height = bounds.h + 'px';
         dotCtx.clearRect(0, 0, bounds.w, bounds.h);
         var glowRadius = bounds.w * 0.75;
+        var mapPushRadius = glowRadius * 1.8;
         for (var dx = 0; dx < bounds.w; dx += dotSpacing) {
           for (var dy = 0; dy < bounds.h; dy += dotSpacing) {
             var dist = Math.sqrt(Math.pow(dx - dotMouseX, 2) + Math.pow(dy - dotMouseY, 2));
@@ -5164,15 +5166,15 @@ async function predictPerformance() {
             var alpha = 0.08;
             var drawDx = dx;
             var drawDy = dy;
+            if (dotMouseX >= 0 && dist < mapPushRadius && dist > 0 && dotGlowStrength > 0.01) {
+              var pushAmt = Math.pow(1 - dist / mapPushRadius, 2) * 8 * dotGlowStrength;
+              drawDx = dx + ((dx - dotMouseX) / dist) * pushAmt;
+              drawDy = dy + ((dy - dotMouseY) / dist) * pushAmt;
+            }
             if (dotMouseX >= 0 && dist < glowRadius && dotGlowStrength > 0.01) {
               var t = 1 - dist / glowRadius;
               t = t * t;
               r = baseR + t * 2.2 * dotGlowStrength;
-              if (dist > 0) {
-                var pushStrength = Math.pow(1 - dist / glowRadius, 2) * 8 * dotGlowStrength;
-                drawDx = dx + ((dx - dotMouseX) / dist) * pushStrength;
-                drawDy = dy + ((dy - dotMouseY) / dist) * pushStrength;
-              }
             }
             dotCtx.beginPath();
             dotCtx.arc(drawDx, drawDy, r, 0, Math.PI * 2);
