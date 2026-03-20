@@ -607,7 +607,13 @@
       display: grid;
       grid-template-columns: 1fr 380px;
       gap: 20px;
-      align-items: start;
+      align-items: stretch;
+    }
+
+    .right-column-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
     .campaigns-panel {
@@ -618,6 +624,9 @@
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-card);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 700px;
     }
     .panel-header {
       display: flex;
@@ -644,7 +653,28 @@
     .sort-btn.active { background: var(--accent); color: white; }
     .sort-arrow { font-size: 10px; opacity: 0.7; margin-left: 2px; }
 
-    .campaign-list { max-height: 500px; overflow-y: auto; }
+    .status-filter-bar {
+      display: flex;
+      gap: 4px;
+      padding: 8px 22px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .status-filter-btn {
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 150ms var(--ease-out-expo);
+    }
+    .status-filter-btn:hover { background: rgba(0,0,0,0.04); color: var(--text-primary); }
+    .status-filter-btn.active { background: var(--accent); color: white; }
+
+    .campaign-list { flex: 1; overflow-y: auto; }
 
     .campaign-item {
       display: flex;
@@ -929,11 +959,16 @@
       letter-spacing: 0.08em;
       color: var(--text-muted);
       border-bottom: 2px solid rgba(0,0,0,0.06);
-      background: var(--bg-secondary);
+      background: transparent;
     }
 
     .creative-ranking-table th:last-child,
     .creative-ranking-table td:last-child { text-align: left; }
+
+    .creative-ranking-table.weekday-table th:nth-child(n+2),
+    .creative-ranking-table.weekday-table td:nth-child(n+2) { text-align: right; }
+    .creative-ranking-table.weekday-table th:last-child,
+    .creative-ranking-table.weekday-table td:last-child { text-align: right; }
     .creative-ranking-table th:nth-child(3),
     .creative-ranking-table td:nth-child(3),
     .creative-ranking-table th:nth-child(4),
@@ -2049,26 +2084,35 @@
               <button class="sort-btn active" data-sort="spend" onclick="sortTable('spend')">Ausgaben <span class="sort-arrow">↓</span></button>
               <button class="sort-btn" data-sort="leads" onclick="sortTable('leads')">Leads <span class="sort-arrow">↕</span></button>
               <button class="sort-btn" data-sort="cpl" onclick="sortTable('cpl')">CPL <span class="sort-arrow">↕</span></button>
+              <button class="sort-btn" data-sort="status" onclick="sortTable('status')">Status <span class="sort-arrow">↕</span></button>
             </div>
+          </div>
+          <div class="status-filter-bar">
+            <button class="status-filter-btn active" data-status="all" onclick="filterByStatus('all')">Alle</button>
+            <button class="status-filter-btn" data-status="active" onclick="filterByStatus('active')">Aktiv</button>
+            <button class="status-filter-btn" data-status="paused" onclick="filterByStatus('paused')">Pausiert</button>
+            <button class="status-filter-btn" data-status="completed" onclick="filterByStatus('completed')">Abgeschlossen</button>
           </div>
           <div class="campaign-list" id="campaignTableBody"></div>
         </div>
 
-        <div class="creative-panel" id="mainCreativeSection" style="display:none">
-          <div class="panel-header">
-            <span class="panel-title">Creative Ranking</span>
+        <div class="right-column-stack">
+          <div class="creative-panel" id="mainCreativeSection" style="display:none">
+            <div class="panel-header">
+              <span class="panel-title">Creative Ranking</span>
+            </div>
+            <div class="creative-list" id="mainCreativeRanking"></div>
           </div>
-          <div class="creative-list" id="mainCreativeRanking"></div>
+
+          <div class="creative-panel" id="weekdaySection" style="display:none">
+            <div class="panel-header">
+              <span class="panel-title">Wochentag-Performance</span>
+            </div>
+            <div style="padding:0 18px 4px;color:var(--text-muted);font-size:12px;">Ø Leads und CPL nach Wochentag (über alle Kampagnen)</div>
+            <div class="creative-list" id="weekdayTable"></div>
+          </div>
         </div>
 
-      </div>
-
-      <div class="creative-panel" id="weekdaySection" style="display:none">
-        <div class="panel-header">
-          <span class="panel-title">📅 Wochentag-Performance</span>
-        </div>
-        <div style="padding:0 18px 4px;color:var(--text-muted);font-size:12px;">Ø Leads und CPL nach Wochentag (über alle Kampagnen)</div>
-        <div class="creative-list" id="weekdayTable"></div>
       </div>
 
       <!-- Audience Insights (global) -->
@@ -2564,6 +2608,15 @@ function isExcludedCampaign(id) { return EXCLUDED_CAMPAIGN_IDS.has(id); }
 let trendChart = null;
 let detailChartInstance = null;
 let currentSort = { field: 'spend', dir: 'desc' };
+let currentStatusFilter = 'all';
+
+function filterByStatus(status) {
+  currentStatusFilter = status;
+  document.querySelectorAll('.status-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.status === status);
+  });
+  renderDashboard();
+}
 let currentFilter = 'all'; // 'all' or 'YYYY-MM'
 let currentDetailCampaignId = null;
 
@@ -3182,12 +3235,11 @@ function renderWeekdayPerformance(metrics) {
   rows.sort(function(a, b) { return b.avgLeads - a.avgLeads; });
 
   var bestDay = rows[0].name;
-  var html = '<table class="creative-ranking-table" style="width:100%"><thead><tr>' +
-    '<th style="text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Wochentag</th>' +
-    '<th style="text-align:right;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Ø Leads/Tag</th>' +
-    '<th style="text-align:right;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Ø CPL</th>' +
-    '<th style="text-align:right;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Ø Spend/Tag</th>' +
-    '<th style="text-align:right;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600">Tage</th>' +
+  var html = '<table class="creative-ranking-table weekday-table" style="width:100%"><thead><tr>' +
+    '<th>Wochentag</th>' +
+    '<th>Ø Leads/Tag</th>' +
+    '<th>Ø CPL</th>' +
+    '<th>Ø Spend/Tag</th>' +
     '</tr></thead><tbody>';
 
   rows.forEach(function(r) {
@@ -3198,7 +3250,6 @@ function renderWeekdayPerformance(metrics) {
       '<td style="text-align:right;padding:12px;font-weight:700;font-variant-numeric:tabular-nums">' + r.avgLeads.toFixed(1) + '</td>' +
       '<td style="text-align:right;padding:12px;font-weight:700;color:' + (isBest ? 'var(--accent)' : 'var(--text-primary)') + ';font-variant-numeric:tabular-nums">' + (r.avgCPL !== null ? formatEUR(r.avgCPL) : '—') + '</td>' +
       '<td style="text-align:right;padding:12px;font-variant-numeric:tabular-nums">' + formatEUR(r.avgSpend) + '</td>' +
-      '<td style="text-align:right;padding:12px;color:var(--text-muted)">' + r.days + '</td>' +
       '</tr>';
   });
 
@@ -3420,6 +3471,13 @@ function renderCampaignTable(metrics) {
     };
   });
 
+  // Apply status filter
+  if (currentStatusFilter !== 'all') {
+    displayCampaigns = displayCampaigns.filter(c => (c.status || 'active') === currentStatusFilter);
+  }
+
+  const statusOrder = { active: 0, paused: 1, completed: 2 };
+
   displayCampaigns.sort((a, b) => {
     let va, vb;
     switch (currentSort.field) {
@@ -3438,6 +3496,10 @@ function renderCampaignTable(metrics) {
       case 'cpl':
         va = a.fCPL === Infinity ? 999999 : a.fCPL;
         vb = b.fCPL === Infinity ? 999999 : b.fCPL;
+        return currentSort.dir === 'asc' ? va - vb : vb - va;
+      case 'status':
+        va = statusOrder[a.status || 'active'] ?? 3;
+        vb = statusOrder[b.status || 'active'] ?? 3;
         return currentSort.dir === 'asc' ? va - vb : vb - va;
       default:
         return 0;
@@ -3503,7 +3565,7 @@ function sortTable(field) {
     currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
   } else {
     currentSort.field = field;
-    currentSort.dir = field === 'name' ? 'asc' : 'desc';
+    currentSort.dir = (field === 'name' || field === 'status') ? 'asc' : 'desc';
   }
   renderDashboard();
 }
