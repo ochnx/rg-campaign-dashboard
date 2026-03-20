@@ -163,11 +163,11 @@ function parseInsightsRow(row) {
   var spend = parseFloat(row.spend) || 0;
   var impressions = parseInt(row.impressions) || 0;
   var reach = parseInt(row.reach) || 0;
-  // Use top-level clicks field (= "Klicks (alle)" in Ads Manager) for consistency with exports
-  var clicks = parseInt(row.clicks) || 0;
+  var clicks = 0;
   var leads = 0;
   if (row.actions && Array.isArray(row.actions)) {
     row.actions.forEach(function(a) {
+      if (a.action_type === 'link_click') clicks = parseInt(a.value) || 0;
       if (a.action_type === 'lead') leads = parseInt(a.value) || 0;
     });
   }
