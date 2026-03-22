@@ -7373,11 +7373,20 @@ function formatNum(val) {
 
 function formatDate(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  // Parse YYYY-MM-DD as local date (avoids UTC midnight shifting day by 1)
+function parseLocalDate(d) {
+  if (!d) return new Date(NaN);
+  var p = String(d).split('-');
+  if (p.length === 3) return new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  return new Date(d);
+}
+return parseLocalDate(d).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 function formatDateShort(d) {
   if (!d) return '—';
+  var p = String(d).split('-');
+  if (p.length === 3) return new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2])).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
   return new Date(d).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
 }
 
@@ -8105,9 +8114,13 @@ function renderHomeLeadsChart(camps) {
   if (_homeLeadsChart) _homeLeadsChart.destroy();
 
   // Aggregate leads per day across ALL campaigns (last 30 days)
+  // Use local date strings (YYYY-MM-DD) to avoid UTC offset shifting dates
+  function toLocalDateKey(dt) {
+    return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+  }
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000);
-  const cutoff = thirtyDaysAgo.toISOString().slice(0, 10);
+  const cutoff = toLocalDateKey(thirtyDaysAgo);
 
   const dailyMap = {};
   camps.forEach(c => {
@@ -8123,7 +8136,7 @@ function renderHomeLeadsChart(camps) {
   const labels = [];
   const data = [];
   for (let d = new Date(thirtyDaysAgo); d <= now; d.setDate(d.getDate() + 1)) {
-    const key = d.toISOString().slice(0, 10);
+    const key = toLocalDateKey(d);
     labels.push(formatDateShort(key));
     data.push(dailyMap[key] || 0);
   }
