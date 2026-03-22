@@ -10286,7 +10286,8 @@ async function renderBenchmarks(campaign, property, metrics) {
         var byDow = {};
         sortedDM.forEach(function(dm) {
           if (!dm.date) return;
-          var dow = new Date(dm.date).getDay();
+          // Parse date as local time to avoid UTC-offset shifting weekday by 1 day
+          var _dp = dm.date.split('-'); var dow = new Date(parseInt(_dp[0]), parseInt(_dp[1])-1, parseInt(_dp[2])).getDay();
           if (!byDow[dow]) byDow[dow] = { spend: 0, leads: 0 };
           byDow[dow].spend += (dm.spend || 0);
           byDow[dow].leads += (dm.leads || 0);
