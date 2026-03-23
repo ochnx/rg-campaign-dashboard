@@ -4407,6 +4407,16 @@ function renderCorrelationAnalysis(allData) {
     var r3 = pearsonCorrelation(ppsqm, withPPSQM.map(function(d) { return d.cpl; }));
     if (r3 !== null) correlations.push({ label: 'qm-Preis ↔ CPL', r: r3, n: withPPSQM.length });
   }
+  var withRooms = allData.filter(function(d) { return d.prop && d.prop.rooms && d.cpl; });
+  if (withRooms.length >= 2) {
+    var r4 = pearsonCorrelation(withRooms.map(function(d) { return d.prop.rooms; }), withRooms.map(function(d) { return d.cpl; }));
+    if (r4 !== null) correlations.push({ label: 'Zimmer ↔ CPL', r: r4, n: withRooms.length });
+  }
+  var withPlot = allData.filter(function(d) { return d.prop && d.prop.plot_size && d.cpl; });
+  if (withPlot.length >= 2) {
+    var r5 = pearsonCorrelation(withPlot.map(function(d) { return d.prop.plot_size; }), withPlot.map(function(d) { return d.cpl; }));
+    if (r5 !== null) correlations.push({ label: 'Grundstück ↔ CPL', r: r5, n: withPlot.length });
+  }
 
   if (correlations.length === 0) {
     container.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Nicht genügend numerische Daten für Korrelationsanalyse.</div>';
