@@ -4550,6 +4550,8 @@
       margin-bottom: 24px;
       padding-bottom: 24px;
       border-bottom: 1px solid #f0f0f0;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .editorial-a4-entry:last-child {
       border-bottom: none;
@@ -4706,9 +4708,37 @@
         padding: 15mm 15mm 15mm 15mm !important;
         min-height: auto !important;
       }
+      body.print-editorial .editorial-a4-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: #fff !important;
+        padding: 12mm 15mm 4mm 15mm !important;
+        z-index: 9999 !important;
+        display: flex !important;
+        align-items: flex-end !important;
+        justify-content: space-between !important;
+      }
+      body.print-editorial .editorial-a4-separator {
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+        margin-top: 0 !important;
+      }
+      body.print-editorial #ep-a4-entries {
+        padding-top: 36mm !important;
+      }
+      body.print-editorial .editorial-a4-entry {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      body.print-editorial .editorial-a4-outlook {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      @page { size: A4 portrait; margin: 0; }
       body.print-editorial .view { display: none !important; }
       body.print-editorial #view-editorial-planner { display: block !important; }
-      @page { size: A4 portrait; margin: 0; }
 
       /* ── Map Builder Print ── */
       body.print-map .view { display: none !important; }
