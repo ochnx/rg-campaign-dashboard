@@ -614,7 +614,10 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
-      align-items: stretch;
+    }
+    .campaigns-cell {
+      position: relative;
+      min-height: 400px;
     }
 
     .right-column-stack {
@@ -624,6 +627,8 @@
     }
 
     .campaigns-panel {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: var(--glass-bg);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
@@ -1274,6 +1279,8 @@
     @media (max-width: 1100px) {
       .kpi-grid { grid-template-columns: repeat(3, 1fr); }
       .bottom-grid { grid-template-columns: 1fr; }
+      .campaigns-cell { min-height: 0; }
+      .campaigns-panel { position: static; }
     }
 
     @media (max-width: 768px) {
@@ -1536,8 +1543,9 @@
     .segment-table td:last-child { padding-right: 24px; }
     .segment-table tbody tr:last-child td { border-bottom: none; }
     .segment-table tbody tr:hover { background: rgba(231,53,46,0.04); }
-    .segment-cell-good { color: var(--green); font-weight: 600; }
-    .segment-cell-bad { color: var(--red); font-weight: 600; }
+    .segment-table th[data-sort] { cursor: pointer; user-select: none; transition: color 0.15s; }
+    .segment-table th[data-sort]:hover { color: var(--text-primary); }
+    .segment-table th.seg-sort-active { color: var(--text-primary); }
 
     /* Scatter plot */
     .scatter-container {
@@ -2083,6 +2091,7 @@
 
       <!-- Bottom Grid: Campaigns + Creative -->
       <div class="bottom-grid">
+        <div class="campaigns-cell">
         <div class="campaigns-panel">
           <div class="panel-header">
             <span class="panel-title" id="campaignsTitle">Kampagnen</span>
@@ -2100,6 +2109,7 @@
             <button class="status-filter-btn" data-status="completed" onclick="filterByStatus('completed')">Abgeschlossen</button>
           </div>
           <div class="campaign-list" id="campaignTableBody"></div>
+        </div>
         </div>
 
         <div class="right-column-stack">
@@ -4295,34 +4305,86 @@ async function loadDataIntelligence() {
 
 function renderSegmentMatrix(allData, globalAvgCPL, globalAvgCPM) {
   var container = document.getElementById('data-intel-segments');
-  function buildTable(title, grouped, labelFn) {
-    var keys = Object.keys(grouped).sort();
-    if (keys.length === 0) return '';
-    var rows = keys.map(function(k) {
-      var items = grouped[k];
-      var sp = items.reduce(function(s,d) { return s + d.spend; }, 0);
-      var ld = items.reduce(function(s,d) { return s + d.leads; }, 0);
-      var im = items.reduce(function(s,d) { return s + d.impressions; }, 0);
-      var cpl = ld > 0 ? sp / ld : null;
-      var cpm = im > 0 ? (sp / im) * 1000 : null;
-      var cplCls = cpl !== null ? (cpl < globalAvgCPL * 0.95 ? 'segment-cell-good' : cpl > globalAvgCPL * 1.05 ? 'segment-cell-bad' : '') : '';
-      return '<tr><td style="font-weight:600;">' + escHtml(labelFn ? labelFn(k) : k) + '</td><td class="' + cplCls + '">' + (cpl !== null ? diFormatEur(cpl) : '—') + '</td><td>' + (cpm !== null ? diFormatEur(cpm) : '—') + '</td><td>' + items.length + '</td></tr>';
-    }).join('');
-    return '<div class="card"><div class="card-header"><div class="card-title">' + escHtml(title) + '</div></div><div class="card-body" style="padding:0;"><table class="segment-table"><thead><tr><th>Segment</th><th>Ø CPL</th><th>Ø CPM</th><th>Kampagnen</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
-  }
-
   var propTypeLabels = {wohnung:'Wohnung',haus:'Haus',penthouse:'Penthouse',villa:'Villa',reihenhaus:'Reihenhaus',grundstueck:'Grundstück',gewerbe:'Gewerbe',neubauprojekt:'Neubauprojekt',zweifamilienhaus:'Zweifamilienhaus',doppelhaushaelfte:'Doppelhaushälfte',sonstige:'Sonstige'};
   var byCity = diGroupBy(allData.filter(function(d) { return d.prop && d.prop.city; }), function(d) { return d.prop.city; });
   var byType = diGroupBy(allData.filter(function(d) { return d.prop && d.prop.property_type; }), function(d) { return d.prop.property_type; });
   var byRating = diGroupBy(allData.filter(function(d) { return d.prop && (d.prop.location_rating || d.prop.city); }), function(d) { return d.prop.location_rating || getCityRating(d.prop.city) || '?'; });
   var byPrice = diGroupBy(allData.filter(function(d) { return d.effectivePrice; }), function(d) { return priceRange(d.effectivePrice); });
 
+  function computeRows(grouped, labelFn) {
+    return Object.keys(grouped).map(function(k) {
+      var items = grouped[k];
+      var sp = items.reduce(function(s,d) { return s + d.spend; }, 0);
+      var ld = items.reduce(function(s,d) { return s + d.leads; }, 0);
+      var im = items.reduce(function(s,d) { return s + d.impressions; }, 0);
+      return { label: labelFn ? labelFn(k) : k, cpl: ld > 0 ? sp / ld : null, cpm: im > 0 ? (sp / im) * 1000 : null, count: items.length };
+    });
+  }
+
+  function sortRows(rows, col, dir) {
+    return rows.slice().sort(function(a, b) {
+      var av, bv;
+      if (col === 'segment') { av = a.label.toLowerCase(); bv = b.label.toLowerCase(); return dir === 'asc' ? (av < bv ? -1 : av > bv ? 1 : 0) : (bv < av ? -1 : bv > av ? 1 : 0); }
+      if (col === 'cpl') { av = a.cpl; bv = b.cpl; }
+      else if (col === 'cpm') { av = a.cpm; bv = b.cpm; }
+      else { av = a.count; bv = b.count; }
+      if (av === null) return 1; if (bv === null) return -1;
+      return dir === 'asc' ? av - bv : bv - av;
+    });
+  }
+
+  function renderTable(tableEl, rows) {
+    var tbody = tableEl.querySelector('tbody');
+    tbody.innerHTML = rows.map(function(r) {
+      return '<tr><td style="font-weight:600;">' + escHtml(r.label) + '</td><td>' + (r.cpl !== null ? diFormatEur(r.cpl) : '—') + '</td><td>' + (r.cpm !== null ? diFormatEur(r.cpm) : '—') + '</td><td>' + r.count + '</td></tr>';
+    }).join('');
+  }
+
+  function buildCard(title, grouped, labelFn) {
+    var rows = computeRows(grouped, labelFn);
+    if (rows.length === 0) return '';
+    var id = 'seg-' + title.replace(/[^a-z]/gi, '').toLowerCase();
+    return '<div class="card" data-seg-id="' + id + '"><div class="card-header"><div class="card-title">' + escHtml(title) + '</div></div><div class="card-body" style="padding:0;"><table class="segment-table"><thead><tr><th>Segment</th><th data-sort="cpl" class="seg-sort-active">Ø CPL ↑</th><th data-sort="cpm">Ø CPM</th><th data-sort="count">Kampagnen</th></tr></thead><tbody></tbody></table></div></div>';
+  }
+
   var html = '';
-  html += buildTable('Nach Stadt', byCity);
-  html += buildTable('Nach Objektart', byType, function(k) { return propTypeLabels[k] || k; });
-  html += buildTable('Nach Standort-Rating', byRating);
-  html += buildTable('Nach Preisklasse', byPrice);
+  html += buildCard('Nach Stadt', byCity);
+  html += buildCard('Nach Objektart', byType, function(k) { return propTypeLabels[k] || k; });
+  html += buildCard('Nach Standort-Rating', byRating);
+  html += buildCard('Nach Preisklasse', byPrice);
   container.innerHTML = html || '<div class="empty-state"><div class="empty-state-desc">Nicht genügend Daten für Segmentierung</div></div>';
+
+  // Store row data and default-sort by CPL ascending
+  var tables = [
+    { grouped: byCity, labelFn: null },
+    { grouped: byType, labelFn: function(k) { return propTypeLabels[k] || k; } },
+    { grouped: byRating, labelFn: null },
+    { grouped: byPrice, labelFn: null }
+  ];
+  var cards = container.querySelectorAll('.card[data-seg-id]');
+  cards.forEach(function(card, i) {
+    var rows = computeRows(tables[i].grouped, tables[i].labelFn);
+    var tbl = card.querySelector('.segment-table');
+    var state = { col: 'cpl', dir: 'asc' };
+    renderTable(tbl, sortRows(rows, state.col, state.dir));
+
+    tbl.querySelectorAll('th[data-sort]').forEach(function(th) {
+      th.addEventListener('click', function() {
+        var col = th.getAttribute('data-sort');
+        if (state.col === col) { state.dir = state.dir === 'asc' ? 'desc' : 'asc'; }
+        else { state.col = col; state.dir = 'asc'; }
+        renderTable(tbl, sortRows(rows, state.col, state.dir));
+        tbl.querySelectorAll('th[data-sort]').forEach(function(h) {
+          h.classList.remove('seg-sort-active');
+          var base = h.textContent.replace(/ [↑↓]/g, '');
+          h.textContent = base;
+        });
+        th.classList.add('seg-sort-active');
+        var arrow = state.dir === 'asc' ? ' ↑' : ' ↓';
+        th.textContent = th.textContent + arrow;
+      });
+    });
+  });
 }
 
 function renderCorrelationAnalysis(allData) {
