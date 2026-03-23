@@ -4708,10 +4708,6 @@
         padding: 15mm 15mm 15mm 15mm !important;
         min-height: auto !important;
       }
-      body.print-editorial .editorial-a4-separator {
-        break-after: avoid !important;
-        page-break-after: avoid !important;
-      }
       body.print-editorial .editorial-a4-entry {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
@@ -4720,9 +4716,19 @@
         break-inside: avoid !important;
         page-break-inside: avoid !important;
       }
-      body.print-editorial .ep-injected-pageheader {
-        break-before: page !important;
-        page-break-before: always !important;
+      /* Hide original A4 when paged versions are injected */
+      body.print-editorial .ep-original-hidden {
+        display: none !important;
+      }
+      /* Each injected page gets full A4 styling */
+      body.print-editorial .ep-print-page {
+        width: 100% !important;
+        max-width: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 15mm !important;
+        min-height: auto !important;
+        background: #fff !important;
       }
       @page { size: A4 portrait; margin: 0; }
       body.print-editorial .view { display: none !important; }
@@ -17068,49 +17074,93 @@ init();
     return 'print-editorial';
   }
 
+  // Helper: build one A4 page HTML string with header + given entries
+  function epBuildPageHtml(monthLabel, entryNodes) {
+    var headerHtml = document.getElementById('ep-a4-preview').querySelector('.editorial-a4-header').outerHTML;
+    var entriesHtml = Array.from(entryNodes).map(function(n) { return n.outerHTML; }).join('');
+    return '<div class="editorial-a4 ep-print-page">' +
+      headerHtml +
+      '<div class="editorial-a4-separator"></div>' +
+      '<div class="ep-print-entries">' + entriesHtml + '</div>' +
+      '</div>';
+  }
+
   window.addEventListener('beforeprint', function() {
     var cls = getPrintClass();
     document.body.classList.add(cls);
     document.body.dataset.printMode = cls;
 
-    // Editorial: inject repeated page headers before each entry that would start a new page
     if (cls === 'print-editorial') {
-      var a4 = document.getElementById('ep-a4-preview');
-      var origHeader = a4 ? a4.querySelector('.editorial-a4-header') : null;
-      var origSep = a4 ? a4.querySelector('.editorial-a4-separator') : null;
-      var entriesContainer = document.getElementById('ep-a4-entries');
-      if (origHeader && entriesContainer) {
-        // Remove any previously injected headers
-        entriesContainer.querySelectorAll('.ep-injected-pageheader').forEach(function(el) { el.remove(); });
+      var previewArea = document.querySelector('.editorial-preview-area');
+      var origA4 = document.getElementById('ep-a4-preview');
+      if (!previewArea || !origA4) return;
 
-        // Temporarily render to measure entry heights
-        // Strategy: inject a header clone before every Nth entry so Chrome paginates cleanly.
-        // We use a CSS-only approach: wrap entries in a table with thead that auto-repeats.
-        var entries = entriesContainer.querySelectorAll('.editorial-a4-entry');
-        if (entries.length > 6) {
-          // Inject a page-break + header clone after entry 6 and every 7 entries after
-          var insertPoints = [];
-          for (var i = 6; i < entries.length; i += 7) {
-            insertPoints.push(entries[i]);
-          }
-          insertPoints.forEach(function(entry) {
-            var pageBreak = document.createElement('div');
-            pageBreak.className = 'ep-injected-pageheader';
-            pageBreak.style.cssText = 'break-before: page; page-break-before: always; padding-top: 15mm;';
+      // Remove any previously injected print pages
+      previewArea.querySelectorAll('.ep-print-page').forEach(function(el) { el.remove(); });
 
-            var headerClone = origHeader.cloneNode(true);
-            headerClone.style.cssText = '';
-            pageBreak.appendChild(headerClone);
+      var entries = Array.from(document.getElementById('ep-a4-entries').querySelectorAll('.editorial-a4-entry'));
+      if (entries.length <= 6) return; // Fits on one page, no need to split
 
-            if (origSep) {
-              var sepClone = origSep.cloneNode(true);
-              pageBreak.appendChild(sepClone);
-            }
+      var monthLabel = document.getElementById('ep-a4-month-label').textContent;
 
-            entriesContainer.insertBefore(pageBreak, entry);
-          });
+      // Measure how many entries fit per page using offsetHeight
+      // A4 at 96dpi = 1122px. Header ~90px + separator ~20px = ~110px overhead. Each entry ~120–200px.
+      // We measure actual entry heights to split correctly.
+      var A4_CONTENT_HEIGHT = 960; // px available per page (A4 minus padding)
+      var HEADER_HEIGHT = origA4.querySelector('.editorial-a4-header').offsetHeight +
+                          origA4.querySelector('.editorial-a4-separator').offsetHeight + 20;
+
+      var pages = [];
+      var currentPage = [];
+      var usedHeight = HEADER_HEIGHT;
+
+      entries.forEach(function(entry) {
+        var h = entry.offsetHeight + 24 + 1; // +margin-bottom + border
+        if (usedHeight + h > A4_CONTENT_HEIGHT && currentPage.length > 0) {
+          pages.push(currentPage);
+          currentPage = [entry];
+          usedHeight = HEADER_HEIGHT + h;
+        } else {
+          currentPage.push(entry);
+          usedHeight += h;
         }
-      }
+      });
+      if (currentPage.length > 0) pages.push(currentPage);
+
+      if (pages.length <= 1) return; // Still fits on one page
+
+      // Hide original A4 during print, inject paged versions
+      origA4.classList.add('ep-original-hidden');
+
+      pages.forEach(function(pageEntries, idx) {
+        var pageDiv = document.createElement('div');
+        pageDiv.className = 'ep-print-page';
+        if (idx > 0) pageDiv.style.cssText = 'break-before: page; page-break-before: always;';
+
+        // Header
+        var headerClone = origA4.querySelector('.editorial-a4-header').cloneNode(true);
+        pageDiv.appendChild(headerClone);
+
+        // Red separator
+        var sep = document.createElement('div');
+        sep.className = 'editorial-a4-separator';
+        pageDiv.appendChild(sep);
+
+        // Entries
+        var entriesWrap = document.createElement('div');
+        pageEntries.forEach(function(e) {
+          entriesWrap.appendChild(e.cloneNode(true));
+        });
+        pageDiv.appendChild(entriesWrap);
+
+        // Outlook section only on last page
+        var outlookSection = document.getElementById('ep-a4-outlook-section');
+        if (idx === pages.length - 1 && outlookSection && outlookSection.style.display !== 'none') {
+          pageDiv.appendChild(outlookSection.cloneNode(true));
+        }
+
+        previewArea.appendChild(pageDiv);
+      });
     }
   });
 
@@ -17120,8 +17170,10 @@ init();
       document.body.classList.remove(cls);
       delete document.body.dataset.printMode;
     }
-    // Clean up injected headers
-    document.querySelectorAll('.ep-injected-pageheader').forEach(function(el) { el.remove(); });
+    // Restore original A4, remove injected pages
+    var origA4 = document.getElementById('ep-a4-preview');
+    if (origA4) origA4.classList.remove('ep-original-hidden');
+    document.querySelectorAll('.ep-print-page').forEach(function(el) { el.remove(); });
   });
 })();
 </script>
