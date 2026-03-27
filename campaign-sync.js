@@ -516,17 +516,106 @@ async function main() {
     }
   }
 
-  // 3. Summary
+  // 3. Reconciliation Pass — check last 14 days across ALL campaigns with meta_campaign_id
+  // Meta adjusts historical data retroactively (attribution window). This catches silent drift.
+  log('');
+  log('========================================');
+  log('RECONCILIATION PASS (last 14 days)...');
+  log('========================================');
+
+  var allCampaigns;
+  try {
+    allCampaigns = await sbGet('campaigns',
+      'select=id,campaign_name,meta_campaign_id&meta_campaign_id=not.is.null');
+  } catch (e) {
+    log('WARNING: Could not load campaigns for reconciliation: ' + e.message);
+    allCampaigns = [];
+  }
+
+  var reconcileFixed = 0;
+  var reconcileErrors = 0;
+  var sinceDate = new Date();
+  sinceDate.setDate(sinceDate.getDate() - 14);
+  var sinceDateStr = sinceDate.toISOString().slice(0, 10);
+  var todayStr = new Date().toISOString().slice(0, 10);
+
+  for (var ri = 0; ri < allCampaigns.length; ri++) {
+    var rc = allCampaigns[ri];
+    try {
+      // Fetch last 14 days from Meta
+      var metaInsights = await httpRequest(
+        'https://graph.facebook.com/v24.0/' + rc.meta_campaign_id +
+        '/insights?fields=spend,impressions,reach,actions&time_increment=1' +
+        '&time_range=' + encodeURIComponent(JSON.stringify({ since: sinceDateStr, until: todayStr })) +
+        '&limit=100&access_token=' + encodeURIComponent(token), {});
+      var insightData = JSON.parse(metaInsights.body);
+      var metaRows = (insightData.data || []);
+
+      if (metaRows.length === 0) continue;
+
+      // Fetch DB rows for same period
+      var dbRows = await sbGet('campaign_daily_metrics',
+        'campaign_id=eq.' + rc.id + '&date=gte.' + sinceDateStr + '&select=id,date,spend,leads,impressions,reach');
+      var dbByDate = {};
+      (dbRows || []).forEach(function(r) { dbByDate[r.date] = r; });
+
+      for (var mi = 0; mi < metaRows.length; mi++) {
+        var mrow = metaRows[mi];
+        var date = mrow.date_start;
+        var leads = parseInt(((mrow.actions || []).find(function(a) { return a.action_type === 'lead'; }) || {}).value || 0);
+        var spend = Math.round((parseFloat(mrow.spend) || 0) * 100) / 100;
+        var impr = parseInt(mrow.impressions) || 0;
+        var reach = parseInt(mrow.reach) || 0;
+
+        if (spend === 0 && leads === 0) continue;
+
+        var dbRow = dbByDate[date];
+        var needsInsert = !dbRow;
+        var needsPatch = dbRow && (dbRow.leads !== leads || Math.abs((dbRow.spend || 0) - spend) > 0.02);
+
+        if (!needsInsert && !needsPatch) continue;
+
+        // Never include generated columns (cpl, cpm, ctr) in writes
+        var payload = { campaign_id: rc.id, date: date, spend: spend, impressions: impr, reach: reach, leads: leads };
+
+        if (needsInsert) {
+          try {
+            await sbUpsert('campaign_daily_metrics', payload);
+            log('RECONCILE INSERT: ' + rc.campaign_name.slice(-40) + ' @ ' + date + ' (' + leads + ' leads, ' + spend + '€)');
+            reconcileFixed++;
+          } catch (e2) { reconcileErrors++; }
+        } else if (needsPatch) {
+          try {
+            var patchPayload = { spend: spend, impressions: impr, reach: reach, leads: leads };
+            await sbPatch('campaign_daily_metrics', dbRow.id, patchPayload);
+            log('RECONCILE FIX: ' + rc.campaign_name.slice(-40) + ' @ ' + date + ' leads ' + dbRow.leads + '→' + leads + ', spend ' + (dbRow.spend||0).toFixed(2) + '→' + spend);
+            reconcileFixed++;
+          } catch (e2) { reconcileErrors++; }
+        }
+      }
+    } catch (e) {
+      log('RECONCILE WARNING: ' + rc.campaign_name + ': ' + e.message);
+      reconcileErrors++;
+    }
+
+    // Small delay between campaigns to respect rate limits
+    if (ri < allCampaigns.length - 1) await sleep(500);
+  }
+
+  log('Reconciliation: ' + reconcileFixed + ' corrections, ' + reconcileErrors + ' errors');
+
+  // 4. Summary
   log('========================================');
   log('Sync complete!');
   log('  Campaigns: ' + liveCampaigns.length + ' (' + skippedInactive + ' skipped — not active on Meta)');
   log('  Days synced: ' + totalDays);
   log('  Total leads: ' + totalLeads);
   log('  Total spend: ' + totalSpend.toFixed(2) + '€');
-  log('  Errors: ' + totalErrors);
+  log('  Reconciliation fixes: ' + reconcileFixed);
+  log('  Errors: ' + (totalErrors + reconcileErrors));
   log('========================================');
 
-  process.exit(totalErrors > 0 ? 1 : 0);
+  process.exit((totalErrors + reconcileErrors) > 0 ? 1 : 0);
 }
 
 main().catch(function(e) {
