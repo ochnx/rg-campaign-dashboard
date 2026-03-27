@@ -475,7 +475,14 @@ async function main() {
         '?fields=status&access_token=' + encodeURIComponent(token), {});
       var statusData = JSON.parse(metaStatusRes.body);
       if (statusData.status && statusData.status !== 'ACTIVE') {
-        log('SKIP: ' + campaign.campaign_name + ' (Meta status: ' + statusData.status + ')');
+        log('SKIP: ' + campaign.campaign_name + ' (Meta status: ' + statusData.status + ') — marking as completed');
+        // Update DB: campaign is no longer active on Meta
+        try {
+          await sbPatch('campaigns', campaign.id, { status: 'completed', is_live: false });
+          log('  → Marked as completed in DB');
+        } catch (patchErr) {
+          log('  → WARNING: Could not update status in DB: ' + patchErr.message);
+        }
         skippedInactive++;
         continue;
       }

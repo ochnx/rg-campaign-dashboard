@@ -5611,7 +5611,7 @@
         <select class="form-select" id="filter-status" onchange="loadCampaigns()">
           <option value="">Alle Status</option>
           <option value="active">Aktiv</option>
-          <option value="paused">Pausiert</option>
+          
           <option value="completed">Abgeschlossen</option>
         </select>
       </div>
@@ -6063,7 +6063,7 @@
                   <label class="form-label">Status</label>
                   <select class="form-select" id="form-camp-status">
                     <option value="active">Aktiv</option>
-                    <option value="paused">Pausiert</option>
+                    
                     <option value="completed">Abgeschlossen</option>
                   </select>
                 </div>
@@ -6315,7 +6315,7 @@
                 <label class="form-label">Status</label>
                 <select class="form-select" id="edit-camp-status">
                   <option value="active">Aktiv</option>
-                  <option value="paused">Pausiert</option>
+                  
                   <option value="completed">Abgeschlossen</option>
                 </select>
               </div>
@@ -6561,7 +6561,6 @@
         <div class="meta-filter-btns">
           <button class="meta-filter-btn active" id="meta-filter-all" onclick="setMetaStatusFilter('all')">Alle</button>
           <button class="meta-filter-btn" id="meta-filter-active" onclick="setMetaStatusFilter('ACTIVE')">Active</button>
-          <button class="meta-filter-btn" id="meta-filter-paused" onclick="setMetaStatusFilter('PAUSED')">Paused</button>
         </div>
 
         <div id="meta-campaigns-loading" class="loading-spinner">
@@ -7415,8 +7414,8 @@ function formatDateShort(d) {
 }
 
 function statusBadge(status) {
-  const cls = status === 'active' ? 'badge-active' : status === 'paused' ? 'badge-paused' : 'badge-completed';
-  const label = status === 'active' ? 'Aktiv' : status === 'paused' ? 'Pausiert' : 'Abgeschlossen';
+  const cls = status === 'active' ? 'badge-active' : 'badge-completed';
+  const label = status === 'active' ? 'Aktiv' : 'Abgeschlossen';
   return `<span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>`;
 }
 
@@ -8227,8 +8226,8 @@ function renderHomeTopPerformer(camps) {
   }
 
   const propName = bestCamp.properties ? bestCamp.properties.name : '—';
-  const statusCls = bestCamp.status === 'active' ? 'badge-active' : bestCamp.status === 'paused' ? 'badge-paused' : 'badge-completed';
-  const statusLabel = bestCamp.status === 'active' ? 'Aktiv' : bestCamp.status === 'paused' ? 'Pausiert' : 'Abgeschlossen';
+  const statusCls = bestCamp.status === 'active' ? 'badge-active' : 'badge-completed';
+  const statusLabel = bestCamp.status === 'active' ? 'Aktiv' : 'Abgeschlossen';
 
   container.innerHTML =
     '<div class="home-performer-name" onclick="openCampaign(\'' + bestCamp.id + '\')">' + escHtml(bestCamp.campaign_name) + '</div>' +
@@ -14123,7 +14122,7 @@ function filterMetaCampaigns() {
 function setMetaStatusFilter(status) {
   _metaStatusFilter = status;
   document.querySelectorAll('.meta-filter-btn').forEach(function(btn) { btn.classList.remove('active'); });
-  document.getElementById('meta-filter-' + (status === 'all' ? 'all' : status === 'ACTIVE' ? 'active' : 'paused')).classList.add('active');
+  document.getElementById('meta-filter-' + (status === 'all' ? 'all' : 'active')).classList.add('active');
   renderMetaCampaignList();
 }
 
@@ -14150,7 +14149,7 @@ function renderMetaCampaignList() {
 
   list.innerHTML = filtered.map(function(c) {
     var isLinked = _metaLinkedIds[c.id];
-    var statusCls = c.status === 'ACTIVE' ? 'badge-active' : c.status === 'PAUSED' ? 'badge-paused' : 'badge-completed';
+    var statusCls = c.status === 'ACTIVE' ? 'badge-active' : 'badge-completed';
     var statusLabel = c.status === 'ACTIVE' ? 'Aktiv' : c.status === 'PAUSED' ? 'Pausiert' : c.status || '—';
     var startDate = c.start_time ? new Date(c.start_time).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
     var budget = '';
@@ -14564,7 +14563,7 @@ async function confirmUpgradeCampaign(campaignId) {
       meta_campaign_id: metaCamp.id,
       is_live: true,
       platform: 'meta',
-      status: metaCamp.status === 'ACTIVE' ? 'active' : metaCamp.status === 'PAUSED' ? 'paused' : 'completed',
+      status: metaCamp.status === 'ACTIVE' ? 'active' : 'completed',
       ad_account_id: selectedAdAccount,
       ad_account_name: adAccountNames[selectedAdAccount] || 'Unknown'
     });
@@ -14614,7 +14613,7 @@ async function confirmCreateNewCampaign() {
 // CREATE & SYNC NEW CAMPAIGN
 // ============================================
 async function createAndSyncNewCampaign(metaCamp, propertyId, campType) {
-  var metaStatus = metaCamp.status === 'ACTIVE' ? 'active' : metaCamp.status === 'PAUSED' ? 'paused' : 'completed';
+  var metaStatus = metaCamp.status === 'ACTIVE' ? 'active' : 'completed';
   var startDate = metaCamp.start_time ? metaCamp.start_time.substring(0, 10) : null;
 
   // Get selected ad account
