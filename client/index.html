@@ -2165,7 +2165,7 @@
       <div class="page-header">
         <div>
           <h1 class="page-title">Data Intelligence</h1>
-          <div class="page-subtitle">Statistische Analyse aller E&V Kampagnen — Segmente, Korrelationen & Insights</div>
+          <div class="page-subtitle" id="data-intel-subtitle">Statistische Analyse aller Kampagnen — Segmente, Korrelationen & Insights</div>
         </div>
       </div>
 
@@ -2909,6 +2909,12 @@ async function loadDashboard() {
       navClientName.textContent = cName;
       navClientName.style.display = '';
       navClientLogo.style.display = 'none';
+    }
+
+    // Update Data Intelligence subtitle with actual client name
+    var diSubtitle = document.getElementById('data-intel-subtitle');
+    if (diSubtitle) {
+      diSubtitle.textContent = 'Statistische Analyse aller ' + cName + ' Kampagnen — Segmente, Korrelationen & Insights';
     }
 
     // 1. Load properties for this client
