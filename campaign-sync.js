@@ -472,8 +472,20 @@ async function main() {
       // Check if campaign is still active on Meta
       var metaStatusRes = await httpRequest(
         'https://graph.facebook.com/v24.0/' + campaign.meta_campaign_id +
-        '?fields=status&access_token=' + encodeURIComponent(token), {});
+        '?fields=status,name&access_token=' + encodeURIComponent(token), {});
       var statusData = JSON.parse(metaStatusRes.body);
+
+      // Sync campaign name from Meta (1:1, always use the exact Meta name)
+      if (statusData.name && statusData.name !== campaign.campaign_name) {
+        try {
+          await sbPatch('campaigns', campaign.id, { campaign_name: statusData.name });
+          log('NAME SYNC: "' + campaign.campaign_name + '" → "' + statusData.name + '"');
+          campaign.campaign_name = statusData.name; // update local reference
+        } catch (nameErr) {
+          log('WARNING: Could not sync campaign name: ' + nameErr.message);
+        }
+      }
+
       if (statusData.status && statusData.status !== 'ACTIVE') {
         log('SKIP: ' + campaign.campaign_name + ' (Meta status: ' + statusData.status + ') — marking as completed');
         // Update DB: campaign is no longer active on Meta
